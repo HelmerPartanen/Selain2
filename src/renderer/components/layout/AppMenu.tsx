@@ -1,6 +1,7 @@
 import { memo, useCallback, useRef, useState } from 'react'
 import { House, Gear, BookmarkSimple, ClockCounterClockwise, DotsThreeVertical, ListIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
+import { useTabStore } from '@/store/tabStore'
 
 function AppMenuInner(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
@@ -15,8 +16,12 @@ function AppMenuInner(): React.JSX.Element {
   }, [])
 
   const handleMenuItemClick = useCallback(
-    (_action: string) => {
-      // Handle menu item clicks here (Home, Bookmarks, History, Settings)
+    (action: string) => {
+      if (action === 'settings') {
+        useTabStore.getState().addTab('browser://settings')
+      } else if (action === 'home') {
+        useTabStore.getState().addTab('browser://newtab')
+      }
       handleClose()
     },
     [handleClose]

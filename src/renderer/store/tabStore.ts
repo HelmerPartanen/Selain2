@@ -46,7 +46,7 @@ export const useTabStore = create<TabStore>()(
       tabOrder: [],
       activeTabId: null,
 
-      addTab: (url = 'about:blank') => {
+      addTab: (url = 'browser://newtab') => {
         const tab = createTab(url)
         set(
           (state) => ({

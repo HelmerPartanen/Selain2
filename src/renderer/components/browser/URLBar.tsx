@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/Button'
 
 function normalizeURL(input: string): string {
   const trimmed = input.trim()
-  if (!trimmed) return 'about:blank'
+  if (!trimmed) return 'browser://newtab'
   if (trimmed === 'about:blank') return trimmed
+  if (trimmed.startsWith('browser://')) return trimmed
   if (/^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\//.test(trimmed)) return trimmed
   if (/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}/.test(trimmed)) {
     return `https://${trimmed}`
@@ -18,7 +19,7 @@ function normalizeURL(input: string): string {
 
 /** Strip protocol, www., and trailing slash for a clean unfocused display */
 function simplifyUrl(raw: string): string {
-  if (!raw || raw === 'about:blank') return ''
+  if (!raw || raw === 'about:blank' || raw.startsWith('browser://')) return ''
   try {
     const u = new URL(raw)
     let host = u.hostname.replace(/^www\./, '')
@@ -41,7 +42,7 @@ function URLBarInner(): React.JSX.Element {
 
   useEffect(() => {
     if (!isFocused) {
-      setInputValue(url === 'about:blank' ? '' : url)
+      setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
     }
   }, [url, isFocused])
 
@@ -63,7 +64,7 @@ function URLBarInner(): React.JSX.Element {
         navigate(inputValue)
         inputRef.current?.blur()
       } else if (e.key === 'Escape') {
-        setInputValue(url === 'about:blank' ? '' : url)
+        setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
         inputRef.current?.blur()
       }
     },
@@ -73,7 +74,7 @@ function URLBarInner(): React.JSX.Element {
   const handleFocus = useCallback(() => {
     setIsFocused(true)
     // Show the full URL when focused so the user can edit it
-    setInputValue(url === 'about:blank' ? '' : url)
+    setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
     requestAnimationFrame(() => {
       inputRef.current?.select()
     })
@@ -143,7 +144,7 @@ function URLBarInner(): React.JSX.Element {
 
       <div className="relative flex-1 flex items-center">
         <div className="absolute left-3 flex items-center pointer-events-none">
-          {!isFocused && url && url !== 'about:blank' ? (
+          {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
             isSecure ? (
               <Lock size={13} className="text-text-dim" weight="fill" />
             ) : (
@@ -163,7 +164,7 @@ function URLBarInner(): React.JSX.Element {
           spellCheck={false}
           autoComplete="off"
           className={`w-full bg-surface-dim border border-border rounded-full h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
-            !isFocused && url && url !== 'about:blank' ? 'pl-8 pr-3' : 'px-3'
+            !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? 'pl-8 pr-3' : 'px-3'
           }`}
         />
       </div>

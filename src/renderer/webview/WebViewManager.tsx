@@ -1,10 +1,24 @@
 import { memo, useCallback, useRef, useSyncExternalStore } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { WebViewInstance } from './WebViewInstance'
+import { NewTabPage } from '@/newtab/NewTabPage'
+import { SettingsPage } from '@/settings/SettingsPage'
 
 interface WebViewEntry {
   id: string
   initialUrl: string
+}
+
+/** Check if a URL is a special browser:// page that we render natively */
+function isSpecialPage(url: string): boolean {
+  return url.startsWith('browser://')
+}
+
+/** Render the appropriate component for a browser:// URL */
+function SpecialPage({ url }: { url: string }): React.JSX.Element | null {
+  if (url === 'browser://newtab') return <NewTabPage />
+  if (url === 'browser://settings') return <SettingsPage />
+  return null
 }
 
 /**
@@ -31,6 +45,11 @@ function WebViewManagerInner(): React.JSX.Element {
         delete mountedUrlsRef.current[id]
         continue
       }
+      // Don't create webview entries for special browser:// pages
+      if (isSpecialPage(tab.url)) {
+        delete mountedUrlsRef.current[id]
+        continue
+      }
       if (!mountedUrlsRef.current[id]) {
         mountedUrlsRef.current[id] = tab.url
       }
@@ -50,16 +69,36 @@ function WebViewManagerInner(): React.JSX.Element {
 
   const activeEntries = useSyncExternalStore(subscribe, getSnapshot)
 
+  // Get the active tab's current URL for special page rendering
+  const activeTabUrl = useTabStore((s) => {
+    if (!s.activeTabId) return null
+    return s.tabs[s.activeTabId]?.url ?? null
+  })
+
+  const showSpecialPage = activeTabUrl ? isSpecialPage(activeTabUrl) : false
+
   return (
     <div className="relative flex-1 bg-surface">
-      {activeEntries.map((entry) => (
-        <WebViewInstance
-          key={entry.id}
-          tabId={entry.id}
-          isActive={entry.id === activeTabId}
-          initialUrl={entry.initialUrl}
-        />
-      ))}
+      {/* Render webviews for non-special tabs */}
+      {activeEntries.map((entry) => {
+        // Don't render a webview for special pages
+        if (isSpecialPage(entry.initialUrl)) return null
+        return (
+          <WebViewInstance
+            key={entry.id}
+            tabId={entry.id}
+            isActive={entry.id === activeTabId && !showSpecialPage}
+            initialUrl={entry.initialUrl}
+          />
+        )
+      })}
+
+      {/* Render special page overlay for browser:// URLs */}
+      {showSpecialPage && activeTabUrl && (
+        <div className="absolute inset-0 z-20">
+          <SpecialPage url={activeTabUrl} />
+        </div>
+      )}
     </div>
   )
 }

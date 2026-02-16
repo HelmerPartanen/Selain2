@@ -1,4 +1,5 @@
-import { app, BrowserWindow, components, ipcMain, Menu, session } from 'electron'
+import { app, BrowserWindow, components, dialog, ipcMain, Menu, session } from 'electron'
+import { readFile } from 'fs/promises'
 import { join } from 'path'
 
 // ─── Chromium CLI Flags (must be set before app.ready) ───────────────────────
@@ -116,6 +117,47 @@ function setupIPC(): void {
       mainWindow?.maximize()
     }
   })
+
+  // ── Image picker dialog ──
+  ipcMain.handle('open-image-dialog', async () => {
+    if (!mainWindow) return null
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Choose a wallpaper image',
+      filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'] }],
+      properties: ['openFile']
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    const filePath = result.filePaths[0]!
+    const buffer = await readFile(filePath)
+    const ext = filePath.split('.').pop()?.toLowerCase() ?? 'png'
+    const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
+      : ext === 'webp' ? 'image/webp'
+      : ext === 'gif' ? 'image/gif'
+      : 'image/png'
+    return `data:${mime};base64,${buffer.toString('base64')}`
+  })
+
+  // ── Title bar color sync ──
+  ipcMain.on('set-titlebar-color', (_event, hex: string) => {
+    if (!mainWindow) return
+    try {
+      mainWindow.setTitleBarOverlay({
+        color: hex,
+        symbolColor: isLightHex(hex) ? '#1c1c1e' : '#b0b0ba'
+      })
+    } catch {
+      // setTitleBarOverlay may not be available on all platforms
+    }
+  })
+}
+
+/** Quick luminance check for title bar symbol color */
+function isLightHex(hex: string): boolean {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.5
 }
 
 function setupPermissions(): void {

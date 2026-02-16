@@ -38,6 +38,9 @@ export default defineConfig({
       alias: {
         '@': resolve(__dirname, 'src/renderer')
       }
+    },
+    optimizeDeps: {
+      include: ['node-vibrant/browser']
     }
   }
 })

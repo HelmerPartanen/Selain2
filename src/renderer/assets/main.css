@@ -3,30 +3,26 @@
 @theme {
   --font-sans: "Inter", "Segoe UI Variable", system-ui, sans-serif;
 
-  /* ── Surfaces ──────────────────────────────────────────── */
-  --color-surface: oklch(0.25 0 0);         /* main bg */
-  --color-surface-dim: oklch(0.18 0 0);    /* tabstrip, url bar tray */
-  --color-surface-raised: oklch(0.25 0 0);  /* active tab, cards */
-  --color-surface-hover: oklch(0.30 0 0);   /* hover states */
-  --color-surface-active: oklch(0.35 0 0);  /* pressed / active */
+  /* ── Surface tokens ── */
+  --color-surface: #1e1e1e;
+  --color-surface-dim: #171717;
+  --color-surface-raised: #2a2a2a;
+  --color-surface-hover: #333333;
+  --color-surface-active: #3d3d3d;
 
-  /* ── Borders ──────────────────────────────────────────── */
-  --color-border: oklch(1 0 0 / 0.08);
-  --color-border-hover: oklch(1 0 0 / 0.14);
+  /* ── Text tokens ── */
+  --color-text: #e4e4e7;
+  --color-text-muted: #a1a1aa;
+  --color-text-dim: #71717a;
 
-  /* ── Text ─────────────────────────────────────────────── */
-  --color-text: oklch(0.96 0.003 270);
-  --color-text-muted: oklch(0.72 0.012 270);
-  --color-text-dim: oklch(0.52 0.010 270);
+  /* ── Border tokens ── */
+  --color-border: #2e2e2e;
+  --color-border-hover: #404040;
 
-  /* ── Semantic ─────────────────────────────────────────── */
-  --color-danger: oklch(0.65 0.22 25.33);
-  --color-accent: oklch(0.65 0.20 255);           /* vivid blue */
-
-  /* ── Glass overlays ──────────────────────────────────── */
-  --color-glass: oklch(0 0 0 / 0.35);
-  --color-glass-hover: oklch(1 0 0 / 0.07);
-  --color-glass-active: oklch(1 0 0 / 0.12);
+  /* ── Semantic tokens ── */
+  --color-accent: #6d8af0;
+  --color-danger: #ef4444;
+  --color-glass-hover: rgba(255, 255, 255, 0.06);
 }
 
 * {

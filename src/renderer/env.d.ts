@@ -1,8 +1,23 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type React from 'react'
 
+// ─── Electron API exposed via preload ────────────────────────────────────────
+interface ElectronAPI {
+  minimizeWindow(): void
+  maximizeWindow(): void
+  closeWindow(): void
+  toggleMaximizeWindow(): void
+  onMaximizeChange(callback: (isMaximized: boolean) => void): () => void
+  openImageDialog(): Promise<string | null>
+  setTitleBarColor(hex: string): void
+}
+
 // Electron webview tag types for the renderer process
 declare global {
+  interface Window {
+    electronAPI: ElectronAPI
+  }
+
   namespace Electron {
     interface WebviewTag extends HTMLElement {
       src: string

@@ -21,7 +21,9 @@ const api: ElectronAPI = {
     return () => {
       ipcRenderer.removeListener('maximize-change', handler)
     }
-  }
+  },
+  openImageDialog: () => ipcRenderer.invoke('open-image-dialog'),
+  setTitleBarColor: (hex: string) => ipcRenderer.send('set-titlebar-color', hex)
 }
 
 // Freeze the API object so renderer code cannot mutate or extend it
