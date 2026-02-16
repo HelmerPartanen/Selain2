@@ -36,7 +36,7 @@ function AppMenuInner(): React.JSX.Element {
   )
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="relative">
       <Button
         variant="icon"
         onClick={handleToggle}
@@ -48,59 +48,86 @@ function AppMenuInner(): React.JSX.Element {
 
       {isOpen && (
         <>
+          {/* Click outside overlay */}
           <div
             className="fixed inset-0 z-[90]"
             onMouseDown={handleClose}
           />
+
+          {/* Dropdown */}
           <div
-            className="fixed glass-heavy rounded-xl overflow-hidden z-[100] min-w-[160px]"
-            style={{
-              bottom: `${menuPosition.bottom}px`,
-              left: `${menuPosition.left}px`,
-              boxShadow: 'var(--shadow-glass)'
-            }}
+            className="
+              absolute bottom-full mb-2 left-1/2 -translate-x-1/2
+              z-[100] min-w-[160px]
+              rounded-xl overflow-hidden
+              bg-white/80 backdrop-blur-xl
+              shadow-xl
+              origin-bottom
+              animate-[tabListIn_0.25s_cubic-bezier(0.16,1,0.3,1)_both]
+            "
           >
+            {/* Home */}
             <button
               onClick={() => handleMenuItemClick('home')}
-              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
             >
               <House size={16} weight="regular" />
               <span>Home</span>
             </button>
 
+            {/* Bookmarks */}
             <button
               onClick={() => handleMenuItemClick('bookmarks')}
-              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
             >
               <BookmarkSimple size={16} weight="regular" />
               <span>Bookmarks</span>
             </button>
 
+            {/* History */}
             <button
               onClick={() => handleMenuItemClick('history')}
-              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
             >
               <ClockCounterClockwise size={16} weight="regular" />
               <span>History</span>
             </button>
 
-            <div style={{ borderTop: '0.5px solid var(--border-glass)' }} />
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-1" />
 
+            {/* Settings */}
             <button
               onClick={() => handleMenuItemClick('settings')}
-              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
             >
               <Gear size={16} weight="regular" />
               <span>Settings</span>

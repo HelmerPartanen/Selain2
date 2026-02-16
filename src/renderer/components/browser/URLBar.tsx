@@ -42,7 +42,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   useEffect(() => {
     if (!isFocused) {
-      setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
+      setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : simplifyUrl(url))
     }
   }, [url, isFocused])
 
@@ -98,65 +98,63 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   }, [tabId, isLoading])
 
   const isSecure = url.startsWith('https://')
-  const displayUrl = isFocused ? inputValue : simplifiedUrl
+  // Always show inputValue, but inputValue is set to simplifiedUrl when not focused, and to full url when focused
+  const displayUrl = inputValue
 
   return (
   <div
-    className={`
-      flex items-center rounded-full h-10 px-1.5 gap-0.5
-      bg-white/70 backdrop-blur-md
-      shadow-lg
-      transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
-      ${isFocused ? 'w-[500px]' : 'w-[360px]'}
-    `}
+  className={`
+    flex items-center rounded-full h-10 px-2 gap-1
+    bg-white/70 backdrop-blur-md
+    shadow-lg
+    transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+    ${isFocused ? 'w-[500px]' : 'w-[360px]'}
+  `}
+>
+  {/* Reload / Stop */}
+  <Button
+    variant="icon"
+    onClick={handleReloadOrStop}
+    aria-label={isLoading ? 'Stop loading' : 'Reload'}
   >
-    {/* Reload / Stop */}
-    <Button
-      variant="icon"
-      onClick={handleReloadOrStop}
-      aria-label={isLoading ? 'Stop loading' : 'Reload'}
-    >
-      {isLoading ? (
-        <StopIcon size={15} weight="bold" />
+    {isLoading ? <StopIcon size={15} weight="bold" /> : <ArrowClockwise size={15} weight="bold" />}
+  </Button>
+
+  {/* URL input */}
+  <div className="relative flex-1 min-w-0 flex items-center h-full">
+    {/* Left icon */}
+    <div className="absolute left-3 z-10 flex items-center pointer-events-none text-gray-400">
+      {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
+        isSecure ? <Lock size={12} weight="fill" className="text-green-600" /> : <Globe size={12} weight="regular" />
       ) : (
-        <ArrowClockwise size={15} weight="bold" />
+        <MagnifyingGlassIcon size={12} weight="regular" />
       )}
-    </Button>
-
-    {/* URL input */}
-    <div className="relative flex-1 min-w-0 flex items-center h-full">
-      <div className="absolute left-2 z-10 flex items-center pointer-events-none text-gray-400">
-        {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
-          isSecure ? (
-            <Lock size={12} weight="fill" />
-          ) : (
-            <Globe size={12} weight="regular" />
-          )
-        ) : (
-          <MagnifyingGlassIcon size={12} weight="regular" />
-        )}
-      </div>
-
-      <input
-        ref={inputRef}
-        type="text"
-        value={displayUrl}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder="Search or enter URL"
-        spellCheck={false}
-        autoComplete="off"
-        className={`
-          w-full rounded-full h-7 text-xs pl-7 pr-3 outline-none
-          bg-transparent text-gray-800
-          transition-colors duration-200
-          focus:bg-white
-        `}
-      />
     </div>
+
+    <input
+      ref={inputRef}
+      type="text"
+      value={displayUrl}
+      onChange={(e) => setInputValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      placeholder="Search or enter URL"
+      spellCheck={false}
+      autoComplete="off"
+      className={`
+        w-full h-full
+        pl-9 pr-3
+        text-sm text-gray-800
+        bg-transparent
+        outline-none
+        placeholder:text-gray-400
+        focus:ring-0
+      `}
+    />
   </div>
+</div>
+
 )
 }
 

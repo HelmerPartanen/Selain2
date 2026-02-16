@@ -163,35 +163,41 @@ function TabPillInner(): React.JSX.Element {
     )}
 
     {/* Compact pill */}
-    <div
+<div
+  className={`
+    flex items-center justify-center
+    bg-white/70 backdrop-blur-md shadow-lg
+    transition-all duration-300
+    ${
+      tabCount === 1
+        ? 'h-10 w-10 rounded-full'
+        : 'h-10 px-1 gap-0.5 rounded-full'
+    }
+  `}
+>
+  <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
+    <Plus size={15} weight="bold" />
+  </Button>
+
+  {tabCount > 1 && (
+    <button
+      onClick={handleToggle}
       className="
-        rounded-full h-10 flex items-center px-1 gap-0.5
-        bg-white/70 backdrop-blur-md
-        shadow-lg
+        flex items-center gap-1.5 h-7 px-2 rounded-full
+        text-gray-600
+        transition-colors duration-75
+        hover:bg-gray-200/60
+        active:bg-gray-300/60
       "
     >
-      <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
-        <Plus size={15} weight="bold" />
-      </Button>
+      <ActiveFavicon />
+      <span className="text-xs font-medium tabular-nums">
+        {tabCount}
+      </span>
+    </button>
+  )}
+</div>
 
-      {tabCount > 1 && (
-        <button
-          onClick={handleToggle}
-          className="
-            flex items-center gap-1.5 h-7 px-2 rounded-full
-            text-gray-600
-            transition-colors duration-75
-            hover:bg-gray-200/60
-            active:bg-gray-300/60
-          "
-        >
-          <ActiveFavicon />
-          <span className="text-xs font-medium tabular-nums">
-            {tabCount}
-          </span>
-        </button>
-      )}
-    </div>
   </div>
 )
 }
