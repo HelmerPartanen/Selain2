@@ -7,20 +7,19 @@ import { devtools, persist } from 'zustand/middleware'
 
 export type ThemeMode = 'dark' | 'light' | 'system'
 
-export interface ThemeState {
+interface ThemeState {
   /** Theme mode preference */
   themeMode: ThemeMode
   /** Wallpaper URL (data URL, preset SVG, or null for solid fallback) */
   wallpaper: string | null
 }
 
-export interface ThemeActions {
+interface ThemeActions {
   setThemeMode: (mode: ThemeMode) => void
   setWallpaper: (wallpaper: string | null) => void
-  clearWallpaper: () => void
 }
 
-export type ThemeStore = ThemeState & ThemeActions
+type ThemeStore = ThemeState & ThemeActions
 
 export const useThemeStore = create<ThemeStore>()(
   devtools(
@@ -36,9 +35,6 @@ export const useThemeStore = create<ThemeStore>()(
         },
         setWallpaper: (wallpaper: string | null) => {
           set({ wallpaper })
-        },
-        clearWallpaper: () => {
-          set({ wallpaper: null })
         }
       }),
       {

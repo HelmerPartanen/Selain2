@@ -23,7 +23,6 @@ export interface TabStore {
   updateTab: (id: string, patch: Partial<Omit<Tab, 'id'>>) => void
   reorderTab: (fromIndex: number, toIndex: number) => void
   suspendTab: (id: string) => void
-  restoreTab: (id: string) => void
 }
 
 function createTab(url: string): Tab {
@@ -161,23 +160,6 @@ export const useTabStore = create<TabStore>()(
           },
           undefined,
           'suspendTab'
-        )
-      },
-
-      restoreTab: (id) => {
-        set(
-          (state) => {
-            const tab = state.tabs[id]
-            if (!tab || !tab.isSuspended) return state
-            return {
-              tabs: {
-                ...state.tabs,
-                [id]: { ...tab, isSuspended: false }
-              }
-            }
-          },
-          undefined,
-          'restoreTab'
         )
       }
     })),

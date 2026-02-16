@@ -1,6 +1,5 @@
 import { useShallow } from 'zustand/react/shallow'
 import { useTabStore } from '@/store/tabStore'
-import type { Tab } from '@/store/tabStore'
 
 export function useActiveTabId(): string | null {
   return useTabStore((s) => s.activeTabId)
@@ -8,19 +7,6 @@ export function useActiveTabId(): string | null {
 
 export function useTabOrder(): string[] {
   return useTabStore(useShallow((s) => s.tabOrder))
-}
-
-export function useTabById(id: string): Tab | undefined {
-  return useTabStore(useShallow((s) => s.tabs[id]))
-}
-
-export function useActiveTab(): Tab | undefined {
-  return useTabStore(
-    useShallow((s) => {
-      if (!s.activeTabId) return undefined
-      return s.tabs[s.activeTabId]
-    })
-  )
 }
 
 /** Subscribe only to the active tab's URL — avoids rerenders on title/favicon/loading changes */
@@ -61,14 +47,4 @@ export function useTabMeta(id: string): { title: string; favicon: string; isLoad
   )
 }
 
-export function useTabActions() {
-  return useTabStore(
-    useShallow((s) => ({
-      addTab: s.addTab,
-      removeTab: s.removeTab,
-      setActiveTab: s.setActiveTab,
-      updateTab: s.updateTab,
-      reorderTab: s.reorderTab
-    }))
-  )
-}
+

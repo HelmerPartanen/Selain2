@@ -1,13 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { ElectronAPI } from './types'
 
-const validChannels = new Set([
-  'window-minimize',
-  'window-maximize',
-  'window-close',
-  'window-toggle-maximize'
-] as const)
-
 const api: ElectronAPI = {
   minimizeWindow: () => ipcRenderer.send('window-minimize'),
   maximizeWindow: () => ipcRenderer.send('window-maximize'),

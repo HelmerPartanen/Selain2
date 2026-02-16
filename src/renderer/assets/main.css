@@ -3,9 +3,6 @@
 @theme {
   --font-sans: "Inter", "Segoe UI Variable", system-ui, sans-serif;
 }
-
-/* ─── Glassmorphism Design Tokens ─────────────────────────────────────────── */
-
 /* Dark */
 [data-theme="dark"] {
   --bg-glass: hsla(230, 6%, 12%, 0.72);
@@ -75,9 +72,6 @@
   border: 0.5px solid var(--border-glass);
 }
 
-/* .glass-text is intentionally removed — readability comes from
-   material opacity and blur, not text shadows. */
-
 /* ─── Base Resets ─────────────────────────────────────────────────────────── */
 
 * {
@@ -114,4 +108,16 @@ body,
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
+}
+
+/* ─── Floating Control Animations ─────────────────────────────────────────── */
+
+@keyframes tabListIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+@keyframes tabRowIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
 }

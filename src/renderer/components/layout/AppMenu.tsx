@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef, useState } from 'react'
-import { House, Gear, BookmarkSimple, ClockCounterClockwise, DotsThreeVertical, ListIcon } from '@phosphor-icons/react'
+import { House, Gear, BookmarkSimple, ClockCounterClockwise, ListIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { useTabStore } from '@/store/tabStore'
 

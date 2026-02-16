@@ -2,7 +2,7 @@
 // SVG-based mesh wallpapers that ship with the browser.
 // Designed to mimic high-end Apple/iOS aesthetics.
 
-export interface WallpaperPreset {
+interface WallpaperPreset {
   id: string
   name: string
   /** SVG data URL used as the wallpaper background */
