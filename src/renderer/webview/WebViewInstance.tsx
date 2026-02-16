@@ -161,6 +161,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       ref={webviewRef}
       src={initialUrl}
       partition="persist:default"
+      {...{ plugins: '', allowpopups: '', allow: 'encrypted-media; autoplay; fullscreen' } as Record<string, string>}
       className={
         isActive
           ? 'absolute inset-0 w-full h-full z-10 visible'

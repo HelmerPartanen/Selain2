@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, session } from 'electron'
+import { app, BrowserWindow, components, ipcMain, Menu, session } from 'electron'
 import { join } from 'path'
 
 // ─── Chromium CLI Flags (must be set before app.ready) ───────────────────────
@@ -17,11 +17,14 @@ app.commandLine.appendSwitch('disable-backgrounding-occluded-windows')
 
 // Privacy: disable all telemetry, translation, sync, crash reporting
 app.commandLine.appendSwitch('disable-breakpad')
-app.commandLine.appendSwitch('disable-component-update')
+// Note: component-update is needed for Widevine CDM installation via castlabs ECS
 app.commandLine.appendSwitch('disable-domain-reliability')
 app.commandLine.appendSwitch('disable-features',
   'AutofillServerCommunication,TranslateUI,SpareRendererForSitePerProcess'
 )
+
+// Allow autoplay for media (needed for Spotify, YouTube, etc.)
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 
 // Disable speculative features that burn CPU/memory
 app.commandLine.appendSwitch('disable-ipc-flooding-protection')
@@ -38,10 +41,10 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 600,
     show: false,
-    backgroundColor: '#28282f',
+    backgroundColor: '#121212',
     titleBarStyle: 'hidden',
     titleBarOverlay: {
-      color: '#28282f',
+      color: '#121212',
       symbolColor: '#b0b0ba',
       height: 40
     },
@@ -50,6 +53,7 @@ function createWindow(): void {
       sandbox: true,
       nodeIntegration: false,
       webviewTag: true,
+      plugins: true,
       preload: join(__dirname, '../preload/index.js')
     }
   })
@@ -82,6 +86,7 @@ function createWindow(): void {
     webPreferences.webSecurity = true
     webPreferences.allowRunningInsecureContent = false
     webPreferences.experimentalFeatures = false
+    webPreferences.plugins = true
     delete webPreferences.preload
   })
 
@@ -115,47 +120,41 @@ function setupIPC(): void {
 }
 
 function setupPermissions(): void {
-  const ses = session.defaultSession
+  // Chrome-compatible user-agent for DRM site compatibility
+  const chromeVersion = process.versions.chrome
+  const userAgent = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion} Safari/537.36`
 
-  // Minimal permission allowlist
-  ses.setPermissionRequestHandler((_webContents, permission, callback) => {
-    const allowed = new Set([
-      'clipboard-read',
-      'clipboard-sanitized-write',
-      'media',
-      'fullscreen'
-    ])
-    callback(allowed.has(permission))
-  })
+  const allowedPermissions = new Set([
+    'clipboard-read',
+    'clipboard-sanitized-write',
+    'media',
+    'fullscreen',
+    'media-key-system-access'
+  ])
 
-  // Also guard permission checks (Permissions API queries)
-  ses.setPermissionCheckHandler((_webContents, permission) => {
-    const allowed = new Set([
-      'clipboard-read',
-      'clipboard-sanitized-write',
-      'media',
-      'fullscreen'
-    ])
-    return allowed.has(permission)
-  })
+  // Apply permissions & UA to BOTH the default session AND the
+  // webview partition session (persist:default is a separate session object)
+  const sessions = [
+    session.defaultSession,
+    session.fromPartition('persist:default')
+  ]
 
-  // Privacy: disable spellchecker download, DNS prefetch
-  ses.setSpellCheckerEnabled(false)
+  for (const ses of sessions) {
+    ses.setUserAgent(userAgent)
+    ses.setSpellCheckerEnabled(false)
 
-  // Block all notification requests by default
-  ses.setPermissionRequestHandler((_wc, permission, callback) => {
-    if (permission === 'notifications') {
-      callback(false)
-      return
-    }
-    const allowed = new Set([
-      'clipboard-read',
-      'clipboard-sanitized-write',
-      'media',
-      'fullscreen'
-    ])
-    callback(allowed.has(permission))
-  })
+    ses.setPermissionRequestHandler((_wc, permission, callback) => {
+      if (permission === 'notifications') {
+        callback(false)
+        return
+      }
+      callback(allowedPermissions.has(permission))
+    })
+
+    ses.setPermissionCheckHandler((_wc, permission) => {
+      return allowedPermissions.has(permission)
+    })
+  }
 }
 
 function setupCSP(): void {
@@ -180,7 +179,11 @@ function setupCSP(): void {
   })
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // Wait for Widevine CDM to be installed/updated (castlabs ECS)
+  await components.whenReady()
+  console.log('Widevine CDM ready:', components.status())
+
   setupIPC()
   setupPermissions()
   setupCSP()

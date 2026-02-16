@@ -1,7 +1,7 @@
 {
-  "name": "aether-browser",
+  "name": "chromium-browser",
   "version": "0.1.0",
-  "description": "Aether — High-performance Chromium browser shell",
+  "description": "Chromium — High-performance Chromium browser shell",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
@@ -22,7 +22,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
-    "electron": "^33.0.0",
+    "electron": "github:castlabs/electron-releases#v33.4.11+wvcus",
     "electron-vite": "^5.0.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.7.0"

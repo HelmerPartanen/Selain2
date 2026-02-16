@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef, useState } from 'react'
-import { House, Gear, BookmarkSimple, ClockCounterClockwise, DotsThreeVertical } from '@phosphor-icons/react'
+import { House, Gear, BookmarkSimple, ClockCounterClockwise, DotsThreeVertical, ListIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 
 function AppMenuInner(): React.JSX.Element {
@@ -23,14 +23,14 @@ function AppMenuInner(): React.JSX.Element {
   )
 
   return (
-    <div ref={containerRef} className="relative [app-region:no-drag]">
+    <div ref={containerRef} className="relative [app-region:no-drag] pl-1">
       <Button
         variant="icon"
         onClick={handleToggle}
         aria-label="Menu"
         aria-expanded={isOpen}
       >
-        <DotsThreeVertical size={18} weight="bold" />
+        <ListIcon size={18} weight="bold" />
       </Button>
 
       {isOpen && (

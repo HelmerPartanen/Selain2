@@ -108,7 +108,7 @@ function URLBarInner(): React.JSX.Element {
   const displayUrl = isFocused ? inputValue : simplifiedUrl
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1.5 bg-surface-dim">
+    <div className="flex items-center gap-1 px-2 py-1.5 bg-surface border-b border-border [app-region:no-drag]">
       <Button
         variant="icon"
         onClick={handleGoBack}
@@ -162,7 +162,7 @@ function URLBarInner(): React.JSX.Element {
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-full bg-surface-raised border border-border rounded-lg h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
+          className={`w-full bg-surface-dim border border-border rounded-full h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
             !isFocused && url && url !== 'about:blank' ? 'pl-8 pr-3' : 'px-3'
           }`}
         />

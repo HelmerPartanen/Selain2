@@ -50,19 +50,18 @@ declare global {
   namespace JSX {
     interface IntrinsicElements {
       webview: React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          src?: string
-          partition?: string
-          preload?: string
-          allowpopups?: boolean
-          nodeintegration?: boolean
-          disablewebsecurity?: boolean
-          useragent?: string
-          httpreferrer?: string
-          webpreferences?: string
-        },
-        HTMLElement
+        React.WebViewHTMLAttributes<HTMLWebViewElement>,
+        HTMLWebViewElement
       >
     }
+  }
+}
+
+// Augment React's WebViewHTMLAttributes to include 'allow' and fix plugins/allowpopups types
+declare module 'react' {
+  interface WebViewHTMLAttributes<T> {
+    allow?: string
+    plugins?: boolean | string
+    allowpopups?: boolean | string
   }
 }

@@ -4,11 +4,11 @@
   --font-sans: "Inter", "Segoe UI Variable", system-ui, sans-serif;
 
   /* ── Surfaces ──────────────────────────────────────────── */
-  --color-surface: oklch(0.23 0.006 270);         /* main bg */
-  --color-surface-dim: oklch(0.195 0.006 270);    /* title bar, url bar tray */
-  --color-surface-raised: oklch(0.27 0.007 270);  /* inputs, active tab, cards */
-  --color-surface-hover: oklch(0.31 0.008 270);   /* hover states */
-  --color-surface-active: oklch(0.35 0.009 270);  /* pressed / active */
+  --color-surface: oklch(0.25 0 0);         /* main bg */
+  --color-surface-dim: oklch(0.18 0 0);    /* tabstrip, url bar tray */
+  --color-surface-raised: oklch(0.25 0 0);  /* active tab, cards */
+  --color-surface-hover: oklch(0.30 0 0);   /* hover states */
+  --color-surface-active: oklch(0.35 0 0);  /* pressed / active */
 
   /* ── Borders ──────────────────────────────────────────── */
   --color-border: oklch(1 0 0 / 0.08);

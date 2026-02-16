@@ -6,7 +6,7 @@ import { OverlaySpacer } from '@/components/ui/WindowControls'
 function TitleBarInner(): React.JSX.Element {
   return (
     <div
-      className="flex items-center h-10 bg-surface-dim/80 border-b border-border [app-region:drag] select-none"
+      className="flex items-center h-11 bg-surface-dim border-b border-border [app-region:drag] select-none"
     >
       <AppMenu />
       <TabStrip />
