@@ -12,17 +12,26 @@ function applyTokensToDOM(tokens: ThemeTokens): void {
   for (const [key, value] of Object.entries(tokens)) {
     root.style.setProperty(`--color-${key}`, value)
   }
+
+  // Keep the native title-bar overlay in sync with the tab strip background
+  const surfaceDim = tokens['surface-dim']
+  if (surfaceDim && window.electronAPI?.setTitleBarColor) {
+    window.electronAPI.setTitleBarColor(surfaceDim)
+  }
 }
+
+// Apply tokens eagerly (before any React render) so there's no flash of
+// unstyled content. The store is already hydrated from localStorage by this point.
+applyTokensToDOM(useThemeStore.getState().tokens)
 
 /**
  * Hook that synchronizes theme store tokens → CSS custom properties.
  * Call once in your root App component.
  */
 export function useThemeApplicator(): void {
-  // Apply immediately on mount with the current tokens
   useEffect(() => {
-    const tokens = useThemeStore.getState().tokens
-    applyTokensToDOM(tokens)
+    // Re-apply on mount (covers HMR / late hydration)
+    applyTokensToDOM(useThemeStore.getState().tokens)
 
     // Subscribe to future changes
     const unsub = useThemeStore.subscribe(

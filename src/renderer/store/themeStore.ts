@@ -11,7 +11,7 @@ import {
   generatePalette,
   autoDetectMode
 } from '@/theme/paletteGenerator'
-import { extractColorsFromImage } from '@/theme/colorExtractor'
+import { extractAverageColor } from '@/theme/colorExtractor'
 
 export type WallpaperType = 'image' | 'solid' | 'none'
 
@@ -21,6 +21,8 @@ export interface ThemeState {
   wallpaperSource: string | null
   /** Hex color when wallpaperType is 'solid' */
   solidColor: string | null
+  /** The seed/average color extracted from the current wallpaper */
+  seedColor: string | null
   /** User preference */
   themeMode: 'auto' | 'light' | 'dark'
   /** Computed from auto-detection or manual override */
@@ -48,6 +50,7 @@ export const useThemeStore = create<ThemeStore>()(
         wallpaperType: 'none' as WallpaperType,
         wallpaperSource: null,
         solidColor: null,
+        seedColor: null,
         themeMode: 'auto' as 'auto' | 'light' | 'dark',
         resolvedMode: 'dark' as ThemeMode,
         tokens: DEFAULT_DARK_TOKENS,
@@ -59,20 +62,19 @@ export const useThemeStore = create<ThemeStore>()(
 
           try {
             if (type === 'image') {
-              // Use provided seedColor (for presets) or extract from image
-              let dominant: string
+              // Use provided seedColor (for presets) or compute the average color
+              let seed: string
               if (seedColor) {
-                dominant = seedColor
+                seed = seedColor
               } else {
-                const colors = await extractColorsFromImage(source)
-                dominant = colors.dominant
+                seed = await extractAverageColor(source)
               }
               const { themeMode } = get()
               const resolvedMode = themeMode === 'auto'
-                ? autoDetectMode(dominant)
+                ? autoDetectMode(seed)
                 : themeMode
-              const tokens = generatePalette(dominant, resolvedMode)
-              set({ tokens, resolvedMode, isComputing: false })
+              const tokens = generatePalette(seed, resolvedMode)
+              set({ tokens, resolvedMode, seedColor: seed, isComputing: false })
               notifyTitleBarColor(tokens['surface-dim'])
             } else if (type === 'solid') {
               const { themeMode } = get()
@@ -99,6 +101,7 @@ export const useThemeStore = create<ThemeStore>()(
             wallpaperType: 'solid',
             wallpaperSource: null,
             solidColor: hex,
+            seedColor: hex,
             tokens,
             resolvedMode,
             isComputing: false
@@ -114,6 +117,7 @@ export const useThemeStore = create<ThemeStore>()(
             wallpaperType: 'none',
             wallpaperSource: null,
             solidColor: null,
+            seedColor: null,
             tokens,
             resolvedMode,
             isComputing: false
@@ -126,27 +130,21 @@ export const useThemeStore = create<ThemeStore>()(
           let resolvedMode: ThemeMode
 
           if (mode === 'auto') {
-            // Determine from current wallpaper/color
-            if (state.wallpaperType === 'solid' && state.solidColor) {
-              resolvedMode = autoDetectMode(state.solidColor)
+            if (state.seedColor) {
+              resolvedMode = autoDetectMode(state.seedColor)
             } else {
-              // If image-based, re-extract would be expensive; use current resolved
-              resolvedMode = state.resolvedMode
+              resolvedMode = 'dark'
             }
           } else {
             resolvedMode = mode
           }
 
-          // Regenerate tokens with the new mode
+          // Regenerate tokens from the stored seed color
           let tokens: ThemeTokens
-          if (state.wallpaperType === 'solid' && state.solidColor) {
-            tokens = generatePalette(state.solidColor, resolvedMode)
-          } else if (state.wallpaperType === 'none') {
-            tokens = resolvedMode === 'dark' ? DEFAULT_DARK_TOKENS : DEFAULT_LIGHT_TOKENS
+          if (state.seedColor) {
+            tokens = generatePalette(state.seedColor, resolvedMode)
           } else {
-            // Image-based: we still have the old tokens' accent hue; regenerate with it
-            // We'll use the accent as the seed (best approximation without re-extracting)
-            tokens = generatePalette(state.tokens.accent, resolvedMode)
+            tokens = resolvedMode === 'dark' ? DEFAULT_DARK_TOKENS : DEFAULT_LIGHT_TOKENS
           }
 
           set({ themeMode: mode, resolvedMode, tokens })
@@ -159,6 +157,7 @@ export const useThemeStore = create<ThemeStore>()(
           wallpaperType: state.wallpaperType,
           wallpaperSource: state.wallpaperSource,
           solidColor: state.solidColor,
+          seedColor: state.seedColor,
           themeMode: state.themeMode,
           resolvedMode: state.resolvedMode,
           tokens: state.tokens

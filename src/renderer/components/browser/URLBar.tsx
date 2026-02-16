@@ -109,7 +109,7 @@ function URLBarInner(): React.JSX.Element {
   const displayUrl = isFocused ? inputValue : simplifiedUrl
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1.5 bg-surface border-b border-border [app-region:no-drag]">
+    <div className="flex items-center gap-1 px-2 py-1.5 bg-surface border-b border-border [app-region:no-drag] rounded-t-3xl">
       <Button
         variant="icon"
         onClick={handleGoBack}

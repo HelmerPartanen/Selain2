@@ -66,7 +66,7 @@ function NewTabPageInner(): React.JSX.Element {
       {/* Customize button */}
       <button
         onClick={handleCustomize}
-        className="absolute bottom-6 right-6 z-10 flex items-center gap-2 px-4 py-2 rounded-lg
+        className="absolute bottom-6 right-6 z-10 flex items-center gap-2 px-4 py-2 rounded-full
           bg-surface-raised/80 hover:bg-surface-hover text-text-muted hover:text-text
           border border-border backdrop-blur-sm transition-colors duration-150 text-sm"
       >

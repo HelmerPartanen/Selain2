@@ -39,12 +39,15 @@ export function autoDetectMode(dominantHex: string): ThemeMode {
 /**
  * Given a dominant/seed color and a mode, generate a full set of theme tokens.
  * The seed color tints all surfaces; text and accent are computed for contrast.
+ * Saturation is preserved so the wallpaper's average color is clearly visible.
  */
 export function generatePalette(seedHex: string, mode: ThemeMode): ThemeTokens {
   const [h, s] = rgbToHsl(...hexToRgb(seedHex))
 
-  // Clamp saturation so the surfaces aren't neon
-  const surfaceSat = Math.min(s, 0.35)
+  // Keep a healthy amount of the original saturation — enough to be clearly
+  // visible but not so much that text becomes unreadable on the surfaces.
+  // Floor at 0.08 so even grey seeds produce a faint tint rather than pure grey.
+  const surfaceSat = Math.max(0.08, Math.min(s, 0.55))
 
   if (mode === 'dark') {
     return generateDarkPalette(h, surfaceSat, seedHex)
@@ -53,91 +56,78 @@ export function generatePalette(seedHex: string, mode: ThemeMode): ThemeTokens {
 }
 
 function generateDarkPalette(h: number, s: number, seedHex: string): ThemeTokens {
-  const surface = rgbToHex(...hslToRgb(h, s * 0.5, 0.11))
-  const surfaceDim = rgbToHex(...hslToRgb(h, s * 0.5, 0.08))
-  const surfaceRaised = rgbToHex(...hslToRgb(h, s * 0.45, 0.15))
-  const surfaceHover = rgbToHex(...hslToRgb(h, s * 0.4, 0.19))
-  const surfaceActive = rgbToHex(...hslToRgb(h, s * 0.4, 0.23))
-  const border = rgbToHex(...hslToRgb(h, s * 0.3, 0.17))
-  const borderHover = rgbToHex(...hslToRgb(h, s * 0.3, 0.25))
+  // Surfaces: keep the hue & saturation clearly visible at low lightness
+  const surface     = rgbToHex(...hslToRgb(h, s * 0.85, 0.12))
+  const surfaceDim  = rgbToHex(...hslToRgb(h, s * 0.85, 0.09))
+  const surfaceRaised = rgbToHex(...hslToRgb(h, s * 0.75, 0.17))
+  const surfaceHover  = rgbToHex(...hslToRgb(h, s * 0.70, 0.22))
+  const surfaceActive = rgbToHex(...hslToRgb(h, s * 0.65, 0.27))
 
-  // Text — white-ish, ensure contrast
-  let text = '#e4e4e7'
-  let textMuted = '#a1a1aa'
-  let textDim = '#71717a'
-  text = ensureContrast(text, surface, 7)
+  // Borders: slightly more saturated than surfaces for definition
+  const border      = rgbToHex(...hslToRgb(h, s * 0.60, 0.20))
+  const borderHover = rgbToHex(...hslToRgb(h, s * 0.60, 0.30))
+
+  // Text: start with a seed-tinted white, then ensure contrast
+  let text      = rgbToHex(...hslToRgb(h, s * 0.15, 0.93))
+  let textMuted = rgbToHex(...hslToRgb(h, s * 0.12, 0.72))
+  let textDim   = rgbToHex(...hslToRgb(h, s * 0.10, 0.50))
+  text      = ensureContrast(text,      surface, 7)
   textMuted = ensureContrast(textMuted, surface, 4.5)
-  textDim = ensureContrast(textDim, surface, 3)
+  textDim   = ensureContrast(textDim,   surface, 3)
 
-  // Accent — use seed hue at higher saturation & mid lightness
+  // Accent — vivid version of the seed color
   const [seedH, seedS] = rgbToHsl(...hexToRgb(seedHex))
-  const accentSat = Math.max(seedS, 0.5)
-  let accent = rgbToHex(...hslToRgb(seedH, accentSat, 0.6))
+  const accentSat = Math.max(seedS, 0.55)
+  let accent = rgbToHex(...hslToRgb(seedH, accentSat, 0.62))
   accent = ensureContrast(accent, surface, 3)
 
-  // Danger — warm red, still tinted
   const danger = '#ef4444'
-
-  // Glass hover
-  const glassHover = 'rgba(255, 255, 255, 0.06)'
+  const glassHover = `hsla(${Math.round(h)}, ${Math.round(s * 40)}%, 80%, 0.08)`
 
   return {
-    surface,
-    'surface-dim': surfaceDim,
-    'surface-raised': surfaceRaised,
-    'surface-hover': surfaceHover,
-    'surface-active': surfaceActive,
-    text,
-    'text-muted': textMuted,
-    'text-dim': textDim,
-    border,
-    'border-hover': borderHover,
-    accent,
-    danger,
-    'glass-hover': glassHover
+    surface, 'surface-dim': surfaceDim, 'surface-raised': surfaceRaised,
+    'surface-hover': surfaceHover, 'surface-active': surfaceActive,
+    text, 'text-muted': textMuted, 'text-dim': textDim,
+    border, 'border-hover': borderHover,
+    accent, danger, 'glass-hover': glassHover
   }
 }
 
 function generateLightPalette(h: number, s: number, seedHex: string): ThemeTokens {
-  const surface = rgbToHex(...hslToRgb(h, s * 0.3, 0.96))
-  const surfaceDim = rgbToHex(...hslToRgb(h, s * 0.3, 0.93))
-  const surfaceRaised = rgbToHex(...hslToRgb(h, s * 0.25, 0.99))
-  const surfaceHover = rgbToHex(...hslToRgb(h, s * 0.2, 0.90))
-  const surfaceActive = rgbToHex(...hslToRgb(h, s * 0.2, 0.85))
-  const border = rgbToHex(...hslToRgb(h, s * 0.2, 0.87))
-  const borderHover = rgbToHex(...hslToRgb(h, s * 0.25, 0.75))
+  // Surfaces: noticeable color tint at high lightness
+  const surface       = rgbToHex(...hslToRgb(h, s * 0.50, 0.94))
+  const surfaceDim    = rgbToHex(...hslToRgb(h, s * 0.55, 0.90))
+  const surfaceRaised = rgbToHex(...hslToRgb(h, s * 0.35, 0.97))
+  const surfaceHover  = rgbToHex(...hslToRgb(h, s * 0.45, 0.87))
+  const surfaceActive = rgbToHex(...hslToRgb(h, s * 0.40, 0.82))
 
-  // Dark text for light backgrounds
-  let text = '#1c1c1e'
-  let textMuted = '#52525b'
-  let textDim = '#a1a1aa'
-  text = ensureContrast(text, surface, 7)
+  // Borders
+  const border      = rgbToHex(...hslToRgb(h, s * 0.35, 0.82))
+  const borderHover = rgbToHex(...hslToRgb(h, s * 0.40, 0.70))
+
+  // Text: seed-tinted dark tones
+  let text      = rgbToHex(...hslToRgb(h, s * 0.20, 0.12))
+  let textMuted = rgbToHex(...hslToRgb(h, s * 0.15, 0.35))
+  let textDim   = rgbToHex(...hslToRgb(h, s * 0.10, 0.55))
+  text      = ensureContrast(text,      surface, 7)
   textMuted = ensureContrast(textMuted, surface, 4.5)
-  textDim = ensureContrast(textDim, surface, 3)
+  textDim   = ensureContrast(textDim,   surface, 3)
 
-  // Accent — use seed hue at medium saturation & slightly darker for contrast on light bg
+  // Accent — deeper, richer version of seed for light backgrounds
   const [seedH, seedS] = rgbToHsl(...hexToRgb(seedHex))
-  const accentSat = Math.max(seedS, 0.5)
-  let accent = rgbToHex(...hslToRgb(seedH, accentSat, 0.45))
+  const accentSat = Math.max(seedS, 0.55)
+  let accent = rgbToHex(...hslToRgb(seedH, accentSat, 0.42))
   accent = ensureContrast(accent, surface, 3)
 
   const danger = '#dc2626'
-  const glassHover = 'rgba(0, 0, 0, 0.05)'
+  const glassHover = `hsla(${Math.round(h)}, ${Math.round(s * 30)}%, 20%, 0.06)`
 
   return {
-    surface,
-    'surface-dim': surfaceDim,
-    'surface-raised': surfaceRaised,
-    'surface-hover': surfaceHover,
-    'surface-active': surfaceActive,
-    text,
-    'text-muted': textMuted,
-    'text-dim': textDim,
-    border,
-    'border-hover': borderHover,
-    accent,
-    danger,
-    'glass-hover': glassHover
+    surface, 'surface-dim': surfaceDim, 'surface-raised': surfaceRaised,
+    'surface-hover': surfaceHover, 'surface-active': surfaceActive,
+    text, 'text-muted': textMuted, 'text-dim': textDim,
+    border, 'border-hover': borderHover,
+    accent, danger, 'glass-hover': glassHover
   }
 }
 

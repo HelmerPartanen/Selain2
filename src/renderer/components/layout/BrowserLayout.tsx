@@ -16,7 +16,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   }, [])
 
   return (
-    <div className="flex flex-col h-screen bg-surface text-text overflow-hidden">
+    <div className="flex flex-col h-screen bg-surface-dim text-text overflow-hidden">
       <TitleBar />
       <div className="flex flex-col flex-1 min-h-0">
         <URLBar />

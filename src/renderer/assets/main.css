@@ -3,23 +3,17 @@
 @theme {
   --font-sans: "Inter", "Segoe UI Variable", system-ui, sans-serif;
 
-  /* ── Surface tokens ── */
+  /* Default dark palette — overridden at runtime by useThemeApplicator */
   --color-surface: #1e1e1e;
   --color-surface-dim: #171717;
   --color-surface-raised: #2a2a2a;
   --color-surface-hover: #333333;
   --color-surface-active: #3d3d3d;
-
-  /* ── Text tokens ── */
   --color-text: #e4e4e7;
   --color-text-muted: #a1a1aa;
   --color-text-dim: #71717a;
-
-  /* ── Border tokens ── */
   --color-border: #2e2e2e;
   --color-border-hover: #404040;
-
-  /* ── Semantic tokens ── */
   --color-accent: #6d8af0;
   --color-danger: #ef4444;
   --color-glass-hover: rgba(255, 255, 255, 0.06);

@@ -20,7 +20,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`inline-flex items-center justify-center rounded-md transition-colors duration-75 text-sm select-none ${variantClasses[variant]} ${className}`}
+        className={`inline-flex items-center justify-center rounded-full transition-colors duration-75 text-sm select-none ${variantClasses[variant]} ${className}`}
         {...props}
       >
         {children}
