@@ -95,45 +95,49 @@ function FloatingControlsInner(): React.JSX.Element {
   }, [tabId])
 
   return (
-    <div
-      className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag]"
-      style={{
-        transform: `translateX(-50%) translateY(${isIdle ? '8px' : '0px'}) scale(${isIdle ? 0.97 : 1})`,
-        opacity: isIdle ? 0.15 : 1,
-        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="flex items-center gap-1.5">
-        {/* ── Nav Pod ── menu + animated back / forward */}
-        <div
-          className="glass rounded-full h-10 flex items-center px-1"
-          style={{ boxShadow: 'var(--shadow-float)' }}
-        >
-          <AppMenu />
+  <div
+    className={`
+      fixed bottom-5 left-1/2 z-50 [app-region:no-drag]
+      transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+      ${isIdle
+        ? 'translate-x-[-50%] translate-y-2 scale-95 opacity-15'
+        : 'translate-x-[-50%] translate-y-0 scale-100 opacity-100'
+      }
+    `}
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
+  >
+    <div className="flex items-center gap-1.5">
+      {/* ── Nav Pod ── */}
+      <div
+        className="
+          rounded-full h-10 flex items-center px-1
+          bg-white/70 backdrop-blur-md
+          shadow-lg
+        "
+      >
+        <AppMenu />
 
-          <AnimatedSlot show={canGoBack}>
-            <Button variant="icon" onClick={handleGoBack} aria-label="Go back">
-              <CaretLeft size={16} weight="bold" />
-            </Button>
-          </AnimatedSlot>
+        <AnimatedSlot show={canGoBack}>
+          <Button variant="icon" onClick={handleGoBack} aria-label="Go back">
+            <CaretLeft size={16} weight="bold" />
+          </Button>
+        </AnimatedSlot>
 
-          <AnimatedSlot show={canGoForward}>
-            <Button variant="icon" onClick={handleGoForward} aria-label="Go forward">
-              <CaretRight size={16} weight="bold" />
-            </Button>
-          </AnimatedSlot>
-        </div>
-
-        {/* ── URL Pod ── */}
-        <URLBar onFocusChange={handleFocusChange} />
-
-        {/* ── Tab Pod ── */}
-        <TabPill />
+        <AnimatedSlot show={canGoForward}>
+          <Button variant="icon" onClick={handleGoForward} aria-label="Go forward">
+            <CaretRight size={16} weight="bold" />
+          </Button>
+        </AnimatedSlot>
       </div>
-    </div>
-  )
-}
 
+      {/* ── URL Pod ── */}
+      <URLBar onFocusChange={handleFocusChange} />
+
+      {/* ── Tab Pod ── */}
+      <TabPill />
+    </div>
+  </div>
+)
+}
 export const FloatingControls = memo(FloatingControlsInner)

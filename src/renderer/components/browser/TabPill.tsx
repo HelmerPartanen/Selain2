@@ -126,63 +126,74 @@ function TabPillInner(): React.JSX.Element {
     setIsExpanded(false)
   }, [])
 
-  return (
-    <div className="relative">
-      {/* Expanded tab list — flies up from the pill */}
-      {isExpanded && (
-        <>
-          <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
-          <div
-            className="absolute bottom-full mb-2 right-0 glass-heavy rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1"
-            style={{
-              boxShadow: 'var(--shadow-float)',
-              animation: 'tabListIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both',
-              transformOrigin: 'bottom right'
-            }}
-          >
-            <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1">
-              {tabOrder.map((id, index) => (
-                <TabRow
-                  key={id}
-                  tabId={id}
-                  isActive={id === activeTabId}
-                  index={index}
-                  onSelect={handleClose}
-                />
-              ))}
-            </div>
+ return (
+  <div className="relative">
+    {/* Expanded tab list — flies up from the pill */}
+    {isExpanded && (
+      <>
+        <div
+          className="fixed inset-0 z-[90]"
+          onMouseDown={handleClose}
+        />
+
+        <div
+          className="
+            absolute bottom-full mb-2 right-0
+            rounded-xl overflow-hidden z-[100]
+            min-w-[230px] max-w-[290px] p-1
+            bg-white/80 backdrop-blur-xl
+            shadow-xl
+            origin-bottom-right
+            animate-[tabListIn_0.35s_cubic-bezier(0.34,1.56,0.64,1)_both]
+          "
+        >
+          <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1">
+            {tabOrder.map((id, index) => (
+              <TabRow
+                key={id}
+                tabId={id}
+                isActive={id === activeTabId}
+                index={index}
+                onSelect={handleClose}
+              />
+            ))}
           </div>
-        </>
+        </div>
+      </>
+    )}
+
+    {/* Compact pill */}
+    <div
+      className="
+        rounded-full h-10 flex items-center px-1 gap-0.5
+        bg-white/70 backdrop-blur-md
+        shadow-lg
+      "
+    >
+      <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
+        <Plus size={15} weight="bold" />
+      </Button>
+
+      {tabCount > 1 && (
+        <button
+          onClick={handleToggle}
+          className="
+            flex items-center gap-1.5 h-7 px-2 rounded-full
+            text-gray-600
+            transition-colors duration-75
+            hover:bg-gray-200/60
+            active:bg-gray-300/60
+          "
+        >
+          <ActiveFavicon />
+          <span className="text-xs font-medium tabular-nums">
+            {tabCount}
+          </span>
+        </button>
       )}
-
-      {/* Compact pill */}
-      <div
-        className="glass rounded-full h-10 flex items-center px-1 gap-0.5"
-        style={{ boxShadow: 'var(--shadow-float)' }}
-      >
-        <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
-          <Plus size={15} weight="bold" />
-        </Button>
-
-        {tabCount > 1 && (
-          <button
-            onClick={handleToggle}
-            className="flex items-center gap-1.5 h-7 px-2 rounded-full transition-colors duration-75"
-            style={{ color: 'var(--text-secondary)' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bg-surface-hover)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-            }}
-          >
-            <ActiveFavicon />
-            <span className="text-xs font-medium tabular-nums">{tabCount}</span>
-          </button>
-        )}
-      </div>
     </div>
-  )
+  </div>
+)
 }
 
 export const TabPill = memo(TabPillInner)

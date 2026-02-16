@@ -101,61 +101,63 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const displayUrl = isFocused ? inputValue : simplifiedUrl
 
   return (
-    <div
-      className="flex items-center glass rounded-full h-10 px-1.5 gap-0.5"
-      style={{
-        boxShadow: 'var(--shadow-float)',
-        width: isFocused ? 500 : 360,
-        transition: 'width 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}
+  <div
+    className={`
+      flex items-center rounded-full h-10 px-1.5 gap-0.5
+      bg-white/70 backdrop-blur-md
+      shadow-lg
+      transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+      ${isFocused ? 'w-[500px]' : 'w-[360px]'}
+    `}
+  >
+    {/* Reload / Stop */}
+    <Button
+      variant="icon"
+      onClick={handleReloadOrStop}
+      aria-label={isLoading ? 'Stop loading' : 'Reload'}
     >
-      {/* Reload / Stop */}
-      <Button
-        variant="icon"
-        onClick={handleReloadOrStop}
-        aria-label={isLoading ? 'Stop loading' : 'Reload'}
-      >
-        {isLoading ? (
-          <StopIcon size={15} weight="bold" />
-        ) : (
-          <ArrowClockwise size={15} weight="bold" />
-        )}
-      </Button>
+      {isLoading ? (
+        <StopIcon size={15} weight="bold" />
+      ) : (
+        <ArrowClockwise size={15} weight="bold" />
+      )}
+    </Button>
 
-      {/* URL input */}
-      <div className="relative flex-1 min-w-0 flex items-center h-full">
-        <div className="absolute left-2 z-10 flex items-center pointer-events-none">
-          {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
-            isSecure ? (
-              <Lock size={12} style={{ color: 'var(--text-muted)' }} weight="fill" />
-            ) : (
-              <Globe size={12} style={{ color: 'var(--text-muted)' }} weight="regular" />
-            )
+    {/* URL input */}
+    <div className="relative flex-1 min-w-0 flex items-center h-full">
+      <div className="absolute left-2 z-10 flex items-center pointer-events-none text-gray-400">
+        {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
+          isSecure ? (
+            <Lock size={12} weight="fill" />
           ) : (
-            <MagnifyingGlassIcon size={12} style={{ color: 'var(--text-muted)' }} weight="regular" />
-          )}
-        </div>
-
-        <input
-          ref={inputRef}
-          type="text"
-          value={displayUrl}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder="Search or enter URL"
-          spellCheck={false}
-          autoComplete="off"
-          className="w-full bg-transparent rounded-full h-7 text-xs pl-7 pr-3 outline-none"
-          style={{
-            color: 'var(--text-primary)',
-            ...(isFocused ? { background: 'var(--bg-surface)' } : {})
-          }}
-        />
+            <Globe size={12} weight="regular" />
+          )
+        ) : (
+          <MagnifyingGlassIcon size={12} weight="regular" />
+        )}
       </div>
+
+      <input
+        ref={inputRef}
+        type="text"
+        value={displayUrl}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder="Search or enter URL"
+        spellCheck={false}
+        autoComplete="off"
+        className={`
+          w-full rounded-full h-7 text-xs pl-7 pr-3 outline-none
+          bg-transparent text-gray-800
+          transition-colors duration-200
+          focus:bg-white
+        `}
+      />
     </div>
-  )
+  </div>
+)
 }
 
 export const URLBar = memo(URLBarInner)

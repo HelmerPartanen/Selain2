@@ -17,31 +17,30 @@ function BrowserLayoutInner(): React.JSX.Element {
   }, [])
 
   return (
-    <div className="relative h-screen overflow-hidden" style={{ color: 'var(--text-primary)' }}>
-      {/* Wallpaper layer — fixed behind everything */}
-      <div
-        className="fixed inset-0 z-0 transition-opacity duration-500"
-        style={{
-          backgroundColor: 'var(--bg-solid-fallback)',
-          backgroundImage: wallpaper ? `url(${wallpaper})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      />
+  <div className="relative h-screen overflow-hidden text-gray-900">
+    {/* Wallpaper layer — fixed behind everything */}
+    <div
+      className={`
+        fixed inset-0 z-0 transition-opacity duration-500
+        bg-gray-100
+        ${wallpaper ? 'bg-cover bg-center bg-no-repeat' : ''}
+      `}
+      {...(wallpaper && {
+        style: { backgroundImage: `url(${wallpaper})` }
+      })}
+    />
 
-      {/* Transparent drag region for window movement */}
-      <div className="fixed top-0 left-0 right-[138px] h-2.5 z-[60] [app-region:drag]" />
+    {/* Transparent drag region for window movement */}
+    <div className="fixed top-0 left-0 right-[138px] h-2.5 z-[60] [app-region:drag]" />
 
-      {/* Web content — fills entire viewport */}
-      <div className="relative z-10 h-full">
-        <WebViewManager />
-      </div>
-
-      {/* Floating controls overlay */}
-      <FloatingControls />
+    {/* Web content — fills entire viewport */}
+    <div className="relative z-10 h-full">
+      <WebViewManager />
     </div>
-  )
-}
 
+    {/* Floating controls overlay */}
+    <FloatingControls />
+  </div>
+)
+}
 export const BrowserLayout = memo(BrowserLayoutInner)
