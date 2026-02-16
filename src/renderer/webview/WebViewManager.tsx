@@ -1,5 +1,4 @@
 import { memo, useMemo, useRef } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import { useTabStore } from '@/store/tabStore'
 import { WebViewInstance } from './WebViewInstance'
 
@@ -11,43 +10,35 @@ interface WebViewEntry {
 
 function WebViewManagerInner(): React.JSX.Element {
   const activeTabId = useTabStore((s) => s.activeTabId)
+  const tabOrder = useTabStore((s) => s.tabOrder)
+  const tabs = useTabStore((s) => s.tabs)
 
   // Track which tabs have been mounted so we don't send new initialUrl on re-render.
   // initialUrl is only used at mount time; subsequent navigations are handled
   // by the store subscription inside WebViewInstance.
   const mountedUrlsRef = useRef<Record<string, string>>({})
 
-  const tabStructure = useTabStore(
-    useShallow((s) =>
-      s.tabOrder
-        .map((id) => {
-          const tab = s.tabs[id]
-          if (!tab) return null
-          return { id: tab.id, isSuspended: tab.isSuspended, url: tab.url }
-        })
-        .filter((e): e is NonNullable<typeof e> => e !== null)
-    )
-  )
-
   const activeEntries = useMemo(() => {
     const result: WebViewEntry[] = []
-    for (const entry of tabStructure) {
-      if (entry.isSuspended) {
-        delete mountedUrlsRef.current[entry.id]
+    for (const id of tabOrder) {
+      const tab = tabs[id]
+      if (!tab) continue
+      if (tab.isSuspended) {
+        delete mountedUrlsRef.current[id]
         continue
       }
       // Only use the URL on first mount; keep original for already-mounted tabs
-      if (!mountedUrlsRef.current[entry.id]) {
-        mountedUrlsRef.current[entry.id] = entry.url
+      if (!mountedUrlsRef.current[id]) {
+        mountedUrlsRef.current[id] = tab.url
       }
       result.push({
-        id: entry.id,
-        initialUrl: mountedUrlsRef.current[entry.id],
+        id: tab.id,
+        initialUrl: mountedUrlsRef.current[id],
         isSuspended: false
       })
     }
     return result
-  }, [tabStructure])
+  }, [tabOrder, tabs])
 
   return (
     <div className="relative flex-1 bg-zinc-950">

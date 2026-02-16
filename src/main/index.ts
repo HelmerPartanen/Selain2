@@ -32,6 +32,11 @@ function createWindow(): void {
     mainWindow?.show()
   })
 
+  // Open DevTools automatically when running the dev server for debugging
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
+  }
+
   mainWindow.on('maximize', () => {
     mainWindow?.webContents.send('maximize-change', true)
   })
