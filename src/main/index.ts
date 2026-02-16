@@ -43,13 +43,7 @@ function createWindow(): void {
     minHeight: 600,
     show: false,
     backgroundColor: '#00000000',
-    transparent: true,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: {
-      color: '#00000001',
-      symbolColor: '#b0b0ba',
-      height: 40
-    },
+    frame: false,
     webPreferences: {
       contextIsolation: true,
       sandbox: true,

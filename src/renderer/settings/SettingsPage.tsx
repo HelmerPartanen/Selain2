@@ -35,7 +35,10 @@ function SettingsPageInner(): React.JSX.Element {
   }, [])
 
   return (
-    <div className="absolute inset-0 overflow-y-auto">
+    <div
+      className="absolute inset-0 overflow-y-auto"
+      style={{ backgroundColor: 'var(--bg-solid-fallback)' }}
+    >
       <div className="max-w-2xl mx-auto px-8 py-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-10">
@@ -268,7 +271,7 @@ function ActionButton(
   return (
     <button
       onClick={onClick}
-      className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium transition-all duration-100"
+      className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium transition-all duration-100 overflow-hidden"
       style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '0.5px solid var(--border-glass)' }}
       onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; e.currentTarget.style.color = hoverColor }}
       onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-surface)'; e.currentTarget.style.color = 'var(--text-secondary)' }}

@@ -1,6 +1,6 @@
 // ─── Preset Wallpapers ───────────────────────────────────────────────────────
-// Small SVG-based gradient wallpapers that ship with the browser.
-// Each has a name, thumbnail (same SVG), and dominant color for palette generation.
+// SVG-based mesh wallpapers that ship with the browser.
+// Designed to mimic high-end Apple/iOS aesthetics.
 
 export interface WallpaperPreset {
   id: string
@@ -9,77 +9,138 @@ export interface WallpaperPreset {
   dataUrl: string
 }
 
-function svgGradient(id: string, colors: string[], angle = 135): string {
-  const stops = colors
-    .map((c, i) => `<stop offset="${(i / (colors.length - 1)) * 100}%" stop-color="${c}"/>`)
-    .join('')
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><defs><linearGradient id="g" gradientTransform="rotate(${angle})">${stops}</linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`
-  return `data:image/svg+xml;base64,${btoa(svg)}`
+interface Orb {
+  color: string
+  cx: string // Percentage (e.g., '20%')
+  cy: string // Percentage (e.g., '30%')
+  r: string  // Percentage (e.g., '50%')
+  opacity?: number
 }
 
-function svgRadialGradient(colors: string[]): string {
-  const stops = colors
-    .map((c, i) => `<stop offset="${(i / (colors.length - 1)) * 100}%" stop-color="${c}"/>`)
+/**
+ * Generates a "Mesh" gradient using SVG filters.
+ * High blur values create the "ethereal" Apple-like look.
+ */
+function generateMeshWallpaper(backgroundColor: string, orbs: Orb[]): string {
+  // A very high blur ensures the shapes merge into a seamless mesh
+  const filterId = 'mesh-blur'
+  
+  const orbElements = orbs
+    .map(
+      (o) =>
+        `<circle cx="${o.cx}" cy="${o.cy}" r="${o.r}" fill="${o.color}" fill-opacity="${o.opacity ?? 1}" filter="url(#${filterId})" />`
+    )
     .join('')
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><defs><radialGradient id="g" cx="50%" cy="50%" r="70%">${stops}</radialGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="${filterId}" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="180" />
+        </filter>
+      </defs>
+      <rect width="100%" height="100%" fill="${backgroundColor}" />
+      ${orbElements}
+    </svg>
+  `
+    .replace(/\s+/g, ' ')
+    .trim()
+
   return `data:image/svg+xml;base64,${btoa(svg)}`
 }
 
 export const WALLPAPER_PRESETS: WallpaperPreset[] = [
   {
-    id: 'aurora',
-    name: 'Aurora',
-    dataUrl: svgGradient('aurora', ['#0f2027', '#1a6b4a', '#2c5364'], 135)
+    id: 'titanium',
+    name: 'Natural Titanium',
+    dataUrl: generateMeshWallpaper('#8e8e93', [
+      { color: '#b5b5b9', cx: '10%', cy: '10%', r: '80%' },
+      { color: '#d1d1d6', cx: '90%', cy: '90%', r: '60%' },
+      { color: '#e5e5ea', cx: '50%', cy: '50%', r: '40%', opacity: 0.6 },
+      { color: '#636366', cx: '80%', cy: '20%', r: '30%', opacity: 0.4 }
+    ])
   },
   {
-    id: 'sunset',
-    name: 'Sunset',
-    dataUrl: svgGradient('sunset', ['#2c1654', '#c0392b', '#f39c12'], 135)
+    id: 'deep_blue',
+    name: 'Deep Blue',
+    dataUrl: generateMeshWallpaper('#020617', [
+      { color: '#172554', cx: '20%', cy: '80%', r: '70%' },
+      { color: '#1e3a8a', cx: '80%', cy: '0%', r: '60%' },
+      { color: '#1e40af', cx: '50%', cy: '50%', r: '45%', opacity: 0.5 },
+      { color: '#60a5fa', cx: '90%', cy: '90%', r: '30%', opacity: 0.2 } // Subtle highlight
+    ])
   },
   {
-    id: 'ocean',
-    name: 'Ocean',
-    dataUrl: svgGradient('ocean', ['#0c2340', '#2980b9', '#6dd5fa'], 160)
+    id: 'california',
+    name: 'California',
+    dataUrl: generateMeshWallpaper('#fff7ed', [
+      { color: '#ffedd5', cx: '0%', cy: '0%', r: '90%' },
+      { color: '#fed7aa', cx: '100%', cy: '100%', r: '60%' },
+      { color: '#fbcfe8', cx: '50%', cy: '40%', r: '50%', opacity: 0.6 }, // Soft pink
+      { color: '#fca5a5', cx: '80%', cy: '20%', r: '35%', opacity: 0.4 }  // Warm peach
+    ])
   },
   {
-    id: 'lavender',
-    name: 'Lavender',
-    dataUrl: svgGradient('lavender', ['#1a1033', '#7c3aed', '#c084fc'], 120)
+    id: 'euphoria',
+    name: 'Euphoria',
+    dataUrl: generateMeshWallpaper('#f5f3ff', [
+      { color: '#ddd6fe', cx: '10%', cy: '90%', r: '70%' },
+      { color: '#c4b5fd', cx: '90%', cy: '10%', r: '60%' },
+      { color: '#a78bfa', cx: '50%', cy: '50%', r: '50%', opacity: 0.4 },
+      { color: '#67e8f9', cx: '20%', cy: '20%', r: '40%', opacity: 0.3 }  // Cyan hint
+    ])
   },
   {
-    id: 'forest',
-    name: 'Forest',
-    dataUrl: svgGradient('forest', ['#1b2a1b', '#2d6a4f', '#95d5b2'], 145)
+    id: 'forest_pro',
+    name: 'Alpine Green',
+    dataUrl: generateMeshWallpaper('#022c22', [
+      { color: '#064e3b', cx: '0%', cy: '100%', r: '80%' },
+      { color: '#065f46', cx: '100%', cy: '0%', r: '70%' },
+      { color: '#10b981', cx: '50%', cy: '50%', r: '40%', opacity: 0.3 }, // Emerald glow
+      { color: '#34d399', cx: '20%', cy: '30%', r: '25%', opacity: 0.2 }
+    ])
   },
   {
-    id: 'rose',
-    name: 'Rosé',
-    dataUrl: svgRadialGradient(['#fda4af', '#e11d48', '#4a0519'])
+    id: 'midnight_air',
+    name: 'Midnight Air',
+    dataUrl: generateMeshWallpaper('#000000', [
+      { color: '#1e1b4b', cx: '50%', cy: '100%', r: '80%', opacity: 0.8 },
+      { color: '#312e81', cx: '0%', cy: '0%', r: '70%', opacity: 0.6 },
+      { color: '#4338ca', cx: '80%', cy: '30%', r: '40%', opacity: 0.3 }
+    ])
   },
   {
-    id: 'midnight',
-    name: 'Midnight',
-    dataUrl: svgGradient('midnight', ['#0a0a1a', '#1e3a5f', '#0a0a1a'], 180)
+    id: 'sunrise',
+    name: 'Sunrise',
+    dataUrl: generateMeshWallpaper('#451a03', [
+      { color: '#78350f', cx: '0%', cy: '100%', r: '70%' },
+      { color: '#b45309', cx: '100%', cy: '0%', r: '60%' },
+      { color: '#fbbf24', cx: '40%', cy: '40%', r: '40%', opacity: 0.5 },
+      { color: '#fef3c7', cx: '80%', cy: '20%', r: '20%', opacity: 0.4 } // Bright sun spot
+    ])
   },
   {
-    id: 'golden',
-    name: 'Golden Hour',
-    dataUrl: svgGradient('golden', ['#451a03', '#d97706', '#fef3c7'], 135)
+    id: 'rose_gold',
+    name: 'Rose Gold',
+    dataUrl: generateMeshWallpaper('#881337', [
+      { color: '#9f1239', cx: '0%', cy: '0%', r: '80%' },
+      { color: '#be123c', cx: '100%', cy: '100%', r: '70%' },
+      { color: '#fda4af', cx: '50%', cy: '50%', r: '45%', opacity: 0.4 }, // Pink highlight
+      { color: '#fb7185', cx: '20%', cy: '80%', r: '30%', opacity: 0.3 }
+    ])
   }
 ]
 
 /** Preset solid colors for quick selection */
 export const SOLID_COLOR_PRESETS = [
-  { name: 'Charcoal', hex: '#1C1C1E' },
-  { name: 'Midnight Blue', hex: '#1A1A2E' },
-  { name: 'Deep Purple', hex: '#2D1B4E' },
-  { name: 'Dark Teal', hex: '#0D2F2F' },
-  { name: 'Forest', hex: '#1A2E1A' },
-  { name: 'Wine', hex: '#3B1A2E' },
-  { name: 'Navy', hex: '#0A1628' },
-  { name: 'Slate', hex: '#2E3440' },
-  { name: 'Snow', hex: '#F0F0F5' },
-  { name: 'Cream', hex: '#FAF5EE' },
-  { name: 'Ice Blue', hex: '#E8F0FE' },
-  { name: 'Mint', hex: '#ECFDF5' }
+  { name: 'Graphite', hex: '#1C1C1E' },
+  { name: 'Midnight', hex: '#1A1A2E' },
+  { name: 'Pacific Blue', hex: '#1e3a8a' },
+  { name: 'Alpine', hex: '#1A2E1A' },
+  { name: 'Burgundy', hex: '#4a044e' },
+  { name: 'Slate', hex: '#334155' },
+  { name: 'Silver', hex: '#F2F2F7' },
+  { name: 'Starlight', hex: '#FAF9F6' },
+  { name: 'Sky', hex: '#e0f2fe' },
+  { name: 'Mint', hex: '#ecfdf5' }
 ]

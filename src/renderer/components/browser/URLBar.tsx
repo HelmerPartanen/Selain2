@@ -117,7 +117,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
 
   return (
   <div
-    className={`flex h-[40px] items-center px-2 py-1.5 glass ${
+    className={`flex h-[40px] items-center pl-2 py-1.5 glass ${
       singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
     }`}
     style={{ borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}
@@ -210,7 +210,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-6xl bg-transparent rounded-full h-8 text-xs transition-all duration-100 ${
+          className={`w-[600px] bg-transparent rounded-full h-8 text-xs transition-all duration-100 ${
             !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
               ? 'pl-7 pr-3'
               : 'pl-7 pr-3'
@@ -241,7 +241,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
           </Button>
         </div>
       </div>
-      <OverlaySpacer />
+      {singleTab && <OverlaySpacer />}
     </div>
   </div>
 )
