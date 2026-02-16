@@ -85,7 +85,6 @@ function createWindow(): void {
     webPreferences.sandbox = true
     webPreferences.webSecurity = true
     webPreferences.allowRunningInsecureContent = false
-    webPreferences.experimentalFeatures = false
     webPreferences.plugins = true
     delete webPreferences.preload
   })
@@ -129,7 +128,8 @@ function setupPermissions(): void {
     'clipboard-sanitized-write',
     'media',
     'fullscreen',
-    'media-key-system-access'
+    'media-key-system-access',
+    'protected-media-identifier'
   ])
 
   // Apply permissions & UA to BOTH the default session AND the
@@ -143,7 +143,8 @@ function setupPermissions(): void {
     ses.setUserAgent(userAgent)
     ses.setSpellCheckerEnabled(false)
 
-    ses.setPermissionRequestHandler((_wc, permission, callback) => {
+    ses.setPermissionRequestHandler((_wc, permission, callback, details) => {
+      console.log('[Permission Request]', permission, details?.requestingUrl)
       if (permission === 'notifications') {
         callback(false)
         return
@@ -151,8 +152,14 @@ function setupPermissions(): void {
       callback(allowedPermissions.has(permission))
     })
 
-    ses.setPermissionCheckHandler((_wc, permission) => {
-      return allowedPermissions.has(permission)
+    // Permission checks must be permissive — returning false for unknown
+    // permissions can silently break DRM and other subsystems
+    ses.setPermissionCheckHandler((_wc, permission, _origin, details) => {
+      const denied = new Set(['notifications'])
+      if (denied.has(permission)) return false
+      // Allow anything in our allowlist, and default-allow unknown checks
+      // (Chromium uses permission checks for internal DRM plumbing)
+      return true
     })
   }
 }
