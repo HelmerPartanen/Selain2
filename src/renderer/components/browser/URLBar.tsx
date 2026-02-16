@@ -1,15 +1,9 @@
 import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { ArrowLeft, ArrowRight, ArrowClockwise, X as StopIcon, Lock, Globe } from '@phosphor-icons/react'
-import { useActiveTab } from '@/hooks/useTabSelector'
+import { useActiveTabId, useActiveTabUrl, useActiveTabNavState } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
+import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
-
-function isValidURL(str: string): boolean {
-  if (/^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\//.test(str)) return true
-  if (/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}/.test(str)) return true
-  if (str === 'about:blank') return true
-  return false
-}
 
 function normalizeURL(input: string): string {
   const trimmed = input.trim()
@@ -23,17 +17,13 @@ function normalizeURL(input: string): string {
 }
 
 function URLBarInner(): React.JSX.Element {
-  const activeTab = useActiveTab()
+  const tabId = useActiveTabId()
+  const url = useActiveTabUrl()
+  const { isLoading, canGoBack, canGoForward } = useActiveTabNavState()
   const updateTab = useTabStore((s) => s.updateTab)
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState('')
   const [isFocused, setIsFocused] = useState(false)
-
-  const url = activeTab?.url ?? ''
-  const isLoading = activeTab?.isLoading ?? false
-  const canGoBack = activeTab?.canGoBack ?? false
-  const canGoForward = activeTab?.canGoForward ?? false
-  const tabId = activeTab?.id
 
   useEffect(() => {
     if (!isFocused) {
@@ -77,41 +67,22 @@ function URLBarInner(): React.JSX.Element {
 
   const handleGoBack = useCallback(() => {
     if (!tabId) return
-    const webviews = document.querySelectorAll('webview')
-    for (const wv of webviews) {
-      const webview = wv as Electron.WebviewTag
-      if (webview.classList.contains('z-10')) {
-        webview.goBack()
-        break
-      }
-    }
+    webviewRegistry.get(tabId)?.goBack()
   }, [tabId])
 
   const handleGoForward = useCallback(() => {
     if (!tabId) return
-    const webviews = document.querySelectorAll('webview')
-    for (const wv of webviews) {
-      const webview = wv as Electron.WebviewTag
-      if (webview.classList.contains('z-10')) {
-        webview.goForward()
-        break
-      }
-    }
+    webviewRegistry.get(tabId)?.goForward()
   }, [tabId])
 
   const handleReloadOrStop = useCallback(() => {
     if (!tabId) return
-    const webviews = document.querySelectorAll('webview')
-    for (const wv of webviews) {
-      const webview = wv as Electron.WebviewTag
-      if (webview.classList.contains('z-10')) {
-        if (isLoading) {
-          webview.stop()
-        } else {
-          webview.reload()
-        }
-        break
-      }
+    const webview = webviewRegistry.get(tabId)
+    if (!webview) return
+    if (isLoading) {
+      webview.stop()
+    } else {
+      webview.reload()
     }
   }, [tabId, isLoading])
 

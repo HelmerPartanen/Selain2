@@ -1,44 +1,54 @@
-import { memo, useMemo, useRef } from 'react'
+import { memo, useCallback, useRef, useSyncExternalStore } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { WebViewInstance } from './WebViewInstance'
 
 interface WebViewEntry {
   id: string
   initialUrl: string
-  isSuspended: boolean
 }
 
+/**
+ * Derives the list of non-suspended tab entries.
+ * Uses useSyncExternalStore + a custom equality check so the component
+ * only rerenders when the *set* of non-suspended tab IDs actually changes,
+ * NOT on every title / favicon / loading state update.
+ */
 function WebViewManagerInner(): React.JSX.Element {
   const activeTabId = useTabStore((s) => s.activeTabId)
-  const tabOrder = useTabStore((s) => s.tabOrder)
-  const tabs = useTabStore((s) => s.tabs)
 
   // Track which tabs have been mounted so we don't send new initialUrl on re-render.
-  // initialUrl is only used at mount time; subsequent navigations are handled
-  // by the store subscription inside WebViewInstance.
   const mountedUrlsRef = useRef<Record<string, string>>({})
+  const prevEntriesRef = useRef<WebViewEntry[]>([])
 
-  const activeEntries = useMemo(() => {
+  const subscribe = useCallback((cb: () => void) => useTabStore.subscribe(cb), [])
+
+  const getSnapshot = useCallback((): WebViewEntry[] => {
+    const { tabOrder, tabs } = useTabStore.getState()
     const result: WebViewEntry[] = []
     for (const id of tabOrder) {
       const tab = tabs[id]
-      if (!tab) continue
-      if (tab.isSuspended) {
+      if (!tab || tab.isSuspended) {
         delete mountedUrlsRef.current[id]
         continue
       }
-      // Only use the URL on first mount; keep original for already-mounted tabs
       if (!mountedUrlsRef.current[id]) {
         mountedUrlsRef.current[id] = tab.url
       }
-      result.push({
-        id: tab.id,
-        initialUrl: mountedUrlsRef.current[id],
-        isSuspended: false
-      })
+      result.push({ id, initialUrl: mountedUrlsRef.current[id] })
     }
+    // Structural equality: only return a new array reference when the list actually changed
+    const prev = prevEntriesRef.current
+    if (
+      prev.length === result.length &&
+      prev.every((e, i) => result[i] !== undefined && e.id === result[i].id && e.initialUrl === result[i].initialUrl)
+    ) {
+      return prev
+    }
+    prevEntriesRef.current = result
     return result
-  }, [tabOrder, tabs])
+  }, [])
+
+  const activeEntries = useSyncExternalStore(subscribe, getSnapshot)
 
   return (
     <div className="relative flex-1 bg-zinc-950">

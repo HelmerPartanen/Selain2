@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useRef } from 'react'
 import { useTabStore } from '@/store/tabStore'
+import { webviewRegistry } from './webviewRegistry'
 
 interface WebViewInstanceProps {
   tabId: string
@@ -12,58 +13,75 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   const domReadyRef = useRef(false)
   const lastNavigatedUrlRef = useRef(initialUrl)
 
+  // Batch pending store updates to reduce Zustand set() calls
+  const pendingUpdateRef = useRef<Record<string, unknown> | null>(null)
+  const rafIdRef = useRef<number>(0)
+
+  const flushUpdate = useCallback(() => {
+    const patch = pendingUpdateRef.current
+    if (patch) {
+      pendingUpdateRef.current = null
+      useTabStore.getState().updateTab(tabId, patch as Partial<Omit<import('@/store/tabStore').Tab, 'id'>>)
+    }
+  }, [tabId])
+
+  const batchUpdate = useCallback((patch: Record<string, unknown>) => {
+    pendingUpdateRef.current = { ...pendingUpdateRef.current, ...patch }
+    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+    rafIdRef.current = requestAnimationFrame(flushUpdate)
+  }, [flushUpdate])
+
   const handleDomReady = useCallback(() => {
     domReadyRef.current = true
     const webview = webviewRef.current
     if (!webview) return
-
-    useTabStore.getState().updateTab(tabId, {
+    batchUpdate({
       canGoBack: webview.canGoBack(),
       canGoForward: webview.canGoForward()
     })
-  }, [tabId])
+  }, [batchUpdate])
 
   const handleDidStartLoading = useCallback(() => {
-    useTabStore.getState().updateTab(tabId, { isLoading: true })
-  }, [tabId])
+    batchUpdate({ isLoading: true })
+  }, [batchUpdate])
 
   const handleDidStopLoading = useCallback(() => {
     const webview = webviewRef.current
-    useTabStore.getState().updateTab(tabId, {
+    batchUpdate({
       isLoading: false,
       canGoBack: webview?.canGoBack() ?? false,
       canGoForward: webview?.canGoForward() ?? false
     })
-  }, [tabId])
+  }, [batchUpdate])
 
   const handlePageTitleUpdated = useCallback(
     (event: Electron.PageTitleUpdatedEvent) => {
-      useTabStore.getState().updateTab(tabId, { title: event.title })
+      batchUpdate({ title: event.title })
     },
-    [tabId]
+    [batchUpdate]
   )
 
   const handlePageFaviconUpdated = useCallback(
     (event: Electron.PageFaviconUpdatedEvent) => {
       const favicon = event.favicons[0]
       if (favicon) {
-        useTabStore.getState().updateTab(tabId, { favicon })
+        batchUpdate({ favicon })
       }
     },
-    [tabId]
+    [batchUpdate]
   )
 
   const handleDidNavigate = useCallback(
     (event: Electron.DidNavigateEvent) => {
       const webview = webviewRef.current
       lastNavigatedUrlRef.current = event.url
-      useTabStore.getState().updateTab(tabId, {
+      batchUpdate({
         url: event.url,
         canGoBack: webview?.canGoBack() ?? false,
         canGoForward: webview?.canGoForward() ?? false
       })
     },
-    [tabId]
+    [batchUpdate]
   )
 
   const handleDidNavigateInPage = useCallback(
@@ -71,15 +89,28 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       const webview = webviewRef.current
       if (event.isMainFrame) {
         lastNavigatedUrlRef.current = event.url
-        useTabStore.getState().updateTab(tabId, {
+        batchUpdate({
           url: event.url,
           canGoBack: webview?.canGoBack() ?? false,
           canGoForward: webview?.canGoForward() ?? false
         })
       }
     },
-    [tabId]
+    [batchUpdate]
   )
+
+  // Register/unregister in the global webview registry
+  useEffect(() => {
+    const webview = webviewRef.current
+    if (webview) {
+      webviewRegistry.register(tabId, webview)
+    }
+    return () => {
+      webviewRegistry.unregister(tabId)
+      // Cancel any pending batched updates on unmount
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+    }
+  }, [tabId])
 
   // One-time event listener attachment on mount
   useEffect(() => {
@@ -106,7 +137,9 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabId])
 
-  // Subscribe to store URL changes and navigate imperatively
+  // Subscribe to store URL changes and navigate imperatively.
+  // Uses a custom equality check so it only fires on actual URL changes,
+  // not on title/favicon/loading mutations.
   useEffect(() => {
     const unsub = useTabStore.subscribe(
       (state) => state.tabs[tabId]?.url,

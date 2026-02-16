@@ -119,6 +119,11 @@ export const useTabStore = create<TabStore>()(
           (state) => {
             const existing = state.tabs[id]
             if (!existing) return state
+            // Skip update if all patch values are identical — avoids unnecessary rerenders
+            const keys = Object.keys(patch) as Array<keyof typeof patch>
+            const existingAny = existing as unknown as Record<string, unknown>
+            const changed = keys.some((k) => existingAny[k] !== patch[k])
+            if (!changed) return state
             return {
               tabs: { ...state.tabs, [id]: { ...existing, ...patch } }
             }

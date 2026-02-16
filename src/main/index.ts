@@ -1,6 +1,32 @@
 import { app, BrowserWindow, ipcMain, Menu, session } from 'electron'
 import { join } from 'path'
 
+// ─── Chromium CLI Flags (must be set before app.ready) ───────────────────────
+
+// GPU & Rendering Performance
+app.commandLine.appendSwitch('enable-gpu-rasterization')
+app.commandLine.appendSwitch('enable-zero-copy')
+app.commandLine.appendSwitch('enable-hardware-overlays', 'single-fullscreen,single-on-top,underlay')
+app.commandLine.appendSwitch('ignore-gpu-blocklist')
+app.commandLine.appendSwitch('disable-software-rasterizer')
+
+// Disable background throttling so hidden webviews stay responsive
+app.commandLine.appendSwitch('disable-renderer-backgrounding')
+app.commandLine.appendSwitch('disable-background-timer-throttling')
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows')
+
+// Privacy: disable all telemetry, translation, sync, crash reporting
+app.commandLine.appendSwitch('disable-breakpad')
+app.commandLine.appendSwitch('disable-component-update')
+app.commandLine.appendSwitch('disable-domain-reliability')
+app.commandLine.appendSwitch('disable-features',
+  'AutofillServerCommunication,TranslateUI,SpareRendererForSitePerProcess'
+)
+
+// Disable speculative features that burn CPU/memory
+app.commandLine.appendSwitch('disable-ipc-flooding-protection')
+app.commandLine.appendSwitch('disable-hang-monitor')
+
 Menu.setApplicationMenu(null)
 
 let mainWindow: BrowserWindow | null = null
@@ -52,6 +78,10 @@ function createWindow(): void {
   mainWindow.webContents.on('will-attach-webview', (_event, webPreferences) => {
     webPreferences.nodeIntegration = false
     webPreferences.contextIsolation = true
+    webPreferences.sandbox = true
+    webPreferences.webSecurity = true
+    webPreferences.allowRunningInsecureContent = false
+    webPreferences.experimentalFeatures = false
     delete webPreferences.preload
   })
 
@@ -85,14 +115,46 @@ function setupIPC(): void {
 }
 
 function setupPermissions(): void {
-  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
-    const allowedPermissions: string[] = [
+  const ses = session.defaultSession
+
+  // Minimal permission allowlist
+  ses.setPermissionRequestHandler((_webContents, permission, callback) => {
+    const allowed = new Set([
       'clipboard-read',
       'clipboard-sanitized-write',
       'media',
       'fullscreen'
-    ]
-    callback(allowedPermissions.includes(permission))
+    ])
+    callback(allowed.has(permission))
+  })
+
+  // Also guard permission checks (Permissions API queries)
+  ses.setPermissionCheckHandler((_webContents, permission) => {
+    const allowed = new Set([
+      'clipboard-read',
+      'clipboard-sanitized-write',
+      'media',
+      'fullscreen'
+    ])
+    return allowed.has(permission)
+  })
+
+  // Privacy: disable spellchecker download, DNS prefetch
+  ses.setSpellCheckerEnabled(false)
+
+  // Block all notification requests by default
+  ses.setPermissionRequestHandler((_wc, permission, callback) => {
+    if (permission === 'notifications') {
+      callback(false)
+      return
+    }
+    const allowed = new Set([
+      'clipboard-read',
+      'clipboard-sanitized-write',
+      'media',
+      'fullscreen'
+    ])
+    callback(allowed.has(permission))
   })
 }
 

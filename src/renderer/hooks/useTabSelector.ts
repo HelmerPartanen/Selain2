@@ -23,6 +23,34 @@ export function useActiveTab(): Tab | undefined {
   )
 }
 
+/** Subscribe only to the active tab's URL — avoids rerenders on title/favicon/loading changes */
+export function useActiveTabUrl(): string {
+  return useTabStore((s) => {
+    if (!s.activeTabId) return ''
+    return s.tabs[s.activeTabId]?.url ?? ''
+  })
+}
+
+/** Subscribe only to navigation-relevant fields of the active tab */
+export function useActiveTabNavState(): {
+  isLoading: boolean
+  canGoBack: boolean
+  canGoForward: boolean
+} {
+  return useTabStore(
+    useShallow((s) => {
+      if (!s.activeTabId) return { isLoading: false, canGoBack: false, canGoForward: false }
+      const tab = s.tabs[s.activeTabId]
+      if (!tab) return { isLoading: false, canGoBack: false, canGoForward: false }
+      return {
+        isLoading: tab.isLoading,
+        canGoBack: tab.canGoBack,
+        canGoForward: tab.canGoForward
+      }
+    })
+  )
+}
+
 export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean } | undefined {
   return useTabStore(
     useShallow((s) => {
