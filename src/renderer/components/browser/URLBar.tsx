@@ -4,6 +4,7 @@ import { useActiveTabId, useActiveTabUrl, useActiveTabNavState } from '@/hooks/u
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
+import { AppMenu } from '@/components/layout/AppMenu'
 
 function normalizeURL(input: string): string {
   const trimmed = input.trim()
@@ -109,7 +110,14 @@ function URLBarInner(): React.JSX.Element {
   const displayUrl = isFocused ? inputValue : simplifiedUrl
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1.5 bg-surface border-b border-border [app-region:no-drag] rounded-t-3xl">
+  <div className="flex items-center px-2 py-1.5 bg-surface border border-border [app-region:no-drag] rounded-t-2xl">
+
+    {/* Menu button */}
+    <AppMenu />
+
+    {/* Centered group */}
+    <div className="flex items-center gap-2 mx-auto">
+
       <Button
         variant="icon"
         onClick={handleGoBack}
@@ -142,7 +150,7 @@ function URLBarInner(): React.JSX.Element {
         )}
       </Button>
 
-      <div className="relative flex-1 flex items-center">
+      <div className="relative">
         <div className="absolute left-3 flex items-center pointer-events-none">
           {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
             isSecure ? (
@@ -152,6 +160,7 @@ function URLBarInner(): React.JSX.Element {
             )
           ) : null}
         </div>
+
         <input
           ref={inputRef}
           type="text"
@@ -163,13 +172,18 @@ function URLBarInner(): React.JSX.Element {
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-full bg-surface-dim border border-border rounded-full h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
-            !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? 'pl-8 pr-3' : 'px-3'
+          className={`w-6xl bg-surface-dim border border-border rounded-full h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
+            !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
+              ? 'pl-8 pr-3'
+              : 'px-3'
           }`}
         />
       </div>
+
     </div>
-  )
+  </div>
+)
+
 }
 
 export const URLBar = memo(URLBarInner)
