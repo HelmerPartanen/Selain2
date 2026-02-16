@@ -19,7 +19,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   const showTabStrip = tabCount > 1
 
   return (
-    <div className="flex flex-col h-screen bg-neutral-950 text-zinc-100 overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#1C1C1E] text-zinc-100 overflow-hidden">
       <TitleBar visible={showTabStrip} />
       <div className="flex flex-col flex-1 min-h-0">
         <URLBar singleTab={!showTabStrip} />

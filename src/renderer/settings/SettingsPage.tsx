@@ -9,9 +9,12 @@ import {
   ArrowLeft,
   Upload,
   X,
-  Check
+  Check,
+  Sun,
+  Moon,
+  Desktop
 } from '@phosphor-icons/react'
-import { useThemeStore } from '@/store/themeStore'
+import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useTabStore } from '@/store/tabStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
 
@@ -26,7 +29,7 @@ function SettingsPageInner(): React.JSX.Element {
   }, [])
 
   return (
-    <div className="absolute inset-0 bg-neutral-900 overflow-y-auto">
+    <div className="absolute inset-0 bg-[#1C1C1E] overflow-y-auto">
       <div className="max-w-3xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
@@ -46,12 +49,53 @@ function SettingsPageInner(): React.JSX.Element {
             Customize your new tab background with wallpapers or solid colors.
           </p>
 
+          {/* Theme Mode */}
+          <ThemeModePicker />
+
           {/* Wallpaper Picker */}
           <WallpaperPicker />
 
           {/* Solid Color Picker */}
           <SolidColorPicker />
         </section>
+      </div>
+    </div>
+  )
+}
+
+// ─── Theme Mode Picker ───────────────────────────────────────────────────────
+
+const THEME_MODES: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
+  { mode: 'light', label: 'Light', icon: Sun },
+  { mode: 'dark', label: 'Dark', icon: Moon },
+  { mode: 'system', label: 'System', icon: Desktop }
+]
+
+function ThemeModePicker(): React.JSX.Element {
+  const themeMode = useThemeStore((s) => s.themeMode)
+  const setThemeMode = useThemeStore((s) => s.setThemeMode)
+
+  return (
+    <div className="mb-6">
+      <label className="text-sm font-medium text-zinc-400 mb-2 block">Theme</label>
+      <div className="flex gap-2">
+        {THEME_MODES.map(({ mode, label, icon: Icon }) => {
+          const isActive = themeMode === mode
+          return (
+            <button
+              key={mode}
+              onClick={() => setThemeMode(mode)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150
+                ${isActive
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-neutral-800 text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700'
+                }`}
+            >
+              <Icon size={16} weight={isActive ? 'fill' : 'regular'} />
+              {label}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

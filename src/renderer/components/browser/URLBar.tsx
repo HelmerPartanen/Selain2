@@ -116,7 +116,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
   }, [addTab])
 
   return (
-  <div className={`flex items-center px-2 py-1.5 bg-neutral-900 border-t border-neutral-800 rounded-t-2xl ${
+  <div className={`flex items-center px-2 py-1.5 bg-[#F1F2F6] dark:bg-[#1C1C1E] border-t border-neutral-800 rounded-t-2xl ${
     singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
   }`}>
 
@@ -128,25 +128,29 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
     {/* Centered group */}
     <div className="flex items-center gap-2 mx-auto [app-region:no-drag]">
 
-      <Button
-        variant="icon"
-        onClick={handleGoBack}
-        disabled={!canGoBack}
-        className="disabled:opacity-30"
-        aria-label="Go back"
-      >
-        <ArrowLeft size={16} weight="bold" />
-      </Button>
+      <div className="rounded-full p-px" style={{ background: 'linear-gradient(135deg, #4C4C52, #2E2E32 50%, #4C4C52)' }}>
+        <div className="flex items-center bg-[#222224] rounded-full">
+          <Button
+            variant="icon"
+            onClick={handleGoBack}
+            disabled={!canGoBack}
+            className="disabled:opacity-30"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={16} weight="bold" />
+          </Button>
 
-      <Button
-        variant="icon"
-        onClick={handleGoForward}
-        disabled={!canGoForward}
-        className="disabled:opacity-30"
-        aria-label="Go forward"
-      >
-        <ArrowRight size={16} weight="bold" />
-      </Button>
+          <Button
+            variant="icon"
+            onClick={handleGoForward}
+            disabled={!canGoForward}
+            className="disabled:opacity-30"
+            aria-label="Go forward"
+          >
+            <ArrowRight size={16} weight="bold" />
+          </Button>
+        </div>
+      </div>
 
       <Button
         variant="icon"

@@ -31,7 +31,7 @@ function NewTabPageInner(): React.JSX.Element {
   } else if (wallpaperType === 'solid' && solidColor) {
     bgStyle = { backgroundColor: solidColor }
   } else {
-    bgStyle = { backgroundColor: '#171717' }
+    bgStyle = { backgroundColor: '#1C1C1E' }
   }
 
   return (
