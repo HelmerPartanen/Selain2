@@ -38,7 +38,7 @@ function TabStripInner(): React.JSX.Element {
   return (
     <div
       role="tablist"
-      className="flex items-center gap-0.5 flex-1 min-w-0 overflow-x-auto px-1 [&::-webkit-scrollbar]:hidden"
+      className="flex items-center gap-0.5 flex-1 min-w-0 overflow-hidden px-1 [&::-webkit-scrollbar]:hidden"
     >
       {tabOrder.map((id, index) => (
         <Tab
