@@ -5,8 +5,6 @@
 export interface WallpaperPreset {
   id: string
   name: string
-  /** The dominant/seed color used for UI palette generation */
-  dominantColor: string
   /** SVG data URL used as the wallpaper background */
   dataUrl: string
 }
@@ -31,49 +29,41 @@ export const WALLPAPER_PRESETS: WallpaperPreset[] = [
   {
     id: 'aurora',
     name: 'Aurora',
-    dominantColor: '#1a6b4a',
     dataUrl: svgGradient('aurora', ['#0f2027', '#1a6b4a', '#2c5364'], 135)
   },
   {
     id: 'sunset',
     name: 'Sunset',
-    dominantColor: '#c0392b',
     dataUrl: svgGradient('sunset', ['#2c1654', '#c0392b', '#f39c12'], 135)
   },
   {
     id: 'ocean',
     name: 'Ocean',
-    dominantColor: '#2980b9',
     dataUrl: svgGradient('ocean', ['#0c2340', '#2980b9', '#6dd5fa'], 160)
   },
   {
     id: 'lavender',
     name: 'Lavender',
-    dominantColor: '#7c3aed',
     dataUrl: svgGradient('lavender', ['#1a1033', '#7c3aed', '#c084fc'], 120)
   },
   {
     id: 'forest',
     name: 'Forest',
-    dominantColor: '#2d6a4f',
     dataUrl: svgGradient('forest', ['#1b2a1b', '#2d6a4f', '#95d5b2'], 145)
   },
   {
     id: 'rose',
     name: 'Rosé',
-    dominantColor: '#e11d48',
     dataUrl: svgRadialGradient(['#fda4af', '#e11d48', '#4a0519'])
   },
   {
     id: 'midnight',
     name: 'Midnight',
-    dominantColor: '#1e3a5f',
     dataUrl: svgGradient('midnight', ['#0a0a1a', '#1e3a5f', '#0a0a1a'], 180)
   },
   {
     id: 'golden',
     name: 'Golden Hour',
-    dominantColor: '#d97706',
     dataUrl: svgGradient('golden', ['#451a03', '#d97706', '#fef3c7'], 135)
   }
 ]

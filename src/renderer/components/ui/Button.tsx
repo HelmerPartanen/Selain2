@@ -8,11 +8,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   ghost:
-    'px-3 h-8 bg-transparent hover:bg-surface-hover active:bg-surface-active text-text-muted hover:text-text',
+    'px-3 h-8 bg-transparent hover:bg-neutral-700 active:bg-neutral-600 text-zinc-400 hover:text-zinc-100',
   solid:
-    'px-3 h-8 bg-surface-raised hover:bg-surface-hover active:bg-surface-active text-text',
+    'px-3 h-8 bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 text-zinc-100',
   icon:
-    'p-1.5 bg-transparent hover:bg-surface-hover active:bg-surface-active text-text-muted hover:text-text'
+    'p-1.5 bg-transparent hover:bg-neutral-700 active:bg-neutral-600 text-zinc-400 hover:text-zinc-100'
 }
 
 const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(

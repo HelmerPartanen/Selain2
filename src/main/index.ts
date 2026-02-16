@@ -136,28 +136,6 @@ function setupIPC(): void {
       : 'image/png'
     return `data:${mime};base64,${buffer.toString('base64')}`
   })
-
-  // ── Title bar color sync ──
-  ipcMain.on('set-titlebar-color', (_event, hex: string) => {
-    if (!mainWindow) return
-    try {
-      mainWindow.setTitleBarOverlay({
-        color: hex,
-        symbolColor: isLightHex(hex) ? '#1c1c1e' : '#b0b0ba'
-      })
-    } catch {
-      // setTitleBarOverlay may not be available on all platforms
-    }
-  })
-}
-
-/** Quick luminance check for title bar symbol color */
-function isLightHex(hex: string): boolean {
-  const h = hex.replace('#', '')
-  const r = parseInt(h.slice(0, 2), 16)
-  const g = parseInt(h.slice(2, 4), 16)
-  const b = parseInt(h.slice(4, 6), 16)
-  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.5
 }
 
 function setupPermissions(): void {

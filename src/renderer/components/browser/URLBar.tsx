@@ -116,7 +116,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
   }, [addTab])
 
   return (
-  <div className={`flex items-center px-2 py-1.5 bg-surface border-t border-border rounded-t-2xl ${
+  <div className={`flex items-center px-2 py-1.5 bg-neutral-900 border-t border-neutral-800 rounded-t-2xl ${
     singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
   }`}>
 
@@ -164,9 +164,9 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
         {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') && (
           <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
             {isSecure ? (
-              <Lock size={13} className="text-text-dim" weight="fill" />
+              <Lock size={13} className="text-zinc-500" weight="fill" />
             ) : (
-              <Globe size={13} className="text-text-dim" weight="regular" />
+              <Globe size={13} className="text-zinc-500" weight="regular" />
             )}
           </div>
         )}
@@ -182,7 +182,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-6xl bg-surface-dim border border-border rounded-full h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
+          className={`w-6xl bg-neutral-950 border border-neutral-800 rounded-full h-8 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500/25 focus:bg-neutral-700 focus:border-neutral-700 transition-all duration-75 ${
             !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
               ? 'pl-7 pr-3'
               : 'px-3'

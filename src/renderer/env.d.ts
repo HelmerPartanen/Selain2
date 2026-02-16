@@ -9,7 +9,6 @@ interface ElectronAPI {
   toggleMaximizeWindow(): void
   onMaximizeChange(callback: (isMaximized: boolean) => void): () => void
   openImageDialog(): Promise<string | null>
-  setTitleBarColor(hex: string): void
 }
 
 // Electron webview tag types for the renderer process

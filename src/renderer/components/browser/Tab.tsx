@@ -59,17 +59,17 @@ function TabInner({ tabId, isActive, index, onDragStart, onDragOver, onDrop }: T
       onClick={handleClick}
       className={`group relative flex items-center gap-2 flex-1 min-w-0 max-w-[240px] h-8 px-3 rounded-full cursor-default select-none transition-colors duration-75 [app-region:no-drag] ${
         isActive
-          ? 'bg-surface-raised text-text'
-          : 'text-text-muted hover:bg-surface-hover hover:text-text'
+          ? 'bg-neutral-800 text-zinc-100'
+          : 'text-zinc-400 hover:bg-neutral-700 hover:text-zinc-100'
       }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
-          <CircleNotch size={14} className="animate-spin text-text-muted" weight="bold" />
+          <CircleNotch size={14} className="animate-spin text-zinc-400" weight="bold" />
         ) : favicon ? (
           <img src={favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
         ) : (
-          <Globe size={14} className="text-text-dim" weight="regular" />
+          <Globe size={14} className="text-zinc-500" weight="regular" />
         )}
       </div>
 
@@ -77,7 +77,7 @@ function TabInner({ tabId, isActive, index, onDragStart, onDragOver, onDrop }: T
 
       <button
         onClick={handleClose}
-        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 hover:bg-danger hover:text-white transition-all duration-75"
+        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all duration-75"
         aria-label={`Close ${title}`}
       >
         <X size={12} weight="bold" />

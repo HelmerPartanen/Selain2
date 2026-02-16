@@ -31,7 +31,7 @@ function NewTabPageInner(): React.JSX.Element {
   } else if (wallpaperType === 'solid' && solidColor) {
     bgStyle = { backgroundColor: solidColor }
   } else {
-    bgStyle = { backgroundColor: 'var(--color-surface)' }
+    bgStyle = { backgroundColor: '#171717' }
   }
 
   return (
@@ -43,8 +43,8 @@ function NewTabPageInner(): React.JSX.Element {
       <button
         onClick={handleCustomize}
         className="absolute bottom-6 right-6 z-10 flex items-center gap-2 px-4 py-2 rounded-full
-          bg-surface-raised/80 hover:bg-surface-hover text-text-muted hover:text-text
-          border border-border backdrop-blur-sm transition-colors duration-150 text-sm"
+          bg-neutral-800/80 hover:bg-neutral-700 text-zinc-400 hover:text-zinc-100
+          border border-neutral-800 backdrop-blur-sm transition-colors duration-150 text-sm"
       >
         <Gear size={16} weight="regular" />
         Customize

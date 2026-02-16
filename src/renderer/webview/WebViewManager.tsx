@@ -78,7 +78,7 @@ function WebViewManagerInner(): React.JSX.Element {
   const showSpecialPage = activeTabUrl ? isSpecialPage(activeTabUrl) : false
 
   return (
-    <div className="relative flex-1 bg-surface">
+    <div className="relative flex-1 bg-neutral-900">
       {/* Render webviews for non-special tabs */}
       {activeEntries.map((entry) => {
         // Don't render a webview for special pages

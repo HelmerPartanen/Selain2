@@ -6,9 +6,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const variantClasses: Record<string, string> = {
   default:
-    'bg-surface-raised border border-border rounded-lg px-3 h-8 text-sm text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover transition-all duration-75',
+    'bg-neutral-800 border border-neutral-800 rounded-lg px-3 h-8 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500/25 focus:bg-neutral-700 transition-all duration-75',
   url:
-    'bg-surface-raised border border-border rounded-xl px-4 h-9 text-sm text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/30 focus:bg-surface-hover focus:border-border-hover backdrop-blur-xl transition-all duration-75 w-full'
+    'bg-neutral-800 border border-neutral-800 rounded-xl px-4 h-9 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500/30 focus:bg-neutral-700 focus:border-neutral-700 backdrop-blur-xl transition-all duration-75 w-full'
 }
 
 const InputInner = forwardRef<HTMLInputElement, InputProps>(

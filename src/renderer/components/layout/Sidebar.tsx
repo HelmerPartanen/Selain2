@@ -19,7 +19,7 @@ const SidebarItem = memo(function SidebarItem({ icon, label, isOpen, onClick }: 
     <button
       onClick={onClick}
       title={label}
-      className="flex items-center gap-3 w-full h-9 px-3 rounded-md text-text-muted hover:text-text hover:bg-glass-hover transition-colors duration-75 select-none"
+      className="flex items-center gap-3 w-full h-9 px-3 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-white/5 transition-colors duration-75 select-none"
     >
       <span className="flex-shrink-0">{icon}</span>
       {isOpen && <span className="text-xs truncate">{label}</span>}
@@ -30,7 +30,7 @@ const SidebarItem = memo(function SidebarItem({ icon, label, isOpen, onClick }: 
 function SidebarInner({ isOpen, onToggle }: SidebarProps): React.JSX.Element {
   return (
     <div
-      className={`flex-shrink-0 flex flex-col border-r border-border bg-surface-dim/50 transition-[width] duration-200 ease-out overflow-hidden ${
+      className={`flex-shrink-0 flex flex-col border-r border-neutral-800 bg-neutral-950/50 transition-[width] duration-200 ease-out overflow-hidden ${
         isOpen ? 'w-52' : 'w-11'
       }`}
     >

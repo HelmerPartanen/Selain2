@@ -31,10 +31,19 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     rafIdRef.current = requestAnimationFrame(flushUpdate)
   }, [flushUpdate])
 
+  /** Scrollbar CSS injected into every webview */
+  const SCROLLBAR_CSS = `
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+  `
+
   const handleDomReady = useCallback(() => {
     domReadyRef.current = true
     const webview = webviewRef.current
     if (!webview) return
+    ;(webview as unknown as { insertCSS(css: string): Promise<string> }).insertCSS(SCROLLBAR_CSS)
     batchUpdate({
       canGoBack: webview.canGoBack(),
       canGoForward: webview.canGoForward()
