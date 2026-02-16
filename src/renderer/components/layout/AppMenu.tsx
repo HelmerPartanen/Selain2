@@ -5,14 +5,14 @@ import { useTabStore } from '@/store/tabStore'
 
 function AppMenuInner(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
+  const [menuPosition, setMenuPosition] = useState({ bottom: 0, left: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleToggle = useCallback(() => {
     if (!isOpen && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect()
       setMenuPosition({
-        top: rect.bottom + 4,
+        bottom: window.innerHeight - rect.top + 4,
         left: rect.left
       })
     }
@@ -36,19 +36,15 @@ function AppMenuInner(): React.JSX.Element {
   )
 
   return (
-    <div ref={containerRef} className="[app-region:no-drag] pl-1">
-      <div className="rounded-full" style={{ border: '0.5px solid var(--border-glass)' }}>
-        <div className="flex items-center rounded-full" style={{ background: 'var(--bg-surface)' }}>
-          <Button
-            variant="icon"
-            onClick={handleToggle}
-            aria-label="Menu"
-            aria-expanded={isOpen}
-          >
-            <ListIcon size={18} weight="bold" />
-          </Button>
-        </div>
-      </div>
+    <div ref={containerRef}>
+      <Button
+        variant="icon"
+        onClick={handleToggle}
+        aria-label="Menu"
+        aria-expanded={isOpen}
+      >
+        <ListIcon size={18} weight="bold" />
+      </Button>
 
       {isOpen && (
         <>
@@ -59,7 +55,7 @@ function AppMenuInner(): React.JSX.Element {
           <div
             className="fixed glass-heavy rounded-xl overflow-hidden z-[100] min-w-[160px]"
             style={{
-              top: `${menuPosition.top}px`,
+              bottom: `${menuPosition.bottom}px`,
               left: `${menuPosition.left}px`,
               boxShadow: 'var(--shadow-glass)'
             }}

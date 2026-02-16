@@ -78,7 +78,7 @@ function WebViewManagerInner(): React.JSX.Element {
   const showSpecialPage = activeTabUrl ? isSpecialPage(activeTabUrl) : false
 
   return (
-    <div className="relative flex-1">
+    <div className="relative h-full">
       {/* Webview container — solid background so web pages aren't transparent */}
       <div
         className="absolute inset-0"

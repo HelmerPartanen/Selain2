@@ -5,7 +5,6 @@ import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 import { AppMenu } from '@/components/layout/AppMenu'
-import { OverlaySpacer } from '@/components/ui/WindowControls'
 
 function normalizeURL(input: string): string {
   const trimmed = input.trim()
@@ -33,7 +32,7 @@ function simplifyUrl(raw: string): string {
   }
 }
 
-function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.Element {
+function URLBarInner({ singleTab = false, onFocusChange }: { singleTab?: boolean; onFocusChange?: (focused: boolean) => void }): React.JSX.Element {
   const tabId = useActiveTabId()
   const addTab = useTabStore((s) => s.addTab)
   const url = useActiveTabUrl()
@@ -76,16 +75,18 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
 
   const handleFocus = useCallback(() => {
     setIsFocused(true)
+    onFocusChange?.(true)
     // Show the full URL when focused so the user can edit it
     setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
     requestAnimationFrame(() => {
       inputRef.current?.select()
     })
-  }, [url])
+  }, [url, onFocusChange])
 
   const handleBlur = useCallback(() => {
     setIsFocused(false)
-  }, [])
+    onFocusChange?.(false)
+  }, [onFocusChange])
 
   const handleGoBack = useCallback(() => {
     if (!tabId) return
@@ -116,88 +117,67 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
   }, [addTab])
 
   return (
-  <div
-    className={`flex h-[40px] items-center pl-2 py-1.5 glass ${
-      singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
-    }`}
-    style={{ borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}
-  >
-
-    {/* Menu button */}
-    <div className="[app-region:no-drag]">
+    <div
+      className="flex items-center gap-1 px-2 h-11 glass rounded-full"
+      style={{
+        boxShadow: 'var(--shadow-float)',
+        width: isFocused ? 640 : 520,
+        transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+      }}
+    >
+      {/* Menu */}
       <AppMenu />
-    </div>
 
-    {/* Centered group */}
-    <div className="flex items-center gap-2 mx-auto [app-region:no-drag]">
+      {/* Back / Forward */}
+      <Button
+        variant="icon"
+        onClick={handleGoBack}
+        disabled={!canGoBack}
+        className="disabled:opacity-30"
+        aria-label="Go back"
+      >
+        <CaretLeftIcon size={16} weight="bold" />
+      </Button>
 
-      <div className="rounded-full" style={{ border: '0.5px solid var(--border-glass)' }}>
-        <div
-          className="flex items-center rounded-full"
-          style={{ background: 'var(--bg-surface)' }}
-        >
-          <Button
-            variant="icon"
-            onClick={handleGoBack}
-            disabled={!canGoBack}
-            className="disabled:opacity-30"
-            rounded="rounded-l-full"
-            aria-label="Go back"
-          >
-            <CaretLeftIcon size={16} weight="bold" />
-          </Button>
+      <Button
+        variant="icon"
+        onClick={handleGoForward}
+        disabled={!canGoForward}
+        className="disabled:opacity-30"
+        aria-label="Go forward"
+      >
+        <CaretRightIcon size={16} weight="bold" />
+      </Button>
 
-          <Button
-            variant="icon"
-            onClick={handleGoForward}
-            disabled={!canGoForward}
-            className="disabled:opacity-30"
-            rounded="rounded-r-full"
-            aria-label="Go forward"
-          >
-            <CaretRightIcon size={16} weight="bold" />
-          </Button>
-        </div>
-      </div>
-
-      <div className="rounded-full" style={{ border: '0.5px solid var(--border-glass)' }}>
-        <div
-          className="flex items-center rounded-full"
-          style={{ background: 'var(--bg-surface)' }}
-        >
-          <Button
-            variant="icon"
-            onClick={handleReloadOrStop}
-            aria-label={isLoading ? 'Stop loading' : 'Reload'}
-          >
-            {isLoading ? (
-              <StopIcon size={16} weight="bold" />
-            ) : (
-              <ArrowClockwise size={16} weight="bold" />
-            )}
-          </Button>
-        </div>
-      </div>
-
-      <div className="relative flex items-center rounded-full">
-        <div
-          className="flex items-center rounded-full"
-          style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-glass)' }}
-        >
-        {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') && (
-          <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
-            {isSecure ? (
-              <Lock size={13} style={{ color: 'var(--text-muted)' }} weight="fill" />
-            ) : (
-              <Globe size={13} style={{ color: 'var(--text-muted)' }} weight="regular" />
-            )}
-          </div>
+      {/* Reload / Stop */}
+      <Button
+        variant="icon"
+        onClick={handleReloadOrStop}
+        aria-label={isLoading ? 'Stop loading' : 'Reload'}
+      >
+        {isLoading ? (
+          <StopIcon size={16} weight="bold" />
+        ) : (
+          <ArrowClockwise size={16} weight="bold" />
         )}
-        {(isFocused || !url || url === 'about:blank' || url.startsWith('browser://')) && (
-          <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
-            <MagnifyingGlass size={13} style={{ color: 'var(--text-muted)' }} weight="regular" />
-          </div>
-        )}
+      </Button>
+
+      {/* URL input area — recessed surface */}
+      <div
+        className="relative flex-1 min-w-0 flex items-center rounded-full h-8"
+        style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-glass)' }}
+      >
+        <div className="absolute left-2.5 z-10 flex items-center pointer-events-none">
+          {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
+            isSecure ? (
+              <Lock size={12} style={{ color: 'var(--text-muted)' }} weight="fill" />
+            ) : (
+              <Globe size={12} style={{ color: 'var(--text-muted)' }} weight="regular" />
+            )
+          ) : (
+            <MagnifyingGlass size={12} style={{ color: 'var(--text-muted)' }} weight="regular" />
+          )}
+        </div>
 
         <input
           ref={inputRef}
@@ -210,42 +190,22 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-[600px] bg-transparent rounded-full h-8 text-xs transition-all duration-100 ${
-            !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
-              ? 'pl-7 pr-3'
-              : 'pl-7 pr-3'
-          }`}
+          className="w-full bg-transparent rounded-full h-8 text-xs pl-7 pr-3 outline-none"
           style={{
             color: 'var(--text-primary)',
             ...(isFocused ? { background: 'var(--bg-surface-hover)' } : {})
           }}
         />
-        </div>
       </div>
 
+      {/* New tab — only in single-tab mode */}
+      {singleTab && (
+        <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
+          <Plus size={16} weight="bold" />
+        </Button>
+      )}
     </div>
-
-    {/* Right side - always maintain consistent width */}
-    <div className="flex items-center [app-region:no-drag]">
-      <div className={`rounded-full ${singleTab ? '' : 'invisible'}`} style={{ border: '0.5px solid var(--border-glass)' }}>
-        <div
-          className="flex items-center rounded-full"
-          style={{ background: 'var(--bg-surface)' }}
-        >
-          <Button
-            variant="icon"
-            onClick={handleAddTab}
-            aria-label="New tab"
-          >
-            <Plus size={16} weight="bold" />
-          </Button>
-        </div>
-      </div>
-      {singleTab && <OverlaySpacer />}
-    </div>
-  </div>
-)
-
+  )
 }
 
 export const URLBar = memo(URLBarInner)

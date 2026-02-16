@@ -38,7 +38,7 @@ function TabStripInner(): React.JSX.Element {
   return (
     <div
       role="tablist"
-      className="flex items-center gap-0.5 flex-1 min-w-0 overflow-hidden px-1 [&::-webkit-scrollbar]:hidden"
+      className="flex items-center gap-0.5 min-w-0 overflow-hidden px-1 [&::-webkit-scrollbar]:hidden"
     >
       {tabOrder.map((id, index) => (
         <Tab
@@ -52,16 +52,14 @@ function TabStripInner(): React.JSX.Element {
         />
       ))}
 
-      <div className="rounded-full flex-shrink-0 ml-0.5 [app-region:no-drag]">
-        <div className="flex items-center rounded-full" style={{ transition: 'background 75ms' }}>
-          <Button
-            variant="icon"
-            onClick={handleAddTab}
-            aria-label="New tab"
-          >
-            <Plus size={16} weight="bold" />
-          </Button>
-        </div>
+      <div className="flex-shrink-0 ml-0.5">
+        <Button
+          variant="icon"
+          onClick={handleAddTab}
+          aria-label="New tab"
+        >
+          <Plus size={16} weight="bold" />
+        </Button>
       </div>
     </div>
   )
