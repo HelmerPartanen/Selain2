@@ -34,10 +34,10 @@ function AppMenuInner(): React.JSX.Element {
       </Button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1 bg-surface-dim border border-border rounded-lg shadow-lg overflow-hidden z-50 min-w-[160px]">
+        <div className="absolute left-0 top-full mt-1 bg-surface-raised border border-border rounded-lg shadow-xl shadow-black/30 overflow-hidden z-50 min-w-[160px]">
           <button
             onClick={() => handleMenuItemClick('home')}
-            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-glass-hover transition-colors duration-75 text-sm [app-region:no-drag]"
+            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-surface-hover transition-colors duration-75 text-sm [app-region:no-drag]"
           >
             <House size={16} weight="regular" />
             <span>Home</span>
@@ -45,7 +45,7 @@ function AppMenuInner(): React.JSX.Element {
 
           <button
             onClick={() => handleMenuItemClick('bookmarks')}
-            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-glass-hover transition-colors duration-75 text-sm [app-region:no-drag]"
+            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-surface-hover transition-colors duration-75 text-sm [app-region:no-drag]"
           >
             <BookmarkSimple size={16} weight="regular" />
             <span>Bookmarks</span>
@@ -53,7 +53,7 @@ function AppMenuInner(): React.JSX.Element {
 
           <button
             onClick={() => handleMenuItemClick('history')}
-            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-glass-hover transition-colors duration-75 text-sm [app-region:no-drag]"
+            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-surface-hover transition-colors duration-75 text-sm [app-region:no-drag]"
           >
             <ClockCounterClockwise size={16} weight="regular" />
             <span>History</span>
@@ -63,7 +63,7 @@ function AppMenuInner(): React.JSX.Element {
 
           <button
             onClick={() => handleMenuItemClick('settings')}
-            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-glass-hover transition-colors duration-75 text-sm [app-region:no-drag]"
+            className="w-full flex items-center gap-3 px-3 h-9 text-text-muted hover:text-text hover:bg-surface-hover transition-colors duration-75 text-sm [app-region:no-drag]"
           >
             <Gear size={16} weight="regular" />
             <span>Settings</span>

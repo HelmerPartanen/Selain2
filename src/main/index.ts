@@ -38,11 +38,11 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 600,
     show: false,
-    backgroundColor: '#09090b',
+    backgroundColor: '#28282f',
     titleBarStyle: 'hidden',
     titleBarOverlay: {
-      color: '#09090b',
-      symbolColor: '#a1a1aa',
+      color: '#28282f',
+      symbolColor: '#b0b0ba',
       height: 40
     },
     webPreferences: {

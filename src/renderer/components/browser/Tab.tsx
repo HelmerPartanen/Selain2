@@ -59,8 +59,8 @@ function TabInner({ tabId, isActive, index, onDragStart, onDragOver, onDrop }: T
       onClick={handleClick}
       className={`group relative flex items-center gap-2 flex-1 min-w-0 h-8 px-3 rounded-md cursor-default select-none transition-colors duration-75 [app-region:no-drag] ${
         isActive
-          ? 'bg-white/10 text-text'
-          : 'text-text-muted hover:bg-white/5 hover:text-text'
+          ? 'bg-surface-raised text-text'
+          : 'text-text-muted hover:bg-surface-hover hover:text-text'
       }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">

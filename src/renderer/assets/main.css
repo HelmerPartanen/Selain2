@@ -3,20 +3,30 @@
 @theme {
   --font-sans: "Inter", "Segoe UI Variable", system-ui, sans-serif;
 
-  --color-surface: oklch(0.145 0.005 285.82);
-  --color-surface-dim: oklch(0.12 0.005 285.82);
-  --color-surface-hover: oklch(0.2 0.005 285.82);
-  --color-surface-active: oklch(0.25 0.008 285.82);
-  --color-border: oklch(1 0 0 / 0.05);
-  --color-border-hover: oklch(1 0 0 / 0.1);
-  --color-text: oklch(0.95 0.005 285.82);
-  --color-text-muted: oklch(0.65 0.01 285.82);
-  --color-text-dim: oklch(0.45 0.01 285.82);
-  --color-danger: oklch(0.637 0.237 25.33);
-  --color-accent: oklch(0.623 0.214 259.13);
-  --color-glass: oklch(0 0 0 / 0.6);
-  --color-glass-hover: oklch(1 0 0 / 0.1);
-  --color-glass-active: oklch(1 0 0 / 0.15);
+  /* ── Surfaces ──────────────────────────────────────────── */
+  --color-surface: oklch(0.23 0.006 270);         /* main bg */
+  --color-surface-dim: oklch(0.195 0.006 270);    /* title bar, url bar tray */
+  --color-surface-raised: oklch(0.27 0.007 270);  /* inputs, active tab, cards */
+  --color-surface-hover: oklch(0.31 0.008 270);   /* hover states */
+  --color-surface-active: oklch(0.35 0.009 270);  /* pressed / active */
+
+  /* ── Borders ──────────────────────────────────────────── */
+  --color-border: oklch(1 0 0 / 0.08);
+  --color-border-hover: oklch(1 0 0 / 0.14);
+
+  /* ── Text ─────────────────────────────────────────────── */
+  --color-text: oklch(0.96 0.003 270);
+  --color-text-muted: oklch(0.72 0.012 270);
+  --color-text-dim: oklch(0.52 0.010 270);
+
+  /* ── Semantic ─────────────────────────────────────────── */
+  --color-danger: oklch(0.65 0.22 25.33);
+  --color-accent: oklch(0.65 0.20 255);           /* vivid blue */
+
+  /* ── Glass overlays ──────────────────────────────────── */
+  --color-glass: oklch(0 0 0 / 0.35);
+  --color-glass-hover: oklch(1 0 0 / 0.07);
+  --color-glass-active: oklch(1 0 0 / 0.12);
 }
 
 * {
@@ -47,10 +57,10 @@ body,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(1 0 0 / 0.1);
+  background: oklch(1 0 0 / 0.12);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(1 0 0 / 0.2);
+  background: oklch(1 0 0 / 0.22);
 }

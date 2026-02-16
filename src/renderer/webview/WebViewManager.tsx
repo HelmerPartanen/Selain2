@@ -51,7 +51,7 @@ function WebViewManagerInner(): React.JSX.Element {
   const activeEntries = useSyncExternalStore(subscribe, getSnapshot)
 
   return (
-    <div className="relative flex-1 bg-zinc-950">
+    <div className="relative flex-1 bg-surface">
       {activeEntries.map((entry) => (
         <WebViewInstance
           key={entry.id}

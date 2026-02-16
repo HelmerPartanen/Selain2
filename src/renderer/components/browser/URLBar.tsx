@@ -16,6 +16,20 @@ function normalizeURL(input: string): string {
   return `https://www.google.com/search?q=${encodeURIComponent(trimmed)}`
 }
 
+/** Strip protocol, www., and trailing slash for a clean unfocused display */
+function simplifyUrl(raw: string): string {
+  if (!raw || raw === 'about:blank') return ''
+  try {
+    const u = new URL(raw)
+    let host = u.hostname.replace(/^www\./, '')
+    const path = u.pathname + u.search + u.hash
+    const trimmedPath = path === '/' ? '' : path
+    return host + trimmedPath
+  } catch {
+    return raw
+  }
+}
+
 function URLBarInner(): React.JSX.Element {
   const tabId = useActiveTabId()
   const url = useActiveTabUrl()
@@ -30,6 +44,8 @@ function URLBarInner(): React.JSX.Element {
       setInputValue(url === 'about:blank' ? '' : url)
     }
   }, [url, isFocused])
+
+  const simplifiedUrl = simplifyUrl(url)
 
   const navigate = useCallback(
     (targetUrl: string) => {
@@ -56,10 +72,12 @@ function URLBarInner(): React.JSX.Element {
 
   const handleFocus = useCallback(() => {
     setIsFocused(true)
+    // Show the full URL when focused so the user can edit it
+    setInputValue(url === 'about:blank' ? '' : url)
     requestAnimationFrame(() => {
       inputRef.current?.select()
     })
-  }, [])
+  }, [url])
 
   const handleBlur = useCallback(() => {
     setIsFocused(false)
@@ -87,10 +105,10 @@ function URLBarInner(): React.JSX.Element {
   }, [tabId, isLoading])
 
   const isSecure = url.startsWith('https://')
-  const displayUrl = isFocused ? inputValue : (url === 'about:blank' ? '' : url)
+  const displayUrl = isFocused ? inputValue : simplifiedUrl
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1.5 bg-surface-dim/50">
+    <div className="flex items-center gap-1 px-2 py-1.5 bg-surface-dim">
       <Button
         variant="icon"
         onClick={handleGoBack}
@@ -144,7 +162,7 @@ function URLBarInner(): React.JSX.Element {
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-full bg-white/5 border border-border rounded-lg h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-white/15 focus:bg-white/8 focus:border-white/10 transition-all duration-75 ${
+          className={`w-full bg-surface-raised border border-border rounded-lg h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
             !isFocused && url && url !== 'about:blank' ? 'pl-8 pr-3' : 'px-3'
           }`}
         />
