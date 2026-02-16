@@ -1,22 +1,28 @@
 // ─── Settings Page ───────────────────────────────────────────────────────────
-// A dedicated page for appearance customization.
+// Appearance customization: theme mode, wallpaper selection.
 // Accessed via browser://settings.
 
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback } from 'react'
 import {
-  Image as ImageIcon,
-  PaintBucket,
   ArrowLeft,
-  Upload,
-  X,
-  Check,
   Sun,
   Moon,
-  Desktop
+  Desktop,
+  Check,
+  UploadSimple,
+  Trash,
+  Images
 } from '@phosphor-icons/react'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useTabStore } from '@/store/tabStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function solidToDataUrl(hex: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="${hex}"/></svg>`
+  return `data:image/svg+xml;base64,${btoa(svg)}`
+}
 
 // ─── Main Settings Page ──────────────────────────────────────────────────────
 
@@ -29,37 +35,52 @@ function SettingsPageInner(): React.JSX.Element {
   }, [])
 
   return (
-    <div className="absolute inset-0 bg-[#1C1C1E] overflow-y-auto">
-      <div className="max-w-3xl mx-auto px-6 py-8">
+    <div className="absolute inset-0 overflow-y-auto">
+      <div className="max-w-2xl mx-auto px-8 py-10">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-10">
           <button
             onClick={handleBack}
-            className="p-2 rounded-lg hover:bg-neutral-700 text-zinc-400 hover:text-zinc-100 transition-colors"
+            className="p-2 rounded-xl transition-colors duration-100"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
           >
             <ArrowLeft size={20} weight="bold" />
           </button>
-          <h1 className="text-2xl font-semibold text-zinc-100">Settings</h1>
+          <h1 className="text-xl font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Settings</h1>
         </div>
 
-        {/* Appearance Section */}
-        <section className="mb-10">
-          <h2 className="text-lg font-medium text-zinc-100 mb-1">Appearance</h2>
-          <p className="text-sm text-zinc-400 mb-6">
-            Customize your new tab background with wallpapers or solid colors.
-          </p>
-
-          {/* Theme Mode */}
+        {/* ── Theme Mode Section ───────────────────────────────────────── */}
+        <SettingsCard title="Theme" subtitle="Control how the interface looks.">
           <ThemeModePicker />
+        </SettingsCard>
 
-          {/* Wallpaper Picker */}
+        {/* ── Wallpaper Section ────────────────────────────────────────── */}
+        <SettingsCard title="Wallpaper" subtitle="Personalize your browser background.">
           <WallpaperPicker />
-
-          {/* Solid Color Picker */}
-          <SolidColorPicker />
-        </section>
+        </SettingsCard>
       </div>
     </div>
+  )
+}
+
+// ─── Reusable Settings Card ──────────────────────────────────────────────────
+
+function SettingsCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }): React.JSX.Element {
+  return (
+    <section
+      className="mb-6 glass-heavy rounded-2xl overflow-hidden"
+      style={{ boxShadow: 'var(--shadow-glass-sm)' }}
+    >
+      <div className="px-6 pt-5 pb-1">
+        <h2 className="text-[15px] font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>{title}</h2>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{subtitle}</p>
+      </div>
+      <div className="px-6 pb-5 pt-4">
+        {children}
+      </div>
+    </section>
   )
 }
 
@@ -76,27 +97,37 @@ function ThemeModePicker(): React.JSX.Element {
   const setThemeMode = useThemeStore((s) => s.setThemeMode)
 
   return (
-    <div className="mb-6">
-      <label className="text-sm font-medium text-zinc-400 mb-2 block">Theme</label>
-      <div className="flex gap-2">
-        {THEME_MODES.map(({ mode, label, icon: Icon }) => {
-          const isActive = themeMode === mode
-          return (
-            <button
-              key={mode}
-              onClick={() => setThemeMode(mode)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150
-                ${isActive
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-neutral-800 text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700'
-                }`}
-            >
-              <Icon size={16} weight={isActive ? 'fill' : 'regular'} />
-              {label}
-            </button>
-          )
-        })}
-      </div>
+    <div className="flex gap-2">
+      {THEME_MODES.map(({ mode, label, icon: Icon }) => {
+        const isActive = themeMode === mode
+        return (
+          <button
+            key={mode}
+            onClick={() => setThemeMode(mode)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150"
+            style={
+              isActive
+                ? { background: 'var(--accent)', color: '#fff', border: 'none', boxShadow: '0 1px 6px var(--accent-glow)' }
+                : { background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '0.5px solid var(--border-glass)' }
+            }
+            onMouseEnter={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.background = 'var(--bg-surface-hover)'
+                e.currentTarget.style.color = 'var(--text-primary)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.background = 'var(--bg-surface)'
+                e.currentTarget.style.color = 'var(--text-secondary)'
+              }
+            }}
+          >
+            <Icon size={15} weight={isActive ? 'fill' : 'regular'} />
+            {label}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -104,200 +135,147 @@ function ThemeModePicker(): React.JSX.Element {
 // ─── Wallpaper Picker ────────────────────────────────────────────────────────
 
 function WallpaperPicker(): React.JSX.Element {
-  const wallpaperSource = useThemeStore((s) => s.wallpaperSource)
+  const wallpaper = useThemeStore((s) => s.wallpaper)
   const setWallpaper = useThemeStore((s) => s.setWallpaper)
-  const clearWallpaper = useThemeStore((s) => s.clearWallpaper)
-  const wallpaperType = useThemeStore((s) => s.wallpaperType)
-  const [isUploading, setIsUploading] = useState(false)
 
-  const handlePresetClick = useCallback((preset: typeof WALLPAPER_PRESETS[0]) => {
-    setWallpaper(preset.dataUrl)
-  }, [setWallpaper])
+  const handleSelectPreset = useCallback(
+    (dataUrl: string) => setWallpaper(dataUrl),
+    [setWallpaper]
+  )
 
-  const handleUpload = useCallback(async () => {
-    setIsUploading(true)
+  const handleSelectSolid = useCallback(
+    (hex: string) => setWallpaper(solidToDataUrl(hex)),
+    [setWallpaper]
+  )
+
+  const handleCustomImage = useCallback(async () => {
     try {
       const dataUrl = await window.electronAPI.openImageDialog()
-      if (dataUrl) {
-        setWallpaper(dataUrl)
-      }
-    } finally {
-      setIsUploading(false)
+      if (dataUrl) setWallpaper(dataUrl)
+    } catch (err) {
+      console.error('Failed to open image dialog:', err)
     }
   }, [setWallpaper])
 
-  const handleClear = useCallback(() => {
-    clearWallpaper()
-  }, [clearWallpaper])
+  const handleClear = useCallback(() => setWallpaper(null), [setWallpaper])
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-2">
-        <label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-          <ImageIcon size={16} />
-          Wallpapers
-        </label>
-        {wallpaperType === 'image' && (
-          <button
-            onClick={handleClear}
-            className="text-xs text-zinc-500 hover:text-zinc-100 flex items-center gap-1 transition-colors"
-          >
-            <X size={12} />
-            Remove
-          </button>
-        )}
-      </div>
-
-      <div className="grid grid-cols-4 gap-3">
-        {/* Upload card */}
-        <button
-          onClick={handleUpload}
-          disabled={isUploading}
-          className="aspect-video rounded-lg border-2 border-dashed border-neutral-800 hover:border-neutral-700
-            flex flex-col items-center justify-center gap-1 text-zinc-500 hover:text-zinc-400
-            transition-colors duration-150 text-xs"
-        >
-          <Upload size={20} weight="regular" />
-          {isUploading ? 'Loading...' : 'Upload'}
-        </button>
-
-        {/* Preset wallpapers */}
-        {WALLPAPER_PRESETS.map((preset) => {
-          const isActive = wallpaperType === 'image' && wallpaperSource === preset.dataUrl
-          return (
-            <button
-              key={preset.id}
-              onClick={() => handlePresetClick(preset)}
-              className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all duration-150
-                ${isActive
-                  ? 'border-blue-500 ring-2 ring-blue-500/25'
-                  : 'border-neutral-800 hover:border-neutral-700'
-                }`}
-            >
-              <div
-                className="absolute inset-0"
+    <div className="space-y-5">
+      {/* Gradient Presets */}
+      <div>
+        <SectionLabel icon={<Images size={13} weight="bold" />} text="Gradients" />
+        <div className="grid grid-cols-4 gap-2.5 mt-2">
+          {WALLPAPER_PRESETS.map((preset) => {
+            const isActive = wallpaper === preset.dataUrl
+            return (
+              <WallpaperSwatch
+                key={preset.id}
+                isActive={isActive}
+                title={preset.name}
+                onClick={() => handleSelectPreset(preset.dataUrl)}
                 style={{
                   backgroundImage: `url(${preset.dataUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center'
                 }}
+                aspect="aspect-[16/10]"
               />
-              {isActive && (
-                <div className="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                  <Check size={12} weight="bold" className="text-white" />
-                </div>
-              )}
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
-                <span className="text-[10px] text-white/90 font-medium">{preset.name}</span>
-              </div>
-            </button>
-          )
-        })}
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Solid Colors */}
+      <div>
+        <SectionLabel text="Solid Colors" />
+        <div className="grid grid-cols-6 gap-2 mt-2">
+          {SOLID_COLOR_PRESETS.map((color) => {
+            const isActive = wallpaper === solidToDataUrl(color.hex)
+            return (
+              <WallpaperSwatch
+                key={color.hex}
+                isActive={isActive}
+                title={color.name}
+                onClick={() => handleSelectSolid(color.hex)}
+                style={{ backgroundColor: color.hex }}
+                aspect="aspect-square"
+              />
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2 pt-1">
+        <ActionButton icon={<UploadSimple size={14} weight="bold" />} label="Upload Image" onClick={handleCustomImage} />
+        <ActionButton icon={<Trash size={14} weight="bold" />} label="Remove" onClick={handleClear} variant="danger" />
       </div>
     </div>
   )
 }
 
-// ─── Solid Color Picker ──────────────────────────────────────────────────────
+// ─── Sub-components ──────────────────────────────────────────────────────────
 
-function SolidColorPicker(): React.JSX.Element {
-  const solidColor = useThemeStore((s) => s.solidColor)
-  const wallpaperType = useThemeStore((s) => s.wallpaperType)
-  const setSolidColor = useThemeStore((s) => s.setSolidColor)
-  const [customHex, setCustomHex] = useState('')
+function SectionLabel({ text, icon }: { text: string; icon?: React.ReactNode }): React.JSX.Element {
+  return (
+    <div className="flex items-center gap-1.5">
+      {icon && <span style={{ color: 'var(--text-muted)' }}>{icon}</span>}
+      <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{text}</span>
+    </div>
+  )
+}
 
-  const handlePresetClick = useCallback((hex: string) => {
-    setSolidColor(hex)
-    setCustomHex('')
-  }, [setSolidColor])
+function WallpaperSwatch(
+  { isActive, title, onClick, style, aspect }:
+  { isActive: boolean; title: string; onClick: () => void; style: React.CSSProperties; aspect: string }
+): React.JSX.Element {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`relative ${aspect} rounded-xl overflow-hidden transition-all duration-150 hover:scale-[1.06] active:scale-100`}
+      style={{
+        ...style,
+        border: isActive ? '2px solid var(--accent)' : '1px solid var(--border-glass)',
+        boxShadow: isActive ? '0 0 0 2px var(--accent-glow), var(--shadow-glass-sm)' : 'var(--shadow-glass-sm)',
+        outline: 'none'
+      }}
+    >
+      {isActive && (
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(2px)' }}
+        >
+          <div
+            className="w-5 h-5 rounded-full flex items-center justify-center"
+            style={{ background: 'var(--accent)', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}
+          >
+            <Check size={11} weight="bold" color="#fff" />
+          </div>
+        </div>
+      )}
+    </button>
+  )
+}
 
-  const handleCustomSubmit = useCallback(() => {
-    const hex = customHex.trim()
-    if (/^#?[0-9a-fA-F]{6}$/.test(hex)) {
-      setSolidColor(hex.startsWith('#') ? hex : `#${hex}`)
-      setCustomHex('')
-    }
-  }, [customHex, setSolidColor])
+function ActionButton(
+  { icon, label, onClick, variant = 'default' }:
+  { icon: React.ReactNode; label: string; onClick: () => void; variant?: 'default' | 'danger' }
+): React.JSX.Element {
+  const hoverBg = variant === 'danger' ? 'hsla(0,60%,50%,0.15)' : 'var(--bg-surface-hover)'
+  const hoverColor = variant === 'danger' ? 'hsl(0,70%,65%)' : 'var(--text-primary)'
 
   return (
-    <div className="mb-6">
-      <label className="text-sm font-medium text-zinc-400 flex items-center gap-2 mb-2">
-        <PaintBucket size={16} />
-        Solid Colors
-      </label>
-
-      <div className="grid grid-cols-6 gap-2 mb-3">
-        {SOLID_COLOR_PRESETS.map((preset) => {
-          const isActive = wallpaperType === 'solid' && solidColor === preset.hex
-          return (
-            <button
-              key={preset.hex}
-              onClick={() => handlePresetClick(preset.hex)}
-              title={preset.name}
-              className={`aspect-square rounded-lg border-2 transition-all duration-150 relative
-                ${isActive
-                  ? 'border-blue-500 ring-2 ring-blue-500/25 scale-105'
-                  : 'border-neutral-800 hover:border-neutral-700 hover:scale-105'
-                }`}
-              style={{ backgroundColor: preset.hex }}
-            >
-              {isActive && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Check
-                    size={16}
-                    weight="bold"
-                    className={preset.hex === '#f0f0f5' || preset.hex === '#faf5ee' || preset.hex === '#e8f0fe' || preset.hex === '#ecfdf5'
-                      ? 'text-gray-800'
-                      : 'text-white'}
-                  />
-                </div>
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Custom hex input */}
-      <div className="flex gap-2 items-center">
-        <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">#</span>
-          <input
-            type="text"
-            value={customHex}
-            onChange={(e) => setCustomHex(e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6))}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleCustomSubmit() }}
-            placeholder="Custom hex color"
-            maxLength={6}
-            className="w-full pl-7 pr-3 py-2 rounded-lg bg-neutral-950 border border-neutral-800
-              text-zinc-100 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2
-              focus:ring-blue-500/25 focus:border-neutral-700 transition-colors"
-          />
-        </div>
-        <button
-          onClick={handleCustomSubmit}
-          disabled={!/^[0-9a-fA-F]{6}$/.test(customHex.trim())}
-          className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium
-            disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-        >
-          Apply
-        </button>
-        {/* Native color picker */}
-        <label className="relative">
-          <input
-            type="color"
-            value={wallpaperType === 'solid' && solidColor ? solidColor : '#1e1e1e'}
-            onChange={(e) => setSolidColor(e.target.value)}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          />
-          <div className="w-10 h-10 rounded-lg border border-neutral-800 cursor-pointer hover:border-neutral-700 transition-colors overflow-hidden">
-            <div
-              className="w-full h-full"
-              style={{ backgroundColor: wallpaperType === 'solid' && solidColor ? solidColor : '#1e1e1e' }}
-            />
-          </div>
-        </label>
-      </div>
-    </div>
+    <button
+      onClick={onClick}
+      className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium transition-all duration-100"
+      style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '0.5px solid var(--border-glass)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg; e.currentTarget.style.color = hoverColor }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-surface)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+    >
+      {icon}
+      {label}
+    </button>
   )
 }
 

@@ -9,9 +9,7 @@ import { useThemeStore } from '@/store/themeStore'
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
   const tabCount = useTabStore((s) => s.tabOrder.length)
-  const wallpaperType = useThemeStore((s) => s.wallpaperType)
-  const wallpaperSource = useThemeStore((s) => s.wallpaperSource)
-  const solidColor = useThemeStore((s) => s.solidColor)
+  const wallpaper = useThemeStore((s) => s.wallpaper)
 
   useEffect(() => {
     const state = useTabStore.getState()
@@ -22,25 +20,20 @@ function BrowserLayoutInner(): React.JSX.Element {
 
   const showTabStrip = tabCount > 1
 
-  // Background style based on wallpaper type
-  let bgStyle: React.CSSProperties = {}
-  if (wallpaperType === 'image' && wallpaperSource) {
-    bgStyle = {
-      backgroundImage: `url(${wallpaperSource})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }
-  } else if (wallpaperType === 'solid' && solidColor) {
-    bgStyle = { backgroundColor: solidColor }
-  } else {
-    bgStyle = { backgroundColor: '#1C1C1E' }
-  }
-
   return (
-    <div className="relative flex flex-col h-screen text-zinc-100 overflow-hidden bg-[#1C1C1E]">
-      {/* Background layer */}
-      <div className="absolute inset-0 z-0" style={bgStyle} />
-      
+    <div className="relative flex flex-col h-screen overflow-hidden" style={{ color: 'var(--text-primary)' }}>
+      {/* Wallpaper layer — fixed behind everything */}
+      <div
+        className="fixed inset-0 z-0 transition-opacity duration-500"
+        style={{
+          backgroundColor: 'var(--bg-solid-fallback)',
+          backgroundImage: wallpaper ? `url(${wallpaper})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+
       {/* Content layer */}
       <div className="relative z-10 flex flex-col h-full">
         <div className={`flex-shrink-0 transition-all duration-200 ease-out ${showTabStrip ? 'h-[40px]' : 'h-0'}`}>

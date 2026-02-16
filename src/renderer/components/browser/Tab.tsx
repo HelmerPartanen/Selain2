@@ -59,17 +59,21 @@ function TabInner({ tabId, isActive, index, onDragStart, onDragOver, onDrop }: T
       onClick={handleClick}
       className={`group relative flex items-center gap-2 flex-1 min-w-0 max-w-[240px] h-8 px-3 rounded-full cursor-default select-none transition-colors duration-75 [app-region:no-drag] ${
         isActive
-          ? 'bg-neutral-800 text-zinc-100'
-          : 'text-zinc-400 hover:text-zinc-100'
+          ? 'glass-surface'
+          : ''
       }`}
+      style={{
+        color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+        ...(isActive ? {} : { background: 'transparent', border: 'none', backdropFilter: 'none', WebkitBackdropFilter: 'none' })
+      }}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
-          <CircleNotch size={14} className="animate-spin text-zinc-400" weight="bold" />
+          <CircleNotch size={14} className="animate-spin" style={{ color: 'var(--text-muted)' }} weight="bold" />
         ) : favicon ? (
           <img src={favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
         ) : (
-          <Globe size={14} className="text-zinc-500" weight="regular" />
+          <Globe size={14} style={{ color: 'var(--text-muted)' }} weight="regular" />
         )}
       </div>
 
@@ -77,7 +81,10 @@ function TabInner({ tabId, isActive, index, onDragStart, onDragOver, onDrop }: T
 
       <button
         onClick={handleClose}
-        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 hover:bg-neutral-700 hover:text-white transition-all duration-75"
+        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-all duration-75"
+        style={{ color: 'var(--text-secondary)' }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
         aria-label={`Close ${title}`}
       >
         <X size={12} weight="bold" />

@@ -116,9 +116,12 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
   }, [addTab])
 
   return (
-  <div className={`flex h-[40px] items-center px-2 py-1.5 bg-black/20 backdrop-blur-xl border-b border-white/10 ${
-    singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
-  }`}>
+  <div
+    className={`flex h-[40px] items-center px-2 py-1.5 glass ${
+      singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
+    }`}
+    style={{ borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}
+  >
 
     {/* Menu button */}
     <div className="[app-region:no-drag]">
@@ -128,8 +131,11 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
     {/* Centered group */}
     <div className="flex items-center gap-2 mx-auto [app-region:no-drag]">
 
-      <div className="border-gradient rounded-full">
-        <div className="flex items-center bg-[#222224]/80 rounded-full">
+      <div className="rounded-full" style={{ border: '0.5px solid var(--border-glass)' }}>
+        <div
+          className="flex items-center rounded-full"
+          style={{ background: 'var(--bg-surface)' }}
+        >
           <Button
             variant="icon"
             onClick={handleGoBack}
@@ -154,8 +160,11 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
         </div>
       </div>
 
-      <div className="rounded-full">
-        <div className="flex items-center bg-[#222224]/80 rounded-full">
+      <div className="rounded-full" style={{ border: '0.5px solid var(--border-glass)' }}>
+        <div
+          className="flex items-center rounded-full"
+          style={{ background: 'var(--bg-surface)' }}
+        >
           <Button
             variant="icon"
             onClick={handleReloadOrStop}
@@ -171,19 +180,22 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
       </div>
 
       <div className="relative flex items-center rounded-full">
-        <div className="flex items-center bg-[#27272A] rounded-full">
+        <div
+          className="flex items-center rounded-full"
+          style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-glass)' }}
+        >
         {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') && (
           <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
             {isSecure ? (
-              <Lock size={13} className="text-zinc-500" weight="fill" />
+              <Lock size={13} style={{ color: 'var(--text-muted)' }} weight="fill" />
             ) : (
-              <Globe size={13} className="text-zinc-500" weight="regular" />
+              <Globe size={13} style={{ color: 'var(--text-muted)' }} weight="regular" />
             )}
           </div>
         )}
         {(isFocused || !url || url === 'about:blank' || url.startsWith('browser://')) && (
           <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
-            <MagnifyingGlass size={13} className="text-zinc-500" weight="regular" />
+            <MagnifyingGlass size={13} style={{ color: 'var(--text-muted)' }} weight="regular" />
           </div>
         )}
 
@@ -198,11 +210,15 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-6xl bg-transparent focus:bg-neutral-800 rounded-full h-8 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-2 outline-blue-500/30 transition-all duration-100 ${
+          className={`w-6xl bg-transparent rounded-full h-8 text-xs transition-all duration-100 ${
             !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
               ? 'pl-7 pr-3'
               : 'pl-7 pr-3'
           }`}
+          style={{
+            color: 'var(--text-primary)',
+            ...(isFocused ? { background: 'var(--bg-surface-hover)' } : {})
+          }}
         />
         </div>
       </div>
@@ -211,8 +227,11 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
 
     {/* Right side - always maintain consistent width */}
     <div className="flex items-center [app-region:no-drag]">
-      <div className={`rounded-full ${singleTab ? '' : 'invisible'}`}>
-        <div className="flex items-center bg-[#222224] rounded-full">
+      <div className={`rounded-full ${singleTab ? '' : 'invisible'}`} style={{ border: '0.5px solid var(--border-glass)' }}>
+        <div
+          className="flex items-center rounded-full"
+          style={{ background: 'var(--bg-surface)' }}
+        >
           <Button
             variant="icon"
             onClick={handleAddTab}

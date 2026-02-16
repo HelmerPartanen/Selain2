@@ -6,17 +6,26 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const variantClasses: Record<string, string> = {
   default:
-    'bg-neutral-800 border border-neutral-800 rounded-lg px-3 h-8 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500/25 focus:bg-neutral-700 transition-all duration-75',
+    'rounded-lg px-3 h-8 text-sm focus:outline-none focus:ring-1 transition-all duration-75',
   url:
-    'bg-neutral-800 border border-neutral-800 rounded-xl px-4 h-9 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500/30 focus:bg-neutral-700 focus:border-neutral-700 backdrop-blur-xl transition-all duration-75 w-full'
+    'rounded-xl px-4 h-9 text-sm focus:outline-none focus:ring-1 transition-all duration-75 w-full'
+}
+
+const sharedStyle: React.CSSProperties = {
+  background: 'var(--bg-surface)',
+  border: '0.5px solid var(--border-glass)',
+  color: 'var(--text-primary)',
+  backdropFilter: 'var(--blur-standard)',
+  WebkitBackdropFilter: 'var(--blur-standard)'
 }
 
 const InputInner = forwardRef<HTMLInputElement, InputProps>(
-  ({ variant = 'default', className = '', ...props }, ref) => {
+  ({ variant = 'default', className = '', style, ...props }, ref) => {
     return (
       <input
         ref={ref}
         className={`${variantClasses[variant]} ${className}`}
+        style={{ ...sharedStyle, ...style }}
         {...props}
       />
     )

@@ -78,22 +78,29 @@ function WebViewManagerInner(): React.JSX.Element {
   const showSpecialPage = activeTabUrl ? isSpecialPage(activeTabUrl) : false
 
   return (
-    <div className="relative flex-1 bg-neutral-900">
-      {/* Render webviews for non-special tabs */}
-      {activeEntries.map((entry) => {
-        // Don't render a webview for special pages
-        if (isSpecialPage(entry.initialUrl)) return null
-        return (
-          <WebViewInstance
-            key={entry.id}
-            tabId={entry.id}
-            isActive={entry.id === activeTabId && !showSpecialPage}
-            initialUrl={entry.initialUrl}
-          />
-        )
-      })}
+    <div className="relative flex-1">
+      {/* Webview container — solid background so web pages aren't transparent */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor: showSpecialPage ? 'transparent' : 'var(--bg-solid-fallback)',
+          transition: 'background-color 200ms'
+        }}
+      >
+        {activeEntries.map((entry) => {
+          if (isSpecialPage(entry.initialUrl)) return null
+          return (
+            <WebViewInstance
+              key={entry.id}
+              tabId={entry.id}
+              isActive={entry.id === activeTabId && !showSpecialPage}
+              initialUrl={entry.initialUrl}
+            />
+          )
+        })}
+      </div>
 
-      {/* Render special page overlay for browser:// URLs */}
+      {/* Special page overlay — transparent so wallpaper shows through */}
       {showSpecialPage && activeTabUrl && (
         <div className="absolute inset-0 z-20">
           <SpecialPage url={activeTabUrl} />

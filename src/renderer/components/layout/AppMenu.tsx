@@ -37,8 +37,8 @@ function AppMenuInner(): React.JSX.Element {
 
   return (
     <div ref={containerRef} className="[app-region:no-drag] pl-1">
-      <div className="rounded-full border-gradient">
-        <div className="flex items-center bg-[#222224] rounded-full">
+      <div className="rounded-full" style={{ border: '0.5px solid var(--border-glass)' }}>
+        <div className="flex items-center rounded-full" style={{ background: 'var(--bg-surface)' }}>
           <Button
             variant="icon"
             onClick={handleToggle}
@@ -56,13 +56,20 @@ function AppMenuInner(): React.JSX.Element {
             className="fixed inset-0 z-[90]"
             onMouseDown={handleClose}
           />
-          <div 
-            className="fixed bg-neutral-800 border border-neutral-800 rounded-lg shadow-xl shadow-black/30 overflow-hidden z-[100] min-w-[160px]"
-            style={{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}
+          <div
+            className="fixed glass-heavy rounded-xl overflow-hidden z-[100] min-w-[160px]"
+            style={{
+              top: `${menuPosition.top}px`,
+              left: `${menuPosition.left}px`,
+              boxShadow: 'var(--shadow-glass)'
+            }}
           >
             <button
               onClick={() => handleMenuItemClick('home')}
-              className="w-full flex items-center gap-3 px-3 h-9 text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700 transition-colors duration-75 text-sm [app-region:no-drag]"
+              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
             >
               <House size={16} weight="regular" />
               <span>Home</span>
@@ -70,7 +77,10 @@ function AppMenuInner(): React.JSX.Element {
 
             <button
               onClick={() => handleMenuItemClick('bookmarks')}
-              className="w-full flex items-center gap-3 px-3 h-9 text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700 transition-colors duration-75 text-sm [app-region:no-drag]"
+              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
             >
               <BookmarkSimple size={16} weight="regular" />
               <span>Bookmarks</span>
@@ -78,17 +88,23 @@ function AppMenuInner(): React.JSX.Element {
 
             <button
               onClick={() => handleMenuItemClick('history')}
-              className="w-full flex items-center gap-3 px-3 h-9 text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700 transition-colors duration-75 text-sm [app-region:no-drag]"
+              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
             >
               <ClockCounterClockwise size={16} weight="regular" />
               <span>History</span>
             </button>
 
-            <div className="border-t border-neutral-700" />
+            <div style={{ borderTop: '0.5px solid var(--border-glass)' }} />
 
             <button
               onClick={() => handleMenuItemClick('settings')}
-              className="w-full flex items-center gap-3 px-3 h-9 text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700 transition-colors duration-75 text-sm [app-region:no-drag]"
+              className="w-full flex items-center gap-3 px-3 h-9 transition-colors duration-75 text-sm [app-region:no-drag]"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-surface-hover)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' }}
             >
               <Gear size={16} weight="regular" />
               <span>Settings</span>
