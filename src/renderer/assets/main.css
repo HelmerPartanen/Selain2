@@ -39,9 +39,3 @@ body,
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(1 0 0 / 0.22);
 }
-
-/* Reusable gradient border: bright at top-left & bottom-right, subtle elsewhere */
-.border-gradient {
-  padding: 1px;
-  background: linear-gradient(135deg, #4C4C52, #2e2e3275 50%, #4C4C52);
-}

@@ -52,8 +52,8 @@ function TabStripInner(): React.JSX.Element {
         />
       ))}
 
-      <div className="rounded-full border-gradient flex-shrink-0 ml-0.5 [app-region:no-drag]">
-        <div className="flex items-center bg-[#222224] rounded-full">
+      <div className="rounded-full flex-shrink-0 ml-0.5 [app-region:no-drag]">
+        <div className="flex items-center hover:bg-[#222224] rounded-full">
           <Button
             variant="icon"
             onClick={handleAddTab}

@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { ArrowLeft, ArrowRight, ArrowClockwise, X as StopIcon, Lock, Globe, Plus } from '@phosphor-icons/react'
+import { CaretLeftIcon , CaretRightIcon , ArrowClockwise, X as StopIcon, Lock, Globe, Plus, MagnifyingGlass } from '@phosphor-icons/react'
 import { useActiveTabId, useActiveTabUrl, useActiveTabNavState } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
@@ -116,7 +116,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
   }, [addTab])
 
   return (
-  <div className={`flex items-center px-2 py-1.5 bg-[#F1F2F6] dark:bg-[#1C1C1E] border-t border-neutral-800 rounded-t-2xl ${
+  <div className={`flex h-[40px] items-center px-2 py-1.5 bg-black/20 backdrop-blur-xl border-b border-white/10 ${
     singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
   }`}>
 
@@ -128,16 +128,17 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
     {/* Centered group */}
     <div className="flex items-center gap-2 mx-auto [app-region:no-drag]">
 
-      <div className="rounded-full border-gradient">
-        <div className="flex items-center bg-[#222224] rounded-full">
+      <div className="border-gradient rounded-full">
+        <div className="flex items-center bg-[#222224]/80 rounded-full">
           <Button
             variant="icon"
             onClick={handleGoBack}
             disabled={!canGoBack}
             className="disabled:opacity-30"
+            rounded="rounded-l-full"
             aria-label="Go back"
           >
-            <ArrowLeft size={16} weight="bold" />
+            <CaretLeftIcon size={16} weight="bold" />
           </Button>
 
           <Button
@@ -145,15 +146,16 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
             onClick={handleGoForward}
             disabled={!canGoForward}
             className="disabled:opacity-30"
+            rounded="rounded-r-full"
             aria-label="Go forward"
           >
-            <ArrowRight size={16} weight="bold" />
+            <CaretRightIcon size={16} weight="bold" />
           </Button>
         </div>
       </div>
 
-      <div className="rounded-full border-gradient">
-        <div className="flex items-center bg-[#222224] rounded-full">
+      <div className="rounded-full">
+        <div className="flex items-center bg-[#222224]/80 rounded-full">
           <Button
             variant="icon"
             onClick={handleReloadOrStop}
@@ -169,7 +171,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
       </div>
 
       <div className="relative flex items-center rounded-full">
-        <div className="flex items-center bg-[#222224] rounded-full">
+        <div className="flex items-center bg-[#27272A] rounded-full">
         {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') && (
           <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
             {isSecure ? (
@@ -177,6 +179,11 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
             ) : (
               <Globe size={13} className="text-zinc-500" weight="regular" />
             )}
+          </div>
+        )}
+        {(isFocused || !url || url === 'about:blank' || url.startsWith('browser://')) && (
+          <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
+            <MagnifyingGlass size={13} className="text-zinc-500" weight="regular" />
           </div>
         )}
 
@@ -191,10 +198,10 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-6xl bg-transparent rounded-full h-8 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none transition-all duration-75 ${
+          className={`w-6xl bg-transparent focus:bg-neutral-800 rounded-full h-8 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-2 outline-blue-500/30 transition-all duration-100 ${
             !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
               ? 'pl-7 pr-3'
-              : 'px-3'
+              : 'pl-7 pr-3'
           }`}
         />
         </div>
@@ -202,23 +209,21 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
 
     </div>
 
-    {/* New tab button + overlay spacer when tab strip is hidden */}
-    {singleTab && (
-      <div className="flex items-center [app-region:no-drag]">
-        <div className="rounded-full border-gradient">
-          <div className="flex items-center bg-[#222224] rounded-full">
-            <Button
-              variant="icon"
-              onClick={handleAddTab}
-              aria-label="New tab"
-            >
-              <Plus size={16} weight="bold" />
-            </Button>
-          </div>
+    {/* Right side - always maintain consistent width */}
+    <div className="flex items-center [app-region:no-drag]">
+      <div className={`rounded-full ${singleTab ? '' : 'invisible'}`}>
+        <div className="flex items-center bg-[#222224] rounded-full">
+          <Button
+            variant="icon"
+            onClick={handleAddTab}
+            aria-label="New tab"
+          >
+            <Plus size={16} weight="bold" />
+          </Button>
         </div>
-        <OverlaySpacer />
       </div>
-    )}
+      <OverlaySpacer />
+    </div>
   </div>
 )
 
