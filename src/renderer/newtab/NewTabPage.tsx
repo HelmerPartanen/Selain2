@@ -2,7 +2,7 @@
 // Shown when a tab navigates to browser://newtab.
 // Displays the wallpaper/solid color and a "Customize" button.
 
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback } from 'react'
 import { Gear } from '@phosphor-icons/react'
 import { useThemeStore } from '@/store/themeStore'
 import { useTabStore } from '@/store/tabStore'
@@ -11,15 +11,6 @@ function NewTabPageInner(): React.JSX.Element {
   const wallpaperType = useThemeStore((s) => s.wallpaperType)
   const wallpaperSource = useThemeStore((s) => s.wallpaperSource)
   const solidColor = useThemeStore((s) => s.solidColor)
-
-  const [greeting, setGreeting] = useState('')
-
-  useEffect(() => {
-    const hour = new Date().getHours()
-    if (hour < 12) setGreeting('Good morning')
-    else if (hour < 18) setGreeting('Good afternoon')
-    else setGreeting('Good evening')
-  }, [])
 
   const handleCustomize = useCallback(() => {
     // Navigate the active tab to the settings page
@@ -48,21 +39,6 @@ function NewTabPageInner(): React.JSX.Element {
       className="absolute inset-0 flex flex-col items-center justify-center select-none"
       style={bgStyle}
     >
-      {/* Center greeting */}
-      <div className="z-10 flex flex-col items-center gap-3">
-        <h1
-          className="text-5xl font-light tracking-tight"
-          style={{
-            color: wallpaperType === 'image'
-              ? 'rgba(255,255,255,0.9)'
-              : 'var(--color-text)'
-          }}
-        >
-          {greeting}
-        </h1>
-        <TimeDisplay isImage={wallpaperType === 'image'} />
-      </div>
-
       {/* Customize button */}
       <button
         onClick={handleCustomize}
@@ -84,31 +60,6 @@ function NewTabPageInner(): React.JSX.Element {
         />
       )}
     </div>
-  )
-}
-
-/** Live clock display */
-function TimeDisplay({ isImage }: { isImage: boolean }): React.JSX.Element {
-  const [time, setTime] = useState<string>('')
-
-  useEffect(() => {
-    const update = (): void => {
-      setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
-    }
-    update()
-    const interval = setInterval(update, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <p
-      className="text-lg font-light tracking-wide"
-      style={{
-        color: isImage ? 'rgba(255,255,255,0.7)' : 'var(--color-text-muted)'
-      }}
-    >
-      {time}
-    </p>
   )
 }
 
