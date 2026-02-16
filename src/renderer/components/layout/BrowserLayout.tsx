@@ -7,6 +7,7 @@ import { useTabStore } from '@/store/tabStore'
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
+  const tabCount = useTabStore((s) => s.tabOrder.length)
 
   useEffect(() => {
     const state = useTabStore.getState()
@@ -15,11 +16,13 @@ function BrowserLayoutInner(): React.JSX.Element {
     }
   }, [])
 
+  const showTabStrip = tabCount > 1
+
   return (
     <div className="flex flex-col h-screen bg-surface-dim text-text overflow-hidden">
-      <TitleBar />
+      <TitleBar visible={showTabStrip} />
       <div className="flex flex-col flex-1 min-h-0">
-        <URLBar />
+        <URLBar singleTab={!showTabStrip} />
         <WebViewManager />
       </div>
     </div>

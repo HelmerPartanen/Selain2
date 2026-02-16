@@ -1,10 +1,11 @@
 import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { ArrowLeft, ArrowRight, ArrowClockwise, X as StopIcon, Lock, Globe } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight, ArrowClockwise, X as StopIcon, Lock, Globe, Plus } from '@phosphor-icons/react'
 import { useActiveTabId, useActiveTabUrl, useActiveTabNavState } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 import { AppMenu } from '@/components/layout/AppMenu'
+import { OverlaySpacer } from '@/components/ui/WindowControls'
 
 function normalizeURL(input: string): string {
   const trimmed = input.trim()
@@ -32,8 +33,9 @@ function simplifyUrl(raw: string): string {
   }
 }
 
-function URLBarInner(): React.JSX.Element {
+function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.Element {
   const tabId = useActiveTabId()
+  const addTab = useTabStore((s) => s.addTab)
   const url = useActiveTabUrl()
   const { isLoading, canGoBack, canGoForward } = useActiveTabNavState()
   const updateTab = useTabStore((s) => s.updateTab)
@@ -109,14 +111,22 @@ function URLBarInner(): React.JSX.Element {
   const isSecure = url.startsWith('https://')
   const displayUrl = isFocused ? inputValue : simplifiedUrl
 
+  const handleAddTab = useCallback(() => {
+    addTab()
+  }, [addTab])
+
   return (
-  <div className="flex items-center px-2 py-1.5 bg-surface border border-border [app-region:no-drag] rounded-t-2xl">
+  <div className={`flex items-center px-2 py-1.5 bg-surface border-t border-border rounded-t-2xl ${
+    singleTab ? '[app-region:drag]' : '[app-region:no-drag]'
+  }`}>
 
     {/* Menu button */}
-    <AppMenu />
+    <div className="[app-region:no-drag]">
+      <AppMenu />
+    </div>
 
     {/* Centered group */}
-    <div className="flex items-center gap-2 mx-auto">
+    <div className="flex items-center gap-2 mx-auto [app-region:no-drag]">
 
       <Button
         variant="icon"
@@ -150,16 +160,16 @@ function URLBarInner(): React.JSX.Element {
         )}
       </Button>
 
-      <div className="relative">
-        <div className="absolute left-3 flex items-center pointer-events-none">
-          {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') ? (
-            isSecure ? (
+      <div className="relative flex items-center">
+        {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') && (
+          <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
+            {isSecure ? (
               <Lock size={13} className="text-text-dim" weight="fill" />
             ) : (
               <Globe size={13} className="text-text-dim" weight="regular" />
-            )
-          ) : null}
-        </div>
+            )}
+          </div>
+        )}
 
         <input
           ref={inputRef}
@@ -174,13 +184,27 @@ function URLBarInner(): React.JSX.Element {
           autoComplete="off"
           className={`w-6xl bg-surface-dim border border-border rounded-full h-8 text-xs text-text placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-accent/25 focus:bg-surface-hover focus:border-border-hover transition-all duration-75 ${
             !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
-              ? 'pl-8 pr-3'
+              ? 'pl-7 pr-3'
               : 'px-3'
           }`}
         />
       </div>
 
     </div>
+
+    {/* New tab button + overlay spacer when tab strip is hidden */}
+    {singleTab && (
+      <div className="flex items-center [app-region:no-drag]">
+        <Button
+          variant="icon"
+          onClick={handleAddTab}
+          aria-label="New tab"
+        >
+          <Plus size={16} weight="bold" />
+        </Button>
+        <OverlaySpacer />
+      </div>
+    )}
   </div>
 )
 
