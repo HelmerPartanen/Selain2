@@ -128,7 +128,7 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
     {/* Centered group */}
     <div className="flex items-center gap-2 mx-auto [app-region:no-drag]">
 
-      <div className="rounded-full p-px" style={{ background: 'linear-gradient(135deg, #4C4C52, #2E2E32 50%, #4C4C52)' }}>
+      <div className="rounded-full border-gradient">
         <div className="flex items-center bg-[#222224] rounded-full">
           <Button
             variant="icon"
@@ -152,19 +152,24 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
         </div>
       </div>
 
-      <Button
-        variant="icon"
-        onClick={handleReloadOrStop}
-        aria-label={isLoading ? 'Stop loading' : 'Reload'}
-      >
-        {isLoading ? (
-          <StopIcon size={16} weight="bold" />
-        ) : (
-          <ArrowClockwise size={16} weight="bold" />
-        )}
-      </Button>
+      <div className="rounded-full border-gradient">
+        <div className="flex items-center bg-[#222224] rounded-full">
+          <Button
+            variant="icon"
+            onClick={handleReloadOrStop}
+            aria-label={isLoading ? 'Stop loading' : 'Reload'}
+          >
+            {isLoading ? (
+              <StopIcon size={16} weight="bold" />
+            ) : (
+              <ArrowClockwise size={16} weight="bold" />
+            )}
+          </Button>
+        </div>
+      </div>
 
-      <div className="relative flex items-center">
+      <div className="relative flex items-center rounded-full">
+        <div className="flex items-center bg-[#222224] rounded-full">
         {!isFocused && url && url !== 'about:blank' && !url.startsWith('browser://') && (
           <div className="absolute left-3 z-10 flex items-center justify-center h-8 pointer-events-none">
             {isSecure ? (
@@ -186,12 +191,13 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className={`w-6xl bg-neutral-950 border border-neutral-800 rounded-full h-8 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500/25 focus:bg-neutral-700 focus:border-neutral-700 transition-all duration-75 ${
+          className={`w-6xl bg-transparent rounded-full h-8 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none transition-all duration-75 ${
             !isFocused && url && url !== 'about:blank' && !url.startsWith('browser://')
               ? 'pl-7 pr-3'
               : 'px-3'
           }`}
         />
+        </div>
       </div>
 
     </div>
@@ -199,13 +205,17 @@ function URLBarInner({ singleTab = false }: { singleTab?: boolean }): React.JSX.
     {/* New tab button + overlay spacer when tab strip is hidden */}
     {singleTab && (
       <div className="flex items-center [app-region:no-drag]">
-        <Button
-          variant="icon"
-          onClick={handleAddTab}
-          aria-label="New tab"
-        >
-          <Plus size={16} weight="bold" />
-        </Button>
+        <div className="rounded-full border-gradient">
+          <div className="flex items-center bg-[#222224] rounded-full">
+            <Button
+              variant="icon"
+              onClick={handleAddTab}
+              aria-label="New tab"
+            >
+              <Plus size={16} weight="bold" />
+            </Button>
+          </div>
+        </div>
         <OverlaySpacer />
       </div>
     )}

@@ -70,16 +70,16 @@ export const WALLPAPER_PRESETS: WallpaperPreset[] = [
 
 /** Preset solid colors for quick selection */
 export const SOLID_COLOR_PRESETS = [
-  { name: 'Charcoal', hex: '#1e1e1e' },
-  { name: 'Midnight Blue', hex: '#1a1a2e' },
-  { name: 'Deep Purple', hex: '#2d1b4e' },
-  { name: 'Dark Teal', hex: '#0d2f2f' },
-  { name: 'Forest', hex: '#1a2e1a' },
-  { name: 'Wine', hex: '#3b1a2e' },
-  { name: 'Navy', hex: '#0a1628' },
-  { name: 'Slate', hex: '#2e3440' },
-  { name: 'Snow', hex: '#f0f0f5' },
-  { name: 'Cream', hex: '#faf5ee' },
-  { name: 'Ice Blue', hex: '#e8f0fe' },
-  { name: 'Mint', hex: '#ecfdf5' }
+  { name: 'Charcoal', hex: '#1C1C1E' },
+  { name: 'Midnight Blue', hex: '#1A1A2E' },
+  { name: 'Deep Purple', hex: '#2D1B4E' },
+  { name: 'Dark Teal', hex: '#0D2F2F' },
+  { name: 'Forest', hex: '#1A2E1A' },
+  { name: 'Wine', hex: '#3B1A2E' },
+  { name: 'Navy', hex: '#0A1628' },
+  { name: 'Slate', hex: '#2E3440' },
+  { name: 'Snow', hex: '#F0F0F5' },
+  { name: 'Cream', hex: '#FAF5EE' },
+  { name: 'Ice Blue', hex: '#E8F0FE' },
+  { name: 'Mint', hex: '#ECFDF5' }
 ]

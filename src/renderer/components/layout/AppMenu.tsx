@@ -29,14 +29,18 @@ function AppMenuInner(): React.JSX.Element {
 
   return (
     <div ref={containerRef} className="relative [app-region:no-drag] pl-1">
-      <Button
-        variant="icon"
-        onClick={handleToggle}
-        aria-label="Menu"
-        aria-expanded={isOpen}
-      >
-        <ListIcon size={18} weight="bold" />
-      </Button>
+      <div className="rounded-full border-gradient">
+        <div className="flex items-center bg-[#222224] rounded-full">
+          <Button
+            variant="icon"
+            onClick={handleToggle}
+            aria-label="Menu"
+            aria-expanded={isOpen}
+          >
+            <ListIcon size={18} weight="bold" />
+          </Button>
+        </div>
+      </div>
 
       {isOpen && (
         <div className="absolute left-0 top-full mt-1 bg-neutral-800 border border-neutral-800 rounded-lg shadow-xl shadow-black/30 overflow-hidden z-50 min-w-[160px]">

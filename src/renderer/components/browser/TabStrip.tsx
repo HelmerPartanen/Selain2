@@ -52,14 +52,17 @@ function TabStripInner(): React.JSX.Element {
         />
       ))}
 
-      <Button
-        variant="icon"
-        onClick={handleAddTab}
-        className="flex-shrink-0 ml-0.5 [app-region:no-drag]"
-        aria-label="New tab"
-      >
-        <Plus size={16} weight="bold" />
-      </Button>
+      <div className="rounded-full border-gradient flex-shrink-0 ml-0.5 [app-region:no-drag]">
+        <div className="flex items-center bg-[#222224] rounded-full">
+          <Button
+            variant="icon"
+            onClick={handleAddTab}
+            aria-label="New tab"
+          >
+            <Plus size={16} weight="bold" />
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
