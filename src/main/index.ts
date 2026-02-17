@@ -187,6 +187,46 @@ function buildContextMenu(
   return Menu.buildFromTemplate(template)
 }
 
+// ─── Shortcut detection (shared between webview and main webContents) ────────
+
+const CTRL_KEYS = new Set(['t', 'w', 'l', 'f', 'r'])
+const CTRL_SHIFT_KEYS = new Set(['t', 's', 'a'])
+const ALT_KEYS = new Set(['arrowleft', 'arrowright'])
+const DIGIT_RE = /^[1-9]$/
+
+function handleShortcutInput(
+  event: Electron.Event,
+  input: Electron.Input
+): void {
+  if (input.type !== 'keyDown' || !mainWindow) return
+
+  const ctrl = input.control || input.meta
+  const shift = input.shift
+  const alt = input.alt
+  const key = input.key.toLowerCase()
+
+  const isShortcut =
+    (ctrl && !shift && CTRL_KEYS.has(key)) ||
+    (ctrl && shift && CTRL_SHIFT_KEYS.has(key)) ||
+    (ctrl && key === 'tab') ||
+    (ctrl && !shift && DIGIT_RE.test(input.key)) ||
+    (!ctrl && key === 'f5') ||
+    (alt && !ctrl && ALT_KEYS.has(key)) ||
+    (key === 'escape')
+
+  if (isShortcut) {
+    event.preventDefault()
+    mainWindow.webContents.send('shortcut-pressed', {
+      key: input.key,
+      code: input.code,
+      ctrlKey: input.control,
+      metaKey: input.meta,
+      shiftKey: input.shift,
+      altKey: input.alt
+    })
+  }
+}
+
 // ─── Chromium CLI Flags (must be set before app.ready) ───────────────────────
 
 // GPU & Rendering Performance
@@ -199,6 +239,16 @@ app.commandLine.appendSwitch('disable-software-rasterizer')
 // NOTE: Background throttling is intentionally re-enabled (defaults).
 // Hidden/suspended webviews should be throttled to save CPU/RAM.
 // The LRU tab manager handles tab suspension separately.
+
+// V8 & Blink Performance Features
+app.commandLine.appendSwitch('enable-features',
+  'V8VmFuture,BackForwardCache,BlinkSchedulerHighPriorityInput,CanvasOopRasterization,UseSkiaRenderer'
+)
+app.commandLine.appendSwitch('js-flags',
+  '--maglev --turbofan --max-old-space-size=4096'
+)
+app.commandLine.appendSwitch('renderer-process-limit', '0')
+app.commandLine.appendSwitch('enable-quic')
 
 // Privacy: disable all telemetry, translation, sync, crash reporting
 app.commandLine.appendSwitch('disable-breakpad')
@@ -224,7 +274,7 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 600,
     show: false,
-    backgroundColor: '#00000000',
+    backgroundColor: '#000000',
     frame: false,
     webPreferences: {
       contextIsolation: true,
@@ -232,6 +282,7 @@ function createWindow(): void {
       nodeIntegration: false,
       webviewTag: true,
       plugins: true,
+      v8CacheOptions: 'bypassHeatCheck',
       preload: join(__dirname, '../preload/index.js')
     }
   })
@@ -274,33 +325,7 @@ function createWindow(): void {
     // When a <webview> has focus, keydown events never reach mainWindow.webContents.
     // Intercept them on each webview's own webContents and forward to the renderer.
     webViewContents.on('before-input-event', (event, input) => {
-      if (input.type !== 'keyDown' || !mainWindow) return
-
-      const ctrl = input.control || input.meta
-      const shift = input.shift
-      const alt = input.alt
-      const key = input.key.toLowerCase()
-
-      const isShortcut =
-        (ctrl && !shift && (key === 't' || key === 'w' || key === 'l' || key === 'f' || key === 'r')) ||
-        (ctrl && shift && (key === 't' || key === 's' || key === 'a')) ||
-        (ctrl && key === 'tab') ||
-        (ctrl && !shift && /^[1-9]$/.test(input.key)) ||
-        (!ctrl && key === 'f5') ||
-        (alt && !ctrl && (key === 'arrowleft' || key === 'arrowright')) ||
-        (key === 'escape')
-
-      if (isShortcut) {
-        event.preventDefault()
-        mainWindow.webContents.send('shortcut-pressed', {
-          key: input.key,
-          code: input.code,
-          ctrlKey: input.control,
-          metaKey: input.meta,
-          shiftKey: input.shift,
-          altKey: input.alt
-        })
-      }
+      handleShortcutInput(event, input)
     })
   })
 
@@ -309,33 +334,7 @@ function createWindow(): void {
   // We intercept them here via before-input-event on the host webContents and
   // forward matching combos as IPC so the renderer can handle them.
   mainWindow.webContents.on('before-input-event', (event, input) => {
-    if (input.type !== 'keyDown' || !mainWindow) return
-
-    const ctrl = input.control || input.meta
-    const shift = input.shift
-    const alt = input.alt
-    const key = input.key.toLowerCase()
-
-    const isShortcut =
-      (ctrl && !shift && (key === 't' || key === 'w' || key === 'l' || key === 'f' || key === 'r')) ||
-      (ctrl && shift && (key === 't' || key === 's' || key === 'a')) ||
-      (ctrl && key === 'tab') ||
-      (ctrl && !shift && /^[1-9]$/.test(input.key)) ||
-      (!ctrl && key === 'f5') ||
-      (alt && !ctrl && (key === 'arrowleft' || key === 'arrowright')) ||
-      (key === 'escape')
-
-    if (isShortcut) {
-      event.preventDefault()
-      mainWindow.webContents.send('shortcut-pressed', {
-        key: input.key,
-        code: input.code,
-        ctrlKey: input.control,
-        metaKey: input.meta,
-        shiftKey: input.shift,
-        altKey: input.alt
-      })
-    }
+    handleShortcutInput(event, input)
   })
 
   mainWindow.webContents.on('will-attach-webview', (_event, webPreferences) => {
@@ -345,6 +344,7 @@ function createWindow(): void {
     webPreferences.webSecurity = true
     webPreferences.allowRunningInsecureContent = false
     webPreferences.plugins = true
+    webPreferences.v8CacheOptions = 'bypassHeatCheck'
     delete webPreferences.preload
   })
 
@@ -589,21 +589,28 @@ app.whenReady().then(async () => {
   setupCSP()
 
   // ── Load bundled extensions into the webview session ──
-  const extensionsDir = app.isPackaged
-    ? join(process.resourcesPath, 'uBlock0.chromium')
-    : join(__dirname, '../../uBlock0.chromium')
+  // Pass --no-extensions CLI flag to skip loading extensions (useful for benchmarking)
+  const skipExtensions = process.argv.includes('--no-extensions')
 
-  if (existsSync(extensionsDir)) {
-    try {
-      const ext = await session.fromPartition('persist:default').loadExtension(extensionsDir, {
-        allowFileAccess: true
-      })
-      console.log(`[Extension] Loaded: ${ext.name} v${ext.version}`)
-    } catch (err) {
-      console.warn('[Extension] Failed to load uBlock Origin:', err)
+  if (!skipExtensions) {
+    const extensionsDir = app.isPackaged
+      ? join(process.resourcesPath, 'uBlock0.chromium')
+      : join(__dirname, '../../uBlock0.chromium')
+
+    if (existsSync(extensionsDir)) {
+      try {
+        const ext = await session.fromPartition('persist:default').loadExtension(extensionsDir, {
+          allowFileAccess: true
+        })
+        console.log(`[Extension] Loaded: ${ext.name} v${ext.version}`)
+      } catch (err) {
+        console.warn('[Extension] Failed to load uBlock Origin:', err)
+      }
+    } else {
+      console.warn('[Extension] uBlock0.chromium directory not found at', extensionsDir)
     }
   } else {
-    console.warn('[Extension] uBlock0.chromium directory not found at', extensionsDir)
+    console.log('[Extension] Skipped loading extensions (--no-extensions flag)')
   }
 
   createWindow()

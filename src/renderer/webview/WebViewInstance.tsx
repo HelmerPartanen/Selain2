@@ -11,7 +11,7 @@ const SCROLLBAR_CSS = `
   ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 `
 
-const TAB_TRANSITION_MS = 200
+const TAB_TRANSITION_MS = 100
 
 interface WebViewInstanceProps {
   tabId: string
