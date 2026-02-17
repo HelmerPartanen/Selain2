@@ -124,12 +124,11 @@ function WallpaperPane(): React.JSX.Element {
       {/* Default Wallpapers */}
       <div>
         <div className="flex items-center gap-1.5 mb-3">
-          <SvgIcon svg={cameraSvg} size={14} className="text-gray-400 dark:text-neutral-500" />
-          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
+          <span className="text-[11px] font-semibold tracking-relaxed text-gray-400 dark:text-neutral-500">
             Wallpapers
           </span>
         </div>
-        <div className="flex gap-2.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
+        <div className="flex gap-2.5 overflow-x-auto p-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
           {BUNDLED_WALLPAPERS.map((wp, i) => {
             const isActive = wallpaper === wp.url
             return (
@@ -165,8 +164,7 @@ function WallpaperPane(): React.JSX.Element {
       {/* Gradients */}
       <div>
         <div className="flex items-center gap-1.5 mb-3">
-          <SvgIcon svg={cameraFiltersSvg} size={14} className="text-gray-400 dark:text-neutral-500" />
-          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
+          <span className="text-[11px] font-semibold tracking-relaxed text-gray-400 dark:text-neutral-500">
             Gradients
           </span>
         </div>
@@ -207,11 +205,11 @@ function WallpaperPane(): React.JSX.Element {
       {/* Solid Colors */}
       <div>
         <div className="flex items-center gap-1.5 mb-3">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
+          <span className="text-[11px] font-semibold tracking-relaxed text-gray-400 dark:text-neutral-500">
             Solid Colors
           </span>
         </div>
-        <div className="grid grid-cols-8 gap-2">
+        <div className="grid grid-cols-10 gap-2">
           {SOLID_COLOR_PRESETS.map((color, i) => {
             const isActive = wallpaper === SOLID_DATA_URL_MAP.get(color.hex)
             return (
@@ -219,7 +217,7 @@ function WallpaperPane(): React.JSX.Element {
                 key={color.hex}
                 onClick={() => handleSelectSolid(color.hex)}
                 title={color.name}
-                className="relative aspect-square rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
+                className="relative aspect-square rounded-full overflow-hidden transition-all duration-150 active:scale-[0.97]"
                 style={{
                   backgroundColor: color.hex,
                   border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
