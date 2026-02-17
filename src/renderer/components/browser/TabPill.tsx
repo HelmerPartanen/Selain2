@@ -39,13 +39,15 @@ function TabPillInner(): React.JSX.Element {
         <>
           {isExpanded && <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />}
           <div
-            className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white/70 backdrop-blur-2xl shadow-xl border border-white/30"
+            className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 shadow-xl"
             style={{
               transform: `translateY(${popover.y}px) scale(${popover.scale})`,
               opacity: popover.opacity,
               transformOrigin: 'bottom right',
               pointerEvents: isExpanded ? 'auto' : 'none',
-              willChange: 'transform, opacity'
+              willChange: 'transform, opacity',
+              backgroundColor: 'rgba(245, 245, 245, 0.96)',
+              border: '1px solid rgba(0,0,0,0.08)'
             }}
           >
             <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1">
@@ -65,8 +67,8 @@ function TabPillInner(): React.JSX.Element {
       )}
 
       <div
-        className="flex items-center justify-center h-10 rounded-full bg-white/60 backdrop-blur-2xl shadow-lg border border-white/30"
-        style={{ width: pillWidth, willChange: 'width' }}
+        className="flex items-center justify-center h-10 rounded-full shadow-lg"
+        style={{ width: pillWidth, willChange: 'width', backgroundColor: 'rgba(240, 240, 240, 0.92)', border: '1px solid rgba(0,0,0,0.06)' }}
       >
         <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
           <Plus size={15} weight="bold" />

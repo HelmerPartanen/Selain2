@@ -18,16 +18,17 @@ function FloatingControlsInner(): React.JSX.Element {
   const { canGoBack, canGoForward } = useActiveTabNavState()
 
   const isInteracting = isHovered || isInputFocused
-  const { shouldHide, isScrolling } = useToolbarVisibility(isInteracting)
+  const { shouldHide, isScrolling, isIdle } = useToolbarVisibility(isInteracting)
 
+  // Asymmetric springs: fast snap-in, gentle fade-out
   const spring = useMultiSpring(
     {
-      y: shouldHide ? 20 : 0,
-      scale: shouldHide ? 0.92 : 1,
-      opacity: shouldHide ? (isScrolling ? 0 : 0.15) : 1,
-      blur: shouldHide ? 2 : 0
+      y: shouldHide ? 24 : 0,
+      scale: shouldHide ? 0.94 : 1,
+      opacity: shouldHide ? (isScrolling ? 0 : isIdle ? 0.2 : 0) : 1,
+      blur: shouldHide ? 4 : 0
     },
-    shouldHide ? SPRINGS.gentle : SPRINGS.snappy
+    shouldHide ? SPRINGS.gentle : SPRINGS.quick
   )
 
   const handleGoBack = useCallback(() => {
@@ -51,7 +52,7 @@ function FloatingControlsInner(): React.JSX.Element {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex items-center gap-1.5">
-        <div className="rounded-full h-10 flex items-center px-1 bg-white/60 backdrop-blur-2xl shadow-lg border border-white/30">
+        <div className="rounded-full h-10 flex items-center px-1 shadow-lg" style={{ backgroundColor: 'rgba(240, 240, 240, 0.92)', border: '1px solid rgba(0,0,0,0.06)' }}>
           <AppMenu />
           <AnimatedSlot show={canGoBack}>
             <Button variant="icon" onClick={handleGoBack} aria-label="Go back">

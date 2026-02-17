@@ -69,8 +69,8 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   return (
     <div
-      className="flex items-center rounded-full h-10 px-1 gap-1 bg-white/60 backdrop-blur-2xl shadow-lg border border-white/30"
-      style={{ width, willChange: 'width' }}
+      className="flex items-center rounded-full h-10 px-1 gap-1 shadow-lg"
+      style={{ width, willChange: 'width', backgroundColor: 'rgba(240, 240, 240, 0.92)', border: '1px solid rgba(0,0,0,0.06)' }}
     >
       <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop' : 'Reload'}>
         <div style={{ transform: `rotate(${iconRotation}deg)` }}>

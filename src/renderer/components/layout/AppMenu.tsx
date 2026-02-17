@@ -49,13 +49,15 @@ function AppMenuInner(): React.JSX.Element {
           {isOpen && <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />}
 
           <div
-            className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden bg-white/70 backdrop-blur-2xl shadow-xl border border-white/30"
+            className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden shadow-xl"
             style={{
               transform: `translate(-50%, ${popover.y}px) scale(${popover.scale})`,
               opacity: popover.opacity,
               transformOrigin: 'bottom center',
               pointerEvents: isOpen ? 'auto' : 'none',
-              willChange: 'transform, opacity'
+              willChange: 'transform, opacity',
+              backgroundColor: 'rgba(245, 245, 245, 0.96)',
+              border: '1px solid rgba(0,0,0,0.08)'
             }}
           >
             {MENU_ITEMS.map((item, i) => (

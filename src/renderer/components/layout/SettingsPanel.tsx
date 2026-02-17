@@ -191,11 +191,13 @@ function SettingsPanelInner(): React.JSX.Element {
       />
 
       <div
-        className="relative z-10 w-[520px] max-h-[80vh] rounded-2xl overflow-hidden bg-white/70 backdrop-blur-2xl shadow-2xl border border-white/30"
+        className="relative z-10 w-[520px] max-h-[80vh] rounded-2xl overflow-hidden shadow-2xl"
         style={{
           transform: `translateY(${panel.y}px) scale(${panel.scale})`,
           opacity: panel.opacity,
-          willChange: 'transform, opacity'
+          willChange: 'transform, opacity',
+          backgroundColor: 'rgba(248, 248, 248, 0.97)',
+          border: '1px solid rgba(0,0,0,0.08)'
         }}
       >
         <div className="flex items-center justify-between px-6 pt-5 pb-3">

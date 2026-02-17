@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useRef } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from './webviewRegistry'
+import { emitScroll } from '@/hooks/scrollSignal'
 
 interface WebViewInstanceProps {
   tabId: string
@@ -44,6 +45,20 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     const webview = webviewRef.current
     if (!webview) return
     ;(webview as unknown as { insertCSS(css: string): Promise<string> }).insertCSS(SCROLLBAR_CSS)
+    // Inject scroll detection — uses console.debug with a unique prefix
+    // because sandboxed webviews can't access ipcRenderer
+    ;(webview as unknown as { executeJavaScript(code: string): Promise<void> }).executeJavaScript(`
+      (function(){
+        if(window.__bscroll) return;
+        window.__bscroll=true;
+        var t=0, scrolling=false;
+        window.addEventListener('scroll',function(){
+          if(!scrolling){ scrolling=true; console.debug('__SCROLL__:1'); }
+          clearTimeout(t);
+          t=setTimeout(function(){ scrolling=false; console.debug('__SCROLL__:0'); },300);
+        },{passive:true,capture:true});
+      })()
+    `).catch(() => {})
     batchUpdate({
       canGoBack: webview.canGoBack(),
       canGoForward: webview.canGoForward()
@@ -126,6 +141,13 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     const webview = webviewRef.current
     if (!webview) return
 
+    const handleConsoleMessage = (event: Event): void => {
+      const e = event as Event & { message: string; level: number }
+      if (e.message.startsWith('__SCROLL__:') && isActive) {
+        emitScroll(e.message === '__SCROLL__:1')
+      }
+    }
+
     webview.addEventListener('dom-ready', handleDomReady)
     webview.addEventListener('did-start-loading', handleDidStartLoading)
     webview.addEventListener('did-stop-loading', handleDidStopLoading)
@@ -133,6 +155,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     webview.addEventListener('page-favicon-updated', handlePageFaviconUpdated as EventListener)
     webview.addEventListener('did-navigate', handleDidNavigate as EventListener)
     webview.addEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
+    webview.addEventListener('console-message', handleConsoleMessage)
 
     return () => {
       webview.removeEventListener('dom-ready', handleDomReady)
@@ -142,6 +165,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webview.removeEventListener('page-favicon-updated', handlePageFaviconUpdated as EventListener)
       webview.removeEventListener('did-navigate', handleDidNavigate as EventListener)
       webview.removeEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
+      webview.removeEventListener('console-message', handleConsoleMessage)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabId])
