@@ -142,7 +142,6 @@ function FloatingControlsInner(): React.JSX.Element {
           ? { x: '-50%', y: 12, scale: 0.94, opacity: 0 }
           : { x: '-50%', y: 0, scale: 1, opacity: 1 }
       }
-      whileHover={undefined}
       transition={isIdle ? springGentle : springSnappy}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -234,9 +233,7 @@ function FloatingControlsInner(): React.JSX.Element {
         </AnimatePresence>
 
         {/* Download Pill */}
-        <AnimatePresence initial={false}>
-          <DownloadPill />
-        </AnimatePresence>
+        <DownloadPill />
 
         {/* Tab Pod */}
         <TabPill />

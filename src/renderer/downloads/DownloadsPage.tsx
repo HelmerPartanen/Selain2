@@ -157,7 +157,7 @@ function DownloadsPanelInner(): React.JSX.Element {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.12 }}
+        transition={{ duration: 0.15 }}
         onMouseDown={closeDownloads}
       />
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">

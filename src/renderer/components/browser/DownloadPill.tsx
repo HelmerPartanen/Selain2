@@ -117,7 +117,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
   )
 })
 
-function DownloadPillInner(): React.JSX.Element | null {
+function DownloadPillInner(): React.JSX.Element {
   const downloads = useDownloadStore((s) => s.downloads)
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -166,7 +166,10 @@ function DownloadPillInner(): React.JSX.Element | null {
     setIsOpen(false)
   }, [])
 
-  if (!hasItems) return null
+  // Close dropdown when all items are cleared
+  useEffect(() => {
+    if (!hasItems) setIsOpen(false)
+  }, [hasItems])
 
   // Circular progress SVG params
   const radius = 7
@@ -175,16 +178,19 @@ function DownloadPillInner(): React.JSX.Element | null {
 
   return (
     <div ref={containerRef} className="relative">
-      <motion.button
-        initial={{ width: 0, opacity: 0 }}
-        animate={{ width: 'auto', opacity: 1 }}
-        exit={{ width: 0, opacity: 0 }}
-        transition={{ ...springExpand, opacity: { duration: 0.15 } }}
-        style={{ overflow: 'hidden', flexShrink: 0 }}
-        onClick={() => setIsOpen((v) => !v)}
-        aria-label="Downloads"
-        className="h-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-3 gap-1.5 select-none hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-95 transition-all duration-100"
-      >
+      <AnimatePresence>
+        {hasItems && (
+          <motion.button
+            key="download-pill"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 'auto', opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ ...springExpand, opacity: { duration: 0.15 } }}
+            style={{ overflow: 'hidden', flexShrink: 0 }}
+            onClick={() => setIsOpen((v) => !v)}
+            aria-label="Downloads"
+            className="h-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-3 gap-1.5 select-none hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-95 transition-colors duration-100"
+          >
         <div className="relative">
           <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
           {hasActive && (
@@ -213,10 +219,12 @@ function DownloadPillInner(): React.JSX.Element | null {
         {activeCount > 0 && (
           <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
         )}
-      </motion.button>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && hasItems && (
           <>
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={() => setIsOpen(false)} />

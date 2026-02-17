@@ -9,10 +9,6 @@ import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 
-// ─── Animation (CSS transitions for performance — no per-card springs) ───────
-
-const FADE_DURATION = 0.2
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface TabPreview {
@@ -35,11 +31,13 @@ const NEWTAB_GRADIENT =
 const TabCard = memo(function TabCard({
   preview,
   isActive,
+  index,
   onSelect,
   onClose
 }: {
   preview: TabPreview
   isActive: boolean
+  index: number
   onSelect: () => void
   onClose: (e: React.MouseEvent) => void
 }): React.JSX.Element {
@@ -48,7 +46,7 @@ const TabCard = memo(function TabCard({
   const title = preview.title || 'New Tab'
 
   return (
-    <div className="group relative">
+    <div className="group relative tab-overview-card" style={{ animationDelay: `${index * 40}ms` }}>
       <button
         onClick={onSelect}
         className={`
@@ -231,7 +229,7 @@ function TabOverviewInner(): React.JSX.Element {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: FADE_DURATION }}
+            transition={{ duration: 0.15 }}
             onClick={closeOverview}
           />
 
@@ -239,10 +237,10 @@ function TabOverviewInner(): React.JSX.Element {
           <motion.div
             key="tab-overview-content"
             className="fixed inset-0 z-[95] flex flex-col items-center overflow-y-auto py-12 px-8"
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 16 }}
-            transition={{ duration: FADE_DURATION }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8, opacity: { duration: 0.15 } }}
             onClick={closeOverview}
           >
             {/* Header */}
@@ -260,18 +258,19 @@ function TabOverviewInner(): React.JSX.Element {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {previews.map((preview) => (
+              {previews.map((preview, i) => (
                 <TabCard
                   key={preview.id}
                   preview={preview}
                   isActive={preview.id === activeTabId}
+                  index={i}
                   onSelect={() => handleSelect(preview.id)}
                   onClose={(e) => handleClose(e, preview.id)}
                 />
               ))}
 
               {/* New tab card */}
-              <div>
+              <div className="tab-overview-card" style={{ animationDelay: `${previews.length * 40}ms` }}>
                 <button
                   onClick={handleNewTab}
                   className="w-full rounded-2xl overflow-hidden aspect-[16/10] border-2 border-dashed border-white/20 hover:border-indigo-400/50

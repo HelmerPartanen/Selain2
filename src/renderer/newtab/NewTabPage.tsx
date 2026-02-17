@@ -55,10 +55,12 @@ function Favourites(): React.JSX.Element | null {
           <motion.button
             key={site.url}
             onClick={() => handleNavigate(site.url)}
-            className="flex flex-col items-center justify-center gap-1.5 aspect-square rounded-xl border border-transparent hover:bg-white/15 hover:border-white/15 transition-all duration-150 active:scale-[0.95] group"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04, duration: 0.3 }}
+            className="flex flex-col items-center justify-center gap-1.5 aspect-square rounded-xl border border-transparent hover:border-white/15 transition-colors duration-150 group"
+            initial={{ opacity: 0, y: 16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            whileHover={{ scale: 1.06, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25, delay: i * 0.04 }}
           >
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
               {site.faviconUrl ? (

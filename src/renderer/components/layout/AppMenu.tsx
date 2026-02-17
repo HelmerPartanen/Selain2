@@ -74,14 +74,17 @@ function AppMenuInner(): React.JSX.Element {
 
   return (
     <div ref={containerRef} className="relative">
-      <button
+      <motion.button
         onClick={handleToggle}
         aria-label="Menu"
         aria-expanded={isOpen}
-        className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none"
+        animate={{ scale: isOpen ? 0.9 : 1 }}
+        whileTap={{ scale: 0.82 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+        className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800 select-none"
       >
         <SvgIcon svg={menuPointsSvg} size={18} />
-      </button>
+      </motion.button>
 
       <AnimatePresence>
         {isOpen && (
@@ -111,7 +114,7 @@ function AppMenuInner(): React.JSX.Element {
                     className="w-full rounded-lg flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
                     style={{
                       opacity: 0,
-                      animation: `menu-item-in 150ms ease-out ${40 + idx * 30}ms forwards`
+                      animation: `menu-item-in 180ms ease-out ${60 + idx * 25}ms forwards`
                     }}
                   >
                     <SvgIcon svg={Icon} size={16} />
