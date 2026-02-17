@@ -1,7 +1,20 @@
 import { memo, useCallback, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { House, Gear, BookmarkSimple, ClockCounterClockwise, ListIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { useTabStore } from '@/store/tabStore'
+import { useUIStore } from '@/store/uiStore'
+
+const springMenu = { type: 'spring' as const, stiffness: 500, damping: 28 }
+const springItem = { type: 'spring' as const, stiffness: 450, damping: 26 }
+
+const menuItems = [
+  { id: 'home', label: 'Home', icon: House },
+  { id: 'bookmarks', label: 'Bookmarks', icon: BookmarkSimple },
+  { id: 'history', label: 'History', icon: ClockCounterClockwise },
+  { id: 'divider', label: '', icon: null },
+  { id: 'settings', label: 'Settings', icon: Gear }
+] as const
 
 function AppMenuInner(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
@@ -19,14 +32,12 @@ function AppMenuInner(): React.JSX.Element {
     setIsOpen((prev) => !prev)
   }, [isOpen])
 
-  const handleClose = useCallback(() => {
-    setIsOpen(false)
-  }, [])
+  const handleClose = useCallback(() => setIsOpen(false), [])
 
   const handleMenuItemClick = useCallback(
     (action: string) => {
       if (action === 'settings') {
-        useTabStore.getState().addTab('browser://settings')
+        useUIStore.getState().toggleSettings()
       } else if (action === 'home') {
         useTabStore.getState().addTab('browser://newtab')
       }
@@ -35,106 +46,55 @@ function AppMenuInner(): React.JSX.Element {
     [handleClose]
   )
 
+  let itemIndex = 0
+
   return (
     <div ref={containerRef} className="relative">
-      <Button
-        variant="icon"
-        onClick={handleToggle}
-        aria-label="Menu"
-        aria-expanded={isOpen}
-      >
+      <Button variant="icon" onClick={handleToggle} aria-label="Menu" aria-expanded={isOpen}>
         <ListIcon size={18} weight="bold" />
       </Button>
 
-      {isOpen && (
-        <>
-          {/* Click outside overlay */}
-          <div
-            className="fixed inset-0 z-[90]"
-            onMouseDown={handleClose}
-          />
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
 
-          {/* Dropdown */}
-          <div
-            className="
-              absolute bottom-full mb-2 left-1/2 -translate-x-1/2
-              z-[100] min-w-[160px]
-              rounded-xl overflow-hidden
-              bg-white/80 backdrop-blur-xl
-              shadow-xl
-              origin-bottom
-              animate-[tabListIn_0.25s_cubic-bezier(0.16,1,0.3,1)_both]
-            "
-          >
-            {/* Home */}
-            <button
-              onClick={() => handleMenuItemClick('home')}
-              className="
-                w-full flex items-center gap-3 px-3 h-9
-                text-sm text-gray-600
-                transition-colors duration-75
-                hover:bg-gray-200/60 hover:text-gray-900
-                active:bg-gray-300/60
-                [app-region:no-drag]
-              "
+            <motion.div
+              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden bg-white/80 backdrop-blur-xl shadow-xl"
+              style={{ originX: 0.5, originY: 1, x: '-50%' }}
+              initial={{ scale: 0.85, opacity: 0, y: 12 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 8 }}
+              transition={springMenu}
             >
-              <House size={16} weight="regular" />
-              <span>Home</span>
-            </button>
+              {menuItems.map((item) => {
+                if (item.id === 'divider') {
+                  return <div key="divider" className="border-t border-gray-200 my-1" />
+                }
 
-            {/* Bookmarks */}
-            <button
-              onClick={() => handleMenuItemClick('bookmarks')}
-              className="
-                w-full flex items-center gap-3 px-3 h-9
-                text-sm text-gray-600
-                transition-colors duration-75
-                hover:bg-gray-200/60 hover:text-gray-900
-                active:bg-gray-300/60
-                [app-region:no-drag]
-              "
-            >
-              <BookmarkSimple size={16} weight="regular" />
-              <span>Bookmarks</span>
-            </button>
+                const Icon = item.icon!
+                const idx = itemIndex++
 
-            {/* History */}
-            <button
-              onClick={() => handleMenuItemClick('history')}
-              className="
-                w-full flex items-center gap-3 px-3 h-9
-                text-sm text-gray-600
-                transition-colors duration-75
-                hover:bg-gray-200/60 hover:text-gray-900
-                active:bg-gray-300/60
-                [app-region:no-drag]
-              "
-            >
-              <ClockCounterClockwise size={16} weight="regular" />
-              <span>History</span>
-            </button>
-
-            {/* Divider */}
-            <div className="border-t border-gray-200 my-1" />
-
-            {/* Settings */}
-            <button
-              onClick={() => handleMenuItemClick('settings')}
-              className="
-                w-full flex items-center gap-3 px-3 h-9
-                text-sm text-gray-600
-                transition-colors duration-75
-                hover:bg-gray-200/60 hover:text-gray-900
-                active:bg-gray-300/60
-                [app-region:no-drag]
-              "
-            >
-              <Gear size={16} weight="regular" />
-              <span>Settings</span>
-            </button>
-          </div>
-        </>
-      )}
+                return (
+                  <motion.button
+                    key={item.id}
+                    onClick={() => handleMenuItemClick(item.id)}
+                    className="w-full flex items-center gap-3 px-3 h-9 text-sm text-gray-600 [app-region:no-drag]"
+                    initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ ...springItem, delay: 0.02 + idx * 0.04 }}
+                    whileHover={{ x: 2, backgroundColor: 'rgba(0,0,0,0.05)', color: '#111' }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <Icon size={16} weight="regular" />
+                    <span>{item.label}</span>
+                  </motion.button>
+                )
+              })}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

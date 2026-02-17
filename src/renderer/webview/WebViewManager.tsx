@@ -2,22 +2,18 @@ import { memo, useCallback, useRef, useSyncExternalStore } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { WebViewInstance } from './WebViewInstance'
 import { NewTabPage } from '@/newtab/NewTabPage'
-import { SettingsPage } from '@/settings/SettingsPage'
 
 interface WebViewEntry {
   id: string
   initialUrl: string
 }
 
-/** Check if a URL is a special browser:// page that we render natively */
 function isSpecialPage(url: string): boolean {
-  return url.startsWith('browser://')
+  return url === 'browser://newtab'
 }
 
-/** Render the appropriate component for a browser:// URL */
 function SpecialPage({ url }: { url: string }): React.JSX.Element | null {
   if (url === 'browser://newtab') return <NewTabPage />
-  if (url === 'browser://settings') return <SettingsPage />
   return null
 }
 
