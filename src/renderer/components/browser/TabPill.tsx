@@ -12,8 +12,8 @@ import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta,
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
-const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
-const springExpand = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.9 }
+const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 0.7 }
+const springExpand = { type: 'spring' as const, stiffness: 500, damping: 26, mass: 0.6 }
 const springPop = { type: 'spring' as const, stiffness: 400, damping: 26, mass: 0.7 }
 
 function ActiveFavicon(): React.JSX.Element {
@@ -36,6 +36,7 @@ const TabRow = memo(function TabRow({
   isActive,
   isSplitTarget,
   isSplit,
+  index,
   onSelect
 }: {
   tabId: string
@@ -91,6 +92,10 @@ const TabRow = memo(function TabRow({
           ? 'bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white'
           : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
       }`}
+      style={{
+        opacity: 0,
+        animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`
+      }}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
@@ -165,14 +170,14 @@ function TabPillInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
-              style={{ originX: 0.85, originY: 1, perspective: 600 }}
-              initial={{ scaleX: 0.45, scaleY: 0.2, opacity: 0, y: 22, rotateX: -10 }}
+              className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
+              style={{ originX: 0.5, originY: 1, perspective: 600 }}
+              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.55, scaleY: 0.18, opacity: 0, y: 16, rotateX: -6 }}
-              transition={{ ...springDropdown, opacity: { duration: 0.12 } }}
+              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
+              transition={{ ...springDropdown, opacity: { duration: 0.1 } }}
             >
-              <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 space-y-0.5">
+              <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 space-y-0.5">
                 {tabOrder.map((id, index) => (
                   <TabRow
                     key={id}
@@ -207,13 +212,15 @@ function TabPillInner(): React.JSX.Element {
       <div
         className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full overflow-visible"
       >
-        <button
+        <motion.button
           onClick={handleAddTab}
           aria-label="New tab"
-          className={`h-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none flex-shrink-0 ${tabCount > 1 ? 'rounded-l-full px-4' : 'rounded-full w-10'}`}
+          whileTap={{ scale: 0.82 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+          className={`h-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors duration-100 select-none flex-shrink-0 ${tabCount > 1 ? 'rounded-l-full px-4' : 'rounded-full w-10'}`}
         >
-          <SvgIcon svg={plusSvg} size={16} />
-        </button>
+          <SvgIcon svg={plusSvg} size={18} />
+        </motion.button>
 
         <AnimatePresence initial={false}>
           {tabCount > 1 && (
@@ -222,20 +229,26 @@ function TabPillInner(): React.JSX.Element {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 'auto', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              transition={{ ...springExpand, opacity: { duration: 0.12 } }}
+              transition={{
+                width: { type: 'spring', stiffness: 500, damping: 32, mass: 0.6 },
+                opacity: { duration: 0.12 }
+              }}
               className="flex items-center"
               style={{ overflow: 'hidden', flexShrink: 0 }}
             >
               <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
-              <button
+              <motion.button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 h-10 pr-3.5 pl-2.5 rounded-r-full text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:bg-gray-200 dark:active:bg-neutral-700 active:scale-95 transition-all duration-100 whitespace-nowrap"
+                animate={{ scale: isExpanded ? 0.92 : 1 }}
+                whileTap={{ scale: 0.82 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                className="flex items-center gap-1.5 h-10 pr-3.5 pl-2.5 rounded-r-full text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-100 whitespace-nowrap"
               >
                 <ActiveFavicon />
                 <span className="text-xs font-medium tabular-nums">
                   {tabCount}
                 </span>
-              </button>
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>

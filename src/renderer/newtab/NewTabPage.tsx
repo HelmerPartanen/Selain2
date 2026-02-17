@@ -73,10 +73,10 @@ function Favourites(): React.JSX.Element | null {
                   }}
                 />
               ) : (
-                <SvgIcon svg={globeSvg} size={20} className="text-white/50" />
+                <SvgIcon svg={globeSvg} size={20} className="text-black/50 dark:text-white/50" />
               )}
             </div>
-            <span className="text-[11px] font-medium text-white/70 group-hover:text-white/90 truncate w-full text-center transition-colors duration-150">
+            <span className="text-[11px] font-medium text-black/70 dark:text-white/70 group-hover:text-black/90 dark:group-hover:text-white/90 truncate w-full text-center transition-colors duration-150">
               {site.hostname}
             </span>
           </motion.button>
