@@ -4,7 +4,6 @@ import { Plus, X, Globe, CircleNotch, SpeakerHigh, SplitHorizontal, ArrowCounter
 import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
-import { Button } from '@/components/ui/Button'
 
 const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
 const springCounter = { type: 'spring' as const, stiffness: 500, damping: 24, mass: 0.6 }
@@ -196,28 +195,32 @@ function TabPillInner(): React.JSX.Element {
       </AnimatePresence>
 
       <div
-        className="relative flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full p-1.5 gap-0.5 overflow-visible"
+        className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full overflow-visible"
       >
-        <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
-          <Plus size={15} weight="bold" />
-        </Button>
+        <button
+          onClick={handleAddTab}
+          aria-label="New tab"
+          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none flex-shrink-0"
+        >
+          <Plus size={16} weight="bold" />
+        </button>
 
         <AnimatePresence initial={false}>
           {tabCount > 1 && (
             <motion.div
               key="tab-counter"
-              initial={{ width: 0, opacity: 0, scale: 0.3 }}
-              animate={{ width: 52, opacity: 1, scale: 1 }}
-              exit={{ width: 0, opacity: 0, scale: 0.3 }}
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 'auto', opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
               transition={springCounter}
               style={{ overflow: 'hidden', flexShrink: 0 }}
             >
               <button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 h-7 w-[52px] px-2 rounded-full text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:bg-gray-200 dark:active:bg-neutral-700"
+                className="flex items-center gap-1.5 h-10 pr-3.5 pl-0.5 rounded-r-full text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:bg-gray-200 dark:active:bg-neutral-700 active:scale-95 transition-all duration-100 whitespace-nowrap"
               >
                 <ActiveFavicon />
-                <span className="text-xs font-medium tabular-nums whitespace-nowrap">
+                <span className="text-xs font-medium tabular-nums">
                   {tabCount}
                 </span>
               </button>

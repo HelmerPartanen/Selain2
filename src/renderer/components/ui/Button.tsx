@@ -9,7 +9,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   ghost: `
-    px-3 h-8
+    p-3 h-8
     text-gray-700 dark:text-neutral-300
     bg-transparent
     hover:bg-gray-100 hover:text-gray-900
@@ -17,7 +17,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     active:bg-gray-200 dark:active:bg-neutral-700
   `,
   solid: `
-    px-3 h-8
+    p-3 h-8
     text-gray-900 dark:text-neutral-100
     bg-white dark:bg-neutral-800
     border border-gray-200 dark:border-neutral-700

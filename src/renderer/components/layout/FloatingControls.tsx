@@ -117,50 +117,63 @@ function FloatingControlsInner(): React.JSX.Element {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex items-center gap-1.5">
+        {/* Menu Pod */}
+        <AppMenu />
+
         {/* Nav Pod */}
-        <div
-          className="rounded-full flex items-center p-1.5 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg"
-        >
-          <AppMenu />
-
-          <AnimatePresence initial={false}>
-            {canGoBack && (
-              <motion.div
-                key="back"
-                initial={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
-                animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
-                exit={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
-                transition={springBounce}
-                style={{ overflow: 'hidden', flexShrink: 0 }}
+        <AnimatePresence initial={false}>
+          {(canGoBack || canGoForward) && (
+            <motion.div
+              key="nav-pod"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={springBounce}
+            >
+              <div
+                className="rounded-full flex items-center p-1.5 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg"
               >
-                <div className="w-7 flex justify-center">
-                  <Button variant="icon" onClick={handleGoBack} aria-label="Go back">
-                    <CaretLeft size={16} weight="bold" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <AnimatePresence initial={false}>
+                  {canGoBack && (
+                    <motion.div
+                      key="back"
+                      initial={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
+                      animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
+                      transition={springBounce}
+                      style={{ overflow: 'hidden', flexShrink: 0 }}
+                    >
+                      <div className="w-7 flex justify-center">
+                        <Button variant="icon" onClick={handleGoBack} aria-label="Go back">
+                          <CaretLeft size={16} weight="bold" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-          <AnimatePresence initial={false}>
-            {canGoForward && (
-              <motion.div
-                key="forward"
-                initial={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
-                animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
-                exit={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
-                transition={springBounce}
-                style={{ overflow: 'hidden', flexShrink: 0 }}
-              >
-                <div className="w-7 flex justify-center">
-                  <Button variant="icon" onClick={handleGoForward} aria-label="Go forward">
-                    <CaretRight size={16} weight="bold" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                <AnimatePresence initial={false}>
+                  {canGoForward && (
+                    <motion.div
+                      key="forward"
+                      initial={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
+                      animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
+                      transition={springBounce}
+                      style={{ overflow: 'hidden', flexShrink: 0 }}
+                    >
+                      <div className="w-7 flex justify-center">
+                        <Button variant="icon" onClick={handleGoForward} aria-label="Go forward">
+                          <CaretRight size={16} weight="bold" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* URL Pod */}
         <URLBar onFocusChange={handleFocusChange} />
