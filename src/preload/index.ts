@@ -55,7 +55,8 @@ const api: ElectronAPI = {
     }
     ipcRenderer.on('open-url-in-new-tab', handler)
     return () => { ipcRenderer.removeListener('open-url-in-new-tab', handler) }
-  }
+  },
+  capturePage: () => ipcRenderer.invoke('capture-page')
 }
 
 // Freeze the API object so renderer code cannot mutate or extend it

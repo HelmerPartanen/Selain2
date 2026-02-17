@@ -19,6 +19,8 @@ export interface ElectronAPI {
   onDownloadDone(callback: (data: { id: string; state: 'completed' | 'cancelled' | 'failed' }) => void): () => void
   /** Listen for URLs that should open in a new tab (from webview window.open / target="_blank") */
   onOpenUrlInNewTab(callback: (url: string) => void): () => void
+  /** Capture the main window content as a data URL */
+  capturePage(): Promise<string | null>
 }
 
 declare global {

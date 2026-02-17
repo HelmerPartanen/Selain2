@@ -84,25 +84,6 @@ const TabCard = memo(function TabCard({
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 dark:group-hover:bg-white/5 transition-colors duration-150" />
         </div>
 
-        {/* Info bar */}
-        <div className="flex items-center gap-2 px-3 py-2.5 bg-white dark:bg-neutral-900">
-          <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
-            {preview.isLoading ? (
-              <SvgIcon svg={SPINNER_SVG} size={13} className="animate-spin text-gray-400" />
-            ) : preview.favicon ? (
-              <img src={preview.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
-            ) : (
-              <SvgIcon svg={globeSvg} size={13} className="text-gray-400" />
-            )}
-          </div>
-          <span className="flex-1 text-[12px] font-medium text-gray-700 dark:text-neutral-300 truncate">
-            {title}
-          </span>
-          {preview.isPlayingMedia && (
-            <SvgIcon svg={soundFillSvg} size={12} className="flex-shrink-0 text-blue-500" />
-          )}
-        </div>
-
         {/* Active indicator dot */}
         {isActive && (
           <div className="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/40" />
@@ -121,6 +102,23 @@ const TabCard = memo(function TabCard({
         >
           <SvgIcon svg={closeSvg} size={11} />
         </button>
+      </div>
+
+      {/* Title below card */}
+      <div className="flex items-center gap-1.5 mt-2 px-1">
+        <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
+          {preview.isLoading ? (
+            <SvgIcon svg={SPINNER_SVG} size={12} className="animate-spin text-white/40" />
+          ) : preview.favicon ? (
+            <img src={preview.favicon} alt="" className="w-3.5 h-3.5 rounded-sm" draggable={false} />
+          ) : (
+            <SvgIcon svg={globeSvg} size={12} className="text-white/40" />
+          )}
+        </div>
+        <span className="flex-1 text-[11px] text-white/60 truncate">{title}</span>
+        {preview.isPlayingMedia && (
+          <SvgIcon svg={soundFillSvg} size={11} className="flex-shrink-0 text-blue-400" />
+        )}
       </div>
     </div>
   )
@@ -252,9 +250,9 @@ function TabOverviewInner(): React.JSX.Element {
 
             {/* Grid */}
             <div
-              className="grid gap-5 w-full max-w-[1200px]"
+              className="grid gap-5 w-full max-w-[1200px] justify-center"
               style={{
-                gridTemplateColumns: `repeat(auto-fill, minmax(${previews.length <= 4 ? '280px' : '240px'}, 1fr))`
+                gridTemplateColumns: 'repeat(auto-fill, 260px)'
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -273,12 +271,14 @@ function TabOverviewInner(): React.JSX.Element {
               <div className="tab-overview-card" style={{ animationDelay: `${previews.length * 40}ms` }}>
                 <button
                   onClick={handleNewTab}
-                  className="w-full rounded-2xl overflow-hidden aspect-[16/10] border-2 border-dashed border-white/20 hover:border-indigo-400/50
+                  className="w-full rounded-2xl overflow-hidden border-2 border-dashed border-white/20 hover:border-indigo-400/50
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
                     hover:bg-white/5 active:scale-[0.97]"
                 >
-                  <SvgIcon svg={plusSvg} size={24} className="text-white/40" />
-                  <span className="text-[13px] font-medium text-white/40">New Tab</span>
+                  <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
+                    <SvgIcon svg={plusSvg} size={24} className="text-white/40" />
+                    <span className="text-[13px] font-medium text-white/40">New Tab</span>
+                  </div>
                 </button>
               </div>
             </div>
