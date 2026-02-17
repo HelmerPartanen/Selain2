@@ -71,13 +71,14 @@ function FloatingControlsInner(): React.JSX.Element {
   const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen)
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
+  const isHotkeysOpen = useUIStore((s) => s.isHotkeysOpen)
 
   const tabId = useFocusedTabId()
   const { canGoBack, canGoForward } = useFocusedTabNavState()
   const isSplit = useIsSplitView()
   const focusedPanel = useTabStore((s) => s.focusedPanel)
 
-  const isActive = isHovered || isInputFocused || isSettingsOpen || isBookmarksOpen || isHistoryOpen || isDownloadsOpen || isTabOverviewOpen || isDropdownOpen || isMenuOpen
+  const isActive = isHovered || isInputFocused || isSettingsOpen || isBookmarksOpen || isHistoryOpen || isDownloadsOpen || isTabOverviewOpen || isDropdownOpen || isMenuOpen || isHotkeysOpen
   const isIdle = useIdleVisibility(isActive)
 
   // Close transient popups when UI goes idle (but NOT full panels like settings/bookmarks/history/downloads)

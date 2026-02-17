@@ -20,6 +20,7 @@ const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({
 const BookmarksPanel = lazy(() => import('@/bookmarks/BookmarksPage').then(m => ({ default: m.BookmarksPanel })))
 const HistoryPanel = lazy(() => import('@/history/HistoryPage').then(m => ({ default: m.HistoryPanel })))
 const DownloadsPanel = lazy(() => import('@/downloads/DownloadsPage').then(m => ({ default: m.DownloadsPanel })))
+const HotkeysPanel = lazy(() => import('@/hotkeys/HotkeysPanel').then(m => ({ default: m.HotkeysPanel })))
 const TabOverview = lazy(() => import('@/components/browser/TabOverview').then(m => ({ default: m.TabOverview })))
 
 function BrowserLayoutInner(): React.JSX.Element {
@@ -34,6 +35,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isFindBarOpen = useUIStore((s) => s.isFindBarOpen)
   const isHistoryOpen = useUIStore((s) => s.isHistoryOpen)
   const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen)
+  const isHotkeysOpen = useUIStore((s) => s.isHotkeysOpen)
   const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen)
   const isSplitView = useTabStore((s) => s.splitTabId !== null)
   const closeDropdown = useUIStore((s) => s.setDropdownOpen)
@@ -219,6 +221,17 @@ function BrowserLayoutInner(): React.JSX.Element {
         <ErrorBoundary>
           <Suspense fallback={null}>
             <DownloadsPanel />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+    </AnimatePresence>
+
+    {/* Hotkeys panel */}
+    <AnimatePresence>
+      {isHotkeysOpen && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <HotkeysPanel />
           </Suspense>
         </ErrorBoundary>
       )}

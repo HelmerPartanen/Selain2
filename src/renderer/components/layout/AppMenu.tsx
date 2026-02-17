@@ -11,6 +11,7 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import filtrSvg from '@/assets/icons/Interface/Filtr.svg?raw'
+import boltSvg from '@/assets/icons/Weather/Bolt.svg?raw'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
@@ -27,6 +28,7 @@ const menuItems = [
   { id: 'history', label: 'History', icon: counterclockwiseSvg, shortcut: '' },
   { id: 'downloads', label: 'Downloads', icon: downloadSvg, shortcut: '' },
   { id: 'divider3', label: '', icon: null, shortcut: '' },
+  { id: 'hotkeys', label: 'Keyboard Shortcuts', icon: boltSvg, shortcut: '' },
   { id: 'settings', label: 'Settings', icon: settingsSvg, shortcut: '' }
 ] as const
 
@@ -72,6 +74,8 @@ function AppMenuInner(): React.JSX.Element {
         useUIStore.getState().toggleFindBar()
       } else if (action === 'tab-overview') {
         useUIStore.getState().toggleTabOverview()
+      } else if (action === 'hotkeys') {
+        useUIStore.getState().toggleHotkeys()
       }
       handleClose()
     },

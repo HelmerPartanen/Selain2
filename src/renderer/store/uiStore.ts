@@ -6,6 +6,7 @@ interface UIState {
   isHistoryOpen: boolean
   isDownloadsOpen: boolean
   isTabOverviewOpen: boolean
+  isHotkeysOpen: boolean
   isDropdownOpen: boolean
   isMenuOpen: boolean
   isFindBarOpen: boolean
@@ -22,6 +23,8 @@ interface UIState {
   closeDownloads: () => void
   toggleTabOverview: () => void
   closeTabOverview: () => void
+  toggleHotkeys: () => void
+  closeHotkeys: () => void
   setDropdownOpen: (open: boolean) => void
   setMenuOpen: (open: boolean) => void
   openFindBar: () => void
@@ -38,6 +41,7 @@ export const useUIStore = create<UIState>((set) => ({
   isHistoryOpen: false,
   isDownloadsOpen: false,
   isTabOverviewOpen: false,
+  isHotkeysOpen: false,
   isDropdownOpen: false,
   isMenuOpen: false,
   isFindBarOpen: false,
@@ -53,6 +57,8 @@ export const useUIStore = create<UIState>((set) => ({
   closeDownloads: () => set({ isDownloadsOpen: false }),
   toggleTabOverview: () => set((s) => ({ isTabOverviewOpen: !s.isTabOverviewOpen })),
   closeTabOverview: () => set({ isTabOverviewOpen: false }),
+  toggleHotkeys: () => set((s) => ({ isHotkeysOpen: !s.isHotkeysOpen })),
+  closeHotkeys: () => set({ isHotkeysOpen: false }),
   setDropdownOpen: (open) => set({ isDropdownOpen: open }),
   setMenuOpen: (open) => set({ isMenuOpen: open }),
   openFindBar: () => set({ isFindBarOpen: true }),
