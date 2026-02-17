@@ -275,21 +275,32 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         {/* Bookmark star */}
         <AnimatePresence>
           {hasUrl && !isFocused && (
-            <motion.button
+            <motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-              onClick={handleToggleBookmark}
-              aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
-              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
+              className="flex-shrink-0"
             >
-              <SvgIcon
-                svg={isBookmarked ? starFillSvg : starSvg}
-                size={15}
-                className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
-              />
-            </motion.button>
+              <Button variant="icon" onClick={handleToggleBookmark} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={isBookmarked ? 'filled' : 'empty'}
+                    initial={{ scale: 0.4, opacity: 0, rotate: -90 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    exit={{ scale: 0.4, opacity: 0, rotate: 90 }}
+                    transition={springIcon}
+                    className="flex items-center justify-center"
+                  >
+                    <SvgIcon
+                      svg={isBookmarked ? starFillSvg : starSvg}
+                      size={15}
+                      className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
+                    />
+                  </motion.span>
+                </AnimatePresence>
+              </Button>
+            </motion.div>
           )}
         </AnimatePresence>
 
