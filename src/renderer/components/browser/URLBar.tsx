@@ -97,7 +97,8 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   return (
     <div
       className={`
-        flex items-center rounded-full h-10 px-2 gap-1 bg-white
+        flex items-center rounded-full h-10 px-2 gap-1
+        bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700
         transition-all duration-200 ease-out will-change-[width,box-shadow]
         ${isFocused
           ? 'w-[500px] shadow-[0_0_0_2.5px_rgba(59,130,246,0.35),0_12px_20px_-4px_rgba(0,0,0,0.12)]'
@@ -121,7 +122,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       </Button>
 
       <div className="relative flex-1 min-w-0 flex items-center h-full">
-        <div className="absolute left-3 z-10 flex items-center pointer-events-none text-gray-500">
+        <div className="absolute left-3 z-10 flex items-center pointer-events-none text-gray-500 dark:text-neutral-400">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={iconKey}
@@ -149,7 +150,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className="w-full h-full pl-9 pr-3 text-sm text-gray-900 bg-transparent outline-none placeholder:text-gray-400 focus:ring-0"
+          className="w-full h-full pl-9 pr-3 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
         />
       </div>
     </div>

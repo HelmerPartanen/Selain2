@@ -44,12 +44,11 @@ function ThemeModePicker(): React.JSX.Element {
           <button
             key={mode}
             onClick={() => setThemeMode(mode)}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 hover:scale-[1.02] active:scale-[0.96]"
-            style={
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 hover:scale-[1.02] active:scale-[0.96] ${
               isActive
-                ? { background: '#111827', color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
-                : { background: '#f9fafb', color: '#4b5563', border: '1px solid #e5e7eb' }
-            }
+                ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-[0_2px_8px_rgba(0,0,0,0.15)]'
+                : 'bg-gray-50 dark:bg-neutral-700 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-600'
+            }`}
           >
             <Icon size={15} weight={isActive ? 'fill' : 'bold'} />
             {label}
@@ -89,8 +88,8 @@ function WallpaperPicker(): React.JSX.Element {
     <div className="space-y-5">
       <div>
         <div className="flex items-center gap-1.5 mb-2.5">
-          <Images size={13} weight="bold" className="text-gray-400" />
-          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Gradients</span>
+          <Images size={13} weight="bold" className="text-gray-400 dark:text-neutral-500" />
+          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">Gradients</span>
         </div>
         <div className="grid grid-cols-4 gap-2.5">
           {WALLPAPER_PRESETS.map((preset, i) => {
@@ -105,8 +104,8 @@ function WallpaperPicker(): React.JSX.Element {
                   backgroundImage: `url(${preset.dataUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  border: isActive ? '2.5px solid #111827' : '1px solid #e5e7eb',
-                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)',
+                  border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.25)',
+                  boxShadow: isActive ? '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)',
                   opacity: 0,
                   animation: `menu-item-in 150ms ease-out ${i * 30}ms forwards`
                 }}
@@ -126,7 +125,7 @@ function WallpaperPicker(): React.JSX.Element {
 
       <div>
         <div className="flex items-center gap-1.5 mb-2.5">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Solid Colors</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">Solid Colors</span>
         </div>
         <div className="grid grid-cols-6 gap-2">
           {SOLID_COLOR_PRESETS.map((color, i) => {
@@ -139,8 +138,8 @@ function WallpaperPicker(): React.JSX.Element {
                 className="relative aspect-square rounded-xl overflow-hidden transition-all duration-150 hover:scale-[1.08] active:scale-[0.97]"
                 style={{
                   backgroundColor: color.hex,
-                  border: isActive ? '2.5px solid #111827' : '1px solid #e5e7eb',
-                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)',
+                  border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.25)',
+                  boxShadow: isActive ? '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)',
                   opacity: 0,
                   animation: `menu-item-in 150ms ease-out ${i * 20}ms forwards`
                 }}
@@ -161,14 +160,14 @@ function WallpaperPicker(): React.JSX.Element {
       <div className="flex gap-2">
         <button
           onClick={handleCustomImage}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 bg-gray-50 border border-gray-200 transition-all duration-150 hover:scale-[1.02] hover:bg-gray-200 hover:text-gray-900 active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 dark:text-neutral-300 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 transition-all duration-150 hover:scale-[1.02] hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
         >
           <UploadSimple size={14} weight="bold" />
           Upload Image
         </button>
         <button
           onClick={handleClear}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 bg-red-50 border border-red-100 transition-all duration-150 hover:scale-[1.02] hover:bg-red-200 hover:text-red-600 active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/40 transition-all duration-150 hover:scale-[1.02] hover:bg-red-200 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-300 active:scale-[0.97]"
         >
           <Trash size={14} weight="bold" />
           Remove
@@ -196,18 +195,18 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <motion.div
         ref={panelRef}
-        className="absolute bottom-full mb-3 left-0 z-[85] w-[420px] max-h-[65vh] overflow-y-auto overflow-x-hidden rounded-2xl bg-white shadow-2xl border border-gray-100 [&::-webkit-scrollbar]:w-1"
+        className="absolute bottom-full mb-3 left-0 z-[85] w-[420px] max-h-[65vh] overflow-y-auto overflow-x-hidden rounded-2xl bg-white dark:bg-neutral-900 shadow-2xl border border-gray-100 dark:border-neutral-700 [&::-webkit-scrollbar]:w-1"
         style={{ originX: 0.15, originY: 1, perspective: 800 }}
         initial={{ scaleX: 0.4, scaleY: 0.2, opacity: 0, y: 30, rotateX: -12 }}
         animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
         exit={{ scaleX: 0.5, scaleY: 0.15, opacity: 0, y: 20, rotateX: -8 }}
         transition={{ ...springPanel, opacity: { duration: 0.15 } }}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-3 bg-white border-b border-gray-100">
-          <h2 className="text-[15px] font-bold text-gray-900 tracking-tight">Settings</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-3 bg-white dark:bg-neutral-900 border-b border-gray-100 dark:border-neutral-700">
+          <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight">Settings</h2>
           <button
             onClick={closeSettings}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
           >
             <X size={14} weight="bold" />
           </button>
@@ -215,24 +214,24 @@ function SettingsPanelInner(): React.JSX.Element {
 
         <div className="p-4 space-y-4">
           <motion.section
-            className="bg-gray-50 rounded-xl p-4 border border-gray-100"
+            className="bg-gray-50 dark:bg-neutral-800 rounded-xl p-4 border border-gray-100 dark:border-neutral-700"
             initial={{ opacity: 0, y: 12, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.06, duration: 0.2, ease: 'easeOut' }}
           >
-            <h3 className="text-[13px] font-bold text-gray-900 mb-1">Theme</h3>
-            <p className="text-[11px] text-gray-500 mb-3">Control how the interface looks.</p>
+            <h3 className="text-[13px] font-bold text-gray-900 dark:text-white mb-1">Theme</h3>
+            <p className="text-[11px] text-gray-500 dark:text-neutral-400 mb-3">Control how the interface looks.</p>
             <ThemeModePicker />
           </motion.section>
 
           <motion.section
-            className="bg-gray-50 rounded-xl p-4 border border-gray-100"
+            className="bg-gray-50 dark:bg-neutral-800 rounded-xl p-4 border border-gray-100 dark:border-neutral-700"
             initial={{ opacity: 0, y: 12, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.12, duration: 0.2, ease: 'easeOut' }}
           >
-            <h3 className="text-[13px] font-bold text-gray-900 mb-1">Wallpaper</h3>
-            <p className="text-[11px] text-gray-500 mb-3">Personalize your browser background.</p>
+            <h3 className="text-[13px] font-bold text-gray-900 dark:text-white mb-1">Wallpaper</h3>
+            <p className="text-[11px] text-gray-500 dark:text-neutral-400 mb-3">Personalize your browser background.</p>
             <WallpaperPicker />
           </motion.section>
         </div>

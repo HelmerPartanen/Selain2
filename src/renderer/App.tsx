@@ -8,6 +8,7 @@ function useThemeMode(): void {
   useEffect(() => {
     const apply = (resolved: 'dark' | 'light'): void => {
       document.documentElement.setAttribute('data-theme', resolved)
+      document.documentElement.classList.toggle('dark', resolved === 'dark')
     }
 
     if (themeMode !== 'system') {

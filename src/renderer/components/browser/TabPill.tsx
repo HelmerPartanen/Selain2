@@ -58,7 +58,7 @@ const TabRow = memo(function TabRow({
   return (
     <button
       onClick={handleClick}
-      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
+      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${isActive ? 'bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'}`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
@@ -77,7 +77,7 @@ const TabRow = memo(function TabRow({
       )}
 
       <div
-        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 transition-colors duration-100"
+        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
         onClick={handleClose}
       >
         <X size={11} weight="bold" />
@@ -110,7 +110,7 @@ function TabPillInner(): React.JSX.Element {
             <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white shadow-xl"
+              className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
               style={{ originX: 0.85, originY: 1, perspective: 600 }}
               initial={{ scaleX: 0.45, scaleY: 0.2, opacity: 0, y: 22, rotateX: -10 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
@@ -134,7 +134,7 @@ function TabPillInner(): React.JSX.Element {
       </AnimatePresence>
 
       <div
-        className="relative flex items-center justify-center bg-white shadow-lg rounded-full h-10 px-1 gap-0.5 overflow-visible"
+        className="relative flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full h-10 px-1 gap-0.5 overflow-visible"
       >
         <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
           <Plus size={15} weight="bold" />
@@ -152,7 +152,7 @@ function TabPillInner(): React.JSX.Element {
             >
               <button
                 onClick={handleToggle}
-                className="flex items-center gap-1.5 h-7 w-[52px] px-2 rounded-full text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+                className="flex items-center gap-1.5 h-7 w-[52px] px-2 rounded-full text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:bg-gray-200 dark:active:bg-neutral-700"
               >
                 <ActiveFavicon />
                 <span className="text-xs font-medium tabular-nums whitespace-nowrap">
@@ -172,7 +172,7 @@ function TabPillInner(): React.JSX.Element {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={springCounter}
-            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md ring-2 ring-white pointer-events-none"
+            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-neutral-900 pointer-events-none"
           >
             <SpeakerHigh size={10} weight="fill" className="text-white" />
           </motion.div>

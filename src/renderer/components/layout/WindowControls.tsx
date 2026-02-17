@@ -51,22 +51,22 @@ function WindowControlsInner(): React.JSX.Element {
       <div
         className={`
           mt-2.5 mr-3 flex items-center gap-1 rounded-full
-          bg-white shadow-lg px-1.5 py-1
+          bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-1.5 py-1
           transition-all duration-200 ease-out
           ${isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.85] -translate-y-1.5'}
         `}
         style={{ pointerEvents: isVisible ? 'auto' : 'none' }}
       >
 
-      <ControlButton onClick={handleMinimize} label="Minimize" color="hover:bg-gray-100">
+      <ControlButton onClick={handleMinimize} label="Minimize" color="hover:bg-gray-100 dark:hover:bg-neutral-800">
         <MinusIcon size={12} weight="bold" />
       </ControlButton>
 
-      <ControlButton onClick={handleToggleMaximize} label={isMaximized ? 'Restore' : 'Maximize'} color="hover:bg-gray-100">
+      <ControlButton onClick={handleToggleMaximize} label={isMaximized ? 'Restore' : 'Maximize'} color="hover:bg-gray-100 dark:hover:bg-neutral-800">
         {isMaximized ? <CardsIcon size={12} weight="bold" /> : <SquareIcon size={10} weight="bold" />}
       </ControlButton>
 
-      <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-200 hover:text-red-500">
+      <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-200 hover:text-red-500 dark:hover:bg-red-900/50 dark:hover:text-red-400">
         <XIcon size={12} weight="bold" />
       </ControlButton>
       </div>
@@ -89,7 +89,7 @@ function ControlButton({
     <button
       onClick={onClick}
       aria-label={label}
-      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-600 transition-all duration-75 active:scale-85 ${color}`}
+      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-600 dark:text-neutral-400 transition-all duration-75 active:scale-85 ${color}`}
     >
       {children}
     </button>

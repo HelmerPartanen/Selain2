@@ -57,7 +57,7 @@ function AppMenuInner(): React.JSX.Element {
             <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[180px] rounded-xl overflow-hidden bg-white shadow-xl border border-gray-100"
+              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[180px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
               style={{ originX: 0.5, originY: 1, x: '-50%', perspective: 600 }}
               initial={{ scaleX: 0.5, scaleY: 0.25, opacity: 0, y: 20, rotateX: -10 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
@@ -67,7 +67,7 @@ function AppMenuInner(): React.JSX.Element {
               <div className="py-1">
               {menuItems.map((item, idx) => {
                 if (item.id === 'divider') {
-                  return <div key="divider" className="border-t border-gray-100 my-1" />
+                  return <div key="divider" className="border-t border-gray-100 dark:border-neutral-700 my-1" />
                 }
 
                 const Icon = item.icon!
@@ -76,7 +76,7 @@ function AppMenuInner(): React.JSX.Element {
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
+                    className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
                     style={{
                       opacity: 0,
                       animation: `menu-item-in 150ms ease-out ${40 + idx * 30}ms forwards`

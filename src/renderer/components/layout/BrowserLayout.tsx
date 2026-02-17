@@ -54,12 +54,12 @@ function BrowserLayoutInner(): React.JSX.Element {
   }, [])
 
   return (
-  <div className="relative h-screen overflow-hidden text-gray-900">
+  <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
     {/* Wallpaper layer — fixed behind everything */}
     <div
       className={`
         fixed inset-0 z-0 transition-opacity duration-500
-        bg-gray-100
+        bg-gray-100 dark:bg-neutral-900
         ${wallpaperUrl ? 'bg-cover bg-center bg-no-repeat' : ''}
       `}
       {...(wallpaperUrl && {
