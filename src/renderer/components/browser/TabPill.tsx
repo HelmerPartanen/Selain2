@@ -6,7 +6,7 @@ import { useTabStore } from '@/store/tabStore'
 import { Button } from '@/components/ui/Button'
 
 const springPill = { type: 'spring' as const, stiffness: 400, damping: 28 }
-const springDropdown = { type: 'spring' as const, stiffness: 480, damping: 26 }
+const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
 const springRow = { type: 'spring' as const, stiffness: 420, damping: 24 }
 
 function ActiveFavicon(): React.JSX.Element {
@@ -61,10 +61,10 @@ const TabRow = memo(function TabRow({
       onClick={handleClick}
       className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
       layout
-      initial={{ opacity: 0, y: 6, scale: 0.96 }}
+      initial={{ opacity: 0, y: 8, scale: 0.94 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.15 } }}
-      transition={{ ...springRow, delay: index * 0.03 }}
+      exit={{ opacity: 0, x: -8, scale: 0.88, transition: { duration: 0.18 } }}
+      transition={{ ...springRow, delay: index * 0.035 }}
       whileTap={{ scale: 0.98 }}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
@@ -115,11 +115,11 @@ function TabPillInner(): React.JSX.Element {
 
             <motion.div
               className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white shadow-xl"
-              style={{ originX: 1, originY: 1 }}
-              initial={{ scale: 0.85, opacity: 0, y: 12 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.92, opacity: 0, y: 8 }}
-              transition={springDropdown}
+              style={{ originX: 0.85, originY: 1, perspective: 600 }}
+              initial={{ scaleX: 0.45, scaleY: 0.2, opacity: 0, y: 22, rotateX: -10 }}
+              animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
+              exit={{ scaleX: 0.55, scaleY: 0.18, opacity: 0, y: 16, rotateX: -6 }}
+              transition={{ ...springDropdown, opacity: { duration: 0.12 } }}
             >
               <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1">
                 <AnimatePresence initial={false}>
@@ -139,30 +139,34 @@ function TabPillInner(): React.JSX.Element {
         )}
       </AnimatePresence>
 
-      <div
-  className={`
-    flex items-center justify-center
-    bg-white shadow-lg
-    rounded-full h-10
-    ${tabCount > 1 ? 'px-1 gap-0.5' : 'w-10'}
-  `}
->
-  <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
-    <Plus size={15} weight="bold" />
-  </Button>
+      <motion.div
+        className="flex items-center justify-center bg-white shadow-lg rounded-full h-10 px-1 gap-0.5"
+        layout
+        transition={springPill}
+      >
+        <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
+          <Plus size={15} weight="bold" />
+        </Button>
 
-  {tabCount > 1 && (
-    <button
-      onClick={handleToggle}
-      className="flex items-center gap-1.5 h-7 px-2 rounded-full text-gray-700 hover:bg-gray-100 active:bg-gray-200"
-    >
-      <ActiveFavicon />
-      <span className="text-xs font-medium tabular-nums">
-        {tabCount}
-      </span>
-    </button>
-  )}
-</div>
+        <AnimatePresence initial={false}>
+          {tabCount > 1 && (
+            <motion.button
+              key="tab-counter"
+              onClick={handleToggle}
+              className="flex items-center gap-1.5 h-7 px-2 rounded-full text-gray-700 hover:bg-gray-100 active:bg-gray-200 overflow-hidden"
+              initial={{ width: 0, opacity: 0, scale: 0.4 }}
+              animate={{ width: 'auto', opacity: 1, scale: 1 }}
+              exit={{ width: 0, opacity: 0, scale: 0.4 }}
+              transition={springPill}
+            >
+              <ActiveFavicon />
+              <span className="text-xs font-medium tabular-nums whitespace-nowrap">
+                {tabCount}
+              </span>
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
     </div>
   )

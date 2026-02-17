@@ -6,8 +6,8 @@ import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
-const springWidth = { type: 'spring' as const, stiffness: 350, damping: 30 }
-const springIcon = { type: 'spring' as const, stiffness: 500, damping: 28 }
+const springWidth = { type: 'spring' as const, stiffness: 320, damping: 28, mass: 0.8 }
+const springIcon = { type: 'spring' as const, stiffness: 450, damping: 24 }
 
 function normalizeURL(input: string): string {
   const trimmed = input.trim()
@@ -101,7 +101,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       animate={{
         width: isFocused ? 500 : 360,
         boxShadow: isFocused
-          ? '0 0 0 2px rgba(59,130,246,0.3), 0 10px 15px -3px rgba(0,0,0,0.1)'
+          ? '0 0 0 2.5px rgba(59,130,246,0.35), 0 12px 20px -4px rgba(0,0,0,0.12)'
           : '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)'
       }}
       transition={springWidth}
@@ -110,9 +110,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
             key={isLoading ? 'stop' : 'reload'}
-            initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+            initial={{ scale: 0.4, opacity: 0, rotate: -120 }}
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            exit={{ scale: 0.5, opacity: 0, rotate: 90 }}
+            exit={{ scale: 0.4, opacity: 0, rotate: 120 }}
             transition={springIcon}
             className="flex items-center justify-center"
           >

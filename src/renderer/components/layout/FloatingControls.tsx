@@ -12,9 +12,9 @@ import { useUIStore } from '@/store/uiStore'
 
 const IDLE_DELAY = 2500
 
-const springSnappy = { type: 'spring' as const, stiffness: 400, damping: 30 }
-const springGentle = { type: 'spring' as const, stiffness: 260, damping: 26 }
-const springBounce = { type: 'spring' as const, stiffness: 500, damping: 22 }
+const springSnappy = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
+const springGentle = { type: 'spring' as const, stiffness: 220, damping: 24, mass: 1.0 }
+const springBounce = { type: 'spring' as const, stiffness: 500, damping: 20, mass: 0.6 }
 
 function useIdleVisibility(isActive: boolean): boolean {
   const [isIdle, setIsIdle] = useState(false)
@@ -79,10 +79,10 @@ function FloatingControlsInner(): React.JSX.Element {
   return (
     <motion.div
       className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag]"
-      initial={{ x: '-50%', y: 20, scale: 0.92, opacity: 0 }}
+      initial={{ x: '-50%', y: 40, scale: 0.85, opacity: 0 }}
       animate={
         isIdle
-          ? { x: '-50%', y: 10, scale: 0.96, opacity: 0, filter: 'blur(2px)' }
+          ? { x: '-50%', y: 12, scale: 0.94, opacity: 0, filter: 'blur(4px)' }
           : { x: '-50%', y: 0, scale: 1, opacity: 1, filter: 'blur(0px)' }
       }
       whileHover={undefined}
@@ -107,9 +107,9 @@ function FloatingControlsInner(): React.JSX.Element {
             {canGoBack && (
               <motion.div
                 key="back"
-                initial={{ width: 0, opacity: 0, scale: 0.5 }}
-                animate={{ width: 28, opacity: 1, scale: 1 }}
-                exit={{ width: 0, opacity: 0, scale: 0.5 }}
+                initial={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
+                animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
                 transition={springBounce}
                 style={{ overflow: 'hidden', flexShrink: 0 }}
               >
@@ -126,9 +126,9 @@ function FloatingControlsInner(): React.JSX.Element {
             {canGoForward && (
               <motion.div
                 key="forward"
-                initial={{ width: 0, opacity: 0, scale: 0.5 }}
-                animate={{ width: 28, opacity: 1, scale: 1 }}
-                exit={{ width: 0, opacity: 0, scale: 0.5 }}
+                initial={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
+                animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
                 transition={springBounce}
                 style={{ overflow: 'hidden', flexShrink: 0 }}
               >

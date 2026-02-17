@@ -33,8 +33,8 @@ const variantStyles: Record<ButtonVariant, string> = {
   `
 }
 
-const tap = { scale: 0.92, transition: { type: 'spring' as const, stiffness: 500, damping: 20 } }
-const hover = { scale: 1.06, transition: { type: 'spring' as const, stiffness: 400, damping: 18 } }
+const tap = { scale: 0.9, transition: { type: 'spring' as const, stiffness: 500, damping: 18 } }
+const hover = { scale: 1.08, transition: { type: 'spring' as const, stiffness: 380, damping: 16, mass: 0.6 } }
 
 const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'ghost', className = '', rounded = 'rounded-full', children, ...props }, ref) => (

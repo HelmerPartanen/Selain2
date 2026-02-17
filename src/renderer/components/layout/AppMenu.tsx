@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
-const springMenu = { type: 'spring' as const, stiffness: 500, damping: 28 }
+const springMenu = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
 const springItem = { type: 'spring' as const, stiffness: 450, damping: 26 }
 
 const menuItems = [
@@ -61,11 +61,11 @@ function AppMenuInner(): React.JSX.Element {
 
             <motion.div
               className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[180px] rounded-xl overflow-hidden bg-white shadow-xl border border-gray-100"
-              style={{ originX: 0.5, originY: 1, x: '-50%' }}
-              initial={{ scale: 0.85, opacity: 0, y: 12 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.92, opacity: 0, y: 8 }}
-              transition={springMenu}
+              style={{ originX: 0.5, originY: 1, x: '-50%', perspective: 600 }}
+              initial={{ scaleX: 0.5, scaleY: 0.25, opacity: 0, y: 20, rotateX: -10 }}
+              animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
+              exit={{ scaleX: 0.6, scaleY: 0.2, opacity: 0, y: 14, rotateX: -6 }}
+              transition={{ ...springMenu, opacity: { duration: 0.12 } }}
             >
               <div className="py-1">
               {menuItems.map((item) => {
@@ -81,9 +81,9 @@ function AppMenuInner(): React.JSX.Element {
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
                     className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-100 [app-region:no-drag]"
-                    initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.92 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ ...springItem, delay: 0.02 + idx * 0.04 }}
+                    transition={{ ...springItem, delay: 0.04 + idx * 0.045 }}
                     whileTap={{ scale: 0.97 }}
                   >
                     <Icon size={16} weight="bold" />

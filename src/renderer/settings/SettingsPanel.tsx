@@ -14,8 +14,9 @@ import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
 
-const springPanel = { type: 'spring' as const, stiffness: 420, damping: 28 }
+const springPanel = { type: 'spring' as const, stiffness: 380, damping: 26, mass: 0.8 }
 const springItem = { type: 'spring' as const, stiffness: 450, damping: 26 }
+const springExit = { type: 'spring' as const, stiffness: 500, damping: 32, mass: 0.6 }
 
 function solidToDataUrl(hex: string): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="${hex}"/></svg>`
@@ -208,11 +209,11 @@ function SettingsPanelInner(): React.JSX.Element {
       <motion.div
         ref={panelRef}
         className="absolute bottom-full mb-3 left-0 z-[85] w-[420px] max-h-[65vh] overflow-y-auto overflow-x-hidden rounded-2xl bg-white shadow-2xl border border-gray-100 [&::-webkit-scrollbar]:w-1"
-        style={{ originX: 0, originY: 1 }}
-        initial={{ scale: 0.8, opacity: 0, y: 24 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.88, opacity: 0, y: 16 }}
-        transition={springPanel}
+        style={{ originX: 0.15, originY: 1, perspective: 800 }}
+        initial={{ scaleX: 0.4, scaleY: 0.2, opacity: 0, y: 30, rotateX: -12 }}
+        animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
+        exit={{ scaleX: 0.5, scaleY: 0.15, opacity: 0, y: 20, rotateX: -8 }}
+        transition={{ ...springPanel, opacity: { duration: 0.15 } }}
       >
         <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-3 bg-white border-b border-gray-100">
           <h2 className="text-[15px] font-bold text-gray-900 tracking-tight">Settings</h2>
@@ -227,9 +228,9 @@ function SettingsPanelInner(): React.JSX.Element {
         <div className="p-4 space-y-4">
           <motion.section
             className="bg-gray-50 rounded-xl p-4 border border-gray-100"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springItem, delay: 0.06 }}
+            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ ...springItem, delay: 0.08 }}
           >
             <h3 className="text-[13px] font-bold text-gray-900 mb-1">Theme</h3>
             <p className="text-[11px] text-gray-500 mb-3">Control how the interface looks.</p>
@@ -238,9 +239,9 @@ function SettingsPanelInner(): React.JSX.Element {
 
           <motion.section
             className="bg-gray-50 rounded-xl p-4 border border-gray-100"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springItem, delay: 0.12 }}
+            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ ...springItem, delay: 0.16 }}
           >
             <h3 className="text-[13px] font-bold text-gray-900 mb-1">Wallpaper</h3>
             <p className="text-[11px] text-gray-500 mb-3">Personalize your browser background.</p>
