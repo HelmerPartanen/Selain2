@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useUIStore } from '@/store/uiStore'
 
 function SplitDividerInner(): React.JSX.Element {
+  const splitRatio = useUIStore((s) => s.splitRatio)
   const setSplitRatio = useUIStore((s) => s.setSplitRatio)
   const [isDragging, setIsDragging] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
@@ -44,10 +45,11 @@ function SplitDividerInner(): React.JSX.Element {
       ref={containerRef}
       className="absolute top-0 bottom-0 z-[16] flex items-center justify-center"
       style={{
+        left: `${splitRatio * 100}%`,
         width: active ? '8px' : '4px',
-        marginLeft: active ? '-4px' : '-2px',
+        transform: 'translateX(-50%)',
         cursor: 'col-resize',
-        transition: 'width 150ms ease, margin-left 150ms ease'
+        transition: isDragging ? undefined : 'width 150ms ease'
       }}
       onMouseDown={handleMouseDown}
       onMouseEnter={() => setIsHovered(true)}

@@ -82,8 +82,13 @@ function WebViewManagerInner(): React.JSX.Element {
   const showPrimarySpecial = activeTabUrl ? isSpecialPage(activeTabUrl) : false
   const showSplitSpecial = splitTabUrl ? isSpecialPage(splitTabUrl) : false
 
-  // In split mode, render two panels
+  // In split mode, render two panels.
+  // IMPORTANT: Each entry is rendered in only ONE panel to avoid duplicate <webview> elements
+  // (which would cause double audio playback, double network requests, etc.)
   if (isSplit) {
+    const primaryEntries = activeEntries.filter((e) => e.id !== splitTabId)
+    const splitEntries = activeEntries.filter((e) => e.id === splitTabId)
+
     return (
       <div className="relative h-full flex">
         {/* Primary panel */}
@@ -99,7 +104,7 @@ function WebViewManagerInner(): React.JSX.Element {
               transition: 'background-color 200ms'
             }}
           >
-            {activeEntries.map((entry) => {
+            {primaryEntries.map((entry) => {
               if (isSpecialPage(entry.initialUrl)) return null
               return (
                 <WebViewInstance
@@ -138,7 +143,7 @@ function WebViewManagerInner(): React.JSX.Element {
               transition: 'background-color 200ms'
             }}
           >
-            {activeEntries.map((entry) => {
+            {splitEntries.map((entry) => {
               if (isSpecialPage(entry.initialUrl)) return null
               return (
                 <WebViewInstance

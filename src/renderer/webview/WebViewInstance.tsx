@@ -127,6 +127,17 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     batchUpdate({ isPlayingMedia: false })
   }, [batchUpdate])
 
+  // When the webview gains focus (user clicks inside it), update the focused panel
+  const handleWebviewFocus = useCallback(() => {
+    const state = useTabStore.getState()
+    if (!state.splitTabId) return // Not in split mode
+    if (tabId === state.activeTabId && state.focusedPanel !== 'primary') {
+      state.setFocusedPanel('primary')
+    } else if (tabId === state.splitTabId && state.focusedPanel !== 'split') {
+      state.setFocusedPanel('split')
+    }
+  }, [tabId])
+
   // Register/unregister in the global webview registry
   useEffect(() => {
     const webview = webviewRef.current
@@ -154,6 +165,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     webview.addEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
     webview.addEventListener('media-started-playing', handleMediaStartedPlaying)
     webview.addEventListener('media-paused', handleMediaPaused)
+    webview.addEventListener('focus', handleWebviewFocus)
 
     return () => {
       webview.removeEventListener('dom-ready', handleDomReady)
@@ -165,6 +177,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webview.removeEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
       webview.removeEventListener('media-started-playing', handleMediaStartedPlaying)
       webview.removeEventListener('media-paused', handleMediaPaused)
+      webview.removeEventListener('focus', handleWebviewFocus)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabId])
