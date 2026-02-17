@@ -37,7 +37,7 @@ function WindowControlsInner(): React.JSX.Element {
         {isMaximized ? <CardsIcon size={12} weight="bold" /> : <SquareIcon size={10} weight="bold" />}
       </ControlButton>
 
-      <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-600 hover:text-white">
+      <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-300 hover:text-red-500">
         <XIcon size={12} weight="bold" />
       </ControlButton>
     </div>

@@ -1,62 +1,22 @@
-// ─── Wallpaper IndexedDB Storage ─────────────────────────────────────────────
-// Stores wallpaper images in IndexedDB instead of localStorage to avoid
-// the ~5MB localStorage limit and reduce JSON serialization overhead.
+// ─── Wallpaper Persistence ──────────────────────────────────────────────────────
+// Uses the filesystem via IPC for reliable wallpaper storage.
+// This avoids IndexedDB size limits and corruption issues.
 
-const DB_NAME = 'browser-wallpaper'
-const DB_VERSION = 1
-const STORE_NAME = 'wallpapers'
-const KEY = 'current'
-
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
-    request.onupgradeneeded = () => {
-      const db = request.result
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME)
-      }
-    }
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  })
-}
-
-/** Save a wallpaper data URL (or null) to IndexedDB */
+/** Save a wallpaper data URL (or null) to disk via main process */
 export async function saveWallpaper(dataUrl: string | null): Promise<void> {
   try {
-    const db = await openDB()
-    const tx = db.transaction(STORE_NAME, 'readwrite')
-    const store = tx.objectStore(STORE_NAME)
-    if (dataUrl === null) {
-      store.delete(KEY)
-    } else {
-      store.put(dataUrl, KEY)
-    }
-    await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve()
-      tx.onerror = () => reject(tx.error)
-    })
-    db.close()
+    await window.electronAPI.saveWallpaper(dataUrl)
   } catch (err) {
-    console.warn('Failed to save wallpaper to IndexedDB:', err)
+    console.warn('Failed to save wallpaper:', err)
   }
 }
 
-/** Load the wallpaper data URL from IndexedDB */
+/** Load the wallpaper data URL from disk via main process */
 export async function loadWallpaper(): Promise<string | null> {
   try {
-    const db = await openDB()
-    const tx = db.transaction(STORE_NAME, 'readonly')
-    const store = tx.objectStore(STORE_NAME)
-    const request = store.get(KEY)
-    const result = await new Promise<string | null>((resolve, reject) => {
-      request.onsuccess = () => resolve((request.result as string) ?? null)
-      request.onerror = () => reject(request.error)
-    })
-    db.close()
-    return result
+    return await window.electronAPI.loadWallpaper()
   } catch (err) {
-    console.warn('Failed to load wallpaper from IndexedDB:', err)
+    console.warn('Failed to load wallpaper:', err)
     return null
   }
 }

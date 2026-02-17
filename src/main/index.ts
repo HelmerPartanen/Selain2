@@ -1,6 +1,7 @@
 import { app, BrowserWindow, components, dialog, ipcMain, Menu, nativeImage, session } from 'electron'
-import { readFile } from 'fs/promises'
+import { readFile, writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
+import { existsSync } from 'fs'
 
 // ─── Chromium CLI Flags (must be set before app.ready) ───────────────────────
 
@@ -136,6 +137,33 @@ function setupIPC(): void {
     // Always output as JPEG for wallpapers (smaller than PNG)
     const resizedBuffer = img.toJPEG(85)
     return `data:image/jpeg;base64,${resizedBuffer.toString('base64')}`
+  })
+
+  // ── Wallpaper persistence (filesystem-based, replaces IndexedDB) ──
+  const wallpaperPath = join(app.getPath('userData'), 'wallpaper.dat')
+
+  ipcMain.handle('save-wallpaper', async (_event, dataUrl: string | null) => {
+    try {
+      if (dataUrl === null) {
+        if (existsSync(wallpaperPath)) await unlink(wallpaperPath)
+      } else {
+        await writeFile(wallpaperPath, dataUrl, 'utf-8')
+      }
+      return true
+    } catch (err) {
+      console.warn('Failed to save wallpaper:', err)
+      return false
+    }
+  })
+
+  ipcMain.handle('load-wallpaper', async () => {
+    try {
+      if (!existsSync(wallpaperPath)) return null
+      return await readFile(wallpaperPath, 'utf-8')
+    } catch (err) {
+      console.warn('Failed to load wallpaper:', err)
+      return null
+    }
   })
 }
 

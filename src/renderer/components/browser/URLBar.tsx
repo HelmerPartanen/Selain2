@@ -131,9 +131,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               transition={{ type: 'spring', stiffness: 500, damping: 25 }}
               className="flex items-center justify-center"
             >
-              {iconKey === 'lock' && <Lock size={12} weight="fill" className="text-green-600" />}
-              {iconKey === 'globe' && <Globe size={12} weight="regular" />}
-              {iconKey === 'search' && <MagnifyingGlassIcon size={12} weight="regular" />}
+              {iconKey === 'lock' && <Lock size={15} weight="fill" className="text-green-600" />}
+              {iconKey === 'globe' && <Globe size={15} weight="regular" />}
+              {iconKey === 'search' && <MagnifyingGlassIcon size={15} weight="regular" />}
             </motion.span>
           </AnimatePresence>
         </div>

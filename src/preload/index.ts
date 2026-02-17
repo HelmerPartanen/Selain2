@@ -15,7 +15,9 @@ const api: ElectronAPI = {
       ipcRenderer.removeListener('maximize-change', handler)
     }
   },
-  openImageDialog: () => ipcRenderer.invoke('open-image-dialog')
+  openImageDialog: () => ipcRenderer.invoke('open-image-dialog'),
+  saveWallpaper: (dataUrl: string | null) => ipcRenderer.invoke('save-wallpaper', dataUrl),
+  loadWallpaper: () => ipcRenderer.invoke('load-wallpaper')
 }
 
 // Freeze the API object so renderer code cannot mutate or extend it

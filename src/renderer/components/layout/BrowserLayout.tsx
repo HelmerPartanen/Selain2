@@ -13,23 +13,38 @@ function BrowserLayoutInner(): React.JSX.Element {
 
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
-  const blobUrlRef = useRef<string | null>(null)
+  // NOTE: Revocation is deferred to useEffect (after commit) so the DOM
+  // never references a revoked blob URL during the render-to-commit gap.
+  const prevBlobRef = useRef<string | null>(null)
   const wallpaperUrl = useMemo(() => {
-    // Revoke previous blob URL to free memory
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-      blobUrlRef.current = null
-    }
     if (!wallpaper) return null
-    // Only convert data: URLs to blob; SVG data URLs are small enough to keep
     if (wallpaper.startsWith('data:image/svg+xml')) return wallpaper
-    if (wallpaper.startsWith('data:')) {
-      const blobUrl = dataUrlToBlobUrl(wallpaper)
-      blobUrlRef.current = blobUrl
-      return blobUrl
-    }
+    if (wallpaper.startsWith('blob:')) return wallpaper
+    if (wallpaper.startsWith('data:')) return dataUrlToBlobUrl(wallpaper)
     return wallpaper
   }, [wallpaper])
+
+  // Revoke the previous blob URL after React has committed the new one to the DOM
+  useEffect(() => {
+    const prev = prevBlobRef.current
+    // Only revoke if it's a blob URL we created (not one from the store)
+    if (prev && prev !== wallpaperUrl) {
+      URL.revokeObjectURL(prev)
+    }
+    // Track the current blob URL for future cleanup
+    prevBlobRef.current =
+      wallpaperUrl && wallpaperUrl.startsWith('blob:') && !wallpaper?.startsWith('blob:')
+        ? wallpaperUrl
+        : null
+
+    return () => {
+      // On unmount, revoke any outstanding blob URL
+      if (prevBlobRef.current) {
+        URL.revokeObjectURL(prevBlobRef.current)
+        prevBlobRef.current = null
+      }
+    }
+  }, [wallpaperUrl, wallpaper])
 
   useEffect(() => {
     const state = useTabStore.getState()

@@ -9,6 +9,8 @@ interface ElectronAPI {
   toggleMaximizeWindow(): void
   onMaximizeChange(callback: (isMaximized: boolean) => void): () => void
   openImageDialog(): Promise<string | null>
+  saveWallpaper(dataUrl: string | null): Promise<boolean>
+  loadWallpaper(): Promise<string | null>
 }
 
 // Electron webview tag types for the renderer process
