@@ -6,7 +6,8 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
 const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
-const springCounter = { type: 'spring' as const, stiffness: 500, damping: 24, mass: 0.6 }
+const springExpand = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.9 }
+const springPop = { type: 'spring' as const, stiffness: 400, damping: 26, mass: 0.7 }
 
 function ActiveFavicon(): React.JSX.Element {
   const activeTabId = useActiveTabId()
@@ -212,7 +213,7 @@ function TabPillInner(): React.JSX.Element {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 'auto', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              transition={springCounter}
+              transition={{ ...springExpand, opacity: { duration: 0.12 } }}
               className="flex items-center"
               style={{ overflow: 'hidden', flexShrink: 0 }}
             >
@@ -238,7 +239,7 @@ function TabPillInner(): React.JSX.Element {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={springCounter}
+            transition={springPop}
             className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-neutral-900 pointer-events-none"
           >
             <SpeakerHigh size={10} weight="fill" className="text-white" />

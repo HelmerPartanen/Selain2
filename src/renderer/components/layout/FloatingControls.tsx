@@ -14,7 +14,7 @@ const IDLE_DELAY = 2500
 
 const springSnappy = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
 const springGentle = { type: 'spring' as const, stiffness: 220, damping: 24, mass: 1.0 }
-const springBounce = { type: 'spring' as const, stiffness: 500, damping: 20, mass: 0.6 }
+const springExpand = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.9 }
 
 const THROTTLE_MS = 100
 
@@ -125,19 +125,20 @@ function FloatingControlsInner(): React.JSX.Element {
           {(canGoBack || canGoForward) && (
             <motion.div
               key="nav-pod"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.5, opacity: 0 }}
-              transition={springBounce}
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 'auto', opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ ...springExpand, opacity: { duration: 0.15 } }}
+              style={{ overflow: 'hidden', flexShrink: 0 }}
             >
               <div
-                className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full overflow-visible"
+                className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full"
               >
                 <button
                   onClick={handleGoBack}
                   disabled={!canGoBack}
                   aria-label="Go back"
-                  className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none disabled:opacity-40 disabled:pointer-events-none ${canGoForward ? 'rounded-l-full' : 'rounded-full'}`}
+                  className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-150 select-none disabled:opacity-40 disabled:pointer-events-none ${canGoForward ? 'rounded-l-full' : 'rounded-full'}`}
                 >
                   <CaretLeft size={16} weight="bold" />
                 </button>
@@ -149,7 +150,7 @@ function FloatingControlsInner(): React.JSX.Element {
                       initial={{ width: 0, opacity: 0 }}
                       animate={{ width: 'auto', opacity: 1 }}
                       exit={{ width: 0, opacity: 0 }}
-                      transition={springBounce}
+                      transition={{ ...springExpand, opacity: { duration: 0.12 } }}
                       className="flex items-center"
                       style={{ overflow: 'hidden', flexShrink: 0 }}
                     >
@@ -157,7 +158,7 @@ function FloatingControlsInner(): React.JSX.Element {
                       <button
                         onClick={handleGoForward}
                         aria-label="Go forward"
-                        className="h-10 w-10 rounded-r-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none flex-shrink-0"
+                        className="h-10 w-10 rounded-r-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-150 select-none flex-shrink-0"
                       >
                         <CaretRight size={16} weight="bold" />
                       </button>
@@ -176,13 +177,13 @@ function FloatingControlsInner(): React.JSX.Element {
         <AnimatePresence initial={false}>
           {isSplit && (
             <motion.div
-              initial={{ width: 0, opacity: 0, scale: 0.3 }}
-              animate={{ width: 40, opacity: 1, scale: 1 }}
-              exit={{ width: 0, opacity: 0, scale: 0.3 }}
-              transition={springBounce}
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 'auto', opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ ...springExpand, opacity: { duration: 0.15 } }}
               style={{ overflow: 'hidden', flexShrink: 0 }}
             >
-              <div className="rounded-full h-10 flex items-center justify-center px-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg">
+              <div className="rounded-full h-10 w-10 flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg">
                 <Button variant="icon" onClick={handleUnsplit} aria-label="Exit split view">
                   <SplitHorizontal size={15} weight="bold" className="text-indigo-500" />
                 </Button>
