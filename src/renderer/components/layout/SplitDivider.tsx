@@ -41,20 +41,25 @@ function SplitDividerInner(): React.JSX.Element {
   const active = isDragging || isHovered
 
   return (
-    <div
-      ref={containerRef}
-      className="absolute top-0 bottom-0 z-[16] flex items-center justify-center"
-      style={{
-        left: `${splitRatio * 100}%`,
-        width: active ? '8px' : '4px',
-        transform: 'translateX(-50%)',
-        cursor: 'col-resize',
-        transition: isDragging ? undefined : 'width 150ms ease'
-      }}
-      onMouseDown={handleMouseDown}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <>
+      {/* Full-screen drag overlay — sits above webviews to prevent them stealing mouse events */}
+      {isDragging && (
+        <div className="fixed inset-0 z-[15]" style={{ cursor: 'col-resize' }} />
+      )}
+      <div
+        ref={containerRef}
+        className="absolute top-0 bottom-0 z-[16] flex items-center justify-center"
+        style={{
+          left: `${splitRatio * 100}%`,
+          width: active ? '12px' : '6px',
+          transform: 'translateX(-50%)',
+          cursor: 'col-resize',
+          transition: isDragging ? undefined : 'width 150ms ease'
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
       {/* Visual line */}
       <div
         className="h-full transition-all duration-150"
@@ -78,6 +83,7 @@ function SplitDividerInner(): React.JSX.Element {
         </div>
       )}
     </div>
+    </>
   )
 }
 
