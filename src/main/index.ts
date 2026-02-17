@@ -179,6 +179,9 @@ function buildContextMenu(
     {
       label: 'Inspect Element',
       click: () => {
+        if (!webContents.isDevToolsOpened()) {
+          webContents.openDevTools({ mode: 'right' })
+        }
         webContents.inspectElement(params.x, params.y)
       }
     }
@@ -293,7 +296,7 @@ function createWindow(): void {
 
   // Open DevTools automatically when running the dev server for debugging
   if (process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
+    mainWindow.webContents.openDevTools({ mode: 'right' })
   }
 
   mainWindow.on('maximize', () => {
