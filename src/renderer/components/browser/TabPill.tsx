@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Plus, X, Globe, CircleNotch } from '@phosphor-icons/react'
-import { useTabOrder, useActiveTabId, useTabMeta, useTabFaviconState } from '@/hooks/useTabSelector'
+import { Plus, X, Globe, CircleNotch, SpeakerHigh } from '@phosphor-icons/react'
+import { useTabOrder, useActiveTabId, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { Button } from '@/components/ui/Button'
 
@@ -40,6 +40,7 @@ const TabRow = memo(function TabRow({
   const title = meta?.title ?? 'New Tab'
   const favicon = meta?.favicon
   const isLoading = meta?.isLoading ?? false
+  const isPlayingMedia = meta?.isPlayingMedia ?? false
 
   const handleClick = useCallback(() => {
     setActiveTab(tabId)
@@ -71,6 +72,10 @@ const TabRow = memo(function TabRow({
 
       <span className="flex-1 text-xs truncate">{title}</span>
 
+      {!isActive && isPlayingMedia && (
+        <SpeakerHigh size={12} weight="fill" className="flex-shrink-0 text-blue-500" />
+      )}
+
       <div
         className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 transition-colors duration-100"
         onClick={handleClose}
@@ -85,6 +90,7 @@ function TabPillInner(): React.JSX.Element {
   const tabOrder = useTabOrder()
   const activeTabId = useActiveTabId()
   const addTab = useTabStore((s) => s.addTab)
+  const bgMediaPlaying = useBackgroundMediaPlaying()
   const tabCount = tabOrder.length
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -128,7 +134,7 @@ function TabPillInner(): React.JSX.Element {
       </AnimatePresence>
 
       <div
-        className="flex items-center justify-center bg-white shadow-lg rounded-full h-10 px-1 gap-0.5"
+        className="relative flex items-center justify-center bg-white shadow-lg rounded-full h-10 px-1 gap-0.5 overflow-visible"
       >
         <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
           <Plus size={15} weight="bold" />
@@ -157,6 +163,21 @@ function TabPillInner(): React.JSX.Element {
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence initial={false}>
+        {bgMediaPlaying && (
+          <motion.div
+            key="bg-audio-badge"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={springCounter}
+            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md ring-2 ring-white pointer-events-none"
+          >
+            <SpeakerHigh size={10} weight="fill" className="text-white" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   )

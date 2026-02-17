@@ -108,6 +108,14 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     [batchUpdate]
   )
 
+  const handleMediaStartedPlaying = useCallback(() => {
+    batchUpdate({ isPlayingMedia: true })
+  }, [batchUpdate])
+
+  const handleMediaPaused = useCallback(() => {
+    batchUpdate({ isPlayingMedia: false })
+  }, [batchUpdate])
+
   // Register/unregister in the global webview registry
   useEffect(() => {
     const webview = webviewRef.current
@@ -133,6 +141,8 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     webview.addEventListener('page-favicon-updated', handlePageFaviconUpdated as EventListener)
     webview.addEventListener('did-navigate', handleDidNavigate as EventListener)
     webview.addEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
+    webview.addEventListener('media-started-playing', handleMediaStartedPlaying)
+    webview.addEventListener('media-paused', handleMediaPaused)
 
     return () => {
       webview.removeEventListener('dom-ready', handleDomReady)
@@ -142,6 +152,8 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webview.removeEventListener('page-favicon-updated', handlePageFaviconUpdated as EventListener)
       webview.removeEventListener('did-navigate', handleDidNavigate as EventListener)
       webview.removeEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
+      webview.removeEventListener('media-started-playing', handleMediaStartedPlaying)
+      webview.removeEventListener('media-paused', handleMediaPaused)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabId])

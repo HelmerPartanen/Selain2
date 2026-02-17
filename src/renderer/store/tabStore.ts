@@ -7,6 +7,7 @@ export interface Tab {
   title: string
   favicon: string
   isLoading: boolean
+  isPlayingMedia: boolean
   canGoBack: boolean
   canGoForward: boolean
   isSuspended: boolean
@@ -32,6 +33,7 @@ function createTab(url: string): Tab {
     title: 'New Tab',
     favicon: '',
     isLoading: false,
+    isPlayingMedia: false,
     canGoBack: false,
     canGoForward: false,
     isSuspended: false

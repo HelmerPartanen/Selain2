@@ -37,12 +37,12 @@ export function useActiveTabNavState(): {
   )
 }
 
-export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean } | undefined {
+export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean } | undefined {
   return useTabStore(
     useShallow((s) => {
       const tab = s.tabs[id]
       if (!tab) return undefined
-      return { title: tab.title, favicon: tab.favicon, isLoading: tab.isLoading }
+      return { title: tab.title, favicon: tab.favicon, isLoading: tab.isLoading, isPlayingMedia: tab.isPlayingMedia }
     })
   )
 }
@@ -56,6 +56,17 @@ export function useTabFaviconState(id: string): { favicon: string; isLoading: bo
       return { favicon: tab.favicon, isLoading: tab.isLoading }
     })
   )
+}
+
+/** Returns true if any background (non-active) tab is currently playing media */
+export function useBackgroundMediaPlaying(): boolean {
+  return useTabStore((s) => {
+    for (const id of s.tabOrder) {
+      if (id === s.activeTabId) continue
+      if (s.tabs[id]?.isPlayingMedia) return true
+    }
+    return false
+  })
 }
 
 
