@@ -159,7 +159,7 @@ function FloatingControlsInner(): React.JSX.Element {
               animate={{ width: 'auto', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ ...springExpand, opacity: { duration: 0.15 } }}
-              style={{ overflow: 'hidden', flexShrink: 0 }}
+              className="flex-shrink-0"
             >
               <div
                 className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full"
@@ -181,8 +181,8 @@ function FloatingControlsInner(): React.JSX.Element {
                       animate={{ width: 'auto', opacity: 1 }}
                       exit={{ width: 0, opacity: 0 }}
                       transition={{ ...springExpand, opacity: { duration: 0.12 } }}
-                      className="flex items-center"
-                      style={{ overflow: 'hidden', flexShrink: 0 }}
+                      className="flex items-center overflow-hidden"
+                      style={{ flexShrink: 0 }}
                     >
                       <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
                       <button
