@@ -173,13 +173,15 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         className={`
           relative flex items-center rounded-full h-10 px-1
           bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700
-          transition-all duration-200 ease-out will-change-[width,box-shadow]
-          ${isFocused
-            ? 'w-[500px] shadow-[0_0_0_2.5px_rgba(59,130,246,0.35),0_12px_20px_-4px_rgba(0,0,0,0.12)]'
-            : 'w-[360px] shadow-lg'
-          }
+          shadow-lg
+          transition-[width] duration-300 ease-out will-change-[width]
+          ${isFocused ? 'w-[500px]' : 'w-[360px]'}
         `}
       >
+        {/* Focus ring */}
+        <div
+          className={`absolute inset-0 rounded-full pointer-events-none transition-opacity duration-200 ease-out ring-[2.5px] ring-blue-500/35 ${isFocused ? 'opacity-100' : 'opacity-0'}`}
+        />
         <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
