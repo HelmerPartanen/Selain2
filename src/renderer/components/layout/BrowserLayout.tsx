@@ -5,11 +5,16 @@ import { WebViewManager } from '@/webview/WebViewManager'
 import { useLRUTabManager } from '@/webview/useLRUTabManager'
 import { useTabStore } from '@/store/tabStore'
 import { useThemeStore } from '@/store/themeStore'
+import { useUIStore } from '@/store/uiStore'
 import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
   const wallpaper = useThemeStore((s) => s.wallpaper)
+  const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
+  const isMenuOpen = useUIStore((s) => s.isMenuOpen)
+  const closeDropdown = useUIStore((s) => s.setDropdownOpen)
+  const closeMenu = useUIStore((s) => s.setMenuOpen)
 
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
@@ -77,6 +82,17 @@ function BrowserLayoutInner(): React.JSX.Element {
 
     {/* Floating controls overlay */}
     <FloatingControls />
+
+    {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
+    {(isDropdownOpen || isMenuOpen) && (
+      <div
+        className="fixed inset-0 z-[45]"
+        onMouseDown={() => {
+          closeDropdown(false)
+          closeMenu(false)
+        }}
+      />
+    )}
 
     {/* Window controls */}
     <WindowControls />

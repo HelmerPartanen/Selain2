@@ -1,8 +1,9 @@
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Plus, X, Globe, CircleNotch, SpeakerHigh } from '@phosphor-icons/react'
 import { useTabOrder, useActiveTabId, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
+import { useUIStore } from '@/store/uiStore'
 import { Button } from '@/components/ui/Button'
 
 const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
@@ -91,24 +92,23 @@ function TabPillInner(): React.JSX.Element {
   const activeTabId = useActiveTabId()
   const addTab = useTabStore((s) => s.addTab)
   const bgMediaPlaying = useBackgroundMediaPlaying()
+  const isExpanded = useUIStore((s) => s.isDropdownOpen)
+  const setDropdownOpen = useUIStore((s) => s.setDropdownOpen)
   const tabCount = tabOrder.length
-  const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
-    if (tabCount <= 1) setIsExpanded(false)
-  }, [tabCount])
+    if (tabCount <= 1) setDropdownOpen(false)
+  }, [tabCount, setDropdownOpen])
 
   const handleAddTab = useCallback(() => addTab(), [addTab])
-  const handleToggle = useCallback(() => setIsExpanded((prev) => !prev), [])
-  const handleClose = useCallback(() => setIsExpanded(false), [])
+  const handleToggle = useCallback(() => setDropdownOpen(!isExpanded), [isExpanded, setDropdownOpen])
+  const handleClose = useCallback(() => setDropdownOpen(false), [setDropdownOpen])
 
   return (
     <div className="relative">
       <AnimatePresence>
         {isExpanded && (
           <>
-            <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
-
             <motion.div
               className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
               style={{ originX: 0.85, originY: 1, perspective: 600 }}
@@ -117,7 +117,7 @@ function TabPillInner(): React.JSX.Element {
               exit={{ scaleX: 0.55, scaleY: 0.18, opacity: 0, y: 16, rotateX: -6 }}
               transition={{ ...springDropdown, opacity: { duration: 0.12 } }}
             >
-              <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1">
+              <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 space-y-0.5">
                 {tabOrder.map((id, index) => (
                   <TabRow
                     key={id}
