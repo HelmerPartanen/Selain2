@@ -164,14 +164,16 @@ function FloatingControlsInner(): React.JSX.Element {
               <div
                 className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full"
               >
-                <button
+                <motion.button
                   onClick={handleGoBack}
                   disabled={!canGoBack}
                   aria-label="Go back"
-                  className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-150 select-none disabled:opacity-40 disabled:pointer-events-none ${canGoForward ? 'rounded-l-full' : 'rounded-full'}`}
+                  whileTap={{ scale: 0.82, x: -2 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 15, mass: 0.6 }}
+                  className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-[background-color,opacity] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none ${canGoForward ? 'rounded-l-full' : 'rounded-full'}`}
                 >
                   <SvgIcon svg={chevronLeftSvg} size={16} />
-                </button>
+                </motion.button>
 
                 <AnimatePresence initial={false}>
                   {canGoForward && (
@@ -185,13 +187,15 @@ function FloatingControlsInner(): React.JSX.Element {
                       style={{ flexShrink: 0 }}
                     >
                       <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
-                      <button
+                      <motion.button
                         onClick={handleGoForward}
                         aria-label="Go forward"
-                        className="h-10 w-10 rounded-r-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-150 select-none flex-shrink-0"
+                        whileTap={{ scale: 0.82, x: 2 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 15, mass: 0.6 }}
+                        className="h-10 w-10 rounded-r-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-[background-color] duration-150 select-none flex-shrink-0"
                       >
                         <SvgIcon svg={chevronRightSvg} size={16} />
-                      </button>
+                      </motion.button>
                     </motion.div>
                   )}
                 </AnimatePresence>
