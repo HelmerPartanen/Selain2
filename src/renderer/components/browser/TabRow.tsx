@@ -24,14 +24,14 @@ const TabRow = memo(function TabRow({ tabId, isActive, index, isOpen, onSelect }
   const [visible, setVisible] = useState(false)
   useEffect(() => {
     if (isOpen) {
-      const t = setTimeout(() => setVisible(true), index * 30)
+      const t = setTimeout(() => setVisible(true), index * 20)
       return () => clearTimeout(t)
     }
     setVisible(false)
   }, [isOpen, index])
 
-  const y = useSpring(visible ? 0 : 6, SPRINGS.bouncy)
-  const opacity = useSpring(visible ? 1 : 0, SPRINGS.snappy)
+  const y = useSpring(visible ? 0 : 5, SPRINGS.quick)
+  const opacity = useSpring(visible ? 1 : 0, SPRINGS.stiff)
 
   const handleClick = useCallback(() => {
     setActiveTab(tabId)

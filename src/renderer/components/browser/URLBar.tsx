@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { ArrowClockwise, X as StopIcon, Lock, Globe, MagnifyingGlassIcon } from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, X as XIcon, LockIcon, Globe, MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { useActiveTabId, useActiveTabUrl, useActiveTabNavState } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
@@ -16,7 +16,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const [inputValue, setInputValue] = useState('')
   const [isFocused, setIsFocused] = useState(false)
 
-  const width = useSpring(isFocused ? 500 : 360, SPRINGS.bouncy)
+  const width = useSpring(isFocused ? 500 : 360, SPRINGS.stiff)
   const iconRotation = useSpring(isLoading ? 180 : 0, SPRINGS.snappy)
 
   useEffect(() => {
@@ -69,19 +69,19 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   return (
     <div
-      className="flex items-center rounded-full h-10 px-2 gap-1 bg-white/70 backdrop-blur-md shadow-lg"
+      className="flex items-center rounded-full h-10 px-1 gap-1 bg-white/60 backdrop-blur-2xl shadow-lg border border-white/30"
       style={{ width, willChange: 'width' }}
     >
       <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop' : 'Reload'}>
         <div style={{ transform: `rotate(${iconRotation}deg)` }}>
-          {isLoading ? <StopIcon size={15} weight="bold" /> : <ArrowClockwise size={15} weight="bold" />}
+          {isLoading ? <XIcon size={15} weight="bold" /> : <ArrowClockwiseIcon size={15} weight="bold" />}
         </div>
       </Button>
 
       <div className="relative flex-1 min-w-0 flex items-center h-full">
         <div className="absolute left-3 z-10 flex items-center pointer-events-none text-gray-400">
           {showSiteIcon ? (
-            isSecure ? <Lock size={12} weight="fill" className="text-green-600" /> : <Globe size={12} weight="regular" />
+            isSecure ? <LockIcon size={12} weight="fill" className="text-green-600" /> : <Globe size={12} weight="regular" />
           ) : (
             <MagnifyingGlassIcon size={15} weight="regular" />
           )}

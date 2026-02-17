@@ -27,7 +27,7 @@ function FloatingControlsInner(): React.JSX.Element {
       opacity: shouldHide ? (isScrolling ? 0 : 0.15) : 1,
       blur: shouldHide ? 2 : 0
     },
-    shouldHide ? SPRINGS.gentle : SPRINGS.bouncy
+    shouldHide ? SPRINGS.gentle : SPRINGS.snappy
   )
 
   const handleGoBack = useCallback(() => {
@@ -51,7 +51,7 @@ function FloatingControlsInner(): React.JSX.Element {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex items-center gap-1.5">
-        <div className="rounded-full h-10 flex items-center px-1 bg-white/70 backdrop-blur-md shadow-lg">
+        <div className="rounded-full h-10 flex items-center px-1 bg-white/60 backdrop-blur-2xl shadow-lg border border-white/30">
           <AppMenu />
           <AnimatedSlot show={canGoBack}>
             <Button variant="icon" onClick={handleGoBack} aria-label="Go back">

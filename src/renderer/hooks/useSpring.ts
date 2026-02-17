@@ -12,11 +12,12 @@ interface SpringState {
 }
 
 export const SPRINGS = {
-  snappy: { stiffness: 400, damping: 30, mass: 0.8 },
-  bouncy: { stiffness: 300, damping: 20, mass: 1 },
-  gentle: { stiffness: 200, damping: 26, mass: 1 },
-  stiff: { stiffness: 500, damping: 35, mass: 0.6 },
-  lazy: { stiffness: 120, damping: 20, mass: 1.2 }
+  snappy: { stiffness: 600, damping: 40, mass: 0.6 },
+  bouncy: { stiffness: 500, damping: 32, mass: 0.7 },
+  gentle: { stiffness: 350, damping: 34, mass: 0.8 },
+  stiff: { stiffness: 800, damping: 50, mass: 0.5 },
+  quick: { stiffness: 700, damping: 42, mass: 0.5 },
+  lazy: { stiffness: 200, damping: 28, mass: 1 }
 } as const
 
 function stepSpring(state: SpringState, target: number, config: SpringConfig, dt: number): SpringState {

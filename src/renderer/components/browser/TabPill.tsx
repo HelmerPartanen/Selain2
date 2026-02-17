@@ -20,14 +20,14 @@ function TabPillInner(): React.JSX.Element {
 
   const popover = useMultiSpring(
     {
-      scale: isExpanded ? 1 : 0.85,
+      scale: isExpanded ? 1 : 0.92,
       opacity: isExpanded ? 1 : 0,
-      y: isExpanded ? 0 : 12
+      y: isExpanded ? 0 : 6
     },
-    isExpanded ? SPRINGS.bouncy : SPRINGS.stiff
+    isExpanded ? SPRINGS.quick : SPRINGS.stiff
   )
 
-  const pillWidth = useSpring(tabCount === 1 ? 40 : 76, SPRINGS.bouncy)
+  const pillWidth = useSpring(tabCount === 1 ? 40 : 76, SPRINGS.stiff)
 
   const handleAddTab = useCallback(() => addTab(), [addTab])
   const handleToggle = useCallback(() => setIsExpanded((p) => !p), [])
@@ -39,7 +39,7 @@ function TabPillInner(): React.JSX.Element {
         <>
           {isExpanded && <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />}
           <div
-            className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white/80 backdrop-blur-xl shadow-xl"
+            className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white/70 backdrop-blur-2xl shadow-xl border border-white/30"
             style={{
               transform: `translateY(${popover.y}px) scale(${popover.scale})`,
               opacity: popover.opacity,
@@ -65,7 +65,7 @@ function TabPillInner(): React.JSX.Element {
       )}
 
       <div
-        className="flex items-center justify-center h-10 rounded-full bg-white/70 backdrop-blur-md shadow-lg"
+        className="flex items-center justify-center h-10 rounded-full bg-white/60 backdrop-blur-2xl shadow-lg border border-white/30"
         style={{ width: pillWidth, willChange: 'width' }}
       >
         <Button variant="icon" onClick={handleAddTab} aria-label="New tab">

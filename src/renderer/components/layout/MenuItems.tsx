@@ -28,14 +28,14 @@ export function MenuItemButton({ item, index, isOpen, onClick }: MenuItemButtonP
 
   useEffect(() => {
     if (isOpen) {
-      const t = setTimeout(() => setVisible(true), index * 40)
+      const t = setTimeout(() => setVisible(true), index * 25)
       return () => clearTimeout(t)
     }
     setVisible(false)
   }, [isOpen, index])
 
-  const y = useSpring(visible ? 0 : 8, SPRINGS.bouncy)
-  const opacity = useSpring(visible ? 1 : 0, SPRINGS.snappy)
+  const y = useSpring(visible ? 0 : 6, SPRINGS.quick)
+  const opacity = useSpring(visible ? 1 : 0, SPRINGS.stiff)
 
   return (
     <>

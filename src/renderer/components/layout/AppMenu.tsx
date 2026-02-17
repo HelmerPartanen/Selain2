@@ -12,14 +12,14 @@ function AppMenuInner(): React.JSX.Element {
 
   const popover = useMultiSpring(
     {
-      scale: isOpen ? 1 : 0.85,
+      scale: isOpen ? 1 : 0.92,
       opacity: isOpen ? 1 : 0,
-      y: isOpen ? 0 : 10
+      y: isOpen ? 0 : 6
     },
-    isOpen ? SPRINGS.bouncy : SPRINGS.stiff
+    isOpen ? SPRINGS.quick : SPRINGS.stiff
   )
 
-  const iconRotation = useSpring(isOpen ? 90 : 0, SPRINGS.bouncy)
+  const iconRotation = useSpring(isOpen ? 90 : 0, SPRINGS.snappy)
 
   const handleToggle = useCallback(() => setIsOpen((p) => !p), [])
   const handleClose = useCallback(() => setIsOpen(false), [])
@@ -49,7 +49,7 @@ function AppMenuInner(): React.JSX.Element {
           {isOpen && <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />}
 
           <div
-            className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden bg-white/80 backdrop-blur-xl shadow-xl"
+            className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden bg-white/70 backdrop-blur-2xl shadow-xl border border-white/30"
             style={{
               transform: `translate(-50%, ${popover.y}px) scale(${popover.scale})`,
               opacity: popover.opacity,

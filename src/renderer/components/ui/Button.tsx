@@ -24,7 +24,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     active:bg-gray-200
   `,
   icon: `
-    p-1.5
+    w-8 h-8
     text-gray-600
     bg-transparent
     hover:bg-gray-200/60 hover:text-gray-900

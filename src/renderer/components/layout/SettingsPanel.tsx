@@ -167,14 +167,14 @@ function SettingsPanelInner(): React.JSX.Element {
 
   const panel = useMultiSpring(
     {
-      scale: isOpen ? 1 : 0.9,
+      scale: isOpen ? 1 : 0.94,
       opacity: isOpen ? 1 : 0,
-      y: isOpen ? 0 : 30
+      y: isOpen ? 0 : 16
     },
-    isOpen ? SPRINGS.bouncy : SPRINGS.stiff
+    isOpen ? SPRINGS.quick : SPRINGS.stiff
   )
 
-  const backdrop = useSpring(isOpen ? 1 : 0, SPRINGS.gentle)
+  const backdrop = useSpring(isOpen ? 1 : 0, SPRINGS.snappy)
 
   useEffect(() => {
     if (!isOpen && (panel.opacity ?? 0) < 0.01) setMounted(false)
@@ -191,7 +191,7 @@ function SettingsPanelInner(): React.JSX.Element {
       />
 
       <div
-        className="relative z-10 w-[520px] max-h-[80vh] rounded-2xl overflow-hidden bg-white/85 backdrop-blur-2xl shadow-2xl"
+        className="relative z-10 w-[520px] max-h-[80vh] rounded-2xl overflow-hidden bg-white/70 backdrop-blur-2xl shadow-2xl border border-white/30"
         style={{
           transform: `translateY(${panel.y}px) scale(${panel.scale})`,
           opacity: panel.opacity,

@@ -8,9 +8,9 @@ interface AnimatedSlotProps {
 }
 
 export function AnimatedSlot({ show, width = 28, children }: AnimatedSlotProps): React.JSX.Element {
-  const w = useSpring(show ? width : 0, SPRINGS.bouncy)
-  const opacity = useSpring(show ? 1 : 0, SPRINGS.snappy)
-  const scale = useSpring(show ? 1 : 0.4, SPRINGS.bouncy)
+  const w = useSpring(show ? width : 0, SPRINGS.snappy)
+  const opacity = useSpring(show ? 1 : 0, SPRINGS.stiff)
+  const scale = useSpring(show ? 1 : 0.4, SPRINGS.snappy)
 
   return (
     <div style={{ width: w, overflow: 'hidden', flexShrink: 0 }}>
