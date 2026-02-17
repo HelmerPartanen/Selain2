@@ -82,8 +82,8 @@ function FloatingControlsInner(): React.JSX.Element {
       initial={{ x: '-50%', y: 40, scale: 0.85, opacity: 0 }}
       animate={
         isIdle
-          ? { x: '-50%', y: 12, scale: 0.94, opacity: 0, filter: 'blur(4px)' }
-          : { x: '-50%', y: 0, scale: 1, opacity: 1, filter: 'blur(0px)' }
+          ? { x: '-50%', y: 12, scale: 0.94, opacity: 0 }
+          : { x: '-50%', y: 0, scale: 1, opacity: 1 }
       }
       whileHover={undefined}
       transition={isIdle ? springGentle : springSnappy}
@@ -94,12 +94,10 @@ function FloatingControlsInner(): React.JSX.Element {
         {isSettingsOpen && <SettingsPanel />}
       </AnimatePresence>
 
-      <motion.div className="flex items-center gap-1.5" layout transition={springSnappy}>
+      <div className="flex items-center gap-1.5">
         {/* Nav Pod */}
-        <motion.div
+        <div
           className="rounded-full h-10 flex items-center px-1 bg-white shadow-lg"
-          layout
-          transition={springSnappy}
         >
           <AppMenu />
 
@@ -140,14 +138,14 @@ function FloatingControlsInner(): React.JSX.Element {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
 
         {/* URL Pod */}
         <URLBar onFocusChange={handleFocusChange} />
 
         {/* Tab Pod */}
         <TabPill />
-      </motion.div>
+      </div>
     </motion.div>
   )
 }

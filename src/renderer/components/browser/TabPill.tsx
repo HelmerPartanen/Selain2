@@ -5,9 +5,8 @@ import { useTabOrder, useActiveTabId, useTabMeta } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { Button } from '@/components/ui/Button'
 
-const springPill = { type: 'spring' as const, stiffness: 400, damping: 28 }
 const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
-const springRow = { type: 'spring' as const, stiffness: 420, damping: 24 }
+const springCounter = { type: 'spring' as const, stiffness: 500, damping: 24, mass: 0.6 }
 
 function ActiveFavicon(): React.JSX.Element {
   const activeTabId = useActiveTabId()
@@ -27,7 +26,6 @@ function ActiveFavicon(): React.JSX.Element {
 const TabRow = memo(function TabRow({
   tabId,
   isActive,
-  index,
   onSelect
 }: {
   tabId: string
@@ -57,15 +55,9 @@ const TabRow = memo(function TabRow({
   )
 
   return (
-    <motion.button
+    <button
       onClick={handleClick}
       className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
-      layout
-      initial={{ opacity: 0, y: 8, scale: 0.94 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, x: -8, scale: 0.88, transition: { duration: 0.18 } }}
-      transition={{ ...springRow, delay: index * 0.035 }}
-      whileTap={{ scale: 0.98 }}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
@@ -79,15 +71,13 @@ const TabRow = memo(function TabRow({
 
       <span className="flex-1 text-xs truncate">{title}</span>
 
-      <motion.div
+      <div
         className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 transition-colors duration-100"
         onClick={handleClose}
-        whileHover={{ scale: 1.15 }}
-        whileTap={{ scale: 0.9 }}
       >
         <X size={11} weight="bold" />
-      </motion.div>
-    </motion.button>
+      </div>
+    </button>
   )
 })
 
@@ -122,27 +112,23 @@ function TabPillInner(): React.JSX.Element {
               transition={{ ...springDropdown, opacity: { duration: 0.12 } }}
             >
               <div className="max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1">
-                <AnimatePresence initial={false}>
-                  {tabOrder.map((id, index) => (
-                    <TabRow
-                      key={id}
-                      tabId={id}
-                      isActive={id === activeTabId}
-                      index={index}
-                      onSelect={handleClose}
-                    />
-                  ))}
-                </AnimatePresence>
+                {tabOrder.map((id, index) => (
+                  <TabRow
+                    key={id}
+                    tabId={id}
+                    isActive={id === activeTabId}
+                    index={index}
+                    onSelect={handleClose}
+                  />
+                ))}
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      <motion.div
+      <div
         className="flex items-center justify-center bg-white shadow-lg rounded-full h-10 px-1 gap-0.5"
-        layout
-        transition={springPill}
       >
         <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
           <Plus size={15} weight="bold" />
@@ -150,23 +136,27 @@ function TabPillInner(): React.JSX.Element {
 
         <AnimatePresence initial={false}>
           {tabCount > 1 && (
-            <motion.button
+            <motion.div
               key="tab-counter"
-              onClick={handleToggle}
-              className="flex items-center gap-1.5 h-7 px-2 rounded-full text-gray-700 hover:bg-gray-100 active:bg-gray-200 overflow-hidden"
-              initial={{ width: 0, opacity: 0, scale: 0.4 }}
-              animate={{ width: 'auto', opacity: 1, scale: 1 }}
-              exit={{ width: 0, opacity: 0, scale: 0.4 }}
-              transition={springPill}
+              initial={{ width: 0, opacity: 0, scale: 0.3 }}
+              animate={{ width: 52, opacity: 1, scale: 1 }}
+              exit={{ width: 0, opacity: 0, scale: 0.3 }}
+              transition={springCounter}
+              style={{ overflow: 'hidden', flexShrink: 0 }}
             >
-              <ActiveFavicon />
-              <span className="text-xs font-medium tabular-nums whitespace-nowrap">
-                {tabCount}
-              </span>
-            </motion.button>
+              <button
+                onClick={handleToggle}
+                className="flex items-center gap-1.5 h-7 w-[52px] px-2 rounded-full text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+              >
+                <ActiveFavicon />
+                <span className="text-xs font-medium tabular-nums whitespace-nowrap">
+                  {tabCount}
+                </span>
+              </button>
+            </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
 
     </div>
   )
