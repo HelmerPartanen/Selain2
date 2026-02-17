@@ -12,7 +12,6 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web"
   },
   "dependencies": {
-    "@phosphor-icons/react": "^2.1.7",
     "motion": "^12.34.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

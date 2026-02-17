@@ -1,6 +1,11 @@
 import { memo, useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { DownloadSimple, Check, Pause, Play, X, FolderOpen } from '@phosphor-icons/react'
+import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
+import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
+import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
+import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -25,9 +30,9 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
     <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800/60 transition-colors duration-75 group">
       <div className="w-7 h-7 rounded-md bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
         {item.state === 'completed' ? (
-          <Check size={12} className="text-green-500" weight="bold" />
+          <SvgIcon svg={checkSvg} size={12} className="text-green-500" />
         ) : (
-          <DownloadSimple size={12} className="text-blue-500" weight="bold" />
+          <SvgIcon svg={downloadSvg} size={12} className="text-blue-500" />
         )}
       </div>
 
@@ -64,7 +69,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             onClick={() => pauseDownload(item.id)}
             className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
           >
-            <Pause size={11} weight="bold" />
+            <SvgIcon svg={PAUSE_SVG} size={11} />
           </button>
         )}
         {item.state === 'paused' && (
@@ -72,7 +77,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             onClick={() => resumeDownload(item.id)}
             className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
           >
-            <Play size={11} weight="bold" />
+            <SvgIcon svg={playSvg} size={11} />
           </button>
         )}
         {isActive && (
@@ -80,7 +85,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             onClick={() => cancelDownload(item.id)}
             className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors duration-75"
           >
-            <X size={11} weight="bold" />
+            <SvgIcon svg={closeSvg} size={11} />
           </button>
         )}
         {item.state === 'completed' && (
@@ -89,13 +94,13 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
               onClick={() => openDownload(item.id)}
               className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
             >
-              <DownloadSimple size={11} weight="bold" />
+              <SvgIcon svg={downloadSvg} size={11} />
             </button>
             <button
               onClick={() => showInFolder(item.id)}
               className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
             >
-              <FolderOpen size={11} weight="bold" />
+              <SvgIcon svg={folderSvg} size={11} />
             </button>
           </>
         )}
@@ -104,7 +109,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             onClick={() => removeDownload(item.id)}
             className="w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-75"
           >
-            <X size={11} weight="bold" />
+            <SvgIcon svg={closeSvg} size={11} />
           </button>
         )}
       </div>
@@ -181,7 +186,7 @@ function DownloadPillInner(): React.JSX.Element | null {
         className="h-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-3 gap-1.5 select-none hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-95 transition-all duration-100"
       >
         <div className="relative">
-          <DownloadSimple size={15} weight="bold" className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
+          <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
           {hasActive && (
             <svg
               className="absolute -inset-[5px]"

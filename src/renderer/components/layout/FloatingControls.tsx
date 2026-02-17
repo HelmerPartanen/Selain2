@@ -1,7 +1,10 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { CaretLeft, CaretRight, SplitHorizontal } from '@phosphor-icons/react'
 import { useFocusedTabId, useFocusedTabNavState, useIsSplitView } from '@/hooks/useTabSelector'
+import { SvgIcon } from '@/components/ui/SvgIcon'
+import chevronLeftSvg from '@/assets/icons/Arrows/Chevron_Left.svg?raw'
+import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
+import unsplitSvg from '@/assets/icons/Arrows/Left_Line_Right_Inside_Fill.svg?raw'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { URLBar } from '@/components/browser/URLBar'
 import { AppMenu } from '@/components/layout/AppMenu'
@@ -149,7 +152,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   aria-label="Go back"
                   className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-150 select-none disabled:opacity-40 disabled:pointer-events-none ${canGoForward ? 'rounded-l-full' : 'rounded-full'}`}
                 >
-                  <CaretLeft size={16} weight="bold" />
+                  <SvgIcon svg={chevronLeftSvg} size={16} />
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -169,7 +172,7 @@ function FloatingControlsInner(): React.JSX.Element {
                         aria-label="Go forward"
                         className="h-10 w-10 rounded-r-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-150 select-none flex-shrink-0"
                       >
-                        <CaretRight size={16} weight="bold" />
+                        <SvgIcon svg={chevronRightSvg} size={16} />
                       </button>
                     </motion.div>
                   )}
@@ -194,7 +197,7 @@ function FloatingControlsInner(): React.JSX.Element {
             >
               <div className="rounded-full h-10 w-10 flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg">
                 <Button variant="icon" onClick={handleUnsplit} aria-label="Exit split view">
-                  <SplitHorizontal size={15} weight="bold" className="text-indigo-500" />
+                  <SvgIcon svg={unsplitSvg} size={15} className="text-indigo-500" />
                 </Button>
               </div>
             </motion.div>

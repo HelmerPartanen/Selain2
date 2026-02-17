@@ -1,6 +1,12 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
-import { Globe, MagnifyingGlass, Trash, Star, BookmarkSimple, X } from '@phosphor-icons/react'
+import { SvgIcon } from '@/components/ui/SvgIcon'
+import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
+import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
+import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
+import starSvg from '@/assets/icons/Interface/Star.svg?raw'
+import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useBookmarkStore, type BookmarkEntry } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -34,7 +40,7 @@ const BookmarkRow = memo(function BookmarkRow({
         {entry.favicon ? (
           <img src={entry.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
         ) : (
-          <Globe size={16} className="text-gray-400 dark:text-neutral-500" weight="regular" />
+          <SvgIcon svg={globeSvg} size={16} className="text-gray-400 dark:text-neutral-500" />
         )}
       </div>
       <div className="flex-1 min-w-0">
@@ -53,7 +59,7 @@ const BookmarkRow = memo(function BookmarkRow({
         className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-100"
         aria-label="Remove bookmark"
       >
-        <Trash size={14} weight="regular" />
+        <SvgIcon svg={trashSvg} size={14} />
       </button>
     </div>
   )
@@ -114,14 +120,14 @@ function BookmarksPanelInner(): React.JSX.Element {
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
             <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <BookmarkSimple size={16} weight="bold" />
+              <SvgIcon svg={bookmarkSvg} size={16} />
               Bookmarks
             </h2>
             <button
               onClick={closeBookmarks}
               className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
             >
-              <X size={13} weight="bold" />
+              <SvgIcon svg={closeSvg} size={13} />
             </button>
           </div>
 
@@ -129,7 +135,7 @@ function BookmarksPanelInner(): React.JSX.Element {
           {bookmarks.length > 0 && (
             <div className="px-6 pt-4 pb-2 flex-shrink-0">
               <div className="relative">
-                <MagnifyingGlass size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" weight="regular" />
+                <SvgIcon svg={searchSvg} size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" />
                 <input
                   type="text"
                   value={query}
@@ -146,7 +152,7 @@ function BookmarksPanelInner(): React.JSX.Element {
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-neutral-600">
-                <Star size={36} weight="regular" className="mb-3 opacity-50" />
+                <SvgIcon svg={starSvg} size={36} className="mb-3 opacity-50" />
                 <p className="text-sm">{query ? 'No bookmarks match your search' : 'No bookmarks yet'}</p>
                 <p className="text-xs mt-1 opacity-70">Click the star in the URL bar to bookmark a page</p>
               </div>

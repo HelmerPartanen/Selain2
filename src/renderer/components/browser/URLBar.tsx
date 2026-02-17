@@ -1,6 +1,14 @@
 import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowClockwise, X, LockSimple, Globe, MagnifyingGlass, ClockCounterClockwise, Star, PictureInPicture } from '@phosphor-icons/react'
+import { SvgIcon, PIP_SVG } from '@/components/ui/SvgIcon'
+import roundArrowsSvg from '@/assets/icons/Arrows/Round_Arrows_2.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
+import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
+import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
+import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
+import starSvg from '@/assets/icons/Interface/Star.svg?raw'
+import starFillSvg from '@/assets/icons/Interface/Star_Fill.svg?raw'
 import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState, useFocusedTabMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -226,7 +234,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               transition={springIcon}
               className="flex items-center justify-center"
             >
-              {isLoading ? <X size={15} weight="bold" /> : <ArrowClockwise size={15} weight="bold" />}
+              {isLoading ? <SvgIcon svg={closeSvg} size={15} /> : <SvgIcon svg={roundArrowsSvg} size={15} />}
             </motion.span>
           </AnimatePresence>
         </Button>
@@ -242,9 +250,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                 transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                 className="flex items-center justify-center"
               >
-                {iconKey === 'lock' && <LockSimple size={15} weight="fill" className="text-green-600" />}
-                {iconKey === 'globe' && <Globe size={15} weight="regular" />}
-                {iconKey === 'search' && <MagnifyingGlass size={15} weight="regular" />}
+                {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={15} className="text-green-600" />}
+                {iconKey === 'globe' && <SvgIcon svg={globeSvg} size={15} />}
+                {iconKey === 'search' && <SvgIcon svg={searchSvg} size={15} />}
               </motion.span>
             </AnimatePresence>
           </div>
@@ -276,9 +284,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
               className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
             >
-              <Star
+              <SvgIcon
+                svg={isBookmarked ? starFillSvg : starSvg}
                 size={15}
-                weight={isBookmarked ? 'fill' : 'regular'}
                 className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
               />
             </motion.button>
@@ -297,7 +305,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               aria-label="Picture in Picture"
               className="w-8 h-8 rounded-full flex items-center justify-center mr-0.5 flex-shrink-0 transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
             >
-              <PictureInPicture size={15} weight="bold" className="text-gray-400 dark:text-neutral-500" />
+              <SvgIcon svg={PIP_SVG} size={15} className="text-gray-400 dark:text-neutral-500" />
             </motion.button>
           )}
         </AnimatePresence>
@@ -341,7 +349,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                     : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                <ClockCounterClockwise size={13} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" weight="regular" />
+                <SvgIcon svg={counterclockwiseSvg} size={13} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
                 <span className="flex-1 text-xs truncate">{entry.title || simplifyUrl(entry.url)}</span>
                 <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[140px]">
                   {simplifyUrl(entry.url)}

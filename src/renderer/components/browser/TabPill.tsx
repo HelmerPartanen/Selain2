@@ -1,6 +1,13 @@
 import { memo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Plus, X, Globe, CircleNotch, SpeakerHigh, SplitHorizontal, ArrowCounterClockwise } from '@phosphor-icons/react'
+import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
+import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
+import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
+import splitSvg from '@/assets/icons/Arrows/Left_Line_Right_Outside_Fill.svg?raw'
+import unsplitSvg from '@/assets/icons/Arrows/Left_Line_Right_Inside_Fill.svg?raw'
+import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -16,12 +23,12 @@ function ActiveFavicon(): React.JSX.Element {
   const isLoading = state?.isLoading ?? false
 
   if (isLoading) {
-    return <CircleNotch size={14} className="animate-spin text-gray-400" weight="bold" />
+    return <SvgIcon svg={SPINNER_SVG} size={14} className="animate-spin text-gray-400" />
   }
   if (favicon) {
     return <img src={favicon} alt="" className="w-3.5 h-3.5 rounded-sm" draggable={false} />
   }
-  return <Globe size={14} className="text-gray-400" weight="regular" />
+  return <SvgIcon svg={globeSvg} size={14} className="text-gray-400" />
 }
 
 const TabRow = memo(function TabRow({
@@ -87,22 +94,22 @@ const TabRow = memo(function TabRow({
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
-          <CircleNotch size={13} className="animate-spin text-gray-400" weight="bold" />
+          <SvgIcon svg={SPINNER_SVG} size={13} className="animate-spin text-gray-400" />
         ) : favicon ? (
           <img src={favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
         ) : (
-          <Globe size={13} className="text-gray-400" weight="regular" />
+          <SvgIcon svg={globeSvg} size={13} className="text-gray-400" />
         )}
       </div>
 
       <span className="flex-1 text-xs truncate">{title}</span>
 
       {isSplitTarget && (
-        <SplitHorizontal size={11} weight="bold" className="flex-shrink-0 text-indigo-500" />
+        <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-indigo-500" />
       )}
 
       {!isHighlighted && isPlayingMedia && (
-        <SpeakerHigh size={12} weight="fill" className="flex-shrink-0 text-blue-500" />
+        <SvgIcon svg={soundFillSvg} size={12} className="flex-shrink-0 text-blue-500" />
       )}
 
       {/* Split/unsplit action — shown when not the active tab */}
@@ -112,7 +119,7 @@ const TabRow = memo(function TabRow({
           onClick={handleSplit}
           title={isSplitTarget ? 'Unsplit' : (isSplit ? 'Replace split' : 'Split view')}
         >
-          <SplitHorizontal size={11} weight="bold" />
+          <SvgIcon svg={isSplitTarget ? unsplitSvg : splitSvg} size={11} />
         </div>
       )}
 
@@ -120,7 +127,7 @@ const TabRow = memo(function TabRow({
         className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
         onClick={handleClose}
       >
-        <X size={11} weight="bold" />
+        <SvgIcon svg={closeSvg} size={11} />
       </div>
     </button>
   )
@@ -185,7 +192,7 @@ function TabPillInner(): React.JSX.Element {
                     onClick={handleReopen}
                     className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left text-gray-500 dark:text-neutral-500 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-100"
                   >
-                    <ArrowCounterClockwise size={13} weight="regular" />
+                    <SvgIcon svg={counterclockwiseSvg} size={13} />
                     <span className="text-xs">Reopen closed tab</span>
                   </button>
                 </>
@@ -203,7 +210,7 @@ function TabPillInner(): React.JSX.Element {
           aria-label="New tab"
           className={`h-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none flex-shrink-0 ${tabCount > 1 ? 'rounded-l-full px-4' : 'rounded-full w-10'}`}
         >
-          <Plus size={16} weight="bold" />
+          <SvgIcon svg={plusSvg} size={16} />
         </button>
 
         <AnimatePresence initial={false}>
@@ -242,7 +249,7 @@ function TabPillInner(): React.JSX.Element {
             transition={springPop}
             className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-neutral-900 pointer-events-none"
           >
-            <SpeakerHigh size={10} weight="fill" className="text-white" />
+            <SvgIcon svg={soundFillSvg} size={10} className="text-white" />
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,10 +1,13 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
-import { X, CaretUp, CaretDown } from '@phosphor-icons/react'
 import { useFocusedTabId } from '@/hooks/useTabSelector'
 import { useUIStore } from '@/store/uiStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
+import { SvgIcon } from '@/components/ui/SvgIcon'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import chevronUpSvg from '@/assets/icons/Arrows/Chevron_Up.svg?raw'
+import chevronDownSvg from '@/assets/icons/Arrows/Chevron_Down.svg?raw'
 
 const springBar = { type: 'spring' as const, stiffness: 400, damping: 26, mass: 0.7 }
 
@@ -129,13 +132,13 @@ function FindBarInner(): React.JSX.Element {
         )}
 
         <Button variant="icon" onClick={handlePrev} aria-label="Previous match">
-          <CaretUp size={13} weight="bold" />
+          <SvgIcon svg={chevronUpSvg} size={13} />
         </Button>
         <Button variant="icon" onClick={handleNext} aria-label="Next match">
-          <CaretDown size={13} weight="bold" />
+          <SvgIcon svg={chevronDownSvg} size={13} />
         </Button>
         <Button variant="icon" onClick={handleClose} aria-label="Close find bar">
-          <X size={13} weight="bold" />
+          <SvgIcon svg={closeSvg} size={13} />
         </Button>
       </div>
     </motion.div>

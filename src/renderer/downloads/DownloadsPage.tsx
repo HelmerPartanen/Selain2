@@ -1,6 +1,12 @@
 import { memo, useMemo, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { DownloadSimple, FolderOpen, X, Check, Warning, Pause, Play } from '@phosphor-icons/react'
+import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
+import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
+import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
+import warnSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
+import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useUIStore } from '@/store/uiStore'
 
@@ -25,11 +31,11 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
     <div className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-neutral-800/60 transition-colors duration-100">
       <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
         {item.state === 'completed' ? (
-          <Check size={16} className="text-green-500" weight="bold" />
+          <SvgIcon svg={checkSvg} size={16} className="text-green-500" />
         ) : item.state === 'failed' ? (
-          <Warning size={16} className="text-red-500" weight="bold" />
+          <SvgIcon svg={warnSvg} size={16} className="text-red-500" />
         ) : (
-          <DownloadSimple size={16} className="text-blue-500" weight="bold" />
+          <SvgIcon svg={downloadSvg} size={16} className="text-blue-500" />
         )}
       </div>
 
@@ -80,7 +86,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
             aria-label="Pause"
           >
-            <Pause size={13} weight="bold" />
+            <SvgIcon svg={PAUSE_SVG} size={13} />
           </button>
         )}
         {item.state === 'paused' && (
@@ -89,7 +95,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
             aria-label="Resume"
           >
-            <Play size={13} weight="bold" />
+            <SvgIcon svg={playSvg} size={13} />
           </button>
         )}
         {isActive && (
@@ -98,7 +104,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-100"
             aria-label="Cancel"
           >
-            <X size={13} weight="bold" />
+            <SvgIcon svg={closeSvg} size={13} />
           </button>
         )}
         {item.state === 'completed' && (
@@ -108,14 +114,14 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
               className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
               aria-label="Open"
             >
-              <DownloadSimple size={13} weight="bold" />
+              <SvgIcon svg={downloadSvg} size={13} />
             </button>
             <button
               onClick={() => showInFolder(item.id)}
               className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
               aria-label="Show in folder"
             >
-              <FolderOpen size={13} weight="bold" />
+              <SvgIcon svg={folderSvg} size={13} />
             </button>
           </>
         )}
@@ -125,7 +131,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-100"
             aria-label="Remove from list"
           >
-            <X size={13} weight="bold" />
+            <SvgIcon svg={closeSvg} size={13} />
           </button>
         )}
       </div>
@@ -165,21 +171,21 @@ function DownloadsPanelInner(): React.JSX.Element {
         >
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
             <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <DownloadSimple size={16} weight="bold" />
+              <SvgIcon svg={downloadSvg} size={16} />
               Downloads
             </h2>
             <button
               onClick={closeDownloads}
               className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
             >
-              <X size={13} weight="bold" />
+              <SvgIcon svg={closeSvg} size={13} />
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-3 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
-                <DownloadSimple size={40} weight="regular" className="mb-3 opacity-50" />
+                <SvgIcon svg={downloadSvg} size={40} className="mb-3 opacity-50" />
                 <p className="text-sm">No downloads</p>
                 <p className="text-xs mt-1 opacity-70">Downloads from this session will appear here</p>
               </div>

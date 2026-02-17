@@ -1,5 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { MinusIcon, SquareIcon, XIcon, CardsIcon } from '@phosphor-icons/react'
+import { SvgIcon, SQUARE_SVG, CARDS_SVG } from '@/components/ui/SvgIcon'
+import minusSvg from '@/assets/icons/Maths/Minus.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 
 const HIDE_DELAY = 800
 
@@ -59,15 +61,15 @@ function WindowControlsInner(): React.JSX.Element {
       >
 
       <ControlButton onClick={handleMinimize} label="Minimize" color="hover:bg-gray-100 dark:hover:bg-neutral-800">
-        <MinusIcon size={12} weight="bold" />
+        <SvgIcon svg={minusSvg} size={12} />
       </ControlButton>
 
       <ControlButton onClick={handleToggleMaximize} label={isMaximized ? 'Restore' : 'Maximize'} color="hover:bg-gray-100 dark:hover:bg-neutral-800">
-        {isMaximized ? <CardsIcon size={12} weight="bold" /> : <SquareIcon size={10} weight="bold" />}
+        {isMaximized ? <SvgIcon svg={CARDS_SVG} size={12} /> : <SvgIcon svg={SQUARE_SVG} size={10} />}
       </ControlButton>
 
       <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-200 hover:text-red-500 dark:hover:bg-red-900/50 dark:hover:text-red-400">
-        <XIcon size={12} weight="bold" />
+        <SvgIcon svg={closeSvg} size={12} />
       </ControlButton>
       </div>
     </div>

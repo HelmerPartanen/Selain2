@@ -1,6 +1,5 @@
 import { memo, useCallback } from 'react'
 import { motion } from 'motion/react'
-import { Gear } from '@phosphor-icons/react'
 import { useUIStore } from '@/store/uiStore'
 
 function NewTabPageInner(): React.JSX.Element {

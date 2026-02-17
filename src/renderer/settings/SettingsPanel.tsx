@@ -1,19 +1,18 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
-import {
-  Sun,
-  Moon,
-  Desktop,
-  Check,
-  UploadSimple,
-  Trash,
-  Images,
-  X,
-  PaintBrush,
-  Image as ImageIcon,
-  Info,
-  GearSix
-} from '@phosphor-icons/react'
+import { SvgIcon } from '@/components/ui/SvgIcon'
+import sunSvg from '@/assets/icons/Weather/Sun_1.svg?raw'
+import moonSvg from '@/assets/icons/Weather/Moon.svg?raw'
+import displaySvg from '@/assets/icons/Devices/Display.svg?raw'
+import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
+import uploadSvg from '@/assets/icons/Objects/Tray_Arrow_Up.svg?raw'
+import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
+import cameraFiltersSvg from '@/assets/icons/Objects/Camera_Filters.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import brushSvg from '@/assets/icons/Objects/Brush.svg?raw'
+import cameraSvg from '@/assets/icons/Objects/Camera_Rctangle.svg?raw'
+import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
+import settingsSvg from '@/assets/icons/Objects/Settings.svg?raw'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
@@ -31,10 +30,10 @@ const SOLID_DATA_URL_MAP = new Map<string, string>(
   SOLID_COLOR_PRESETS.map((c) => [c.hex, solidToDataUrl(c.hex)])
 )
 
-const THEME_MODES: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
-  { mode: 'light', label: 'Light', icon: Sun },
-  { mode: 'dark', label: 'Dark', icon: Moon },
-  { mode: 'system', label: 'System', icon: Desktop }
+const THEME_MODES: { mode: ThemeMode; label: string; icon: string }[] = [
+  { mode: 'light', label: 'Light', icon: sunSvg },
+  { mode: 'dark', label: 'Dark', icon: moonSvg },
+  { mode: 'system', label: 'System', icon: displaySvg }
 ]
 
 // ─── Sidebar Categories ──────────────────────────────────────────────────────
@@ -44,13 +43,13 @@ type SettingsCategory = 'appearance' | 'wallpaper' | 'about'
 interface CategoryItem {
   id: SettingsCategory
   label: string
-  icon: typeof PaintBrush
+  icon: string
 }
 
 const CATEGORIES: CategoryItem[] = [
-  { id: 'appearance', label: 'Appearance', icon: PaintBrush },
-  { id: 'wallpaper', label: 'Wallpaper', icon: ImageIcon },
-  { id: 'about', label: 'About', icon: Info }
+  { id: 'appearance', label: 'Appearance', icon: brushSvg },
+  { id: 'wallpaper', label: 'Wallpaper', icon: cameraSvg },
+  { id: 'about', label: 'About', icon: infoSvg }
 ]
 
 // ─── Appearance Pane ─────────────────────────────────────────────────────────
@@ -67,7 +66,7 @@ function AppearancePane(): React.JSX.Element {
           Choose how the browser interface looks.
         </p>
         <div className="flex gap-3">
-          {THEME_MODES.map(({ mode, label, icon: Icon }) => {
+          {THEME_MODES.map(({ mode, label, icon }) => {
             const isActive = themeMode === mode
             return (
               <button
@@ -79,7 +78,7 @@ function AppearancePane(): React.JSX.Element {
                     : 'bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-750'
                 }`}
               >
-                <Icon size={22} weight={isActive ? 'fill' : 'duotone'} />
+                <SvgIcon svg={icon} size={22} />
                 <span className="text-[12px] font-semibold">{label}</span>
               </button>
             )
@@ -122,7 +121,7 @@ function WallpaperPane(): React.JSX.Element {
       {/* Gradients */}
       <div>
         <div className="flex items-center gap-1.5 mb-3">
-          <Images size={14} weight="bold" className="text-gray-400 dark:text-neutral-500" />
+          <SvgIcon svg={cameraFiltersSvg} size={14} className="text-gray-400 dark:text-neutral-500" />
           <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
             Gradients
           </span>
@@ -151,7 +150,7 @@ function WallpaperPane(): React.JSX.Element {
                 {isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <Check size={11} weight="bold" color="#6366f1" />
+                      <SvgIcon svg={checkSvg} size={11} className="text-indigo-500" />
                     </div>
                   </div>
                 )}
@@ -190,7 +189,7 @@ function WallpaperPane(): React.JSX.Element {
                 {isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <div className="w-4 h-4 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <Check size={9} weight="bold" color="#6366f1" />
+                      <SvgIcon svg={checkSvg} size={9} className="text-indigo-500" />
                     </div>
                   </div>
                 )}
@@ -206,14 +205,14 @@ function WallpaperPane(): React.JSX.Element {
           onClick={handleCustomImage}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 dark:text-neutral-300 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 transition-all duration-150 hover:scale-[1.02] hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
         >
-          <UploadSimple size={14} weight="bold" />
+          <SvgIcon svg={uploadSvg} size={14} />
           Upload Image
         </button>
         <button
           onClick={handleClear}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/15 border border-red-100 dark:border-red-800/30 transition-all duration-150 hover:scale-[1.02] hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 active:scale-[0.97]"
         >
-          <Trash size={14} weight="bold" />
+          <SvgIcon svg={trashSvg} size={14} />
           Remove
         </button>
       </div>
@@ -227,7 +226,7 @@ function AboutPane(): React.JSX.Element {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg mb-4">
-        <GearSix size={32} weight="duotone" className="text-white" />
+        <SvgIcon svg={settingsSvg} size={32} className="text-white" />
       </div>
       <h3 className="text-[18px] font-bold text-gray-900 dark:text-white mb-1">Browser</h3>
       <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-4">Version 1.0.0</p>
@@ -263,7 +262,7 @@ function Sidebar({
 }): React.JSX.Element {
   return (
     <nav className="flex flex-col gap-1">
-      {CATEGORIES.map(({ id, label, icon: Icon }) => {
+      {CATEGORIES.map(({ id, label, icon }) => {
         const isActive = activeCategory === id
         return (
           <button
@@ -275,7 +274,7 @@ function Sidebar({
                 : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
-            <Icon size={16} weight={isActive ? 'fill' : 'bold'} />
+            <SvgIcon svg={icon} size={16} />
             {label}
           </button>
         )
@@ -347,7 +346,7 @@ function SettingsPanelInner(): React.JSX.Element {
                 onClick={closeSettings}
                 className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
               >
-                <X size={13} weight="bold" />
+                <SvgIcon svg={closeSvg} size={13} />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">

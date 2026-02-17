@@ -1,6 +1,10 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Globe, CircleNotch, SpeakerHigh, X, Plus } from '@phosphor-icons/react'
+import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
+import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
+import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
@@ -74,7 +78,7 @@ const TabCard = memo(function TabCard({
             </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <Globe size={28} className="text-gray-300 dark:text-neutral-600" weight="regular" />
+              <SvgIcon svg={globeSvg} size={28} className="text-gray-300 dark:text-neutral-600" />
             </div>
           )}
 
@@ -86,18 +90,18 @@ const TabCard = memo(function TabCard({
         <div className="flex items-center gap-2 px-3 py-2.5 bg-white dark:bg-neutral-900">
           <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
             {preview.isLoading ? (
-              <CircleNotch size={13} className="animate-spin text-gray-400" weight="bold" />
+              <SvgIcon svg={SPINNER_SVG} size={13} className="animate-spin text-gray-400" />
             ) : preview.favicon ? (
               <img src={preview.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
             ) : (
-              <Globe size={13} className="text-gray-400" weight="regular" />
+              <SvgIcon svg={globeSvg} size={13} className="text-gray-400" />
             )}
           </div>
           <span className="flex-1 text-[12px] font-medium text-gray-700 dark:text-neutral-300 truncate">
             {title}
           </span>
           {preview.isPlayingMedia && (
-            <SpeakerHigh size={12} weight="fill" className="flex-shrink-0 text-blue-500" />
+            <SvgIcon svg={soundFillSvg} size={12} className="flex-shrink-0 text-blue-500" />
           )}
         </div>
 
@@ -117,7 +121,7 @@ const TabCard = memo(function TabCard({
             hover:bg-red-500 dark:hover:bg-red-500 active:scale-90"
           aria-label={`Close ${title}`}
         >
-          <X size={11} weight="bold" />
+          <SvgIcon svg={closeSvg} size={11} />
         </button>
       </div>
     </div>
@@ -274,7 +278,7 @@ function TabOverviewInner(): React.JSX.Element {
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
                     hover:bg-white/5 active:scale-[0.97]"
                 >
-                  <Plus size={24} className="text-white/40" weight="bold" />
+                  <SvgIcon svg={plusSvg} size={24} className="text-white/40" />
                   <span className="text-[13px] font-medium text-white/40">New Tab</span>
                 </button>
               </div>
