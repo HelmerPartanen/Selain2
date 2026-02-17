@@ -120,6 +120,19 @@ function WallpaperPane(): React.JSX.Element {
 
   return (
     <div className="space-y-6">
+      {/* Default Wallpapers */}
+      <div>
+        <div className="flex items-center gap-1.5 mb-3">
+          <SvgIcon svg={cameraSvg} size={14} className="text-gray-400 dark:text-neutral-500" />
+          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
+            Wallpapers
+          </span>
+        </div>
+        <div className="flex gap-2.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
+          {/* Add default wallpaper items here */}
+        </div>
+      </div>
+
       {/* Gradients */}
       <div>
         <div className="flex items-center gap-1.5 mb-3">
@@ -136,7 +149,7 @@ function WallpaperPane(): React.JSX.Element {
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset.dataUrl)}
                 title={preset.name}
-                className="relative aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 hover:scale-[1.04] active:scale-[0.97]"
+                className="relative aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
                 style={{
                   backgroundImage: `url(${preset.dataUrl})`,
                   backgroundSize: 'cover',
@@ -177,7 +190,7 @@ function WallpaperPane(): React.JSX.Element {
                 key={color.hex}
                 onClick={() => handleSelectSolid(color.hex)}
                 title={color.name}
-                className="relative aspect-square rounded-xl overflow-hidden transition-all duration-150 hover:scale-[1.08] active:scale-[0.97]"
+                className="relative aspect-square rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
                 style={{
                   backgroundColor: color.hex,
                   border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
@@ -205,14 +218,14 @@ function WallpaperPane(): React.JSX.Element {
       <div className="flex gap-2.5">
         <button
           onClick={handleCustomImage}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 dark:text-neutral-300 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 transition-all duration-150 hover:scale-[1.02] hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 dark:text-neutral-300 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 transition-all duration-150 hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
         >
           <SvgIcon svg={uploadSvg} size={14} />
           Upload Image
         </button>
         <button
           onClick={handleClear}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/15 border border-red-100 dark:border-red-800/30 transition-all duration-150 hover:scale-[1.02] hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/15 border border-red-100 dark:border-red-800/30 transition-all duration-150 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 active:scale-[0.97]"
         >
           <SvgIcon svg={trashSvg} size={14} />
           Remove
