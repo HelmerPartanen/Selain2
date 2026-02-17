@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowClockwise, X as StopIcon, Lock, Globe, MagnifyingGlassIcon } from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, XIcon, LockSimpleIcon , GlobeIcon, MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { useActiveTabId, useActiveTabUrl, useActiveTabNavState } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
@@ -116,7 +116,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
             transition={springIcon}
             className="flex items-center justify-center"
           >
-            {isLoading ? <StopIcon size={15} weight="bold" /> : <ArrowClockwise size={15} weight="bold" />}
+            {isLoading ? <XIcon size={15} weight="bold" /> : <ArrowClockwiseIcon size={15} weight="bold" />}
           </motion.span>
         </AnimatePresence>
       </Button>
@@ -132,8 +132,8 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               transition={{ type: 'spring', stiffness: 500, damping: 25 }}
               className="flex items-center justify-center"
             >
-              {iconKey === 'lock' && <Lock size={15} weight="fill" className="text-green-600" />}
-              {iconKey === 'globe' && <Globe size={15} weight="regular" />}
+              {iconKey === 'lock' && <LockSimpleIcon size={15} weight="fill" className="text-green-600" />}
+              {iconKey === 'globe' && <GlobeIcon size={15} weight="regular" />}
               {iconKey === 'search' && <MagnifyingGlassIcon size={15} weight="regular" />}
             </motion.span>
           </AnimatePresence>
