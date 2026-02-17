@@ -284,22 +284,24 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               className="flex-shrink-0"
             >
               <Button variant="icon" onClick={handleToggleBookmark} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={isBookmarked ? 'filled' : 'empty'}
-                    initial={{ scale: 0.4, opacity: 0, rotate: -90 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    exit={{ scale: 0.4, opacity: 0, rotate: 90 }}
-                    transition={springIcon}
-                    className="flex items-center justify-center"
-                  >
+                <div className="relative flex items-center justify-center w-[15px] h-[15px]">
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.span
+                      key={isBookmarked ? 'filled' : 'empty'}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
+                      transition={springIcon}
+                      className="flex items-center justify-center"
+                    >
                     <SvgIcon
                       svg={isBookmarked ? bookmarkFillSvg : bookmarkSvg}
                       size={15}
                       className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
                     />
-                  </motion.span>
-                </AnimatePresence>
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
               </Button>
             </motion.div>
           )}
