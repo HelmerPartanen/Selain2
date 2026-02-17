@@ -48,7 +48,7 @@ function WindowControlsInner(): React.JSX.Element {
       style={{ pointerEvents: 'none' }}
     >
       {/* Trigger zone — top-right corner target for discoverability */}
-      <div className="absolute top-0 right-0 w-20 h-5" style={{ pointerEvents: 'auto' }} />
+      <div className="absolute top-0 right-0 w-12 h-4" style={{ pointerEvents: 'auto' }} />
 
       {/* Subtle hint dots visible when controls are hidden */}
       {!isVisible && (
@@ -61,8 +61,8 @@ function WindowControlsInner(): React.JSX.Element {
 
       <div
         className={`
-          mt-2.5 mr-3 flex items-center gap-1 rounded-full
-          bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-1.5 py-1
+          mt-2.5 mr-2.5 flex items-center gap-1 rounded-full
+          bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg p-1
           transition-all duration-200 ease-out
           ${isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.85] -translate-y-1.5'}
         `}

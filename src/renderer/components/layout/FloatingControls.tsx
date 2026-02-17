@@ -136,12 +136,13 @@ function FloatingControlsInner(): React.JSX.Element {
     <>
     {/* Bottom-edge hover zone to reveal floating UI */}
     <div
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-8 z-[49] [app-region:no-drag] bg-red-500/25"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-5 z-[49] [app-region:no-drag]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     />
     <motion.div
       className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
+      style={{ pointerEvents: isIdle ? 'none' : 'auto' }}
       initial={{ x: '-50%', y: 40, scale: 0.85, opacity: 0 }}
       animate={
         isIdle
