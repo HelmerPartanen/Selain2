@@ -200,7 +200,7 @@ function TabPillInner(): React.JSX.Element {
         <button
           onClick={handleAddTab}
           aria-label="New tab"
-          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none flex-shrink-0"
+          className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none flex-shrink-0 ${tabCount > 1 ? 'rounded-l-full' : 'rounded-full'}`}
         >
           <Plus size={16} weight="bold" />
         </button>
@@ -213,8 +213,10 @@ function TabPillInner(): React.JSX.Element {
               animate={{ width: 'auto', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={springCounter}
+              className="flex items-center"
               style={{ overflow: 'hidden', flexShrink: 0 }}
             >
+              <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
               <button
                 onClick={handleToggle}
                 className="flex items-center gap-1.5 h-10 pr-3.5 pl-0.5 rounded-r-full text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:bg-gray-200 dark:active:bg-neutral-700 active:scale-95 transition-all duration-100 whitespace-nowrap"
