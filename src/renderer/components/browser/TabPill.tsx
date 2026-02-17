@@ -239,9 +239,11 @@ function TabPillInner(): React.JSX.Element {
               <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
               <motion.button
                 onClick={handleToggle}
+                initial={{ scale: 0.5 }}
                 animate={{ scale: isExpanded ? 0.92 : 1 }}
+                exit={{ scale: 0.5 }}
                 whileTap={{ scale: 0.82 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 18 }}
                 className="flex items-center gap-1.5 h-10 pr-3.5 pl-2.5 rounded-r-full text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-100 whitespace-nowrap"
               >
                 <ActiveFavicon />

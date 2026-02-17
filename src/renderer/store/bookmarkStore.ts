@@ -11,8 +11,11 @@ export interface BookmarkEntry {
 
 interface BookmarkState {
   bookmarks: BookmarkEntry[]
+  favouritePositions: Record<string, { x: number; y: number }>
   addBookmark: (url: string, title: string, favicon?: string | null) => void
   removeBookmark: (url: string) => void
+  reorderBookmarks: (fromIndex: number, toIndex: number) => void
+  setFavouritePosition: (url: string, x: number, y: number) => void
   isBookmarked: (url: string) => boolean
   search: (query: string) => BookmarkEntry[]
 }
@@ -21,6 +24,7 @@ export const useBookmarkStore = create<BookmarkState>()(
   persist(
     (set, get) => ({
       bookmarks: [],
+      favouritePositions: {},
 
       addBookmark: (url, title, favicon = null) => {
         if (!url || url === 'about:blank' || url.startsWith('browser://')) return
@@ -43,6 +47,21 @@ export const useBookmarkStore = create<BookmarkState>()(
       removeBookmark: (url) => {
         set((state) => ({
           bookmarks: state.bookmarks.filter((b) => b.url !== url)
+        }))
+      },
+
+      reorderBookmarks: (fromIndex, toIndex) => {
+        set((state) => {
+          const next = [...state.bookmarks]
+          const [moved] = next.splice(fromIndex, 1)
+          next.splice(toIndex, 0, moved)
+          return { bookmarks: next }
+        })
+      },
+
+      setFavouritePosition: (url, x, y) => {
+        set((state) => ({
+          favouritePositions: { ...state.favouritePositions, [url]: { x, y } }
         }))
       },
 
