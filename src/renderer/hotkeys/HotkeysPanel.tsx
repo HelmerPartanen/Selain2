@@ -1,7 +1,7 @@
 import { memo, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import boltSvg from '@/assets/icons/Weather/Bolt.svg?raw'
+import keyboardSvg from '@/assets/icons/Keyboard/Keyboard.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useUIStore } from '@/store/uiStore'
 
@@ -117,7 +117,7 @@ function HotkeysPanelInner(): React.JSX.Element {
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
             <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <SvgIcon svg={boltSvg} size={16} />
+              <SvgIcon svg={keyboardSvg} size={16} />
               Keyboard Shortcuts
             </h2>
             <button
