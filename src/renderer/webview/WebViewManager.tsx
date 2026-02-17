@@ -35,11 +35,36 @@ function WebViewManagerInner(): React.JSX.Element {
   // Track which tabs have been mounted so we don't send new initialUrl on re-render.
   const mountedUrlsRef = useRef<Record<string, string>>({})
   const prevEntriesRef = useRef<WebViewEntry[]>([])
+  // Fast-path: track count of non-suspended, non-special tabs
+  const prevCountRef = useRef<number>(0)
 
   const subscribe = useCallback((cb: () => void) => useTabStore.subscribe(cb), [])
 
   const getSnapshot = useCallback((): WebViewEntry[] => {
     const { tabOrder, tabs } = useTabStore.getState()
+
+    // Fast-path: count eligible tabs; if count hasn't changed and
+    // all previous entries still exist as non-suspended/non-special,
+    // skip the full scan.
+    const prev = prevEntriesRef.current
+    let count = 0
+    for (const id of tabOrder) {
+      const tab = tabs[id]
+      if (tab && !tab.isSuspended && !isSpecialPage(tab.url)) count++
+    }
+    if (count === prevCountRef.current && count === prev.length) {
+      let allMatch = true
+      for (let i = 0; i < prev.length; i++) {
+        const e = prev[i]!
+        const tab = tabs[e.id]
+        if (!tab || tab.isSuspended || isSpecialPage(tab.url)) {
+          allMatch = false
+          break
+        }
+      }
+      if (allMatch) return prev
+    }
+
     const result: WebViewEntry[] = []
     for (const id of tabOrder) {
       const tab = tabs[id]
@@ -56,13 +81,13 @@ function WebViewManagerInner(): React.JSX.Element {
       }
       result.push({ id, initialUrl: mountedUrlsRef.current[id] })
     }
-    const prev = prevEntriesRef.current
     if (
       prev.length === result.length &&
       prev.every((e, i) => result[i] !== undefined && e.id === result[i].id && e.initialUrl === result[i].initialUrl)
     ) {
       return prev
     }
+    prevCountRef.current = result.length
     prevEntriesRef.current = result
     return result
   }, [])

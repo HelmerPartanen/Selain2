@@ -74,10 +74,43 @@ function createWindow(): void {
   })
 
   // Intercept new-window requests from <webview> tags and open them as new tabs
-  mainWindow.webContents.on('did-attach-webview' as string, (_event: unknown, webViewContents: Electron.WebContents) => {
+  // AND forward keyboard shortcuts from webviews to the renderer
+  ;(mainWindow.webContents as NodeJS.EventEmitter).on('did-attach-webview', (_event: unknown, webViewContents: Electron.WebContents) => {
     webViewContents.setWindowOpenHandler(({ url }) => {
       mainWindow?.webContents.send('open-url-in-new-tab', url)
       return { action: 'deny' }
+    })
+
+    // When a <webview> has focus, keydown events never reach mainWindow.webContents.
+    // Intercept them on each webview's own webContents and forward to the renderer.
+    webViewContents.on('before-input-event', (event, input) => {
+      if (input.type !== 'keyDown' || !mainWindow) return
+
+      const ctrl = input.control || input.meta
+      const shift = input.shift
+      const alt = input.alt
+      const key = input.key.toLowerCase()
+
+      const isShortcut =
+        (ctrl && !shift && (key === 't' || key === 'w' || key === 'l' || key === 'f' || key === 'r')) ||
+        (ctrl && shift && (key === 't' || key === 's' || key === 'a')) ||
+        (ctrl && key === 'tab') ||
+        (ctrl && !shift && /^[1-9]$/.test(input.key)) ||
+        (!ctrl && key === 'f5') ||
+        (alt && !ctrl && (key === 'arrowleft' || key === 'arrowright')) ||
+        (key === 'escape')
+
+      if (isShortcut) {
+        event.preventDefault()
+        mainWindow.webContents.send('shortcut-pressed', {
+          key: input.key,
+          code: input.code,
+          ctrlKey: input.control,
+          metaKey: input.meta,
+          shiftKey: input.shift,
+          altKey: input.alt
+        })
+      }
     })
   })
 

@@ -5,16 +5,19 @@ import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 
-// ─── Springs ─────────────────────────────────────────────────────────────────
+// ─── Animation (CSS transitions for performance — no per-card springs) ───────
 
-const springOverlay = { type: 'spring' as const, stiffness: 320, damping: 30, mass: 0.9 }
-const springCard = { type: 'spring' as const, stiffness: 380, damping: 28, mass: 0.8 }
+const FADE_DURATION = 0.2
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface TabPreview {
   id: string
-  tab: Tab
+  title: string
+  url: string
+  favicon: string
+  isLoading: boolean
+  isPlayingMedia: boolean
   thumbnail: string | null
 }
 
@@ -28,32 +31,20 @@ const NEWTAB_GRADIENT =
 const TabCard = memo(function TabCard({
   preview,
   isActive,
-  index,
   onSelect,
   onClose
 }: {
   preview: TabPreview
   isActive: boolean
-  index: number
   onSelect: () => void
   onClose: (e: React.MouseEvent) => void
 }): React.JSX.Element {
-  const { tab, thumbnail } = preview
-  const isNewTab = tab.url === 'browser://newtab'
-  const title = tab.title || 'New Tab'
-
-  // Stagger delay: each card animates in slightly after the previous
-  const delay = Math.min(index * 0.035, 0.25)
+  const { thumbnail } = preview
+  const isNewTab = preview.url === 'browser://newtab'
+  const title = preview.title || 'New Tab'
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.88, y: 30 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.85, y: 20 }}
-      transition={{ ...springCard, delay }}
-      className="group relative"
-    >
+    <div className="group relative">
       <button
         onClick={onSelect}
         className={`
@@ -94,10 +85,10 @@ const TabCard = memo(function TabCard({
         {/* Info bar */}
         <div className="flex items-center gap-2 px-3 py-2.5 bg-white dark:bg-neutral-900">
           <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
-            {tab.isLoading ? (
+            {preview.isLoading ? (
               <CircleNotch size={13} className="animate-spin text-gray-400" weight="bold" />
-            ) : tab.favicon ? (
-              <img src={tab.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
+            ) : preview.favicon ? (
+              <img src={preview.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
             ) : (
               <Globe size={13} className="text-gray-400" weight="regular" />
             )}
@@ -105,7 +96,7 @@ const TabCard = memo(function TabCard({
           <span className="flex-1 text-[12px] font-medium text-gray-700 dark:text-neutral-300 truncate">
             {title}
           </span>
-          {tab.isPlayingMedia && (
+          {preview.isPlayingMedia && (
             <SpeakerHigh size={12} weight="fill" className="flex-shrink-0 text-blue-500" />
           )}
         </div>
@@ -117,15 +108,10 @@ const TabCard = memo(function TabCard({
       </button>
 
       {/* Close button */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.7 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: delay + 0.08, ...springCard }}
-        className="absolute -top-1.5 -right-1.5 z-10"
-      >
+      <div className="absolute -top-1.5 -right-1.5 z-10">
         <button
           onClick={onClose}
-          className="w-6 h-6 rounded-full bg-gray-800/80 dark:bg-neutral-600/90 backdrop-blur-sm
+          className="w-6 h-6 rounded-full bg-gray-800/80 dark:bg-neutral-600/90
             flex items-center justify-center text-white
             opacity-0 group-hover:opacity-100 transition-opacity duration-150
             hover:bg-red-500 dark:hover:bg-red-500 active:scale-90"
@@ -133,8 +119,8 @@ const TabCard = memo(function TabCard({
         >
           <X size={11} weight="bold" />
         </button>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 })
 
@@ -143,86 +129,78 @@ const TabCard = memo(function TabCard({
 function TabOverviewInner(): React.JSX.Element {
   const isOpen = useUIStore((s) => s.isTabOverviewOpen)
   const closeOverview = useUIStore((s) => s.closeTabOverview)
-  const tabOrder = useTabStore((s) => s.tabOrder)
-  const tabs = useTabStore((s) => s.tabs)
   const activeTabId = useTabStore((s) => s.activeTabId)
-  const setActiveTab = useTabStore((s) => s.setActiveTab)
-  const removeTab = useTabStore((s) => s.removeTab)
-  const addTab = useTabStore((s) => s.addTab)
   const [previews, setPreviews] = useState<TabPreview[]>([])
-  const capturedRef = useRef(false)
+  const cancelledRef = useRef(false)
 
-  // Capture thumbnails when opening
+  // Snapshot tabs + capture thumbnails when opening; cancel on close
   useEffect(() => {
     if (!isOpen) {
-      capturedRef.current = false
+      cancelledRef.current = true
+      setPreviews([])
       return
     }
-    if (capturedRef.current) return
-    capturedRef.current = true
+    cancelledRef.current = false
 
-    // Build initial previews (no thumbnails yet) so UI appears instantly
-    const initial: TabPreview[] = tabOrder
+    // Snapshot tab data at open time (decoupled from live `tabs` object)
+    const { tabOrder, tabs } = useTabStore.getState()
+    const snapshots: TabPreview[] = tabOrder
       .map((id) => {
         const tab = tabs[id]
         if (!tab) return null
-        return { id, tab, thumbnail: null } as TabPreview
+        return {
+          id,
+          title: tab.title,
+          url: tab.url,
+          favicon: tab.favicon,
+          isLoading: tab.isLoading,
+          isPlayingMedia: tab.isPlayingMedia,
+          thumbnail: null
+        } as TabPreview
       })
       .filter(Boolean) as TabPreview[]
-    setPreviews(initial)
+    setPreviews(snapshots)
 
-    // Capture thumbnails in parallel
-    const capture = async (): Promise<void> => {
-      const results = await Promise.all(
-        tabOrder.map(async (id) => {
-          const tab = tabs[id]
-          if (!tab) return null
-          const thumbnail = tab.url === 'browser://newtab' ? null : await webviewRegistry.capturePage(id)
-          return { id, tab, thumbnail } as TabPreview
-        })
-      )
-      const valid = results.filter(Boolean) as TabPreview[]
-      setPreviews(valid)
+    // Capture thumbnails sequentially to avoid GPU pressure spikes
+    const captureSequential = async (): Promise<void> => {
+      for (let i = 0; i < snapshots.length; i++) {
+        if (cancelledRef.current) return
+        const snap = snapshots[i]!
+        if (snap.url === 'browser://newtab') continue
+        const thumbnail = await webviewRegistry.capturePage(snap.id)
+        if (cancelledRef.current) return
+        setPreviews((prev) =>
+          prev.map((p) => (p.id === snap.id ? { ...p, thumbnail } : p))
+        )
+      }
     }
-    capture()
-  }, [isOpen, tabOrder, tabs])
+    captureSequential()
 
-  // Update tab data in previews when tabs change while open
-  useEffect(() => {
-    if (!isOpen || previews.length === 0) return
-    setPreviews((prev) =>
-      tabOrder
-        .map((id) => {
-          const tab = tabs[id]
-          if (!tab) return null
-          const existing = prev.find((p) => p.id === id)
-          return { id, tab, thumbnail: existing?.thumbnail ?? null } as TabPreview
-        })
-        .filter(Boolean) as TabPreview[]
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabOrder.length])
+    return () => { cancelledRef.current = true }
+  }, [isOpen])
 
   const handleSelect = useCallback(
     (tabId: string) => {
-      setActiveTab(tabId)
+      useTabStore.getState().setActiveTab(tabId)
       closeOverview()
     },
-    [setActiveTab, closeOverview]
+    [closeOverview]
   )
 
   const handleClose = useCallback(
     (e: React.MouseEvent, tabId: string) => {
       e.stopPropagation()
-      removeTab(tabId)
+      useTabStore.getState().removeTab(tabId)
+      // Update previews to reflect removal
+      setPreviews((prev) => prev.filter((p) => p.id !== tabId))
     },
-    [removeTab]
+    []
   )
 
   const handleNewTab = useCallback(() => {
-    addTab()
+    useTabStore.getState().addTab()
     closeOverview()
-  }, [addTab, closeOverview])
+  }, [closeOverview])
 
   // Close on Escape
   useEffect(() => {
@@ -242,14 +220,14 @@ function TabOverviewInner(): React.JSX.Element {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — solid overlay instead of backdrop-blur to avoid GPU pressure */}
           <motion.div
             key="tab-overview-backdrop"
-            className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-md"
+            className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: FADE_DURATION }}
             onClick={closeOverview}
           />
 
@@ -257,23 +235,18 @@ function TabOverviewInner(): React.JSX.Element {
           <motion.div
             key="tab-overview-content"
             className="fixed inset-0 z-[95] flex flex-col items-center overflow-y-auto py-12 px-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: FADE_DURATION }}
             onClick={closeOverview}
           >
             {/* Header */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={springOverlay}
-              className="mb-8 text-center"
-            >
+            <div className="mb-8 text-center">
               <h2 className="text-xl font-semibold text-white/90 tracking-tight">
                 {previews.length} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
               </h2>
-            </motion.div>
+            </div>
 
             {/* Grid */}
             <div
@@ -283,23 +256,18 @@ function TabOverviewInner(): React.JSX.Element {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {previews.map((preview, index) => (
+              {previews.map((preview) => (
                 <TabCard
                   key={preview.id}
                   preview={preview}
                   isActive={preview.id === activeTabId}
-                  index={index}
                   onSelect={() => handleSelect(preview.id)}
                   onClose={(e) => handleClose(e, preview.id)}
                 />
               ))}
 
               {/* New tab card */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.88, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ ...springCard, delay: Math.min(previews.length * 0.035, 0.25) + 0.04 }}
-              >
+              <div>
                 <button
                   onClick={handleNewTab}
                   className="w-full rounded-2xl overflow-hidden aspect-[16/10] border-2 border-dashed border-white/20 hover:border-indigo-400/50
@@ -309,7 +277,7 @@ function TabOverviewInner(): React.JSX.Element {
                   <Plus size={24} className="text-white/40" weight="bold" />
                   <span className="text-[13px] font-medium text-white/40">New Tab</span>
                 </button>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         </>

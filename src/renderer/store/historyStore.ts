@@ -27,22 +27,28 @@ export const useHistoryStore = create<HistoryState>()(
       recordVisit: (url, title) => {
         if (!url || url === 'about:blank' || url.startsWith('browser://')) return
         set((state) => {
-          const idx = state.entries.findIndex((e) => e.url === url)
+          const entries = state.entries
+          // O(n) scan is unavoidable with array storage, but typically the
+          // URL we just visited will be near the front (recent visits).
+          let idx = -1
+          for (let i = 0; i < entries.length; i++) {
+            if (entries[i]!.url === url) { idx = i; break }
+          }
           let updated: HistoryEntry[]
           if (idx >= 0) {
-            const existing = state.entries[idx]!
-            updated = [
-              { url, title: title || existing.title, timestamp: Date.now(), visitCount: existing.visitCount + 1 },
-              ...state.entries.slice(0, idx),
-              ...state.entries.slice(idx + 1)
-            ]
+            const existing = entries[idx]!
+            // Avoid full-array spread: splice + unshift for better perf
+            updated = entries.slice()
+            updated.splice(idx, 1)
+            updated.unshift({ url, title: title || existing.title, timestamp: Date.now(), visitCount: existing.visitCount + 1 })
           } else {
             updated = [
               { url, title, timestamp: Date.now(), visitCount: 1 },
-              ...state.entries
+              ...entries
             ]
           }
-          return { entries: updated.slice(0, MAX_ENTRIES) }
+          if (updated.length > MAX_ENTRIES) updated.length = MAX_ENTRIES
+          return { entries: updated }
         })
       },
 

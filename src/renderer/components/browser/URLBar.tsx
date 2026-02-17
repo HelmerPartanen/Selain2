@@ -208,7 +208,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           relative flex items-center rounded-full h-10 px-1
           bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700
           shadow-lg
-          transition-[width] duration-300 ease-out will-change-[width]
+          transition-[width] duration-200 ease-out will-change-[width]
           ${isFocused ? 'w-[500px]' : 'w-[360px]'}
         `}
       >

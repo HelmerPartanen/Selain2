@@ -136,24 +136,25 @@ function DownloadPillInner(): React.JSX.Element | null {
     return total > 0 ? received / total : 0
   }, [items])
 
-  // Auto-hide 5s after all downloads complete
+  // Auto-hide 8s after all downloads complete
   useEffect(() => {
     if (autoHideRef.current) clearTimeout(autoHideRef.current)
     if (hasItems && !hasActive) {
       autoHideRef.current = setTimeout(() => {
-        // Clear all completed/failed/cancelled downloads from store
+        // Read fresh state inside the timeout — not the stale `items` closure
         const store = useDownloadStore.getState()
-        items.forEach((item) => {
-          if (item.state !== 'progressing' && item.state !== 'paused') {
-            store.removeDownload(item.id)
+        const currentDownloads = Object.values(store.downloads)
+        for (const dl of currentDownloads) {
+          if (dl.state !== 'progressing' && dl.state !== 'paused') {
+            store.removeDownload(dl.id)
           }
-        })
+        }
       }, 8000)
     }
     return () => {
       if (autoHideRef.current) clearTimeout(autoHideRef.current)
     }
-  }, [hasItems, hasActive, items])
+  }, [hasItems, hasActive])
 
   const handleOpenPage = useCallback(() => {
     useUIStore.getState().toggleDownloads()

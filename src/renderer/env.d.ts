@@ -1,22 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type React from 'react'
-
-// ─── Electron API exposed via preload ────────────────────────────────────────
-interface ElectronAPI {
-  minimizeWindow(): void
-  maximizeWindow(): void
-  closeWindow(): void
-  toggleMaximizeWindow(): void
-  onMaximizeChange(callback: (isMaximized: boolean) => void): () => void
-  openImageDialog(): Promise<string | null>
-  saveWallpaper(dataUrl: string | null): Promise<boolean>
-  loadWallpaper(): Promise<string | null>
-  onShortcutPressed(callback: (shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }) => void): () => void
-  downloadAction(action: string, id: string, savePath?: string): void
-  onDownloadStarted(callback: (item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number }) => void): () => void
-  onDownloadProgress(callback: (data: { id: string; receivedBytes: number; totalBytes: number; speed: number }) => void): () => void
-  onDownloadDone(callback: (data: { id: string; state: 'completed' | 'cancelled' | 'failed' }) => void): () => void
-}
+import type { ElectronAPI } from '../preload/types'
 
 // Electron webview tag types for the renderer process
 declare global {

@@ -23,6 +23,9 @@ export const webviewRegistry = {
     const webview = registry.get(tabId)
     if (!webview) return null
     try {
+      // Guard: if the webview's webContents is destroyed, capturePage will crash
+      const wc = (webview as unknown as { getWebContentsId?(): number }).getWebContentsId?.()
+      if (wc === undefined) return null
       const img = await (webview as unknown as { capturePage(): Promise<Electron.NativeImage> }).capturePage()
       return img.toDataURL()
     } catch {
