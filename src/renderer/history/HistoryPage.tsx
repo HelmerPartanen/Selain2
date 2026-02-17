@@ -129,10 +129,10 @@ function HistoryPanelInner(): React.JSX.Element {
         <motion.div
           className="w-[560px] h-[520px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto flex flex-col"
           style={{ transformOrigin: '50% 100%', perspective: 800 }}
-          initial={{ y: 220, scaleX: 0.3, scaleY: 0.06, opacity: 0, rotateX: -15 }}
+          initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
-          exit={{ y: 180, scaleX: 0.35, scaleY: 0.06, opacity: 0, rotateX: -10 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+          exit={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 26, mass: 0.8 }}
         >
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
             <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">

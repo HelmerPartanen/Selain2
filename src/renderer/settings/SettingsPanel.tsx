@@ -368,10 +368,10 @@ function SettingsPanelInner(): React.JSX.Element {
           ref={panelRef}
           className="w-[640px] h-[440px] rounded-2xl overflow-hidden backdrop-blur-md bg-white/50 dark:bg-neutral-900/50 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
           style={{ transformOrigin: '50% 100%', perspective: 800 }}
-          initial={{ y: 220, scaleX: 0.3, scaleY: 0.06, opacity: 0, rotateX: -15 }}
+          initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
-          exit={{ y: 180, scaleX: 0.35, scaleY: 0.06, opacity: 0, rotateX: -10 }}
-          transition={springPanel}
+          exit={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 }}
+          transition={{ ...springPanel, damping: 26 }}
         >
         <div className="flex h-full">
           {/* ─── Sidebar ─── */}

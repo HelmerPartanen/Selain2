@@ -7,6 +7,7 @@ import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
 import settingsSvg from '@/assets/icons/Objects/Settings.svg?raw'
 import menuPointsSvg from '@/assets/icons/Interface/Menu_burger.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import filtrSvg from '@/assets/icons/Interface/Filtr.svg?raw'
@@ -32,6 +33,11 @@ const menuItems = [
 function AppMenuInner(): React.JSX.Element {
   const isOpen = useUIStore((s) => s.isMenuOpen)
   const setMenuOpen = useUIStore((s) => s.setMenuOpen)
+  const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
+  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen)
+  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen)
+  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen)
+  const isPanelOpen = isSettingsOpen || isBookmarksOpen || isHistoryOpen || isDownloadsOpen
   const [menuPosition, setMenuPosition] = useState({ bottom: 0, left: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -78,12 +84,27 @@ function AppMenuInner(): React.JSX.Element {
         onClick={handleToggle}
         aria-label="Menu"
         aria-expanded={isOpen}
-        animate={{ scale: isOpen ? 0.9 : 1 }}
+        animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
         transition={{ type: 'spring', stiffness: 500, damping: 22 }}
         className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800 select-none"
       >
-        <SvgIcon svg={menuPointsSvg} size={18} />
+        <div className="relative w-[18px] h-[18px] flex items-center justify-center">
+          <motion.span
+            animate={{ scale: isOpen ? 0 : 1, rotate: isOpen ? 90 : 0, opacity: isOpen ? 0 : 1 }}
+            transition={{ type: 'spring', stiffness: 600, damping: 26 }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <SvgIcon svg={menuPointsSvg} size={18} />
+          </motion.span>
+          <motion.span
+            animate={{ scale: isOpen ? 1 : 0, rotate: isOpen ? 0 : -90, opacity: isOpen ? 1 : 0 }}
+            transition={{ type: 'spring', stiffness: 600, damping: 26 }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <SvgIcon svg={closeSvg} size={18} />
+          </motion.span>
+        </div>
       </motion.button>
 
       <AnimatePresence>
@@ -94,10 +115,10 @@ function AppMenuInner(): React.JSX.Element {
             <motion.div
               className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[260px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
               style={{ originX: 0.5, originY: 1, x: '-50%', perspective: 600 }}
-              initial={{ scaleX: 0.5, scaleY: 0.25, opacity: 0, y: 20, rotateX: -10 }}
+              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.6, scaleY: 0.2, opacity: 0, y: 14, rotateX: -6 }}
-              transition={{ ...springMenu, opacity: { duration: 0.12 } }}
+              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
+              transition={{ ...springMenu, opacity: { duration: 0.1 } }}
             >
               <div className="p-1">
               {menuItems.map((item, idx) => {
