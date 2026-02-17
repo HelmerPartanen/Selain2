@@ -72,6 +72,8 @@ function AppMenuInner(): React.JSX.Element {
       <AnimatePresence>
         {isOpen && (
           <>
+            {/* Click-away */}
+            <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
               className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[180px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
               style={{ originX: 0.5, originY: 1, x: '-50%', perspective: 600 }}

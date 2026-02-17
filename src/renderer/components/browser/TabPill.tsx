@@ -162,6 +162,8 @@ function TabPillInner(): React.JSX.Element {
       <AnimatePresence>
         {isExpanded && (
           <>
+            {/* Click-away */}
+            <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
               className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
               style={{ originX: 0.85, originY: 1, perspective: 600 }}
