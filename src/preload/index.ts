@@ -48,6 +48,13 @@ const api: ElectronAPI = {
     }
     ipcRenderer.on('download-done', handler)
     return () => { ipcRenderer.removeListener('download-done', handler) }
+  },
+  onOpenUrlInNewTab: (callback: (url: string) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, url: string): void => {
+      callback(url)
+    }
+    ipcRenderer.on('open-url-in-new-tab', handler)
+    return () => { ipcRenderer.removeListener('open-url-in-new-tab', handler) }
   }
 }
 

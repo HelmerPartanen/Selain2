@@ -73,6 +73,14 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // Intercept new-window requests from <webview> tags and open them as new tabs
+  mainWindow.webContents.on('did-attach-webview' as string, (_event: unknown, webViewContents: Electron.WebContents) => {
+    webViewContents.setWindowOpenHandler(({ url }) => {
+      mainWindow?.webContents.send('open-url-in-new-tab', url)
+      return { action: 'deny' }
+    })
+  })
+
   // ── Forward keyboard shortcuts from webviews to the renderer ──
   // When a <webview> has focus, keydown events never reach the renderer window.
   // We intercept them here via before-input-event on the host webContents and

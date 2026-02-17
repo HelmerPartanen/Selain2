@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useEffect, useMemo, useRef } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { FloatingControls } from '@/components/layout/FloatingControls'
 import { WindowControls } from '@/components/layout/WindowControls'
@@ -75,6 +75,52 @@ function BrowserLayoutInner(): React.JSX.Element {
       state.addTab()
     }
   }, [])
+
+  // ── Open links from webviews in new tabs ──
+  useEffect(() => {
+    return window.electronAPI.onOpenUrlInNewTab((url: string) => {
+      useTabStore.getState().addTab(url)
+    })
+  }, [])
+
+  // ── Trackpad two-finger swipe to switch tabs ──
+  const swipeDelta = useRef(0)
+  const swipeTimeout = useRef<number>(0)
+  const SWIPE_THRESHOLD = 120
+
+  const handleWheel = useCallback((e: WheelEvent) => {
+    // Only respond to horizontal trackpad gestures (deltaX dominant)
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
+    // Skip if any panel/overlay is open
+    const ui = useUIStore.getState()
+    if (ui.isSettingsOpen || ui.isBookmarksOpen || ui.isHistoryOpen || ui.isDownloadsOpen) return
+
+    swipeDelta.current += e.deltaX
+
+    // Reset accumulator if user stops swiping
+    if (swipeTimeout.current) window.clearTimeout(swipeTimeout.current)
+    swipeTimeout.current = window.setTimeout(() => { swipeDelta.current = 0 }, 300)
+
+    if (Math.abs(swipeDelta.current) >= SWIPE_THRESHOLD) {
+      const { tabOrder, activeTabId, setActiveTab } = useTabStore.getState()
+      if (!activeTabId || tabOrder.length <= 1) {
+        swipeDelta.current = 0
+        return
+      }
+      const idx = tabOrder.indexOf(activeTabId)
+      const direction = swipeDelta.current > 0 ? 1 : -1
+      const nextIdx = idx + direction
+      if (nextIdx >= 0 && nextIdx < tabOrder.length) {
+        setActiveTab(tabOrder[nextIdx]!)
+      }
+      swipeDelta.current = 0
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('wheel', handleWheel, { passive: true })
+    return () => window.removeEventListener('wheel', handleWheel)
+  }, [handleWheel])
 
   return (
   <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
