@@ -131,42 +131,36 @@ function FloatingControlsInner(): React.JSX.Element {
               transition={springBounce}
             >
               <div
-                className="rounded-full flex items-center p-1.5 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg"
+                className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full overflow-visible"
               >
-                <AnimatePresence initial={false}>
-                  {canGoBack && (
-                    <motion.div
-                      key="back"
-                      initial={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
-                      animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
-                      exit={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
-                      transition={springBounce}
-                      style={{ overflow: 'hidden', flexShrink: 0 }}
-                    >
-                      <div className="w-7 flex justify-center">
-                        <Button variant="icon" onClick={handleGoBack} aria-label="Go back">
-                          <CaretLeft size={16} weight="bold" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <button
+                  onClick={handleGoBack}
+                  disabled={!canGoBack}
+                  aria-label="Go back"
+                  className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none disabled:opacity-40 disabled:pointer-events-none ${canGoForward ? 'rounded-l-full' : 'rounded-full'}`}
+                >
+                  <CaretLeft size={16} weight="bold" />
+                </button>
 
                 <AnimatePresence initial={false}>
                   {canGoForward && (
                     <motion.div
                       key="forward"
-                      initial={{ width: 0, opacity: 0, scale: 0.3, rotate: 45 }}
-                      animate={{ width: 28, opacity: 1, scale: 1, rotate: 0 }}
-                      exit={{ width: 0, opacity: 0, scale: 0.3, rotate: -45 }}
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: 'auto', opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
                       transition={springBounce}
+                      className="flex items-center"
                       style={{ overflow: 'hidden', flexShrink: 0 }}
                     >
-                      <div className="w-7 flex justify-center">
-                        <Button variant="icon" onClick={handleGoForward} aria-label="Go forward">
-                          <CaretRight size={16} weight="bold" />
-                        </Button>
-                      </div>
+                      <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
+                      <button
+                        onClick={handleGoForward}
+                        aria-label="Go forward"
+                        className="h-10 w-10 rounded-r-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90 transition-all duration-100 select-none flex-shrink-0"
+                      >
+                        <CaretRight size={16} weight="bold" />
+                      </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
