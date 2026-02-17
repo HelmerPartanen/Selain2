@@ -274,7 +274,7 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 600,
     show: false,
-    backgroundColor: '#000000',
+    backgroundColor: '#1c1c1c',
     frame: false,
     webPreferences: {
       contextIsolation: true,

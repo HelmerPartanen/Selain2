@@ -6,7 +6,7 @@ import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
 import settingsSvg from '@/assets/icons/Objects/Settings.svg?raw'
-import menuPointsSvg from '@/assets/icons/Interface/Menu_Points_2.svg?raw'
+import menuPointsSvg from '@/assets/icons/Interface/Menu_burger.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import filtrSvg from '@/assets/icons/Interface/Filtr.svg?raw'
@@ -89,7 +89,7 @@ function AppMenuInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[180px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
+              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[260px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
               style={{ originX: 0.5, originY: 1, x: '-50%', perspective: 600 }}
               initial={{ scaleX: 0.5, scaleY: 0.25, opacity: 0, y: 20, rotateX: -10 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}

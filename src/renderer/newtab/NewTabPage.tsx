@@ -1,12 +1,11 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { motion } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
-import { useHistoryStore } from '@/store/historyStore'
+import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
-import { useSearchEngineStore } from '@/store/searchEngineStore'
 
-// ─── Frequently Visited ──────────────────────────────────────────────────────
+// ─── Favourites (Bookmarks) ──────────────────────────────────────────────────
 
 function getFaviconUrl(url: string): string {
   try {
@@ -25,37 +24,19 @@ function getHostname(url: string): string {
   }
 }
 
-interface SpeedDial {
-  url: string
-  title: string
-  hostname: string
-  faviconUrl: string
-}
+function Favourites(): React.JSX.Element | null {
+  const bookmarks = useBookmarkStore((s) => s.bookmarks)
 
-function FrequentlyVisited(): React.JSX.Element | null {
-  const entries = useHistoryStore((s) => s.entries)
-
-  const topSites: SpeedDial[] = useMemo(() => {
-    // Aggregate by hostname, pick the most-visited URL per host
-    const hostMap = new Map<string, { url: string; title: string; visits: number }>()
-    for (const entry of entries) {
-      const hostname = getHostname(entry.url)
-      const existing = hostMap.get(hostname)
-      if (!existing || entry.visitCount > existing.visits) {
-        hostMap.set(hostname, { url: entry.url, title: entry.title, visits: entry.visitCount })
-      }
-    }
-    return Array.from(hostMap.values())
-      .filter((s) => s.visits >= 2)
-      .sort((a, b) => b.visits - a.visits)
-      .slice(0, 8)
-      .map((s) => ({
-        url: s.url,
-        title: s.title || getHostname(s.url),
-        hostname: getHostname(s.url),
-        faviconUrl: getFaviconUrl(s.url)
-      }))
-  }, [entries])
+  const sites = useMemo(
+    () =>
+      bookmarks.slice(0, 8).map((b) => ({
+        url: b.url,
+        title: b.title || getHostname(b.url),
+        hostname: getHostname(b.url),
+        faviconUrl: getFaviconUrl(b.url)
+      })),
+    [bookmarks]
+  )
 
   const handleNavigate = useCallback((url: string) => {
     const store = useTabStore.getState()
@@ -65,14 +46,14 @@ function FrequentlyVisited(): React.JSX.Element | null {
     }
   }, [])
 
-  if (topSites.length === 0) return null
+  if (sites.length === 0) return null
 
   return (
     <div className="w-full max-w-[380px]">
       <div className="grid grid-cols-4 gap-2">
-        {topSites.map((site, i) => (
+        {sites.map((site, i) => (
           <motion.button
-            key={site.hostname}
+            key={site.url}
             onClick={() => handleNavigate(site.url)}
             className="flex flex-col items-center justify-center gap-1.5 aspect-square rounded-xl border border-transparent hover:bg-white/15 hover:border-white/15 transition-all duration-150 active:scale-[0.95] group"
             initial={{ opacity: 0, y: 12 }}
@@ -87,7 +68,6 @@ function FrequentlyVisited(): React.JSX.Element | null {
                   className="w-6 h-6 rounded-sm"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none'
-                    ;(e.target as HTMLImageElement).nextElementSibling as HTMLElement | null
                   }}
                 />
               ) : (
@@ -109,7 +89,7 @@ function FrequentlyVisited(): React.JSX.Element | null {
 function NewTabPageInner(): React.JSX.Element {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center select-none px-6">
-      <FrequentlyVisited />
+      <Favourites />
     </div>
   )
 }
