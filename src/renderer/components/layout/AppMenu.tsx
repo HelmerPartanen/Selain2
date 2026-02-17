@@ -60,16 +60,17 @@ function AppMenuInner(): React.JSX.Element {
             <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden bg-white shadow-xl"
+              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[180px] rounded-xl overflow-hidden bg-white shadow-xl border border-gray-100"
               style={{ originX: 0.5, originY: 1, x: '-50%' }}
               initial={{ scale: 0.85, opacity: 0, y: 12 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.92, opacity: 0, y: 8 }}
               transition={springMenu}
             >
+              <div className="py-1">
               {menuItems.map((item) => {
                 if (item.id === 'divider') {
-                  return <div key="divider" className="border-t border-gray-200 my-1" />
+                  return <div key="divider" className="border-t border-gray-100 my-1" />
                 }
 
                 const Icon = item.icon!
@@ -79,18 +80,19 @@ function AppMenuInner(): React.JSX.Element {
                   <motion.button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className="w-full flex items-center gap-3 px-3 h-9 text-sm text-gray-600 [app-region:no-drag]"
+                    className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 [app-region:no-drag]"
                     initial={{ opacity: 0, y: 6, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ ...springItem, delay: 0.02 + idx * 0.04 }}
-                    whileHover={{ x: 2, backgroundColor: 'rgba(0,0,0,0.05)', color: '#111' }}
+                    whileHover={{ backgroundColor: '#f3f4f6', color: '#111827' }}
                     whileTap={{ scale: 0.97 }}
                   >
-                    <Icon size={16} weight="regular" />
+                    <Icon size={16} weight="bold" />
                     <span>{item.label}</span>
                   </motion.button>
                 )
               })}
+              </div>
             </motion.div>
           </>
         )}

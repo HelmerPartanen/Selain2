@@ -122,7 +122,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       </Button>
 
       <div className="relative flex-1 min-w-0 flex items-center h-full">
-        <div className="absolute left-3 z-10 flex items-center pointer-events-none text-gray-400">
+        <div className="absolute left-3 z-10 flex items-center pointer-events-none text-gray-500">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={iconKey}
@@ -150,7 +150,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
-          className="w-full h-full pl-9 pr-3 text-sm text-gray-800 bg-transparent outline-none placeholder:text-gray-400 focus:ring-0"
+          className="w-full h-full pl-9 pr-3 text-sm text-gray-900 bg-transparent outline-none placeholder:text-gray-400 focus:ring-0"
         />
       </div>
     </motion.div>

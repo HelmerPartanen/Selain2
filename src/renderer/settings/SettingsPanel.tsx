@@ -40,17 +40,17 @@ function ThemeModePicker(): React.JSX.Element {
           <motion.button
             key={mode}
             onClick={() => setThemeMode(mode)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium"
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-semibold"
             style={
               isActive
-                ? { background: 'var(--accent)', color: '#fff', border: 'none', boxShadow: '0 1px 6px var(--accent-glow)' }
-                : { background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '0.5px solid var(--border-glass)' }
+                ? { background: '#111827', color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
+                : { background: '#f9fafb', color: '#4b5563', border: '1px solid #e5e7eb' }
             }
-            whileHover={!isActive ? { scale: 1.04, backgroundColor: 'var(--bg-surface-hover)' } : { scale: 1.02 }}
+            whileHover={!isActive ? { scale: 1.02, backgroundColor: '#f3f4f6' } : { scale: 1.01 }}
             whileTap={{ scale: 0.96 }}
             transition={springItem}
           >
-            <Icon size={15} weight={isActive ? 'fill' : 'regular'} />
+            <Icon size={15} weight={isActive ? 'fill' : 'bold'} />
             {label}
           </motion.button>
         )
@@ -85,13 +85,13 @@ function WallpaperPicker(): React.JSX.Element {
   const handleClear = useCallback(() => setWallpaper(null), [setWallpaper])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <div className="flex items-center gap-1.5 mb-2">
-          <Images size={13} weight="bold" style={{ color: 'var(--text-muted)' }} />
-          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Gradients</span>
+        <div className="flex items-center gap-1.5 mb-2.5">
+          <Images size={13} weight="bold" className="text-gray-400" />
+          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Gradients</span>
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-2.5">
           {WALLPAPER_PRESETS.map((preset, i) => {
             const isActive = wallpaper === preset.dataUrl
             return (
@@ -104,18 +104,18 @@ function WallpaperPicker(): React.JSX.Element {
                   backgroundImage: `url(${preset.dataUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  border: isActive ? '2px solid var(--accent)' : '1px solid var(--border-glass)',
-                  boxShadow: isActive ? '0 0 0 2px var(--accent-glow), var(--shadow-glass-sm)' : 'var(--shadow-glass-sm)'
+                  border: isActive ? '2.5px solid #111827' : '1px solid #e5e7eb',
+                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)'
                 }}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ ...springItem, delay: i * 0.03 }}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.97 }}
               >
                 {isActive && (
-                  <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(2px)' }}>
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--accent)', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-gray-900 shadow-md">
                       <Check size={11} weight="bold" color="#fff" />
                     </div>
                   </div>
@@ -127,8 +127,8 @@ function WallpaperPicker(): React.JSX.Element {
       </div>
 
       <div>
-        <div className="flex items-center gap-1.5 mb-2">
-          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Solid Colors</span>
+        <div className="flex items-center gap-1.5 mb-2.5">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Solid Colors</span>
         </div>
         <div className="grid grid-cols-6 gap-2">
           {SOLID_COLOR_PRESETS.map((color, i) => {
@@ -141,18 +141,18 @@ function WallpaperPicker(): React.JSX.Element {
                 className="relative aspect-square rounded-xl overflow-hidden"
                 style={{
                   backgroundColor: color.hex,
-                  border: isActive ? '2px solid var(--accent)' : '1px solid var(--border-glass)',
-                  boxShadow: isActive ? '0 0 0 2px var(--accent-glow), var(--shadow-glass-sm)' : 'var(--shadow-glass-sm)'
+                  border: isActive ? '2.5px solid #111827' : '1px solid #e5e7eb',
+                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)'
                 }}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ ...springItem, delay: i * 0.02 }}
                 whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.97 }}
               >
                 {isActive && (
-                  <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(2px)' }}>
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--accent)', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-gray-900 shadow-md">
                       <Check size={11} weight="bold" color="#fff" />
                     </div>
                   </div>
@@ -163,12 +163,11 @@ function WallpaperPicker(): React.JSX.Element {
         </div>
       </div>
 
-      <div className="flex gap-2 pt-1">
+      <div className="flex gap-2">
         <motion.button
           onClick={handleCustomImage}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium overflow-hidden"
-          style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '0.5px solid var(--border-glass)' }}
-          whileHover={{ scale: 1.02, backgroundColor: 'var(--bg-surface-hover)', color: 'var(--text-primary)' }}
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 bg-gray-50 border border-gray-200"
+          whileHover={{ scale: 1.02, backgroundColor: '#f3f4f6', color: '#111827' }}
           whileTap={{ scale: 0.97 }}
           transition={springItem}
         >
@@ -177,9 +176,8 @@ function WallpaperPicker(): React.JSX.Element {
         </motion.button>
         <motion.button
           onClick={handleClear}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium overflow-hidden"
-          style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '0.5px solid var(--border-glass)' }}
-          whileHover={{ scale: 1.02, backgroundColor: 'hsla(0,60%,50%,0.15)', color: 'hsl(0,70%,65%)' }}
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 bg-red-50 border border-red-100"
+          whileHover={{ scale: 1.02, backgroundColor: '#fef2f2', color: '#dc2626' }}
           whileTap={{ scale: 0.97 }}
           transition={springItem}
         >
@@ -209,46 +207,43 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <motion.div
         ref={panelRef}
-        className="absolute bottom-full mb-3 left-0 z-[85] w-[400px] max-h-[65vh] overflow-y-auto overflow-x-hidden rounded-2xl bg-white shadow-2xl [&::-webkit-scrollbar]:w-1"
+        className="absolute bottom-full mb-3 left-0 z-[85] w-[420px] max-h-[65vh] overflow-y-auto overflow-x-hidden rounded-2xl bg-white shadow-2xl border border-gray-100 [&::-webkit-scrollbar]:w-1"
         style={{ originX: 0, originY: 1 }}
         initial={{ scale: 0.8, opacity: 0, y: 24 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.88, opacity: 0, y: 16 }}
         transition={springPanel}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-2 bg-white">
-          <h2 className="text-[15px] font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Settings</h2>
-          <motion.button
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-3 bg-white border-b border-gray-100">
+          <h2 className="text-[15px] font-bold text-gray-900 tracking-tight">Settings</h2>
+          <button
             onClick={closeSettings}
-            className="w-7 h-7 rounded-full flex items-center justify-center"
-            style={{ color: 'var(--text-muted)' }}
-            whileHover={{ scale: 1.1, backgroundColor: 'var(--bg-surface-hover)' }}
-            whileTap={{ scale: 0.9 }}
+            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-150"
           >
             <X size={14} weight="bold" />
-          </motion.button>
+          </button>
         </div>
 
-        <div className="px-5 pb-5 space-y-5">
+        <div className="p-4 space-y-4">
           <motion.section
+            className="bg-gray-50 rounded-xl p-4 border border-gray-100"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springItem, delay: 0.06 }}
           >
-            <h3 className="text-[13px] font-semibold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Theme</h3>
-            <p className="text-[11px] mb-3" style={{ color: 'var(--text-muted)' }}>Control how the interface looks.</p>
+            <h3 className="text-[13px] font-bold text-gray-900 mb-1">Theme</h3>
+            <p className="text-[11px] text-gray-500 mb-3">Control how the interface looks.</p>
             <ThemeModePicker />
           </motion.section>
 
-          <div className="border-t" style={{ borderColor: 'var(--border-glass)' }} />
-
           <motion.section
+            className="bg-gray-50 rounded-xl p-4 border border-gray-100"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springItem, delay: 0.12 }}
           >
-            <h3 className="text-[13px] font-semibold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Wallpaper</h3>
-            <p className="text-[11px] mb-3" style={{ color: 'var(--text-muted)' }}>Personalize your browser background.</p>
+            <h3 className="text-[13px] font-bold text-gray-900 mb-1">Wallpaper</h3>
+            <p className="text-[11px] text-gray-500 mb-3">Personalize your browser background.</p>
             <WallpaperPicker />
           </motion.section>
         </div>

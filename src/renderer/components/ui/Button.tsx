@@ -11,25 +11,25 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variantStyles: Record<ButtonVariant, string> = {
   ghost: `
     px-3 h-8
-    text-gray-600
+    text-gray-700
     bg-transparent
-    hover:bg-gray-200/60 hover:text-gray-900
-    active:bg-gray-300/60
+    hover:bg-gray-100 hover:text-gray-900
+    active:bg-gray-200
   `,
   solid: `
     px-3 h-8
     text-gray-900
     bg-white
     border border-gray-200
-    hover:bg-gray-100
-    active:bg-gray-200
+    hover:bg-gray-50
+    active:bg-gray-100
   `,
   icon: `
     w-8 h-8
-    text-gray-600
+    text-gray-700
     bg-transparent
-    hover:bg-gray-200/60 hover:text-gray-900
-    active:bg-gray-300/60
+    hover:bg-gray-100 hover:text-gray-900
+    active:bg-gray-200
   `
 }
 

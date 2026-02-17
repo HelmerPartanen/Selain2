@@ -34,11 +34,11 @@ function WindowControlsInner(): React.JSX.Element {
       {/* Invisible hover trigger zone above the buttons */}
       <div className="absolute -top-3 -left-2 -right-2 h-5" />
 
-      <ControlButton onClick={handleMinimize} label="Minimize" color="hover:bg-gray-200/80">
+      <ControlButton onClick={handleMinimize} label="Minimize" color="hover:bg-gray-100">
         <Minus size={12} weight="bold" />
       </ControlButton>
 
-      <ControlButton onClick={handleToggleMaximize} label={isMaximized ? 'Restore' : 'Maximize'} color="hover:bg-gray-200/80">
+      <ControlButton onClick={handleToggleMaximize} label={isMaximized ? 'Restore' : 'Maximize'} color="hover:bg-gray-100">
         {isMaximized ? <CornersIn size={12} weight="bold" /> : <Square size={10} weight="bold" />}
       </ControlButton>
 
@@ -64,7 +64,7 @@ function ControlButton({
     <motion.button
       onClick={onClick}
       aria-label={label}
-      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-500 transition-colors duration-75 ${color}`}
+      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-600 transition-colors duration-75 ${color}`}
       whileTap={{ scale: 0.85 }}
       transition={{ type: 'spring', stiffness: 500, damping: 20 }}
     >

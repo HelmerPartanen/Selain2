@@ -149,29 +149,30 @@ function TabPillInner(): React.JSX.Element {
       </AnimatePresence>
 
       <div
-        className={`
-          flex items-center justify-center
-          bg-white shadow-lg
-          rounded-full h-10
-          ${tabCount > 1 ? 'px-1 gap-0.5' : ''}
-        `}
-      >
-        <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
-          <Plus size={15} weight="bold" />
-        </Button>
+  className={`
+    flex items-center justify-center
+    bg-white shadow-lg
+    rounded-full h-10
+    ${tabCount > 1 ? 'px-1 gap-0.5' : 'w-10'}
+  `}
+>
+  <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
+    <Plus size={15} weight="bold" />
+  </Button>
 
-        {tabCount > 1 && (
-          <button
-            onClick={handleToggle}
-            className="flex items-center gap-1.5 h-7 px-2 rounded-full text-gray-600 hover:bg-gray-200/60 active:bg-gray-300/60"
-          >
-            <ActiveFavicon />
-            <span className="text-xs font-medium tabular-nums">
-              {tabCount}
-            </span>
-          </button>
-        )}
-      </div>
+  {tabCount > 1 && (
+    <button
+      onClick={handleToggle}
+      className="flex items-center gap-1.5 h-7 px-2 rounded-full text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+    >
+      <ActiveFavicon />
+      <span className="text-xs font-medium tabular-nums">
+        {tabCount}
+      </span>
+    </button>
+  )}
+</div>
+
     </div>
   )
 }
