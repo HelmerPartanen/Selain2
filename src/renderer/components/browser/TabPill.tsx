@@ -251,7 +251,9 @@ function TabPillInner(): React.JSX.Element {
                       </div>
                       {/* Triangle pointer */}
                       <div className="flex justify-center -mt-px">
-                        <div className="w-3 h-1.5 [clip-path:polygon(0_0,100%_0,50%_100%)] bg-white dark:bg-neutral-900 drop-shadow-sm" />
+                        <svg width="16" height="8" viewBox="0 0 16 8" className="fill-white dark:fill-neutral-900">
+                          <path d="M0,0 C4,0 5,6 8,6 C11,6 12,0 16,0" />
+                        </svg>
                       </div>
                     </motion.div>
                   </>
