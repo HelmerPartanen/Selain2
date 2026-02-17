@@ -164,51 +164,6 @@ function TabPillInner(): React.JSX.Element {
 
   return (
     <div className="relative">
-      <AnimatePresence>
-        {isExpanded && (
-          <>
-            {/* Click-away */}
-            <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
-            <motion.div
-              className="absolute bottom-full mb-2 right-0 rounded-2xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
-              style={{ originX: 0.5, originY: 1, perspective: 600 }}
-              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
-              animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
-              transition={{ ...springDropdown, opacity: { duration: 0.1 } }}
-            >
-              <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 space-y-0.5">
-                {tabOrder.map((id, index) => (
-                  <TabRow
-                    key={id}
-                    tabId={id}
-                    isActive={id === activeTabId}
-                    isSplitTarget={id === splitTabId}
-                    isSplit={isSplit}
-                    index={index}
-                    onSelect={handleClose}
-                  />
-                ))}
-              </div>
-
-              {/* Reopen last closed */}
-              {recentlyClosed.length > 0 && (
-                <>
-                  <div className="mx-2 my-1 h-px bg-gray-100 dark:bg-neutral-800" />
-                  <button
-                    onClick={handleReopen}
-                    className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left text-gray-500 dark:text-neutral-500 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-100"
-                  >
-                    <SvgIcon svg={counterclockwiseSvg} size={13} />
-                    <span className="text-xs">Reopen closed tab</span>
-                  </button>
-                </>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
       <div
         className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full overflow-visible"
       >
@@ -233,8 +188,8 @@ function TabPillInner(): React.JSX.Element {
                 width: { type: 'spring', stiffness: 500, damping: 32, mass: 0.6 },
                 opacity: { duration: 0.12 }
               }}
-              className="flex items-center"
-              style={{ overflow: 'hidden', flexShrink: 0 }}
+              className="relative flex items-center"
+              style={{ overflow: 'visible', flexShrink: 0 }}
             >
               <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
               <motion.button
@@ -251,6 +206,57 @@ function TabPillInner(): React.JSX.Element {
                   {tabCount}
                 </span>
               </motion.button>
+
+              <AnimatePresence>
+                {isExpanded && (
+                  <>
+                    {/* Click-away */}
+                    <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
+                    <motion.div
+                      className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
+                      style={{ originX: 0.5, originY: 1, perspective: 600 }}
+                      initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
+                      animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
+                      exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
+                      transition={{ ...springDropdown, opacity: { duration: 0.1 } }}
+                    >
+                      <div className="rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl">
+                      <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 space-y-0.5">
+                        {tabOrder.map((id, index) => (
+                          <TabRow
+                            key={id}
+                            tabId={id}
+                            isActive={id === activeTabId}
+                            isSplitTarget={id === splitTabId}
+                            isSplit={isSplit}
+                            index={index}
+                            onSelect={handleClose}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Reopen last closed */}
+                      {recentlyClosed.length > 0 && (
+                        <>
+                          <div className="mx-2 my-1 h-px bg-gray-100 dark:bg-neutral-800" />
+                          <button
+                            onClick={handleReopen}
+                            className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left text-gray-500 dark:text-neutral-500 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-100"
+                          >
+                            <SvgIcon svg={counterclockwiseSvg} size={13} />
+                            <span className="text-xs">Reopen closed tab</span>
+                          </button>
+                        </>
+                      )}
+                      </div>
+                      {/* Triangle pointer */}
+                      <div className="flex justify-center -mt-px">
+                        <div className="w-3 h-1.5 [clip-path:polygon(0_0,100%_0,50%_100%)] bg-white dark:bg-neutral-900 drop-shadow-sm" />
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>

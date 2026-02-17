@@ -113,13 +113,14 @@ function AppMenuInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[260px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
+              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[260px]"
               style={{ originX: 0.5, originY: 1, x: '-50%', perspective: 600 }}
               initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
               exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
               transition={{ ...springMenu, opacity: { duration: 0.1 } }}
             >
+              <div className="rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700">
               <div className="p-1">
               {menuItems.map((item, idx) => {
                 if (item.id.startsWith('divider')) {
@@ -148,8 +149,11 @@ function AppMenuInner(): React.JSX.Element {
                   </button>
                 )
               })}
-              </div>
-            </motion.div>
+              </div>              </div>
+              {/* Triangle pointer */}
+              <div className="flex justify-center -mt-px">
+                <div className="w-3 h-1.5 [clip-path:polygon(0_0,100%_0,50%_100%)] bg-white dark:bg-neutral-900 drop-shadow-sm" />
+              </div>            </motion.div>
           </>
         )}
       </AnimatePresence>
