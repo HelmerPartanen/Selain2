@@ -55,10 +55,12 @@ export function useFocusedTabNavState(): {
       if (!id) return { isLoading: false, canGoBack: false, canGoForward: false, loadProgress: 0 }
       const tab = s.tabs[id]
       if (!tab) return { isLoading: false, canGoBack: false, canGoForward: false, loadProgress: 0 }
+      // Include virtual history in effective canGoBack/canGoForward
+      const isSpecial = tab.url === 'browser://newtab'
       return {
         isLoading: tab.isLoading,
-        canGoBack: tab.canGoBack,
-        canGoForward: tab.canGoForward,
+        canGoBack: tab.canGoBack || !!tab.virtualBackUrl,
+        canGoForward: tab.canGoForward || (isSpecial && !!tab.virtualForwardUrl),
         loadProgress: tab.loadProgress
       }
     })

@@ -4,13 +4,14 @@ import { persist } from 'zustand/middleware'
 export interface HistoryEntry {
   url: string
   title: string
+  favicon: string
   timestamp: number
   visitCount: number
 }
 
 interface HistoryState {
   entries: HistoryEntry[]
-  recordVisit: (url: string, title: string) => void
+  recordVisit: (url: string, title: string, favicon?: string) => void
   search: (query: string) => HistoryEntry[]
   removeEntry: (url: string) => void
   clearAll: () => void
@@ -24,12 +25,10 @@ export const useHistoryStore = create<HistoryState>()(
     (set, get) => ({
       entries: [],
 
-      recordVisit: (url, title) => {
+      recordVisit: (url, title, favicon) => {
         if (!url || url === 'about:blank' || url.startsWith('browser://')) return
         set((state) => {
           const entries = state.entries
-          // O(n) scan is unavoidable with array storage, but typically the
-          // URL we just visited will be near the front (recent visits).
           let idx = -1
           for (let i = 0; i < entries.length; i++) {
             if (entries[i]!.url === url) { idx = i; break }
@@ -37,13 +36,12 @@ export const useHistoryStore = create<HistoryState>()(
           let updated: HistoryEntry[]
           if (idx >= 0) {
             const existing = entries[idx]!
-            // Avoid full-array spread: splice + unshift for better perf
             updated = entries.slice()
             updated.splice(idx, 1)
-            updated.unshift({ url, title: title || existing.title, timestamp: Date.now(), visitCount: existing.visitCount + 1 })
+            updated.unshift({ url, title: title || existing.title, favicon: favicon || existing.favicon, timestamp: Date.now(), visitCount: existing.visitCount + 1 })
           } else {
             updated = [
-              { url, title, timestamp: Date.now(), visitCount: 1 },
+              { url, title, favicon: favicon || '', timestamp: Date.now(), visitCount: 1 },
               ...entries
             ]
           }

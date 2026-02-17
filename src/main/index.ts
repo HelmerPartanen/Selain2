@@ -413,7 +413,11 @@ function setupIPC(): void {
   setupDownloadHandling(session.defaultSession)
   setupDownloadHandling(session.fromPartition('persist:default'))
 
+  const VALID_DOWNLOAD_ACTIONS = new Set(['pause', 'resume', 'cancel', 'open', 'show-in-folder'])
+
   ipcMain.on('download-action', (_event, action: string, id: string, savePath?: string) => {
+    if (!VALID_DOWNLOAD_ACTIONS.has(action)) return
+    if (typeof id !== 'string' || !id) return
     const item = activeDownloads.get(id)
     if (action === 'open' && savePath) {
       shell.openPath(savePath)
@@ -488,6 +492,10 @@ function setupIPC(): void {
       if (dataUrl === null) {
         if (existsSync(wallpaperPath)) await unlink(wallpaperPath)
       } else {
+        if (typeof dataUrl !== 'string' || (!dataUrl.startsWith('data:image/') && dataUrl.length > 0)) {
+          console.warn('Invalid wallpaper data: not a data URL')
+          return false
+        }
         await writeFile(wallpaperPath, dataUrl, 'utf-8')
       }
       return true
@@ -542,14 +550,13 @@ function setupPermissions(): void {
       callback(allowedPermissions.has(permission))
     })
 
-    // Permission checks must be permissive — returning false for unknown
-    // permissions can silently break DRM and other subsystems
-    ses.setPermissionCheckHandler((_wc, permission, _origin, details) => {
+    // Permission checks: allow only known-safe permissions, deny everything else.
+    // DRM subsystems use 'media-key-system-access' and 'protected-media-identifier'
+    // which are in our allowlist — no need for a blanket allow-all.
+    ses.setPermissionCheckHandler((_wc, permission, _origin, _details) => {
       const denied = new Set(['notifications'])
       if (denied.has(permission)) return false
-      // Allow anything in our allowlist, and default-allow unknown checks
-      // (Chromium uses permission checks for internal DRM plumbing)
-      return true
+      return allowedPermissions.has(permission)
     })
   }
 }

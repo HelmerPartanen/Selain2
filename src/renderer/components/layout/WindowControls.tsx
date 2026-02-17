@@ -47,8 +47,17 @@ function WindowControlsInner(): React.JSX.Element {
       onMouseLeave={handleMouseLeave}
       style={{ pointerEvents: 'none' }}
     >
-      {/* Invisible trigger zone — only the very top-right corner activates the controls */}
-      <div className="absolute top-0 right-0 w-5 h-5" style={{ pointerEvents: 'auto' }} />
+      {/* Trigger zone — generous top-right corner target for discoverability */}
+      <div className="absolute top-0 right-0 w-32 h-8" style={{ pointerEvents: 'auto' }} />
+
+      {/* Subtle hint dots visible when controls are hidden */}
+      {!isVisible && (
+        <div className="absolute top-2.5 right-5 flex gap-1.5 opacity-30 hover:opacity-60 transition-opacity duration-300" style={{ pointerEvents: 'auto' }}>
+          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+        </div>
+      )}
 
       <div
         className={`

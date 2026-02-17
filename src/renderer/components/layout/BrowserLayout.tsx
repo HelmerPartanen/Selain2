@@ -12,6 +12,8 @@ import { useTabStore } from '@/store/tabStore'
 import { useThemeStore } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { ToastContainer } from '@/components/ui/Toast'
 
 const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
 const BookmarksPanel = lazy(() => import('@/bookmarks/BookmarksPage').then(m => ({ default: m.BookmarksPanel })))
@@ -171,46 +173,59 @@ function BrowserLayoutInner(): React.JSX.Element {
     {/* Window controls */}
     <WindowControls />
 
+    {/* Toast notifications */}
+    <ToastContainer />
+
     {/* Settings modal — rendered at root level to escape FloatingControls transform */}
     <AnimatePresence>
       {isSettingsOpen && (
-        <Suspense fallback={null}>
-          <SettingsPanel />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <SettingsPanel />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </AnimatePresence>
 
     {/* Bookmarks panel */}
     <AnimatePresence>
       {isBookmarksOpen && (
-        <Suspense fallback={null}>
-          <BookmarksPanel />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <BookmarksPanel />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </AnimatePresence>
 
     {/* History panel */}
     <AnimatePresence>
       {isHistoryOpen && (
-        <Suspense fallback={null}>
-          <HistoryPanel />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <HistoryPanel />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </AnimatePresence>
 
     {/* Downloads panel */}
     <AnimatePresence>
       {isDownloadsOpen && (
-        <Suspense fallback={null}>
-          <DownloadsPanel />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <DownloadsPanel />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </AnimatePresence>
 
     {/* Tab overview (Ctrl+Shift+A) */}
-    <Suspense fallback={null}>
-      <TabOverview />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={null}>
+        <TabOverview />
+      </Suspense>
+    </ErrorBoundary>
   </div>
 )
 }

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useDownloadStore } from '@/store/downloadStore'
+import { showToast } from '@/components/ui/Toast'
 
 /**
  * Subscribes to download IPC events from main process and updates the download store.
@@ -34,6 +35,27 @@ export function useDownloadListener(): void {
 
     const offDone = api.onDownloadDone((data) => {
       useDownloadStore.getState().updateState(data.id, data.state)
+
+      // Show toast notification for completed downloads
+      if (data.state === 'completed') {
+        const dl = useDownloadStore.getState().downloads[data.id]
+        if (dl) {
+          showToast({
+            message: `${dl.filename} downloaded`,
+            type: 'success',
+            action: {
+              label: 'Open',
+              onClick: () => useDownloadStore.getState().openDownload(data.id)
+            }
+          })
+        }
+      } else if (data.state === 'failed') {
+        const dl = useDownloadStore.getState().downloads[data.id]
+        showToast({
+          message: `${dl?.filename ?? 'Download'} failed`,
+          type: 'error'
+        })
+      }
     })
 
     return () => {

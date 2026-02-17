@@ -81,17 +81,12 @@ function FloatingControlsInner(): React.JSX.Element {
   const isActive = isHovered || isInputFocused || isSettingsOpen || isBookmarksOpen || isHistoryOpen || isDownloadsOpen || isTabOverviewOpen || isDropdownOpen || isMenuOpen
   const isIdle = useIdleVisibility(isActive)
 
-  // Close all popups when UI goes idle
+  // Close transient popups when UI goes idle (but NOT full panels like settings/bookmarks/history/downloads)
   useEffect(() => {
     if (isIdle) {
       const store = useUIStore.getState()
       if (store.isDropdownOpen) store.setDropdownOpen(false)
       if (store.isMenuOpen) store.setMenuOpen(false)
-      if (store.isSettingsOpen) store.closeSettings()
-      if (store.isBookmarksOpen) store.closeBookmarks()
-      if (store.isHistoryOpen) store.closeHistory()
-      if (store.isDownloadsOpen) store.closeDownloads()
-      if (store.isTabOverviewOpen) store.closeTabOverview()
     }
   }, [isIdle])
 
@@ -101,12 +96,37 @@ function FloatingControlsInner(): React.JSX.Element {
 
   const handleGoBack = useCallback(() => {
     if (!tabId) return
-    webviewRegistry.get(tabId)?.goBack()
+    const webview = webviewRegistry.get(tabId)
+    if (webview && webview.canGoBack()) {
+      webview.goBack()
+    } else {
+      // Fall back to virtual history (e.g. back to browser://newtab)
+      const tab = useTabStore.getState().tabs[tabId]
+      if (tab?.virtualBackUrl) {
+        useTabStore.getState().updateTab(tabId, {
+          url: tab.virtualBackUrl,
+          virtualForwardUrl: tab.url,
+          virtualBackUrl: null,
+          canGoBack: false,
+          canGoForward: false
+        })
+      }
+    }
   }, [tabId])
 
   const handleGoForward = useCallback(() => {
     if (!tabId) return
-    webviewRegistry.get(tabId)?.goForward()
+    const tab = useTabStore.getState().tabs[tabId]
+    // If on a special page with a virtual forward URL, navigate there
+    if (tab && tab.url === 'browser://newtab' && tab.virtualForwardUrl) {
+      useTabStore.getState().updateTab(tabId, {
+        url: tab.virtualForwardUrl,
+        virtualBackUrl: tab.url,
+        virtualForwardUrl: null
+      })
+    } else {
+      webviewRegistry.get(tabId)?.goForward()
+    }
   }, [tabId])
 
   const handleUnsplit = useCallback(() => {

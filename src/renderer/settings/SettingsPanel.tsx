@@ -15,6 +15,7 @@ import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import settingsSvg from '@/assets/icons/Objects/Settings.svg?raw'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
+import { useSearchEngineStore, SEARCH_ENGINES } from '@/store/searchEngineStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -38,7 +39,7 @@ const THEME_MODES: { mode: ThemeMode; label: string; icon: string }[] = [
 
 // ─── Sidebar Categories ──────────────────────────────────────────────────────
 
-type SettingsCategory = 'appearance' | 'wallpaper' | 'about'
+type SettingsCategory = 'appearance' | 'wallpaper' | 'search' | 'about'
 
 interface CategoryItem {
   id: SettingsCategory
@@ -49,6 +50,7 @@ interface CategoryItem {
 const CATEGORIES: CategoryItem[] = [
   { id: 'appearance', label: 'Appearance', icon: brushSvg },
   { id: 'wallpaper', label: 'Wallpaper', icon: cameraSvg },
+  { id: 'search', label: 'Search Engine', icon: settingsSvg },
   { id: 'about', label: 'About', icon: infoSvg }
 ]
 
@@ -220,6 +222,52 @@ function WallpaperPane(): React.JSX.Element {
   )
 }
 
+// ─── Search Engine Pane ──────────────────────────────────────────────────────
+
+function SearchEnginePane(): React.JSX.Element {
+  const engineId = useSearchEngineStore((s) => s.engineId)
+  const setEngine = useSearchEngineStore((s) => s.setEngine)
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Default Search Engine</h3>
+        <p className="text-[12px] text-gray-500 dark:text-neutral-400 mb-4">
+          Choose the search engine used for address bar and new tab searches.
+        </p>
+        <div className="space-y-1.5">
+          {SEARCH_ENGINES.map((engine) => {
+            const isActive = engineId === engine.id
+            return (
+              <button
+                key={engine.id}
+                onClick={() => setEngine(engine.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 ${
+                  isActive
+                    ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-sm'
+                    : 'bg-gray-50 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-750'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-bold flex-shrink-0 ${
+                  isActive
+                    ? 'bg-white/20 dark:bg-black/20'
+                    : 'bg-gray-200 dark:bg-neutral-700'
+                }`}>
+                  {engine.icon}
+                </div>
+                <span className="text-[13px] font-medium">{engine.name}</span>
+                {isActive && (
+                  <SvgIcon svg={checkSvg} size={14} className="ml-auto" />
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── About Pane ──────────────────────────────────────────────────────────────
 
 function AboutPane(): React.JSX.Element {
@@ -246,6 +294,8 @@ function SettingsContent({ category }: { category: SettingsCategory }): React.JS
       return <AppearancePane />
     case 'wallpaper':
       return <WallpaperPane />
+    case 'search':
+      return <SearchEnginePane />
     case 'about':
       return <AboutPane />
   }

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export interface DownloadItem {
   id: string
@@ -25,8 +26,12 @@ interface DownloadState {
   showInFolder: (id: string) => void
 }
 
-export const useDownloadStore = create<DownloadState>((set, get) => ({
-  downloads: {},
+const MAX_PERSISTED_DOWNLOADS = 50
+
+export const useDownloadStore = create<DownloadState>()(
+  persist(
+    (set, get) => ({
+      downloads: {},
 
   addDownload: (item) => {
     set((state) => ({
@@ -88,4 +93,21 @@ export const useDownloadStore = create<DownloadState>((set, get) => ({
     const dl = get().downloads[id]
     if (dl) window.electronAPI.downloadAction('show-in-folder', id, dl.savePath)
   }
-}))
+    }),
+    {
+      name: 'download-history',
+      version: 1,
+      partialize: (state) => {
+        // Only persist completed/failed/cancelled downloads (not active ones)
+        // Limit to MAX_PERSISTED_DOWNLOADS most recent
+        const finished = Object.values(state.downloads)
+          .filter((d) => d.state === 'completed' || d.state === 'failed' || d.state === 'cancelled')
+          .sort((a, b) => b.startTime - a.startTime)
+          .slice(0, MAX_PERSISTED_DOWNLOADS)
+        return {
+          downloads: Object.fromEntries(finished.map((d) => [d.id, { ...d, speed: 0 }]))
+        }
+      }
+    }
+  )
+)

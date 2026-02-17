@@ -14,6 +14,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
+import { useSearchEngineStore } from '@/store/searchEngineStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
@@ -29,7 +30,7 @@ function normalizeURL(input: string): string {
   if (/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}/.test(trimmed)) {
     return `https://${trimmed}`
   }
-  return `https://www.google.com/search?q=${encodeURIComponent(trimmed)}`
+  return useSearchEngineStore.getState().getSearchUrl(trimmed)
 }
 
 function simplifyUrl(raw: string): string {

@@ -38,8 +38,12 @@ const HistoryRow = memo(function HistoryRow({
       onClick={() => onNavigate(entry.url)}
       className="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-800/60 transition-colors duration-100"
     >
-      <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
-        <SvgIcon svg={globeSvg} size={16} className="text-gray-400 dark:text-neutral-500" />
+      <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {entry.favicon ? (
+          <img src={entry.favicon} alt="" className="w-4 h-4" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+        ) : (
+          <SvgIcon svg={globeSvg} size={16} className="text-gray-400 dark:text-neutral-500" />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium text-gray-900 dark:text-white truncate">

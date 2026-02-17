@@ -7,18 +7,26 @@ import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
 import settingsSvg from '@/assets/icons/Objects/Settings.svg?raw'
 import menuPointsSvg from '@/assets/icons/Interface/Menu_Points_2.svg?raw'
+import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
+import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
+import filtrSvg from '@/assets/icons/Interface/Filtr.svg?raw'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
 const springMenu = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
 
 const menuItems = [
-  { id: 'home', label: 'Home', icon: homeSvg },
-  { id: 'bookmarks', label: 'Bookmarks', icon: bookmarkSvg },
-  { id: 'history', label: 'History', icon: counterclockwiseSvg },
-  { id: 'downloads', label: 'Downloads', icon: downloadSvg },
-  { id: 'divider', label: '', icon: null },
-  { id: 'settings', label: 'Settings', icon: settingsSvg }
+  { id: 'new-tab', label: 'New Tab', icon: plusSvg, shortcut: 'Ctrl+T' },
+  { id: 'home', label: 'Home', icon: homeSvg, shortcut: '' },
+  { id: 'divider', label: '', icon: null, shortcut: '' },
+  { id: 'find', label: 'Find in Page', icon: searchSvg, shortcut: 'Ctrl+F' },
+  { id: 'tab-overview', label: 'Tab Overview', icon: filtrSvg, shortcut: 'Ctrl+Shift+A' },
+  { id: 'divider2', label: '', icon: null, shortcut: '' },
+  { id: 'bookmarks', label: 'Bookmarks', icon: bookmarkSvg, shortcut: '' },
+  { id: 'history', label: 'History', icon: counterclockwiseSvg, shortcut: '' },
+  { id: 'downloads', label: 'Downloads', icon: downloadSvg, shortcut: '' },
+  { id: 'divider3', label: '', icon: null, shortcut: '' },
+  { id: 'settings', label: 'Settings', icon: settingsSvg, shortcut: '' }
 ] as const
 
 function AppMenuInner(): React.JSX.Element {
@@ -46,12 +54,18 @@ function AppMenuInner(): React.JSX.Element {
         useUIStore.getState().toggleSettings()
       } else if (action === 'home') {
         useTabStore.getState().addTab('browser://newtab')
+      } else if (action === 'new-tab') {
+        useTabStore.getState().addTab()
       } else if (action === 'bookmarks') {
         useUIStore.getState().toggleBookmarks()
       } else if (action === 'history') {
         useUIStore.getState().toggleHistory()
       } else if (action === 'downloads') {
         useUIStore.getState().toggleDownloads()
+      } else if (action === 'find') {
+        useUIStore.getState().toggleFindBar()
+      } else if (action === 'tab-overview') {
+        useUIStore.getState().toggleTabOverview()
       }
       handleClose()
     },
@@ -84,8 +98,8 @@ function AppMenuInner(): React.JSX.Element {
             >
               <div className="p-1">
               {menuItems.map((item, idx) => {
-                if (item.id === 'divider') {
-                  return <div key="divider" className="border-t border-gray-100 dark:border-neutral-700 my-1" />
+                if (item.id.startsWith('divider')) {
+                  return <div key={item.id} className="border-t border-gray-100 dark:border-neutral-700 my-1" />
                 }
 
                 const Icon = item.icon!
@@ -101,7 +115,12 @@ function AppMenuInner(): React.JSX.Element {
                     }}
                   >
                     <SvgIcon svg={Icon} size={16} />
-                    <span>{item.label}</span>
+                    <span className="flex-1 text-left">{item.label}</span>
+                    {item.shortcut && (
+                      <span className="text-[11px] text-gray-400 dark:text-neutral-600 font-normal ml-2">
+                        {item.shortcut}
+                      </span>
+                    )}
                   </button>
                 )
               })}

@@ -12,6 +12,10 @@ export interface Tab {
   canGoForward: boolean
   isSuspended: boolean
   loadProgress: number
+  /** URL to navigate to when webview has no back history (e.g. browser://newtab) */
+  virtualBackUrl: string | null
+  /** URL to navigate forward to when on a special page */
+  virtualForwardUrl: string | null
 }
 
 export type FocusedPanel = 'primary' | 'split'
@@ -51,6 +55,10 @@ export interface TabStore {
   reopenLastClosed: () => void
 }
 
+function isSpecialPage(url: string): boolean {
+  return url === 'browser://newtab'
+}
+
 function createTab(url: string): Tab {
   return {
     id: crypto.randomUUID(),
@@ -62,7 +70,9 @@ function createTab(url: string): Tab {
     canGoBack: false,
     canGoForward: false,
     isSuspended: false,
-    loadProgress: 0
+    loadProgress: 0,
+    virtualBackUrl: null,
+    virtualForwardUrl: null
   }
 }
 
@@ -192,12 +202,25 @@ export const useTabStore = create<TabStore>()(
             (state) => {
               const existing = state.tabs[id]
               if (!existing) return state
-              const keys = Object.keys(patch) as Array<keyof typeof patch>
+
+              // Auto-detect transitions between special pages and real pages
+              let virtualPatch: Partial<Tab> = {}
+              if (patch.url && patch.url !== existing.url && !('virtualBackUrl' in patch)) {
+                const wasSpecial = isSpecialPage(existing.url)
+                const nowSpecial = isSpecialPage(patch.url)
+                if (wasSpecial && !nowSpecial) {
+                  // Navigating from special page (e.g. newtab) to a real URL
+                  virtualPatch = { virtualBackUrl: existing.url, virtualForwardUrl: null }
+                }
+              }
+
+              const merged = { ...existing, ...virtualPatch, ...patch }
+              const keys = Object.keys({ ...patch, ...virtualPatch }) as Array<keyof Tab>
               const existingAny = existing as unknown as Record<string, unknown>
-              const changed = keys.some((k) => existingAny[k] !== patch[k])
+              const changed = keys.some((k) => existingAny[k] !== merged[k])
               if (!changed) return state
               return {
-                tabs: { ...state.tabs, [id]: { ...existing, ...patch } }
+                tabs: { ...state.tabs, [id]: merged }
               }
             },
             undefined,

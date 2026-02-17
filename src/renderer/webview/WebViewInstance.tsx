@@ -99,7 +99,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       })
       // Record to history
       const tab = useTabStore.getState().tabs[tabId]
-      if (tab) useHistoryStore.getState().recordVisit(event.url, tab.title)
+      if (tab) useHistoryStore.getState().recordVisit(event.url, tab.title, tab.favicon)
     },
     [batchUpdate, tabId]
   )

@@ -1,11 +1,25 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useUIStore } from '@/store/uiStore'
 
+const SNAP_THRESHOLD = 0.025  // Snap when within 2.5% of a snap point
+const SNAP_POINTS = [0.333, 0.5, 0.667]
+const MIN_RATIO = 0.2
+const MAX_RATIO = 0.8
+
+function snapRatio(ratio: number): number {
+  const clamped = Math.max(MIN_RATIO, Math.min(MAX_RATIO, ratio))
+  for (const snap of SNAP_POINTS) {
+    if (Math.abs(clamped - snap) < SNAP_THRESHOLD) return snap
+  }
+  return clamped
+}
+
 function SplitDividerInner(): React.JSX.Element {
   const splitRatio = useUIStore((s) => s.splitRatio)
   const setSplitRatio = useUIStore((s) => s.setSplitRatio)
   const [isDragging, setIsDragging] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [isSnapped, setIsSnapped] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -13,16 +27,24 @@ function SplitDividerInner(): React.JSX.Element {
     setIsDragging(true)
   }, [])
 
+  // Double-click to reset to 50/50
+  const handleDoubleClick = useCallback(() => {
+    setSplitRatio(0.5)
+  }, [setSplitRatio])
+
   useEffect(() => {
     if (!isDragging) return
 
     const handleMouseMove = (e: MouseEvent): void => {
-      const ratio = e.clientX / window.innerWidth
-      setSplitRatio(ratio)
+      const raw = e.clientX / window.innerWidth
+      const snapped = snapRatio(raw)
+      setIsSnapped(snapped !== Math.max(MIN_RATIO, Math.min(MAX_RATIO, raw)))
+      setSplitRatio(snapped)
     }
 
     const handleMouseUp = (): void => {
       setIsDragging(false)
+      setIsSnapped(false)
     }
 
     window.addEventListener('mousemove', handleMouseMove)
@@ -57,6 +79,7 @@ function SplitDividerInner(): React.JSX.Element {
           transition: isDragging ? undefined : 'width 150ms ease'
         }}
         onMouseDown={handleMouseDown}
+        onDoubleClick={handleDoubleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -66,9 +89,11 @@ function SplitDividerInner(): React.JSX.Element {
         style={{
           width: active ? '3px' : '1px',
           borderRadius: '2px',
-          backgroundColor: active
-            ? 'rgb(99 102 241 / 0.6)'
-            : 'rgb(156 163 175 / 0.3)'
+          backgroundColor: isSnapped
+            ? 'rgb(99 102 241 / 0.9)'
+            : active
+              ? 'rgb(99 102 241 / 0.6)'
+              : 'rgb(156 163 175 / 0.3)'
         }}
       />
       {/* Grab dots */}
