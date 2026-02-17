@@ -4,6 +4,7 @@ import { SvgIcon } from '@/components/ui/SvgIcon'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
 // ─── Favourites (Bookmarks) ──────────────────────────────────────────────────
 
@@ -232,9 +233,11 @@ function Favourites(): React.JSX.Element | null {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 function NewTabPageInner(): React.JSX.Element {
+  const newTabMode = useSettingsStore((s) => s.newTabMode)
+
   return (
     <div className="absolute inset-0 select-none">
-      <Favourites />
+      {newTabMode === 'bookmarks' && <Favourites />}
     </div>
   )
 }

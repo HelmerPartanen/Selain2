@@ -12,8 +12,7 @@ import { TabPill } from '@/components/browser/TabPill'
 import { DownloadPill } from '@/components/browser/DownloadPill'
 import { useUIStore } from '@/store/uiStore'
 import { useTabStore } from '@/store/tabStore'
-
-const IDLE_DELAY = 2500
+import { useSettingsStore } from '@/store/settingsStore'
 
 const springSnappy = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
 const springGentle = { type: 'spring' as const, stiffness: 220, damping: 24, mass: 1.0 }
@@ -25,11 +24,12 @@ function useIdleVisibility(isActive: boolean): boolean {
   const [isIdle, setIsIdle] = useState(false)
   const timerRef = useRef<number | null>(null)
   const lastActivityRef = useRef<number>(0)
+  const autoHideDelay = useSettingsStore((s) => s.autoHideDelay)
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) window.clearTimeout(timerRef.current)
-    timerRef.current = window.setTimeout(() => setIsIdle(true), IDLE_DELAY)
-  }, [])
+    timerRef.current = window.setTimeout(() => setIsIdle(true), autoHideDelay)
+  }, [autoHideDelay])
 
   useEffect(() => {
     if (isActive) {

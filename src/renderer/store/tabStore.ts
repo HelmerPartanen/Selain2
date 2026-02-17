@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
+import { useSettingsStore } from './settingsStore'
 
 export interface Tab {
   id: string
@@ -353,6 +354,16 @@ export const useTabStore = create<TabStore>()(
         }),
         onRehydrateStorage: () => (state) => {
           if (!state) return
+          // If user disabled tab restore, clear all rehydrated tabs and start fresh
+          const { restoreTabs } = useSettingsStore.getState()
+          if (!restoreTabs) {
+            state.tabs = {}
+            state.tabOrder = []
+            state.activeTabId = null
+            state.splitTabId = null
+            state.focusedPanel = 'primary'
+            return
+          }
           // Unsuspend the active tab(s) so they load immediately
           const activeTab = state.activeTabId ? state.tabs[state.activeTabId] : undefined
           if (activeTab) activeTab.isSuspended = false

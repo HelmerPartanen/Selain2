@@ -15,6 +15,10 @@ import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
 import { resolveWallpaperUrl } from '@/theme/bundledWallpapers'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { ToastContainer } from '@/components/ui/Toast'
+import { useSettingsStore } from '@/store/settingsStore'
+import { useHistoryStore } from '@/store/historyStore'
+import { useDownloadStore } from '@/store/downloadStore'
+import { useBookmarkStore } from '@/store/bookmarkStore'
 
 const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
 const BookmarksPanel = lazy(() => import('@/bookmarks/BookmarksPage').then(m => ({ default: m.BookmarksPanel })))
@@ -28,6 +32,8 @@ function BrowserLayoutInner(): React.JSX.Element {
   useKeyboardShortcuts()
   useDownloadListener()
   const wallpaper = useThemeStore((s) => s.wallpaper)
+  const uiZoom = useSettingsStore((s) => s.uiZoom)
+  const clearOnExit = useSettingsStore((s) => s.clearOnExit)
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
@@ -78,6 +84,26 @@ function BrowserLayoutInner(): React.JSX.Element {
       }
     }
   }, [wallpaperUrl, wallpaper])
+
+  // ── Apply UI zoom scale ──
+  useEffect(() => {
+    document.documentElement.style.zoom = uiZoom === 100 ? '' : `${uiZoom}%`
+    return () => { document.documentElement.style.zoom = '' }
+  }, [uiZoom])
+
+  // ── Clear browsing data on exit if enabled ──
+  useEffect(() => {
+    if (!clearOnExit) return
+    const handleBeforeUnload = (): void => {
+      useHistoryStore.getState().clearAll()
+      const dlStore = useDownloadStore.getState()
+      Object.keys(dlStore.downloads).forEach((id) => dlStore.removeDownload(id))
+      const bmStore = useBookmarkStore.getState()
+      bmStore.bookmarks.forEach((b) => bmStore.removeBookmark(b.url))
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [clearOnExit])
 
   useEffect(() => {
     const state = useTabStore.getState()

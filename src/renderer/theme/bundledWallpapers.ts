@@ -60,7 +60,7 @@ const THUMB_H = 175 // 16:10 aspect
 
 const thumbCache = new Map<string, string>()
 
-function generateThumbnail(fullUrl: string): Promise<string> {
+export function generateThumbnail(fullUrl: string): Promise<string> {
   const cached = thumbCache.get(fullUrl)
   if (cached) return Promise.resolve(cached)
 
