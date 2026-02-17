@@ -1,8 +1,9 @@
-import { memo, useCallback, useState } from 'react'
-import { Globe, MagnifyingGlass, Trash, ClockCounterClockwise } from '@phosphor-icons/react'
+import { memo, useCallback, useEffect, useState } from 'react'
+import { motion } from 'motion/react'
+import { Globe, MagnifyingGlass, Trash, ClockCounterClockwise, X } from '@phosphor-icons/react'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useTabStore } from '@/store/tabStore'
-import { InternalPageLayout } from '@/components/layout/InternalPageLayout'
+import { useUIStore } from '@/store/uiStore'
 
 function simplifyUrl(raw: string): string {
   try {
@@ -60,7 +61,8 @@ const HistoryRow = memo(function HistoryRow({
   )
 })
 
-function HistoryPageInner(): React.JSX.Element {
+function HistoryPanelInner(): React.JSX.Element {
+  const closeHistory = useUIStore((s) => s.closeHistory)
   const entries = useHistoryStore((s) => s.entries)
   const getGrouped = useHistoryStore((s) => s.getGrouped)
   const searchFn = useHistoryStore((s) => s.search)
@@ -71,13 +73,22 @@ function HistoryPageInner(): React.JSX.Element {
   const grouped = getGrouped()
   const searchResults = query.length >= 2 ? searchFn(query) : null
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') closeHistory()
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [closeHistory])
+
   const handleNavigate = useCallback((url: string) => {
     const store = useTabStore.getState()
     const activeId = store.activeTabId
     if (activeId) {
       store.updateTab(activeId, { url })
     }
-  }, [])
+    closeHistory()
+  }, [closeHistory])
 
   const handleRemove = useCallback((url: string) => {
     removeEntry(url)
@@ -93,64 +104,107 @@ function HistoryPageInner(): React.JSX.Element {
   ) : undefined
 
   return (
-    <InternalPageLayout title="History" actions={clearButton}>
-      {entries.length > 0 && (
-        <div className="relative mb-6">
-          <MagnifyingGlass size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" weight="regular" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search history..."
-            className="w-full h-9 pl-9 pr-3 rounded-lg bg-gray-100 dark:bg-neutral-800 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-colors duration-150"
-          />
-        </div>
-      )}
+    <>
+      {/* Backdrop */}
+      <motion.div
+        className="fixed inset-0 z-[80] bg-black/30 dark:bg-black/50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
+        onMouseDown={closeHistory}
+      />
 
-      {entries.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
-          <ClockCounterClockwise size={40} weight="regular" className="mb-3 opacity-50" />
-          <p className="text-sm">No history yet</p>
-          <p className="text-xs mt-1 opacity-70">Pages you visit will appear here</p>
-        </div>
-      ) : searchResults ? (
-        <div className="space-y-0.5">
-          {searchResults.length === 0 ? (
-            <p className="text-center text-sm text-gray-400 dark:text-neutral-600 py-8">No results</p>
-          ) : (
-            searchResults.map((entry) => (
-              <HistoryRow
-                key={entry.url}
-                entry={entry}
-                onNavigate={handleNavigate}
-                onRemove={handleRemove}
-              />
-            ))
-          )}
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {grouped.map((group) => (
-            <div key={group.label}>
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-600 mb-2 px-3">
-                {group.label}
-              </h2>
-              <div className="space-y-0.5">
-                {group.entries.map((entry) => (
-                  <HistoryRow
-                    key={`${entry.url}-${entry.timestamp}`}
-                    entry={entry}
-                    onNavigate={handleNavigate}
-                    onRemove={handleRemove}
-                  />
-                ))}
+      {/* Panel */}
+      <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
+        <motion.div
+          className="w-[560px] h-[520px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto flex flex-col"
+          style={{ transformOrigin: '50% 100%', perspective: 800 }}
+          initial={{ y: 220, scaleX: 0.3, scaleY: 0.06, opacity: 0, rotateX: -15 }}
+          animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
+          exit={{ y: 180, scaleX: 0.35, scaleY: 0.06, opacity: 0, rotateX: -10 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+        >
+          <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
+            <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <ClockCounterClockwise size={16} weight="bold" />
+              History
+            </h2>
+            <div className="flex items-center gap-2">
+              {clearButton}
+              <button
+                onClick={closeHistory}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
+              >
+                <X size={13} weight="bold" />
+              </button>
+            </div>
+          </div>
+
+          {entries.length > 0 && (
+            <div className="px-6 pt-4 pb-2 flex-shrink-0">
+              <div className="relative">
+                <MagnifyingGlass size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" weight="regular" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search history..."
+                  autoFocus
+                  className="w-full h-9 pl-9 pr-3 rounded-lg bg-gray-100 dark:bg-neutral-800 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-colors duration-150"
+                />
               </div>
             </div>
-          ))}
-        </div>
-      )}
-    </InternalPageLayout>
+          )}
+
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
+            {entries.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-neutral-600">
+                <ClockCounterClockwise size={40} weight="regular" className="mb-3 opacity-50" />
+                <p className="text-sm">No history yet</p>
+                <p className="text-xs mt-1 opacity-70">Pages you visit will appear here</p>
+              </div>
+            ) : searchResults ? (
+              <div className="space-y-0.5">
+                {searchResults.length === 0 ? (
+                  <p className="text-center text-sm text-gray-400 dark:text-neutral-600 py-8">No results</p>
+                ) : (
+                  searchResults.map((entry) => (
+                    <HistoryRow
+                      key={entry.url}
+                      entry={entry}
+                      onNavigate={handleNavigate}
+                      onRemove={handleRemove}
+                    />
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {grouped.map((group) => (
+                  <div key={group.label}>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-600 mb-2 px-3">
+                      {group.label}
+                    </h2>
+                    <div className="space-y-0.5">
+                      {group.entries.map((entry) => (
+                        <HistoryRow
+                          key={`${entry.url}-${entry.timestamp}`}
+                          entry={entry}
+                          onNavigate={handleNavigate}
+                          onRemove={handleRemove}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </>
   )
 }
 
-export const HistoryPage = memo(HistoryPageInner)
+export const HistoryPanel = memo(HistoryPanelInner)

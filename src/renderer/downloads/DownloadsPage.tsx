@@ -1,7 +1,8 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useEffect } from 'react'
+import { motion } from 'motion/react'
 import { DownloadSimple, FolderOpen, X, Check, Warning, Pause, Play } from '@phosphor-icons/react'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
-import { InternalPageLayout } from '@/components/layout/InternalPageLayout'
+import { useUIStore } from '@/store/uiStore'
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
@@ -132,30 +133,68 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
   )
 })
 
-function DownloadsPageInner(): React.JSX.Element {
+function DownloadsPanelInner(): React.JSX.Element {
   const downloads = useDownloadStore((s) => s.downloads)
-  const items = useMemo(() =>
-    Object.values(downloads).sort((a, b) => b.startTime - a.startTime),
-    [downloads]
-  )
+  const items = useMemo(() => Object.values(downloads).sort((a, b) => b.startTime - a.startTime), [downloads])
+  const closeDownloads = useUIStore((s) => s.closeDownloads)
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') closeDownloads() }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [closeDownloads])
 
   return (
-    <InternalPageLayout title="Downloads">
-      {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
-          <DownloadSimple size={40} weight="regular" className="mb-3 opacity-50" />
-          <p className="text-sm">No downloads</p>
-          <p className="text-xs mt-1 opacity-70">Downloads from this session will appear here</p>
-        </div>
-      ) : (
-        <div className="space-y-0.5">
-          {items.map((item) => (
-            <DownloadRow key={item.id} item={item} />
-          ))}
-        </div>
-      )}
-    </InternalPageLayout>
+    <>
+      <motion.div
+        className="fixed inset-0 z-[80] bg-black/30 dark:bg-black/50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.12 }}
+        onMouseDown={closeDownloads}
+      />
+      <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
+        <motion.div
+          className="w-[520px] h-[440px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto flex flex-col"
+          style={{ transformOrigin: '50% 100%', perspective: 800 }}
+          initial={{ y: 220, scaleX: 0.3, scaleY: 0.06, opacity: 0, rotateX: -15 }}
+          animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
+          exit={{ y: 180, scaleX: 0.35, scaleY: 0.06, opacity: 0, rotateX: -10 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+        >
+          <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
+            <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <DownloadSimple size={16} weight="bold" />
+              Downloads
+            </h2>
+            <button
+              onClick={closeDownloads}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
+            >
+              <X size={13} weight="bold" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 py-3 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
+            {items.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
+                <DownloadSimple size={40} weight="regular" className="mb-3 opacity-50" />
+                <p className="text-sm">No downloads</p>
+                <p className="text-xs mt-1 opacity-70">Downloads from this session will appear here</p>
+              </div>
+            ) : (
+              <div className="space-y-0.5">
+                {items.map((item) => (
+                  <DownloadRow key={item.id} item={item} />
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </>
   )
 }
 
-export const DownloadsPage = memo(DownloadsPageInner)
+export const DownloadsPanel = memo(DownloadsPanelInner)

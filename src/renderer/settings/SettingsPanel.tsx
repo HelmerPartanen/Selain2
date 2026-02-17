@@ -262,7 +262,7 @@ function Sidebar({
   onSelect: (id: SettingsCategory) => void
 }): React.JSX.Element {
   return (
-    <nav className="flex flex-col gap-0.5">
+    <nav className="flex flex-col gap-1">
       {CATEGORIES.map(({ id, label, icon: Icon }) => {
         const isActive = activeCategory === id
         return (
@@ -317,7 +317,7 @@ function SettingsPanelInner(): React.JSX.Element {
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
         <motion.div
           ref={panelRef}
-          className="w-[640px] h-[440px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
+          className="w-[640px] h-[440px] rounded-2xl overflow-hidden backdrop-blur-md bg-white/50 dark:bg-neutral-900/50 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
           style={{ transformOrigin: '50% 100%', perspective: 800 }}
           initial={{ y: 220, scaleX: 0.3, scaleY: 0.06, opacity: 0, rotateX: -15 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
@@ -326,10 +326,9 @@ function SettingsPanelInner(): React.JSX.Element {
         >
         <div className="flex h-full">
           {/* ─── Sidebar ─── */}
-          <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/60 border-r border-gray-200 dark:border-neutral-700 flex flex-col">
+          <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/80 border-r border-gray-200 dark:border-neutral-700 flex flex-col">
             <div className="px-4 pt-5 pb-3">
-              <h2 className="text-[13px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-                <GearSix size={16} weight="bold" />
+              <h2 className="text-[13px] font-bold text-gray-900 dark:text-white tracking-relaxed flex items-center gap-2">
                 Settings
               </h2>
             </div>
@@ -339,7 +338,7 @@ function SettingsPanelInner(): React.JSX.Element {
           </div>
 
           {/* ─── Content ─── */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
             <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800">
               <h3 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight">
                 {categoryLabel}

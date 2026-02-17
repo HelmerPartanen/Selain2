@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { DownloadSimple, Check, Pause, Play, X, FolderOpen } from '@phosphor-icons/react'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useTabStore } from '@/store/tabStore'
+import { useUIStore } from '@/store/uiStore'
 
 const springExpand = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.9 }
 const springDropdown = { type: 'spring' as const, stiffness: 420, damping: 26, mass: 0.7 }
@@ -155,7 +156,7 @@ function DownloadPillInner(): React.JSX.Element | null {
   }, [hasItems, hasActive, items])
 
   const handleOpenPage = useCallback(() => {
-    useTabStore.getState().addTab('browser://downloads')
+    useUIStore.getState().toggleDownloads()
     setIsOpen(false)
   }, [])
 

@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { House, Gear, BookmarkSimple, ClockCounterClockwise, DotsThreeVerticalIcon  } from '@phosphor-icons/react'
+import { House, Gear, BookmarkSimple, ClockCounterClockwise, DownloadSimple, DotsThreeVerticalIcon  } from '@phosphor-icons/react'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
@@ -10,6 +10,7 @@ const menuItems = [
   { id: 'home', label: 'Home', icon: House },
   { id: 'bookmarks', label: 'Bookmarks', icon: BookmarkSimple },
   { id: 'history', label: 'History', icon: ClockCounterClockwise },
+  { id: 'downloads', label: 'Downloads', icon: DownloadSimple },
   { id: 'divider', label: '', icon: null },
   { id: 'settings', label: 'Settings', icon: Gear }
 ] as const
@@ -42,7 +43,9 @@ function AppMenuInner(): React.JSX.Element {
       } else if (action === 'bookmarks') {
         useUIStore.getState().toggleBookmarks()
       } else if (action === 'history') {
-        useTabStore.getState().addTab('browser://history')
+        useUIStore.getState().toggleHistory()
+      } else if (action === 'downloads') {
+        useUIStore.getState().toggleDownloads()
       }
       handleClose()
     },

@@ -15,6 +15,8 @@ import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
 
 const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
 const BookmarksPanel = lazy(() => import('@/bookmarks/BookmarksPage').then(m => ({ default: m.BookmarksPanel })))
+const HistoryPanel = lazy(() => import('@/history/HistoryPage').then(m => ({ default: m.HistoryPanel })))
+const DownloadsPanel = lazy(() => import('@/downloads/DownloadsPage').then(m => ({ default: m.DownloadsPanel })))
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
@@ -26,6 +28,8 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
   const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen)
   const isFindBarOpen = useUIStore((s) => s.isFindBarOpen)
+  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen)
+  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen)
   const isSplitView = useTabStore((s) => s.splitTabId !== null)
   const closeDropdown = useUIStore((s) => s.setDropdownOpen)
   const closeMenu = useUIStore((s) => s.setMenuOpen)
@@ -133,6 +137,24 @@ function BrowserLayoutInner(): React.JSX.Element {
       {isBookmarksOpen && (
         <Suspense fallback={null}>
           <BookmarksPanel />
+        </Suspense>
+      )}
+    </AnimatePresence>
+
+    {/* History panel */}
+    <AnimatePresence>
+      {isHistoryOpen && (
+        <Suspense fallback={null}>
+          <HistoryPanel />
+        </Suspense>
+      )}
+    </AnimatePresence>
+
+    {/* Downloads panel */}
+    <AnimatePresence>
+      {isDownloadsOpen && (
+        <Suspense fallback={null}>
+          <DownloadsPanel />
         </Suspense>
       )}
     </AnimatePresence>

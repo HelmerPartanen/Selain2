@@ -65,6 +65,8 @@ function FloatingControlsInner(): React.JSX.Element {
   const [isInputFocused, setIsInputFocused] = useState(false)
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
   const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen)
+  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen)
+  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen)
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
 
@@ -73,7 +75,7 @@ function FloatingControlsInner(): React.JSX.Element {
   const isSplit = useIsSplitView()
   const focusedPanel = useTabStore((s) => s.focusedPanel)
 
-  const isActive = isHovered || isInputFocused || isSettingsOpen || isBookmarksOpen || isDropdownOpen || isMenuOpen
+  const isActive = isHovered || isInputFocused || isSettingsOpen || isBookmarksOpen || isHistoryOpen || isDownloadsOpen || isDropdownOpen || isMenuOpen
   const isIdle = useIdleVisibility(isActive)
 
   // Close all popups when UI goes idle
@@ -84,6 +86,8 @@ function FloatingControlsInner(): React.JSX.Element {
       if (store.isMenuOpen) store.setMenuOpen(false)
       if (store.isSettingsOpen) store.closeSettings()
       if (store.isBookmarksOpen) store.closeBookmarks()
+      if (store.isHistoryOpen) store.closeHistory()
+      if (store.isDownloadsOpen) store.closeDownloads()
     }
   }, [isIdle])
 
