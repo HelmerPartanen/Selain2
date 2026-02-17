@@ -23,6 +23,27 @@ import { BUNDLED_WALLPAPERS, generateAllThumbnails } from '@/theme/bundledWallpa
 
 const springPanel = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
 
+// Start thumbnail generation eagerly at module load (not on mount)
+let _thumbPromise: Promise<Map<string, string>> | null = null
+function getThumbnails(): Promise<Map<string, string>> {
+  if (!_thumbPromise) _thumbPromise = generateAllThumbnails()
+  return _thumbPromise
+}
+
+// Pre-compute static styles for gradient preset buttons (avoid allocations per render)
+const ACTIVE_BORDER = '2.5px solid #6366f1'
+const INACTIVE_BORDER = '1px solid rgba(128,128,128,0.2)'
+const ACTIVE_SHADOW = '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)'
+const INACTIVE_SHADOW = '0 1px 3px rgba(0,0,0,0.06)'
+
+const gradientBaseStyles: React.CSSProperties[] = WALLPAPER_PRESETS.map((preset) => ({
+  backgroundImage: `url(${preset.dataUrl})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+}))
+
+const solidBaseColors: string[] = SOLID_COLOR_PRESETS.map((c) => c.hex)
+
 function solidToDataUrl(hex: string): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="${hex}"/></svg>`
   return `data:image/svg+xml;base64,${btoa(svg)}`
@@ -75,7 +96,7 @@ function AppearancePane(): React.JSX.Element {
               <button
                 key={mode}
                 onClick={() => setThemeMode(mode)}
-                className={`flex-1 flex flex-col items-center gap-2.5 p-4 rounded-2xl transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] ${
+                className={`flex-1 flex flex-col items-center gap-2.5 p-4 rounded-2xl transition-[background-color,color,box-shadow,border-color,transform] duration-150 hover:scale-[1.02] active:scale-[0.98] ${
                   isActive
                     ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-lg'
                     : 'bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-750'
@@ -101,7 +122,7 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
 
   useEffect(() => {
     let cancelled = false
-    generateAllThumbnails().then((map) => {
+    getThumbnails().then((map) => {
       if (!cancelled) setThumbnails(map)
     })
     return () => { cancelled = true }
@@ -138,24 +159,20 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
           </span>
         </div>
         <div className="flex gap-2.5 overflow-x-auto p-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
-          {BUNDLED_WALLPAPERS.map((wp, i) => {
+          {BUNDLED_WALLPAPERS.map((wp) => {
             const isActive = wallpaper === wp.storageKey
             const thumbUrl = thumbnails.get(wp.url) ?? wp.url
             return (
               <button
                 key={wp.filename}
                 onClick={() => handleSelectPreset(wp.storageKey)}
-                className="relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
+                className="relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-[border,box-shadow] duration-150 active:scale-[0.97]"
                 style={{
                   backgroundImage: `url(${thumbUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
-                  boxShadow: isActive
-                    ? '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)'
-                    : '0 1px 3px rgba(0,0,0,0.06)',
-                  opacity: 0,
-                  animation: `menu-item-in 150ms ease-out ${i * 25}ms forwards`
+                  border: isActive ? ACTIVE_BORDER : INACTIVE_BORDER,
+                  boxShadow: isActive ? ACTIVE_SHADOW : INACTIVE_SHADOW,
                 }}
               >
                 {isActive && (
@@ -186,17 +203,11 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset.dataUrl)}
                 title={preset.name}
-                className="relative aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
+                className="relative aspect-[16/10] rounded-xl overflow-hidden transition-[border,box-shadow] duration-150 active:scale-[0.97]"
                 style={{
-                  backgroundImage: `url(${preset.dataUrl})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
-                  boxShadow: isActive
-                    ? '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)'
-                    : '0 1px 3px rgba(0,0,0,0.06)',
-                  opacity: 0,
-                  animation: `menu-item-in 150ms ease-out ${i * 25}ms forwards`
+                  ...gradientBaseStyles[i],
+                  border: isActive ? ACTIVE_BORDER : INACTIVE_BORDER,
+                  boxShadow: isActive ? ACTIVE_SHADOW : INACTIVE_SHADOW,
                 }}
               >
                 {isActive && (
@@ -227,15 +238,11 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
                 key={color.hex}
                 onClick={() => handleSelectSolid(color.hex)}
                 title={color.name}
-                className="relative aspect-square rounded-full overflow-hidden transition-all duration-150 active:scale-[0.97]"
+                className="relative aspect-square rounded-full overflow-hidden transition-[border,box-shadow] duration-150 active:scale-[0.97]"
                 style={{
-                  backgroundColor: color.hex,
-                  border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
-                  boxShadow: isActive
-                    ? '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)'
-                    : '0 1px 3px rgba(0,0,0,0.06)',
-                  opacity: 0,
-                  animation: `menu-item-in 150ms ease-out ${i * 15}ms forwards`
+                  backgroundColor: solidBaseColors[i],
+                  border: isActive ? ACTIVE_BORDER : INACTIVE_BORDER,
+                  boxShadow: isActive ? ACTIVE_SHADOW : INACTIVE_SHADOW,
                 }}
               >
                 {isActive && (
@@ -255,14 +262,14 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
       <div className="flex gap-2.5">
         <button
           onClick={handleCustomImage}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 dark:text-neutral-300 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 transition-all duration-150 hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 dark:text-neutral-300 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 transition-[background-color,color,transform] duration-150 hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
         >
           <SvgIcon svg={uploadSvg} size={14} />
           Upload Image
         </button>
         <button
           onClick={handleClear}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/15 border border-red-100 dark:border-red-800/30 transition-all duration-150 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/15 border border-red-100 dark:border-red-800/30 transition-[background-color,color,transform] duration-150 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 active:scale-[0.97]"
         >
           <SvgIcon svg={trashSvg} size={14} />
           Remove
@@ -292,7 +299,7 @@ const SearchEnginePane = memo(function SearchEnginePane(): React.JSX.Element {
               <button
                 key={engine.id}
                 onClick={() => setEngine(engine.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-[background-color,color,box-shadow,border-color] duration-150 ${
                   isActive
                     ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-sm'
                     : 'bg-gray-50 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-750'
@@ -368,7 +375,7 @@ function Sidebar({
           <button
             key={id}
             onClick={() => onSelect(id)}
-            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-100 ${
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-[background-color,color,box-shadow] duration-100 ${
               isActive
                 ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-sm'
                 : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
@@ -416,7 +423,7 @@ function SettingsPanelInner(): React.JSX.Element {
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
         <motion.div
           ref={panelRef}
-          className="w-[640px] h-[440px] rounded-2xl overflow-hidden backdrop-blur-md bg-white/50 dark:bg-neutral-900/50 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
+          className="w-[640px] h-[440px] rounded-2xl overflow-hidden bg-white/95 dark:bg-neutral-900/95 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
           style={{ transformOrigin: '50% 100%', perspective: 800 }}
           initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
@@ -425,7 +432,7 @@ function SettingsPanelInner(): React.JSX.Element {
         >
         <div className="flex h-full">
           {/* ─── Sidebar ─── */}
-          <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/80 border-r border-gray-200 dark:border-neutral-700 flex flex-col">
+          <div className="w-[180px] flex-shrink-0 bg-neutral-200 dark:bg-neutral-800 border-r border-gray-300 dark:border-neutral-700 flex flex-col">
             <div className="px-4 pt-5 pb-3">
               <h2 className="text-[13px] font-bold text-gray-900 dark:text-white tracking-relaxed flex items-center gap-2">
                 Settings
