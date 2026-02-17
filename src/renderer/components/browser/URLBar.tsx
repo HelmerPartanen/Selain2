@@ -226,18 +226,20 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           className={`absolute inset-0 rounded-full pointer-events-none transition-opacity duration-200 ease-out ring-[2.5px] ring-blue-500/35 ${isFocused ? 'opacity-100' : 'opacity-0'}`}
         />
         <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={isLoading ? 'stop' : 'reload'}
-              initial={{ scale: 0.4, opacity: 0, rotate: -120 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0.4, opacity: 0, rotate: 120 }}
-              transition={springIcon}
-              className="flex items-center justify-center"
-            >
-              {isLoading ? <SvgIcon svg={closeSvg} size={15} /> : <SvgIcon svg={roundArrowsSvg} size={15} />}
-            </motion.span>
-          </AnimatePresence>
+          <div className="relative flex items-center justify-center w-[15px] h-[15px]">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={isLoading ? 'stop' : 'reload'}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
+                transition={springIcon}
+                className="flex items-center justify-center"
+              >
+                {isLoading ? <SvgIcon svg={closeSvg} size={15} /> : <SvgIcon svg={roundArrowsSvg} size={15} />}
+              </motion.span>
+            </AnimatePresence>
+          </div>
         </Button>
 
         <div className="relative flex-1 min-w-0 flex items-center h-full">
