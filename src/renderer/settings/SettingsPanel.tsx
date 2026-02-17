@@ -209,14 +209,14 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <motion.div
         ref={panelRef}
-        className="absolute bottom-full mb-3 left-0 z-[85] w-[400px] max-h-[65vh] overflow-y-auto overflow-x-hidden rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl [&::-webkit-scrollbar]:w-1"
+        className="absolute bottom-full mb-3 left-0 z-[85] w-[400px] max-h-[65vh] overflow-y-auto overflow-x-hidden rounded-2xl bg-white shadow-2xl [&::-webkit-scrollbar]:w-1"
         style={{ originX: 0, originY: 1 }}
         initial={{ scale: 0.8, opacity: 0, y: 24 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.88, opacity: 0, y: 16 }}
         transition={springPanel}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-2 bg-white/60 backdrop-blur-md">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-4 pb-2 bg-white">
           <h2 className="text-[15px] font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>Settings</h2>
           <motion.button
             onClick={closeSettings}

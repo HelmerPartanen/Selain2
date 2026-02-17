@@ -1,5 +1,6 @@
 import { memo, useEffect } from 'react'
 import { FloatingControls } from '@/components/layout/FloatingControls'
+import { WindowControls } from '@/components/layout/WindowControls'
 import { WebViewManager } from '@/webview/WebViewManager'
 import { useLRUTabManager } from '@/webview/useLRUTabManager'
 import { useTabStore } from '@/store/tabStore'
@@ -40,6 +41,9 @@ function BrowserLayoutInner(): React.JSX.Element {
 
     {/* Floating controls overlay */}
     <FloatingControls />
+
+    {/* Window controls */}
+    <WindowControls />
   </div>
 )
 }

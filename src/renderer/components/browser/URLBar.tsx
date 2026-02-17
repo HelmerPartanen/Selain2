@@ -97,7 +97,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   return (
     <motion.div
-      className="flex items-center rounded-full h-10 px-2 gap-1 bg-white/70 backdrop-blur-md shadow-lg"
+      className="flex items-center rounded-full h-10 px-2 gap-1 bg-white shadow-lg"
       animate={{
         width: isFocused ? 500 : 360,
         boxShadow: isFocused

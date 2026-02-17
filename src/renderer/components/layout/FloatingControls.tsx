@@ -85,7 +85,7 @@ function FloatingControlsInner(): React.JSX.Element {
           ? { x: '-50%', y: 10, scale: 0.96, opacity: 0, filter: 'blur(2px)' }
           : { x: '-50%', y: 0, scale: 1, opacity: 1, filter: 'blur(0px)' }
       }
-      whileHover={!isIdle ? { y: -2 } : undefined}
+      whileHover={undefined}
       transition={isIdle ? springGentle : springSnappy}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -97,7 +97,7 @@ function FloatingControlsInner(): React.JSX.Element {
       <motion.div className="flex items-center gap-1.5" layout transition={springSnappy}>
         {/* Nav Pod */}
         <motion.div
-          className="rounded-full h-10 flex items-center px-1 bg-white/70 backdrop-blur-md shadow-lg"
+          className="rounded-full h-10 flex items-center px-1 bg-white shadow-lg"
           layout
           transition={springSnappy}
         >

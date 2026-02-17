@@ -60,7 +60,7 @@ function AppMenuInner(): React.JSX.Element {
             <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden bg-white/80 backdrop-blur-xl shadow-xl"
+              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden bg-white shadow-xl"
               style={{ originX: 0.5, originY: 1, x: '-50%' }}
               initial={{ scale: 0.85, opacity: 0, y: 12 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}

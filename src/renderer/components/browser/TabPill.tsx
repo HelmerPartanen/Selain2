@@ -123,7 +123,7 @@ function TabPillInner(): React.JSX.Element {
             <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white/80 backdrop-blur-xl shadow-xl"
+              className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] p-1 bg-white shadow-xl"
               style={{ originX: 1, originY: 1 }}
               initial={{ scale: 0.85, opacity: 0, y: 12 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -151,7 +151,7 @@ function TabPillInner(): React.JSX.Element {
       <div
         className={`
           flex items-center justify-center
-          bg-white/70 backdrop-blur-md shadow-lg
+          bg-white shadow-lg
           rounded-full h-10
           ${tabCount > 1 ? 'px-1 gap-0.5' : ''}
         `}
