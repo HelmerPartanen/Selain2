@@ -18,6 +18,12 @@ import { useUIStore } from '@/store/uiStore'
 import { useSearchEngineStore, SEARCH_ENGINES } from '@/store/searchEngineStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
 
+// ─── Bundled Wallpapers ──────────────────────────────────────────────────────
+
+const wallpaperImages = Object.values(
+  import.meta.glob<{ default: string }>('@/assets/wallpapers/*.{jpg,jpeg,png,webp}', { eager: true })
+).map((mod) => mod.default)
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const springPanel = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
@@ -129,7 +135,35 @@ function WallpaperPane(): React.JSX.Element {
           </span>
         </div>
         <div className="flex gap-2.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
-          {/* Add default wallpaper items here */}
+          {wallpaperImages.map((src, i) => {
+            const isActive = wallpaper === src
+            return (
+              <button
+                key={src}
+                onClick={() => handleSelectPreset(src)}
+                className="relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
+                style={{
+                  backgroundImage: `url(${src})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
+                  boxShadow: isActive
+                    ? '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)'
+                    : '0 1px 3px rgba(0,0,0,0.06)',
+                  opacity: 0,
+                  animation: `menu-item-in 150ms ease-out ${i * 25}ms forwards`
+                }}
+              >
+                {isActive && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90 shadow-md">
+                      <SvgIcon svg={checkSvg} size={11} className="text-indigo-500" />
+                    </div>
+                  </div>
+                )}
+              </button>
+            )
+          })}
         </div>
       </div>
 
