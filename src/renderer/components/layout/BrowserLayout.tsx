@@ -1,4 +1,5 @@
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { lazy, memo, Suspense, useEffect, useMemo, useRef } from 'react'
+import { AnimatePresence } from 'motion/react'
 import { FloatingControls } from '@/components/layout/FloatingControls'
 import { WindowControls } from '@/components/layout/WindowControls'
 import { WebViewManager } from '@/webview/WebViewManager'
@@ -8,11 +9,14 @@ import { useThemeStore } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
 
+const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
+
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
   const wallpaper = useThemeStore((s) => s.wallpaper)
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
+  const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
   const closeDropdown = useUIStore((s) => s.setDropdownOpen)
   const closeMenu = useUIStore((s) => s.setMenuOpen)
 
@@ -96,6 +100,15 @@ function BrowserLayoutInner(): React.JSX.Element {
 
     {/* Window controls */}
     <WindowControls />
+
+    {/* Settings modal — rendered at root level to escape FloatingControls transform */}
+    <AnimatePresence>
+      {isSettingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsPanel />
+        </Suspense>
+      )}
+    </AnimatePresence>
   </div>
 )
 }

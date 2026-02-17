@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { useActiveTabId, useActiveTabNavState } from '@/hooks/useTabSelector'
@@ -8,9 +8,6 @@ import { AppMenu } from '@/components/layout/AppMenu'
 import { TabPill } from '@/components/browser/TabPill'
 import { Button } from '@/components/ui/Button'
 import { useUIStore } from '@/store/uiStore'
-
-// Lazy-load SettingsPanel — only needed on user interaction
-const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
 
 const IDLE_DELAY = 2500
 
@@ -112,14 +109,6 @@ function FloatingControlsInner(): React.JSX.Element {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <AnimatePresence>
-        {isSettingsOpen && (
-          <Suspense fallback={null}>
-            <SettingsPanel />
-          </Suspense>
-        )}
-      </AnimatePresence>
-
       <div className="flex items-center gap-1.5">
         {/* Nav Pod */}
         <div
