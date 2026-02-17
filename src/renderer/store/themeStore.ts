@@ -5,6 +5,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { saveWallpaper, loadWallpaper } from './wallpaperDB'
+import { toStorageKey, fromStorageKey } from '@/theme/bundledWallpapers'
 
 export type ThemeMode = 'dark' | 'light' | 'system'
 
@@ -41,11 +42,13 @@ export const useThemeStore = create<ThemeStore>()(
         },
         setWallpaper: (wallpaper: string | null) => {
           set({ wallpaper })
-          // Persist to IndexedDB asynchronously (fire-and-forget)
-          saveWallpaper(wallpaper)
+          // Persist to disk — convert bundled asset URLs to stable identifiers
+          saveWallpaper(wallpaper ? toStorageKey(wallpaper) : null)
         },
         hydrateWallpaper: async () => {
-          const wallpaper = await loadWallpaper()
+          const stored = await loadWallpaper()
+          // Resolve bundled identifiers back to current Vite asset URLs
+          const wallpaper = stored ? fromStorageKey(stored) : null
           set({ wallpaper, wallpaperLoaded: true })
         }
       }),

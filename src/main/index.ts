@@ -492,8 +492,11 @@ function setupIPC(): void {
       if (dataUrl === null) {
         if (existsSync(wallpaperPath)) await unlink(wallpaperPath)
       } else {
-        if (typeof dataUrl !== 'string' || (!dataUrl.startsWith('data:image/') && dataUrl.length > 0)) {
-          console.warn('Invalid wallpaper data: not a data URL')
+        if (
+          typeof dataUrl !== 'string' ||
+          (!dataUrl.startsWith('data:image/') && !dataUrl.startsWith('bundled:') && dataUrl.length > 0)
+        ) {
+          console.warn('Invalid wallpaper data: not a data URL or bundled identifier')
           return false
         }
         await writeFile(wallpaperPath, dataUrl, 'utf-8')

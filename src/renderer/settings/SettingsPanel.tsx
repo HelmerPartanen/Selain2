@@ -17,12 +17,7 @@ import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSearchEngineStore, SEARCH_ENGINES } from '@/store/searchEngineStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
-
-// ─── Bundled Wallpapers ──────────────────────────────────────────────────────
-
-const wallpaperImages = Object.values(
-  import.meta.glob<{ default: string }>('@/assets/wallpapers/*.{jpg,jpeg,png,webp}', { eager: true })
-).map((mod) => mod.default)
+import { BUNDLED_WALLPAPERS } from '@/theme/bundledWallpapers'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -135,15 +130,15 @@ function WallpaperPane(): React.JSX.Element {
           </span>
         </div>
         <div className="flex gap-2.5 overflow-x-auto pb-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
-          {wallpaperImages.map((src, i) => {
-            const isActive = wallpaper === src
+          {BUNDLED_WALLPAPERS.map((wp, i) => {
+            const isActive = wallpaper === wp.url
             return (
               <button
-                key={src}
-                onClick={() => handleSelectPreset(src)}
+                key={wp.filename}
+                onClick={() => handleSelectPreset(wp.url)}
                 className="relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
                 style={{
-                  backgroundImage: `url(${src})`,
+                  backgroundImage: `url(${wp.url})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
