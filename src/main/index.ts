@@ -95,7 +95,7 @@ function createWindow(): void {
 
     const isShortcut =
       (ctrl && !shift && (key === 't' || key === 'w' || key === 'l' || key === 'f' || key === 'r')) ||
-      (ctrl && shift && (key === 't' || key === 's')) ||
+      (ctrl && shift && (key === 't' || key === 's' || key === 'a')) ||
       (ctrl && key === 'tab') ||
       (ctrl && !shift && /^[1-9]$/.test(input.key)) ||
       (!ctrl && key === 'f5') ||

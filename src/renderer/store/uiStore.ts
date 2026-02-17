@@ -5,6 +5,7 @@ interface UIState {
   isBookmarksOpen: boolean
   isHistoryOpen: boolean
   isDownloadsOpen: boolean
+  isTabOverviewOpen: boolean
   isDropdownOpen: boolean
   isMenuOpen: boolean
   isFindBarOpen: boolean
@@ -19,6 +20,8 @@ interface UIState {
   closeHistory: () => void
   toggleDownloads: () => void
   closeDownloads: () => void
+  toggleTabOverview: () => void
+  closeTabOverview: () => void
   setDropdownOpen: (open: boolean) => void
   setMenuOpen: (open: boolean) => void
   openFindBar: () => void
@@ -34,6 +37,7 @@ export const useUIStore = create<UIState>((set) => ({
   isBookmarksOpen: false,
   isHistoryOpen: false,
   isDownloadsOpen: false,
+  isTabOverviewOpen: false,
   isDropdownOpen: false,
   isMenuOpen: false,
   isFindBarOpen: false,
@@ -47,6 +51,8 @@ export const useUIStore = create<UIState>((set) => ({
   closeHistory: () => set({ isHistoryOpen: false }),
   toggleDownloads: () => set((s) => ({ isDownloadsOpen: !s.isDownloadsOpen })),
   closeDownloads: () => set({ isDownloadsOpen: false }),
+  toggleTabOverview: () => set((s) => ({ isTabOverviewOpen: !s.isTabOverviewOpen })),
+  closeTabOverview: () => set({ isTabOverviewOpen: false }),
   setDropdownOpen: (open) => set({ isDropdownOpen: open }),
   setMenuOpen: (open) => set({ isMenuOpen: open }),
   openFindBar: () => set({ isFindBarOpen: true }),

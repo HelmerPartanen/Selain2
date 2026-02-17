@@ -91,3 +91,20 @@ body,
 .split-panel {
   contain: strict;
 }
+
+/* Tab overview card entry — GPU-accelerated CSS stagger animation */
+@keyframes tab-overview-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tab-overview-card {
+  animation: tab-overview-card-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}

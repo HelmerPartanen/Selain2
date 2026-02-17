@@ -56,6 +56,13 @@ export function useKeyboardShortcuts(): void {
         return
       }
 
+      // Ctrl+Shift+A — Toggle tab overview
+      if (ctrl && shift && key === 'a') {
+        e.preventDefault()
+        useUIStore.getState().toggleTabOverview()
+        return
+      }
+
       // Ctrl+L — Focus URL bar
       if (ctrl && !shift && key === 'l') {
         e.preventDefault()

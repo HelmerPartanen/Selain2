@@ -17,6 +17,7 @@ const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({
 const BookmarksPanel = lazy(() => import('@/bookmarks/BookmarksPage').then(m => ({ default: m.BookmarksPanel })))
 const HistoryPanel = lazy(() => import('@/history/HistoryPage').then(m => ({ default: m.HistoryPanel })))
 const DownloadsPanel = lazy(() => import('@/downloads/DownloadsPage').then(m => ({ default: m.DownloadsPanel })))
+const TabOverview = lazy(() => import('@/components/browser/TabOverview').then(m => ({ default: m.TabOverview })))
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
@@ -30,6 +31,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isFindBarOpen = useUIStore((s) => s.isFindBarOpen)
   const isHistoryOpen = useUIStore((s) => s.isHistoryOpen)
   const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen)
+  const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen)
   const isSplitView = useTabStore((s) => s.splitTabId !== null)
   const closeDropdown = useUIStore((s) => s.setDropdownOpen)
   const closeMenu = useUIStore((s) => s.setMenuOpen)
@@ -204,6 +206,11 @@ function BrowserLayoutInner(): React.JSX.Element {
         </Suspense>
       )}
     </AnimatePresence>
+
+    {/* Tab overview (Ctrl+Shift+A) */}
+    <Suspense fallback={null}>
+      <TabOverview />
+    </Suspense>
   </div>
 )
 }
