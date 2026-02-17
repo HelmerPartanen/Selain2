@@ -1,33 +1,32 @@
 import { memo, useCallback, useRef, useState } from 'react'
-import { ListIcon, X } from '@phosphor-icons/react'
+import { House, Gear, BookmarkSimple, ClockCounterClockwise, ListIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { useTabStore } from '@/store/tabStore'
-import { useSettingsPanelStore } from '@/store/settingsPanelStore'
-import { useSpring, useMultiSpring, SPRINGS } from '@/hooks/useSpring'
-import { MENU_ITEMS, MenuItemButton } from './MenuItems'
 
 function AppMenuInner(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
+  const [menuPosition, setMenuPosition] = useState({ bottom: 0, left: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const popover = useMultiSpring(
-    {
-      scale: isOpen ? 1 : 0.92,
-      opacity: isOpen ? 1 : 0,
-      y: isOpen ? 0 : 6
-    },
-    isOpen ? SPRINGS.quick : SPRINGS.stiff
-  )
+  const handleToggle = useCallback(() => {
+    if (!isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect()
+      setMenuPosition({
+        bottom: window.innerHeight - rect.top + 4,
+        left: rect.left
+      })
+    }
+    setIsOpen((prev) => !prev)
+  }, [isOpen])
 
-  const iconRotation = useSpring(isOpen ? 90 : 0, SPRINGS.snappy)
-
-  const handleToggle = useCallback(() => setIsOpen((p) => !p), [])
-  const handleClose = useCallback(() => setIsOpen(false), [])
+  const handleClose = useCallback(() => {
+    setIsOpen(false)
+  }, [])
 
   const handleMenuItemClick = useCallback(
     (action: string) => {
       if (action === 'settings') {
-        useSettingsPanelStore.getState().open()
+        useTabStore.getState().addTab('browser://settings')
       } else if (action === 'home') {
         useTabStore.getState().addTab('browser://newtab')
       }
@@ -38,31 +37,101 @@ function AppMenuInner(): React.JSX.Element {
 
   return (
     <div ref={containerRef} className="relative">
-      <Button variant="icon" onClick={handleToggle} aria-label="Menu" aria-expanded={isOpen}>
-        <div style={{ transform: `rotate(${iconRotation}deg)`, display: 'flex' }}>
-          {isOpen ? <X size={16} weight="bold" /> : <ListIcon size={18} weight="bold" />}
-        </div>
+      <Button
+        variant="icon"
+        onClick={handleToggle}
+        aria-label="Menu"
+        aria-expanded={isOpen}
+      >
+        <ListIcon size={18} weight="bold" />
       </Button>
 
-      {(isOpen || (popover.opacity ?? 0) > 0.01) && (
+      {isOpen && (
         <>
-          {isOpen && <div className="fixed inset-0 z-[90]" onMouseDown={handleClose} />}
-
+          {/* Click outside overlay */}
           <div
-            className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[160px] rounded-xl overflow-hidden shadow-xl"
-            style={{
-              transform: `translate(-50%, ${popover.y}px) scale(${popover.scale})`,
-              opacity: popover.opacity,
-              transformOrigin: 'bottom center',
-              pointerEvents: isOpen ? 'auto' : 'none',
-              willChange: 'transform, opacity',
-              backgroundColor: 'rgba(245, 245, 245, 0.96)',
-              border: '1px solid rgba(0,0,0,0.08)'
-            }}
+            className="fixed inset-0 z-[90]"
+            onMouseDown={handleClose}
+          />
+
+          {/* Dropdown */}
+          <div
+            className="
+              absolute bottom-full mb-2 left-1/2 -translate-x-1/2
+              z-[100] min-w-[160px]
+              rounded-xl overflow-hidden
+              bg-white/80 backdrop-blur-xl
+              shadow-xl
+              origin-bottom
+              animate-[tabListIn_0.25s_cubic-bezier(0.16,1,0.3,1)_both]
+            "
           >
-            {MENU_ITEMS.map((item, i) => (
-              <MenuItemButton key={item.action} item={item} index={i} isOpen={isOpen} onClick={handleMenuItemClick} />
-            ))}
+            {/* Home */}
+            <button
+              onClick={() => handleMenuItemClick('home')}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
+            >
+              <House size={16} weight="regular" />
+              <span>Home</span>
+            </button>
+
+            {/* Bookmarks */}
+            <button
+              onClick={() => handleMenuItemClick('bookmarks')}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
+            >
+              <BookmarkSimple size={16} weight="regular" />
+              <span>Bookmarks</span>
+            </button>
+
+            {/* History */}
+            <button
+              onClick={() => handleMenuItemClick('history')}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
+            >
+              <ClockCounterClockwise size={16} weight="regular" />
+              <span>History</span>
+            </button>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-1" />
+
+            {/* Settings */}
+            <button
+              onClick={() => handleMenuItemClick('settings')}
+              className="
+                w-full flex items-center gap-3 px-3 h-9
+                text-sm text-gray-600
+                transition-colors duration-75
+                hover:bg-gray-200/60 hover:text-gray-900
+                active:bg-gray-300/60
+                [app-region:no-drag]
+              "
+            >
+              <Gear size={16} weight="regular" />
+              <span>Settings</span>
+            </button>
           </div>
         </>
       )}

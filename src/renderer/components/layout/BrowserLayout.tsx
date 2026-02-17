@@ -1,7 +1,6 @@
 import { memo, useEffect } from 'react'
 import { FloatingControls } from '@/components/layout/FloatingControls'
 import { SettingsPanel } from '@/components/layout/SettingsPanel'
-import { WindowControls } from '@/components/layout/WindowControls'
 import { DragZone } from '@/components/layout/DragZone'
 import { WebViewManager } from '@/webview/WebViewManager'
 import { useLRUTabManager } from '@/webview/useLRUTabManager'
@@ -26,7 +25,6 @@ function BrowserLayoutInner(): React.JSX.Element {
         {...(wallpaper && { style: { backgroundImage: `url(${wallpaper})` } })}
       />
       <DragZone visible={isRevealed} onEnter={onTriggerEnter} onLeave={onZoneLeave} />
-      <WindowControls visible={isRevealed} onEnter={onTriggerEnter} onLeave={onZoneLeave} />
       <div className="relative z-10 h-full">
         <WebViewManager />
       </div>
