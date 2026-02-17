@@ -187,17 +187,29 @@ function FloatingControlsInner(): React.JSX.Element {
         {/* Split indicator */}
         <AnimatePresence initial={false}>
           {isSplit && (
-            <motion.button
-              onClick={handleUnsplit}
-              aria-label="Exit split view"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 28 }}
-              className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-indigo-500 hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-90 transition-[background-color] duration-100 select-none flex-shrink-0"
+            <motion.div
+              key="unsplit-slot"
+              initial={{ width: 0, marginLeft: 0 }}
+              animate={{ width: 40, marginLeft: 0 }}
+              exit={{ width: 0, marginLeft: -6 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28, mass: 0.8 }}
+              style={{ flexShrink: 0, clipPath: 'inset(-12px -12px -12px -12px)' }}
             >
-              <SvgIcon svg={unsplitSvg} size={15} />
-            </motion.button>
+              <motion.button
+                onClick={handleUnsplit}
+                aria-label="Exit split view"
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.4, opacity: 0 }}
+                transition={{
+                  type: 'spring', stiffness: 400, damping: 22, mass: 0.6,
+                  opacity: { duration: 0.15 }
+                }}
+                className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-indigo-500 hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-90 transition-[background-color] duration-100 select-none"
+              >
+                <SvgIcon svg={unsplitSvg} size={15} />
+              </motion.button>
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -210,17 +222,19 @@ function FloatingControlsInner(): React.JSX.Element {
         <TabPill />
       </div>
 
-      {/* Split panel indicator dot */}
+      {/* Split panel indicator dots */}
       <AnimatePresence>
         {isSplit && (
           <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            className="flex justify-center mt-1.5 gap-1.5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, delay: isSplit ? 0.12 : 0 }}
+            className="absolute left-1/2 -translate-x-1/2 flex gap-2"
+            style={{ top: '100%', marginTop: 6 }}
           >
-            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-150 ${focusedPanel === 'primary' ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-neutral-600'}`} />
-            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-150 ${focusedPanel === 'split' ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-neutral-600'}`} />
+            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === 'primary' ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-neutral-600'}`} />
+            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === 'split' ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-neutral-600'}`} />
           </motion.div>
         )}
       </AnimatePresence>
