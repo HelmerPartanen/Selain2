@@ -1,4 +1,4 @@
-import { app, BrowserWindow, components, dialog, ipcMain, Menu, nativeImage, session } from 'electron'
+import { app, BrowserWindow, components, dialog, ipcMain, Menu, nativeImage, session, shell } from 'electron'
 import { readFile, writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
@@ -125,6 +125,82 @@ function createWindow(): void {
 }
 
 function setupIPC(): void {
+  // ── Download management ──
+  const activeDownloads = new Map<string, Electron.DownloadItem>()
+  let downloadCounter = 0
+
+  function setupDownloadHandling(ses: Electron.Session): void {
+    ses.on('will-download', (_event, item) => {
+      const id = `dl-${++downloadCounter}-${Date.now()}`
+
+      activeDownloads.set(id, item)
+
+      mainWindow?.webContents.send('download-started', {
+        id,
+        filename: item.getFilename(),
+        url: item.getURL(),
+        savePath: item.getSavePath(),
+        totalBytes: item.getTotalBytes(),
+        receivedBytes: item.getReceivedBytes(),
+        startTime: Date.now()
+      })
+
+      let lastUpdate = 0
+      item.on('updated', (_event, state) => {
+        const now = Date.now()
+        if (now - lastUpdate < 250 && state === 'progressing') return
+        lastUpdate = now
+
+        if (state === 'progressing') {
+          mainWindow?.webContents.send('download-progress', {
+            id,
+            receivedBytes: item.getReceivedBytes(),
+            totalBytes: item.getTotalBytes(),
+            speed: item.getCurrentBytesPerSecond?.() ?? 0
+          })
+        } else if (state === 'interrupted') {
+          mainWindow?.webContents.send('download-progress', {
+            id,
+            receivedBytes: item.getReceivedBytes(),
+            totalBytes: item.getTotalBytes(),
+            speed: 0
+          })
+        }
+      })
+
+      item.once('done', (_event, state) => {
+        mainWindow?.webContents.send('download-done', {
+          id,
+          state: state === 'completed' ? 'completed' : state === 'cancelled' ? 'cancelled' : 'failed'
+        })
+        activeDownloads.delete(id)
+      })
+    })
+  }
+
+  // Set up downloads for both sessions
+  setupDownloadHandling(session.defaultSession)
+  setupDownloadHandling(session.fromPartition('persist:default'))
+
+  ipcMain.on('download-action', (_event, action: string, id: string, savePath?: string) => {
+    const item = activeDownloads.get(id)
+    if (action === 'open' && savePath) {
+      shell.openPath(savePath)
+      return
+    }
+    if (action === 'show-in-folder' && savePath) {
+      shell.showItemInFolder(savePath)
+      return
+    }
+    if (!item) return
+    switch (action) {
+      case 'pause': item.pause(); break
+      case 'resume': item.resume(); break
+      case 'cancel': item.cancel(); break
+      case 'open': shell.openPath(item.getSavePath()); break
+      case 'show-in-folder': shell.showItemInFolder(item.getSavePath()); break
+    }
+  })
   ipcMain.on('window-minimize', () => {
     mainWindow?.minimize()
   })

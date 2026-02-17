@@ -6,6 +6,7 @@ import { webviewRegistry } from '@/webview/webviewRegistry'
 import { URLBar } from '@/components/browser/URLBar'
 import { AppMenu } from '@/components/layout/AppMenu'
 import { TabPill } from '@/components/browser/TabPill'
+import { DownloadPill } from '@/components/browser/DownloadPill'
 import { Button } from '@/components/ui/Button'
 import { useUIStore } from '@/store/uiStore'
 import { useTabStore } from '@/store/tabStore'
@@ -63,6 +64,7 @@ function FloatingControlsInner(): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
+  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen)
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
 
@@ -71,7 +73,7 @@ function FloatingControlsInner(): React.JSX.Element {
   const isSplit = useIsSplitView()
   const focusedPanel = useTabStore((s) => s.focusedPanel)
 
-  const isActive = isHovered || isInputFocused || isSettingsOpen || isDropdownOpen || isMenuOpen
+  const isActive = isHovered || isInputFocused || isSettingsOpen || isBookmarksOpen || isDropdownOpen || isMenuOpen
   const isIdle = useIdleVisibility(isActive)
 
   // Close all popups when UI goes idle
@@ -81,6 +83,7 @@ function FloatingControlsInner(): React.JSX.Element {
       if (store.isDropdownOpen) store.setDropdownOpen(false)
       if (store.isMenuOpen) store.setMenuOpen(false)
       if (store.isSettingsOpen) store.closeSettings()
+      if (store.isBookmarksOpen) store.closeBookmarks()
     }
   }, [isIdle])
 
@@ -190,6 +193,11 @@ function FloatingControlsInner(): React.JSX.Element {
               </div>
             </motion.div>
           )}
+        </AnimatePresence>
+
+        {/* Download Pill */}
+        <AnimatePresence initial={false}>
+          <DownloadPill />
         </AnimatePresence>
 
         {/* Tab Pod */}

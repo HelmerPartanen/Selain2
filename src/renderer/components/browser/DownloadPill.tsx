@@ -1,0 +1,248 @@
+import { memo, useCallback, useMemo, useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { DownloadSimple, Check, Pause, Play, X, FolderOpen } from '@phosphor-icons/react'
+import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
+import { useTabStore } from '@/store/tabStore'
+
+const springExpand = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.9 }
+const springDropdown = { type: 'spring' as const, stiffness: 420, damping: 26, mass: 0.7 }
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${(bytes / Math.pow(k, i)).toFixed(i > 1 ? 1 : 0)} ${sizes[i]}`
+}
+
+const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }): React.JSX.Element {
+  const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
+  const progress = item.totalBytes > 0 ? item.receivedBytes / item.totalBytes : 0
+  const isActive = item.state === 'progressing' || item.state === 'paused'
+
+  return (
+    <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800/60 transition-colors duration-75 group">
+      <div className="w-7 h-7 rounded-md bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
+        {item.state === 'completed' ? (
+          <Check size={12} className="text-green-500" weight="bold" />
+        ) : (
+          <DownloadSimple size={12} className="text-blue-500" weight="bold" />
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="text-[12px] font-medium text-gray-800 dark:text-neutral-200 truncate">
+          {item.filename}
+        </div>
+        {isActive && (
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="flex-1 h-[3px] rounded-full bg-gray-200 dark:bg-neutral-700 overflow-hidden">
+              <div
+                className="h-full bg-blue-500 rounded-full transition-[width] duration-300"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+            <span className="text-[10px] text-gray-400 dark:text-neutral-500 tabular-nums flex-shrink-0">
+              {Math.round(progress * 100)}%
+            </span>
+          </div>
+        )}
+        {item.state === 'completed' && (
+          <div className="text-[10px] text-gray-400 dark:text-neutral-500 mt-0.5">
+            {formatBytes(item.totalBytes)}
+          </div>
+        )}
+        {item.state === 'failed' && (
+          <div className="text-[10px] text-red-400 mt-0.5">Failed</div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-0.5 flex-shrink-0">
+        {item.state === 'progressing' && (
+          <button
+            onClick={() => pauseDownload(item.id)}
+            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+          >
+            <Pause size={11} weight="bold" />
+          </button>
+        )}
+        {item.state === 'paused' && (
+          <button
+            onClick={() => resumeDownload(item.id)}
+            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+          >
+            <Play size={11} weight="bold" />
+          </button>
+        )}
+        {isActive && (
+          <button
+            onClick={() => cancelDownload(item.id)}
+            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors duration-75"
+          >
+            <X size={11} weight="bold" />
+          </button>
+        )}
+        {item.state === 'completed' && (
+          <>
+            <button
+              onClick={() => openDownload(item.id)}
+              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+            >
+              <DownloadSimple size={11} weight="bold" />
+            </button>
+            <button
+              onClick={() => showInFolder(item.id)}
+              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+            >
+              <FolderOpen size={11} weight="bold" />
+            </button>
+          </>
+        )}
+        {(item.state === 'completed' || item.state === 'failed' || item.state === 'cancelled') && (
+          <button
+            onClick={() => removeDownload(item.id)}
+            className="w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-75"
+          >
+            <X size={11} weight="bold" />
+          </button>
+        )}
+      </div>
+    </div>
+  )
+})
+
+function DownloadPillInner(): React.JSX.Element | null {
+  const downloads = useDownloadStore((s) => s.downloads)
+  const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const autoHideRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const items = useMemo(
+    () => Object.values(downloads).sort((a, b) => b.startTime - a.startTime),
+    [downloads]
+  )
+
+  const hasItems = items.length > 0
+  const activeCount = items.filter((d) => d.state === 'progressing' || d.state === 'paused').length
+  const hasActive = activeCount > 0
+
+  // Aggregate progress for the circular indicator
+  const aggregateProgress = useMemo(() => {
+    const active = items.filter((d) => d.state === 'progressing')
+    if (active.length === 0) return 1
+    const total = active.reduce((s, d) => s + d.totalBytes, 0)
+    const received = active.reduce((s, d) => s + d.receivedBytes, 0)
+    return total > 0 ? received / total : 0
+  }, [items])
+
+  // Auto-hide 5s after all downloads complete
+  useEffect(() => {
+    if (autoHideRef.current) clearTimeout(autoHideRef.current)
+    if (hasItems && !hasActive) {
+      autoHideRef.current = setTimeout(() => {
+        // Clear all completed/failed/cancelled downloads from store
+        const store = useDownloadStore.getState()
+        items.forEach((item) => {
+          if (item.state !== 'progressing' && item.state !== 'paused') {
+            store.removeDownload(item.id)
+          }
+        })
+      }, 8000)
+    }
+    return () => {
+      if (autoHideRef.current) clearTimeout(autoHideRef.current)
+    }
+  }, [hasItems, hasActive, items])
+
+  const handleOpenPage = useCallback(() => {
+    useTabStore.getState().addTab('browser://downloads')
+    setIsOpen(false)
+  }, [])
+
+  if (!hasItems) return null
+
+  // Circular progress SVG params
+  const radius = 7
+  const circumference = 2 * Math.PI * radius
+  const strokeDashoffset = circumference * (1 - aggregateProgress)
+
+  return (
+    <div ref={containerRef} className="relative">
+      <motion.button
+        initial={{ width: 0, opacity: 0 }}
+        animate={{ width: 'auto', opacity: 1 }}
+        exit={{ width: 0, opacity: 0 }}
+        transition={{ ...springExpand, opacity: { duration: 0.15 } }}
+        style={{ overflow: 'hidden', flexShrink: 0 }}
+        onClick={() => setIsOpen((v) => !v)}
+        aria-label="Downloads"
+        className="h-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-3 gap-1.5 select-none hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-95 transition-all duration-100"
+      >
+        <div className="relative">
+          <DownloadSimple size={15} weight="bold" className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
+          {hasActive && (
+            <svg
+              className="absolute -inset-[5px]"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              style={{ transform: 'rotate(-90deg)' }}
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r={radius}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                className="text-blue-500 transition-[stroke-dashoffset] duration-300"
+              />
+            </svg>
+          )}
+        </div>
+        {activeCount > 0 && (
+          <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
+        )}
+      </motion.button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Click-away */}
+            <div className="fixed inset-0 z-[99]" onMouseDown={() => setIsOpen(false)} />
+            <motion.div
+              className="absolute bottom-full mb-2 right-0 z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
+              style={{ originY: 1, originX: 1 }}
+              initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: 8 }}
+              animate={{ scaleY: 1, scaleX: 1, opacity: 1, y: 0 }}
+              exit={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: 8 }}
+              transition={{ ...springDropdown, opacity: { duration: 0.12 } }}
+            >
+              <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
+                <span className="text-xs font-semibold text-gray-500 dark:text-neutral-500 uppercase tracking-wide">
+                  Downloads
+                </span>
+                <button
+                  onClick={handleOpenPage}
+                  className="text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors duration-75"
+                >
+                  See all
+                </button>
+              </div>
+              <div className="overflow-y-auto max-h-[270px] px-1 pb-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-transparent">
+                {items.slice(0, 10).map((item) => (
+                  <DownloadRow key={item.id} item={item} />
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+export const DownloadPill = memo(DownloadPillInner)

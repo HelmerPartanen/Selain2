@@ -7,20 +7,24 @@ import { SplitDivider } from '@/components/layout/SplitDivider'
 import { WebViewManager } from '@/webview/WebViewManager'
 import { useLRUTabManager } from '@/webview/useLRUTabManager'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
+import { useDownloadListener } from '@/hooks/useDownloadListener'
 import { useTabStore } from '@/store/tabStore'
 import { useThemeStore } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
 
 const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
+const BookmarksPanel = lazy(() => import('@/bookmarks/BookmarksPage').then(m => ({ default: m.BookmarksPanel })))
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
   useKeyboardShortcuts()
+  useDownloadListener()
   const wallpaper = useThemeStore((s) => s.wallpaper)
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
+  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen)
   const isFindBarOpen = useUIStore((s) => s.isFindBarOpen)
   const isSplitView = useTabStore((s) => s.splitTabId !== null)
   const closeDropdown = useUIStore((s) => s.setDropdownOpen)
@@ -120,6 +124,15 @@ function BrowserLayoutInner(): React.JSX.Element {
       {isSettingsOpen && (
         <Suspense fallback={null}>
           <SettingsPanel />
+        </Suspense>
+      )}
+    </AnimatePresence>
+
+    {/* Bookmarks panel */}
+    <AnimatePresence>
+      {isBookmarksOpen && (
+        <Suspense fallback={null}>
+          <BookmarksPanel />
         </Suspense>
       )}
     </AnimatePresence>

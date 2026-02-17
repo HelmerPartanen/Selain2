@@ -12,6 +12,9 @@ interface HistoryState {
   entries: HistoryEntry[]
   recordVisit: (url: string, title: string) => void
   search: (query: string) => HistoryEntry[]
+  removeEntry: (url: string) => void
+  clearAll: () => void
+  getGrouped: () => { label: string; entries: HistoryEntry[] }[]
 }
 
 const MAX_ENTRIES = 1000
@@ -61,6 +64,51 @@ export const useHistoryStore = create<HistoryState>()(
             return scoreB - scoreA
           })
           .slice(0, 6)
+      },
+
+      removeEntry: (url) => {
+        set((state) => ({
+          entries: state.entries.filter((e) => e.url !== url)
+        }))
+      },
+
+      clearAll: () => {
+        set({ entries: [] })
+      },
+
+      getGrouped: () => {
+        const entries = get().entries
+        const now = new Date()
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+        const startOfYesterday = startOfToday - 86400000
+        const startOfWeek = startOfToday - now.getDay() * 86400000
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+
+        const groups: Record<string, HistoryEntry[]> = {
+          Today: [],
+          Yesterday: [],
+          'This Week': [],
+          'This Month': [],
+          Older: []
+        }
+
+        for (const entry of entries) {
+          if (entry.timestamp >= startOfToday) {
+            groups['Today']!.push(entry)
+          } else if (entry.timestamp >= startOfYesterday) {
+            groups['Yesterday']!.push(entry)
+          } else if (entry.timestamp >= startOfWeek) {
+            groups['This Week']!.push(entry)
+          } else if (entry.timestamp >= startOfMonth) {
+            groups['This Month']!.push(entry)
+          } else {
+            groups['Older']!.push(entry)
+          }
+        }
+
+        return Object.entries(groups)
+          .filter(([, entries]) => entries.length > 0)
+          .map(([label, entries]) => ({ label, entries }))
       }
     }),
     { name: 'browser-history', version: 1 }

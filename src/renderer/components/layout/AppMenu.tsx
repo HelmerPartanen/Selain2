@@ -39,6 +39,10 @@ function AppMenuInner(): React.JSX.Element {
         useUIStore.getState().toggleSettings()
       } else if (action === 'home') {
         useTabStore.getState().addTab('browser://newtab')
+      } else if (action === 'bookmarks') {
+        useUIStore.getState().toggleBookmarks()
+      } else if (action === 'history') {
+        useTabStore.getState().addTab('browser://history')
       }
       handleClose()
     },

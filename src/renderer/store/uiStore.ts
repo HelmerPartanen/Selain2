@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 interface UIState {
   isSettingsOpen: boolean
+  isBookmarksOpen: boolean
   isDropdownOpen: boolean
   isMenuOpen: boolean
   isFindBarOpen: boolean
@@ -10,6 +11,8 @@ interface UIState {
 
   toggleSettings: () => void
   closeSettings: () => void
+  toggleBookmarks: () => void
+  closeBookmarks: () => void
   setDropdownOpen: (open: boolean) => void
   setMenuOpen: (open: boolean) => void
   openFindBar: () => void
@@ -22,6 +25,7 @@ interface UIState {
 
 export const useUIStore = create<UIState>((set) => ({
   isSettingsOpen: false,
+  isBookmarksOpen: false,
   isDropdownOpen: false,
   isMenuOpen: false,
   isFindBarOpen: false,
@@ -29,6 +33,8 @@ export const useUIStore = create<UIState>((set) => ({
   urlBarFocusRequested: false,
   toggleSettings: () => set((s) => ({ isSettingsOpen: !s.isSettingsOpen })),
   closeSettings: () => set({ isSettingsOpen: false }),
+  toggleBookmarks: () => set((s) => ({ isBookmarksOpen: !s.isBookmarksOpen })),
+  closeBookmarks: () => set({ isBookmarksOpen: false }),
   setDropdownOpen: (open) => set({ isDropdownOpen: open }),
   setMenuOpen: (open) => set({ isMenuOpen: open }),
   openFindBar: () => set({ isFindBarOpen: true }),

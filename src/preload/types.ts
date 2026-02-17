@@ -12,6 +12,11 @@ export interface ElectronAPI {
   loadWallpaper(): Promise<string | null>
   /** Listen for keyboard shortcuts forwarded from the main process (for webview-focused shortcuts) */
   onShortcutPressed(callback: (shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }) => void): () => void
+  /** Download management */
+  downloadAction(action: 'pause' | 'resume' | 'cancel' | 'open' | 'show-in-folder', id: string, savePath?: string): void
+  onDownloadStarted(callback: (item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number }) => void): () => void
+  onDownloadProgress(callback: (data: { id: string; receivedBytes: number; totalBytes: number; speed: number }) => void): () => void
+  onDownloadDone(callback: (data: { id: string; state: 'completed' | 'cancelled' | 'failed' }) => void): () => void
 }
 
 declare global {

@@ -107,4 +107,13 @@ export function useBackgroundMediaPlaying(): boolean {
   })
 }
 
+/** Returns true if the focused tab is currently playing media */
+export function useFocusedTabMediaPlaying(): boolean {
+  return useTabStore((s) => {
+    const id = s.focusedPanel === 'split' && s.splitTabId ? s.splitTabId : s.activeTabId
+    if (!id) return false
+    return s.tabs[id]?.isPlayingMedia ?? false
+  })
+}
+
 

@@ -1,10 +1,11 @@
 import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowClockwise, X, LockSimple, Globe, MagnifyingGlass, ClockCounterClockwise } from '@phosphor-icons/react'
-import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState } from '@/hooks/useTabSelector'
+import { ArrowClockwise, X, LockSimple, Globe, MagnifyingGlass, ClockCounterClockwise, Star, PictureInPicture } from '@phosphor-icons/react'
+import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState, useFocusedTabMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
+import { useBookmarkStore } from '@/store/bookmarkStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
@@ -167,6 +168,39 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   const iconKey = !isFocused && hasUrl ? (isSecure ? 'lock' : 'globe') : 'search'
 
+  // Bookmark state
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(url))
+  const handleToggleBookmark = useCallback(() => {
+    if (!hasUrl) return
+    const store = useBookmarkStore.getState()
+    if (store.isBookmarked(url)) {
+      store.removeBookmark(url)
+    } else {
+      const tab = tabId ? useTabStore.getState().tabs[tabId] : null
+      store.addBookmark(url, tab?.title || url, tab?.favicon)
+    }
+  }, [url, hasUrl, tabId])
+
+  // PiP state
+  const isPlayingMedia = useFocusedTabMediaPlaying()
+  const handlePiP = useCallback(() => {
+    if (!tabId) return
+    const webview = webviewRegistry.get(tabId)
+    if (!webview) return
+    ;(webview as unknown as { executeJavaScript(code: string): Promise<unknown> }).executeJavaScript(`
+      (function() {
+        const videos = document.querySelectorAll('video');
+        for (const v of videos) {
+          if (!v.paused && v.readyState >= 2) {
+            v.requestPictureInPicture().catch(() => {});
+            return;
+          }
+        }
+        if (videos.length > 0) videos[0].requestPictureInPicture().catch(() => {});
+      })()
+    `)
+  }, [tabId])
+
   return (
     <div className="relative">
       <div
@@ -229,6 +263,44 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
             className="w-full h-full pl-9 pr-3 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
           />
         </div>
+
+        {/* Bookmark star */}
+        <AnimatePresence>
+          {hasUrl && !isFocused && (
+            <motion.button
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+              onClick={handleToggleBookmark}
+              aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
+            >
+              <Star
+                size={15}
+                weight={isBookmarked ? 'fill' : 'regular'}
+                className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
+              />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {/* PiP button */}
+        <AnimatePresence>
+          {isPlayingMedia && !isFocused && (
+            <motion.button
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+              onClick={handlePiP}
+              aria-label="Picture in Picture"
+              className="w-8 h-8 rounded-full flex items-center justify-center mr-0.5 flex-shrink-0 transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
+            >
+              <PictureInPicture size={15} weight="bold" className="text-gray-400 dark:text-neutral-500" />
+            </motion.button>
+          )}
+        </AnimatePresence>
 
         {/* Loading progress bar */}
         <div className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full overflow-hidden">
