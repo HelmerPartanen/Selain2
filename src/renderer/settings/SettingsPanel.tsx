@@ -30,12 +30,6 @@ function getThumbnails(): Promise<Map<string, string>> {
   return _thumbPromise
 }
 
-// Pre-compute static styles for gradient preset buttons (avoid allocations per render)
-const ACTIVE_BORDER = '2.5px solid #6366f1'
-const INACTIVE_BORDER = '1px solid rgba(128,128,128,0.2)'
-const ACTIVE_SHADOW = '0 0 0 1px #6366f1, 0 2px 8px rgba(0,0,0,0.12)'
-const INACTIVE_SHADOW = '0 1px 3px rgba(0,0,0,0.06)'
-
 const gradientBaseStyles: React.CSSProperties[] = WALLPAPER_PRESETS.map((preset) => ({
   backgroundImage: `url(${preset.dataUrl})`,
   backgroundSize: 'cover',
@@ -96,10 +90,10 @@ function AppearancePane(): React.JSX.Element {
               <button
                 key={mode}
                 onClick={() => setThemeMode(mode)}
-                className={`flex-1 flex flex-col items-center gap-2.5 p-4 rounded-2xl transition-[background-color,color,box-shadow,border-color,transform] duration-150 hover:scale-[1.02] active:scale-[0.98] ${
+                className={`flex-1 flex flex-col items-center gap-2.5 p-4 border rounded-2xl outline-2 transition-all duration-150 ${
                   isActive
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-lg'
-                    : 'bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-750'
+                    ? 'bg-neutral-100 dark:bg-neutral-800 border-transparent text-indigo-500 dark:text-indigo-400 shadow-lg outline-indigo-500 dark:outline-indigo-400'
+                    : 'bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-gray-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 outline-none'
                 }`}
               >
                 <SvgIcon svg={icon} size={22} />
@@ -158,7 +152,7 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
             Wallpapers
           </span>
         </div>
-        <div className="flex gap-2.5 overflow-x-auto p-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
+        <div className="flex gap-2.5 overflow-x-auto p-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
           {BUNDLED_WALLPAPERS.map((wp) => {
             const isActive = wallpaper === wp.storageKey
             const thumbUrl = thumbnails.get(wp.url) ?? wp.url
@@ -166,22 +160,13 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
               <button
                 key={wp.filename}
                 onClick={() => handleSelectPreset(wp.storageKey)}
-                className="relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-[border,box-shadow] duration-150 active:scale-[0.97]"
+                className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden outline-[3px] transition-[background-color,outline] duration-150 ${isActive ? 'outline-indigo-500 dark:outline-indigo-400 bg-black/20' : 'outline-none'}`}
                 style={{
                   backgroundImage: `url(${thumbUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  border: isActive ? ACTIVE_BORDER : INACTIVE_BORDER,
-                  boxShadow: isActive ? ACTIVE_SHADOW : INACTIVE_SHADOW,
                 }}
               >
-                {isActive && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <SvgIcon svg={checkSvg} size={18} className="text-indigo-500" />
-                    </div>
-                  </div>
-                )}
               </button>
             )
           })}
@@ -203,20 +188,11 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset.dataUrl)}
                 title={preset.name}
-                className="relative aspect-[16/10] rounded-xl overflow-hidden transition-[border,box-shadow] duration-150 active:scale-[0.97]"
+                className={`relative aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 outline-[3px] transition-[background-color,outline] duration-150 ${isActive ? 'outline-indigo-500 dark:outline-indigo-400 bg-black/20' : 'outline-none'}`}
                 style={{
                   ...gradientBaseStyles[i],
-                  border: isActive ? ACTIVE_BORDER : INACTIVE_BORDER,
-                  boxShadow: isActive ? ACTIVE_SHADOW : INACTIVE_SHADOW,
                 }}
               >
-                {isActive && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <SvgIcon svg={checkSvg} size={18} className="text-indigo-500" />
-                    </div>
-                  </div>
-                )}
               </button>
             )
           })}
@@ -238,20 +214,11 @@ const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
                 key={color.hex}
                 onClick={() => handleSelectSolid(color.hex)}
                 title={color.name}
-                className="relative aspect-square rounded-full overflow-hidden transition-[border,box-shadow] duration-150 active:scale-[0.97]"
+                className={`relative aspect-square rounded-full overflow-hidden transition-all duration-150 outline-[3px] transition-[background-color,outline] duration-150 ${isActive ? 'outline-indigo-500 dark:outline-indigo-400 bg-black/20' : 'outline-none'}`}
                 style={{
                   backgroundColor: solidBaseColors[i],
-                  border: isActive ? ACTIVE_BORDER : INACTIVE_BORDER,
-                  boxShadow: isActive ? ACTIVE_SHADOW : INACTIVE_SHADOW,
                 }}
               >
-                {isActive && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <SvgIcon svg={checkSvg} size={18} className="text-indigo-500" />
-                    </div>
-                  </div>
-                )}
               </button>
             )
           })}
@@ -375,10 +342,10 @@ function Sidebar({
           <button
             key={id}
             onClick={() => onSelect(id)}
-            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-[background-color,color,box-shadow] duration-100 ${
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-100 ${
               isActive
-                ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-sm'
-                : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black shadow-sm'
+                : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
             <SvgIcon svg={icon} size={16} />
@@ -423,7 +390,7 @@ function SettingsPanelInner(): React.JSX.Element {
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
         <motion.div
           ref={panelRef}
-          className="w-[640px] h-[440px] rounded-2xl overflow-hidden bg-white/95 dark:bg-neutral-900/95 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
+          className="w-[640px] h-[440px] rounded-3xl overflow-hidden bg-white/95 dark:bg-neutral-900/95 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
           style={{ transformOrigin: '50% 100%', perspective: 800 }}
           initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
