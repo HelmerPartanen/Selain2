@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useTabStore } from '@/store/tabStore'
+import { useHistoryStore } from '@/store/historyStore'
 import { webviewRegistry } from './webviewRegistry'
 
 /** Scrollbar CSS injected into every webview (module-level constant to avoid re-allocation) */
@@ -47,22 +48,26 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     if (!webview) return
     ;(webview as unknown as { insertCSS(css: string): Promise<string> }).insertCSS(SCROLLBAR_CSS)
     batchUpdate({
+      loadProgress: 0.7,
       canGoBack: webview.canGoBack(),
       canGoForward: webview.canGoForward()
     })
   }, [batchUpdate])
 
   const handleDidStartLoading = useCallback(() => {
-    batchUpdate({ isLoading: true })
+    batchUpdate({ isLoading: true, loadProgress: 0.15 })
   }, [batchUpdate])
 
   const handleDidStopLoading = useCallback(() => {
     const webview = webviewRef.current
     batchUpdate({
       isLoading: false,
+      loadProgress: 1,
       canGoBack: webview?.canGoBack() ?? false,
       canGoForward: webview?.canGoForward() ?? false
     })
+    // Reset progress after animation
+    setTimeout(() => batchUpdate({ loadProgress: 0 }), 400)
   }, [batchUpdate])
 
   const handlePageTitleUpdated = useCallback(
@@ -88,11 +93,15 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       lastNavigatedUrlRef.current = event.url
       batchUpdate({
         url: event.url,
+        loadProgress: 0.4,
         canGoBack: webview?.canGoBack() ?? false,
         canGoForward: webview?.canGoForward() ?? false
       })
+      // Record to history
+      const tab = useTabStore.getState().tabs[tabId]
+      if (tab) useHistoryStore.getState().recordVisit(event.url, tab.title)
     },
-    [batchUpdate]
+    [batchUpdate, tabId]
   )
 
   const handleDidNavigateInPage = useCallback(

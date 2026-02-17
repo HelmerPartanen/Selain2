@@ -2,8 +2,11 @@ import { lazy, memo, Suspense, useEffect, useMemo, useRef } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { FloatingControls } from '@/components/layout/FloatingControls'
 import { WindowControls } from '@/components/layout/WindowControls'
+import { FindBar } from '@/components/browser/FindBar'
+import { SplitDivider } from '@/components/layout/SplitDivider'
 import { WebViewManager } from '@/webview/WebViewManager'
 import { useLRUTabManager } from '@/webview/useLRUTabManager'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useTabStore } from '@/store/tabStore'
 import { useThemeStore } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
@@ -13,10 +16,13 @@ const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
+  useKeyboardShortcuts()
   const wallpaper = useThemeStore((s) => s.wallpaper)
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
+  const isFindBarOpen = useUIStore((s) => s.isFindBarOpen)
+  const isSplitView = useTabStore((s) => s.splitTabId !== null)
   const closeDropdown = useUIStore((s) => s.setDropdownOpen)
   const closeMenu = useUIStore((s) => s.setMenuOpen)
 
@@ -86,6 +92,14 @@ function BrowserLayoutInner(): React.JSX.Element {
 
     {/* Floating controls overlay */}
     <FloatingControls />
+
+    {/* Find bar */}
+    <AnimatePresence>
+      {isFindBarOpen && <FindBar />}
+    </AnimatePresence>
+
+    {/* Split divider overlay */}
+    {isSplitView && <SplitDivider />}
 
     {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
     {(isDropdownOpen || isMenuOpen) && (

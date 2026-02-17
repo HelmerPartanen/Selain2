@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Plus, X, Globe, CircleNotch, SpeakerHigh } from '@phosphor-icons/react'
-import { useTabOrder, useActiveTabId, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying } from '@/hooks/useTabSelector'
+import { Plus, X, Globe, CircleNotch, SpeakerHigh, SplitHorizontal, ArrowCounterClockwise } from '@phosphor-icons/react'
+import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { Button } from '@/components/ui/Button'
@@ -27,16 +27,22 @@ function ActiveFavicon(): React.JSX.Element {
 const TabRow = memo(function TabRow({
   tabId,
   isActive,
+  isSplitTarget,
+  isSplit,
   onSelect
 }: {
   tabId: string
   isActive: boolean
+  isSplitTarget: boolean
+  isSplit: boolean
   index: number
   onSelect: () => void
 }): React.JSX.Element {
   const meta = useTabMeta(tabId)
   const setActiveTab = useTabStore((s) => s.setActiveTab)
   const removeTab = useTabStore((s) => s.removeTab)
+  const splitTab = useTabStore((s) => s.splitTab)
+  const unsplit = useTabStore((s) => s.unsplit)
 
   const title = meta?.title ?? 'New Tab'
   const favicon = meta?.favicon
@@ -56,10 +62,28 @@ const TabRow = memo(function TabRow({
     [tabId, removeTab]
   )
 
+  const handleSplit = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (isSplitTarget) {
+        unsplit()
+      } else {
+        splitTab(tabId)
+      }
+    },
+    [tabId, splitTab, unsplit, isSplitTarget]
+  )
+
+  const isHighlighted = isActive || isSplitTarget
+
   return (
     <button
       onClick={handleClick}
-      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${isActive ? 'bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'}`}
+      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${
+        isHighlighted
+          ? 'bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white'
+          : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
+      }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
@@ -73,8 +97,23 @@ const TabRow = memo(function TabRow({
 
       <span className="flex-1 text-xs truncate">{title}</span>
 
-      {!isActive && isPlayingMedia && (
+      {isSplitTarget && (
+        <SplitHorizontal size={11} weight="bold" className="flex-shrink-0 text-indigo-500" />
+      )}
+
+      {!isHighlighted && isPlayingMedia && (
         <SpeakerHigh size={12} weight="fill" className="flex-shrink-0 text-blue-500" />
+      )}
+
+      {/* Split/unsplit action — shown when not the active tab */}
+      {!isActive && (
+        <div
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors duration-100"
+          onClick={handleSplit}
+          title={isSplitTarget ? 'Unsplit' : (isSplit ? 'Replace split' : 'Split view')}
+        >
+          <SplitHorizontal size={11} weight="bold" />
+        </div>
       )}
 
       <div
@@ -90,7 +129,11 @@ const TabRow = memo(function TabRow({
 function TabPillInner(): React.JSX.Element {
   const tabOrder = useTabOrder()
   const activeTabId = useActiveTabId()
+  const splitTabId = useSplitTabId()
+  const isSplit = useIsSplitView()
   const addTab = useTabStore((s) => s.addTab)
+  const reopenLastClosed = useTabStore((s) => s.reopenLastClosed)
+  const recentlyClosed = useTabStore((s) => s.recentlyClosed)
   const bgMediaPlaying = useBackgroundMediaPlaying()
   const isExpanded = useUIStore((s) => s.isDropdownOpen)
   const setDropdownOpen = useUIStore((s) => s.setDropdownOpen)
@@ -103,6 +146,9 @@ function TabPillInner(): React.JSX.Element {
   const handleAddTab = useCallback(() => addTab(), [addTab])
   const handleToggle = useCallback(() => setDropdownOpen(!isExpanded), [isExpanded, setDropdownOpen])
   const handleClose = useCallback(() => setDropdownOpen(false), [setDropdownOpen])
+  const handleReopen = useCallback(() => {
+    reopenLastClosed()
+  }, [reopenLastClosed])
 
   return (
     <div className="relative">
@@ -123,11 +169,27 @@ function TabPillInner(): React.JSX.Element {
                     key={id}
                     tabId={id}
                     isActive={id === activeTabId}
+                    isSplitTarget={id === splitTabId}
+                    isSplit={isSplit}
                     index={index}
                     onSelect={handleClose}
                   />
                 ))}
               </div>
+
+              {/* Reopen last closed */}
+              {recentlyClosed.length > 0 && (
+                <>
+                  <div className="mx-2 my-1 h-px bg-gray-100 dark:bg-neutral-800" />
+                  <button
+                    onClick={handleReopen}
+                    className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left text-gray-500 dark:text-neutral-500 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-100"
+                  >
+                    <ArrowCounterClockwise size={13} weight="regular" />
+                    <span className="text-xs">Reopen closed tab</span>
+                  </button>
+                </>
+              )}
             </motion.div>
           </>
         )}

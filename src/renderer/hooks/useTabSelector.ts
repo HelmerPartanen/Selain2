@@ -5,11 +5,36 @@ export function useActiveTabId(): string | null {
   return useTabStore((s) => s.activeTabId)
 }
 
+export function useSplitTabId(): string | null {
+  return useTabStore((s) => s.splitTabId)
+}
+
+export function useIsSplitView(): boolean {
+  return useTabStore((s) => s.splitTabId !== null)
+}
+
+/** Returns the tab ID of whichever panel is focused (primary or split) */
+export function useFocusedTabId(): string | null {
+  return useTabStore((s) => {
+    if (s.focusedPanel === 'split' && s.splitTabId) return s.splitTabId
+    return s.activeTabId
+  })
+}
+
 export function useTabOrder(): string[] {
   return useTabStore(useShallow((s) => s.tabOrder))
 }
 
-/** Subscribe only to the active tab's URL — avoids rerenders on title/favicon/loading changes */
+/** Subscribe only to the focused tab's URL — avoids rerenders on title/favicon/loading changes */
+export function useFocusedTabUrl(): string {
+  return useTabStore((s) => {
+    const id = s.focusedPanel === 'split' && s.splitTabId ? s.splitTabId : s.activeTabId
+    if (!id) return ''
+    return s.tabs[id]?.url ?? ''
+  })
+}
+
+/** Legacy: subscribe only to the active tab's URL */
 export function useActiveTabUrl(): string {
   return useTabStore((s) => {
     if (!s.activeTabId) return ''
@@ -17,24 +42,36 @@ export function useActiveTabUrl(): string {
   })
 }
 
-/** Subscribe only to navigation-relevant fields of the active tab */
+/** Subscribe only to navigation-relevant fields of the focused tab */
+export function useFocusedTabNavState(): {
+  isLoading: boolean
+  canGoBack: boolean
+  canGoForward: boolean
+  loadProgress: number
+} {
+  return useTabStore(
+    useShallow((s) => {
+      const id = s.focusedPanel === 'split' && s.splitTabId ? s.splitTabId : s.activeTabId
+      if (!id) return { isLoading: false, canGoBack: false, canGoForward: false, loadProgress: 0 }
+      const tab = s.tabs[id]
+      if (!tab) return { isLoading: false, canGoBack: false, canGoForward: false, loadProgress: 0 }
+      return {
+        isLoading: tab.isLoading,
+        canGoBack: tab.canGoBack,
+        canGoForward: tab.canGoForward,
+        loadProgress: tab.loadProgress
+      }
+    })
+  )
+}
+
+/** Legacy alias */
 export function useActiveTabNavState(): {
   isLoading: boolean
   canGoBack: boolean
   canGoForward: boolean
 } {
-  return useTabStore(
-    useShallow((s) => {
-      if (!s.activeTabId) return { isLoading: false, canGoBack: false, canGoForward: false }
-      const tab = s.tabs[s.activeTabId]
-      if (!tab) return { isLoading: false, canGoBack: false, canGoForward: false }
-      return {
-        isLoading: tab.isLoading,
-        canGoBack: tab.canGoBack,
-        canGoForward: tab.canGoForward
-      }
-    })
-  )
+  return useFocusedTabNavState()
 }
 
 export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean } | undefined {
@@ -58,11 +95,12 @@ export function useTabFaviconState(id: string): { favicon: string; isLoading: bo
   )
 }
 
-/** Returns true if any background (non-active) tab is currently playing media */
+/** Returns true if any background (non-active, non-split) tab is currently playing media */
 export function useBackgroundMediaPlaying(): boolean {
   return useTabStore((s) => {
     for (const id of s.tabOrder) {
       if (id === s.activeTabId) continue
+      if (id === s.splitTabId) continue
       if (s.tabs[id]?.isPlayingMedia) return true
     }
     return false

@@ -86,3 +86,8 @@ body,
 .webview-container {
   contain: strict;
 }
+
+/* Split panel: prevent overflow and isolate layout */
+.split-panel {
+  contain: strict;
+}

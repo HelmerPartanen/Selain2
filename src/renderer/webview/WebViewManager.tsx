@@ -1,5 +1,6 @@
 import { memo, useCallback, useRef, useSyncExternalStore } from 'react'
 import { useTabStore } from '@/store/tabStore'
+import { useUIStore } from '@/store/uiStore'
 import { WebViewInstance } from './WebViewInstance'
 import { NewTabPage } from '@/newtab/NewTabPage'
 
@@ -25,6 +26,11 @@ function SpecialPage({ url }: { url: string }): React.JSX.Element | null {
  */
 function WebViewManagerInner(): React.JSX.Element {
   const activeTabId = useTabStore((s) => s.activeTabId)
+  const splitTabId = useTabStore((s) => s.splitTabId)
+  const focusedPanel = useTabStore((s) => s.focusedPanel)
+  const setFocusedPanel = useTabStore((s) => s.setFocusedPanel)
+  const splitRatio = useUIStore((s) => s.splitRatio)
+  const isSplit = splitTabId !== null
 
   // Track which tabs have been mounted so we don't send new initialUrl on re-render.
   const mountedUrlsRef = useRef<Record<string, string>>({})
@@ -41,7 +47,6 @@ function WebViewManagerInner(): React.JSX.Element {
         delete mountedUrlsRef.current[id]
         continue
       }
-      // Don't create webview entries for special browser:// pages
       if (isSpecialPage(tab.url)) {
         delete mountedUrlsRef.current[id]
         continue
@@ -51,7 +56,6 @@ function WebViewManagerInner(): React.JSX.Element {
       }
       result.push({ id, initialUrl: mountedUrlsRef.current[id] })
     }
-    // Structural equality: only return a new array reference when the list actually changed
     const prev = prevEntriesRef.current
     if (
       prev.length === result.length &&
@@ -65,21 +69,107 @@ function WebViewManagerInner(): React.JSX.Element {
 
   const activeEntries = useSyncExternalStore(subscribe, getSnapshot)
 
-  // Get the active tab's current URL for special page rendering
+  // Get tab URLs for special page rendering
   const activeTabUrl = useTabStore((s) => {
     if (!s.activeTabId) return null
     return s.tabs[s.activeTabId]?.url ?? null
   })
+  const splitTabUrl = useTabStore((s) => {
+    if (!s.splitTabId) return null
+    return s.tabs[s.splitTabId]?.url ?? null
+  })
 
-  const showSpecialPage = activeTabUrl ? isSpecialPage(activeTabUrl) : false
+  const showPrimarySpecial = activeTabUrl ? isSpecialPage(activeTabUrl) : false
+  const showSplitSpecial = splitTabUrl ? isSpecialPage(splitTabUrl) : false
 
+  // In split mode, render two panels
+  if (isSplit) {
+    return (
+      <div className="relative h-full flex">
+        {/* Primary panel */}
+        <div
+          className="relative h-full overflow-hidden split-panel"
+          style={{ width: `${splitRatio * 100}%` }}
+          onMouseDown={() => focusedPanel !== 'primary' && setFocusedPanel('primary')}
+        >
+          <div
+            className="absolute inset-0 webview-container"
+            style={{
+              backgroundColor: showPrimarySpecial ? 'transparent' : 'var(--bg-solid-fallback)',
+              transition: 'background-color 200ms'
+            }}
+          >
+            {activeEntries.map((entry) => {
+              if (isSpecialPage(entry.initialUrl)) return null
+              return (
+                <WebViewInstance
+                  key={entry.id}
+                  tabId={entry.id}
+                  isActive={entry.id === activeTabId && !showPrimarySpecial}
+                  initialUrl={entry.initialUrl}
+                />
+              )
+            })}
+          </div>
+          {showPrimarySpecial && activeTabUrl && (
+            <div className="absolute inset-0 z-20">
+              <SpecialPage url={activeTabUrl} />
+            </div>
+          )}
+          {/* Focus indicator */}
+          {focusedPanel === 'primary' && (
+            <div className="absolute inset-0 z-[15] pointer-events-none rounded-sm ring-2 ring-inset ring-indigo-500/25" />
+          )}
+        </div>
+
+        {/* Divider rendered by BrowserLayout via SplitDivider */}
+        <div className="split-divider-slot w-0 flex-shrink-0" />
+
+        {/* Split panel */}
+        <div
+          className="relative h-full overflow-hidden split-panel"
+          style={{ width: `${(1 - splitRatio) * 100}%` }}
+          onMouseDown={() => focusedPanel !== 'split' && setFocusedPanel('split')}
+        >
+          <div
+            className="absolute inset-0 webview-container"
+            style={{
+              backgroundColor: showSplitSpecial ? 'transparent' : 'var(--bg-solid-fallback)',
+              transition: 'background-color 200ms'
+            }}
+          >
+            {activeEntries.map((entry) => {
+              if (isSpecialPage(entry.initialUrl)) return null
+              return (
+                <WebViewInstance
+                  key={entry.id}
+                  tabId={entry.id}
+                  isActive={entry.id === splitTabId && !showSplitSpecial}
+                  initialUrl={entry.initialUrl}
+                />
+              )
+            })}
+          </div>
+          {showSplitSpecial && splitTabUrl && (
+            <div className="absolute inset-0 z-20">
+              <SpecialPage url={splitTabUrl} />
+            </div>
+          )}
+          {focusedPanel === 'split' && (
+            <div className="absolute inset-0 z-[15] pointer-events-none rounded-sm ring-2 ring-inset ring-indigo-500/25" />
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Single-panel mode (no split)
   return (
     <div className="relative h-full">
-      {/* Webview container — solid background so web pages aren't transparent */}
       <div
         className="absolute inset-0 webview-container"
         style={{
-          backgroundColor: showSpecialPage ? 'transparent' : 'var(--bg-solid-fallback)',
+          backgroundColor: showPrimarySpecial ? 'transparent' : 'var(--bg-solid-fallback)',
           transition: 'background-color 200ms'
         }}
       >
@@ -89,15 +179,14 @@ function WebViewManagerInner(): React.JSX.Element {
             <WebViewInstance
               key={entry.id}
               tabId={entry.id}
-              isActive={entry.id === activeTabId && !showSpecialPage}
+              isActive={entry.id === activeTabId && !showPrimarySpecial}
               initialUrl={entry.initialUrl}
             />
           )
         })}
       </div>
 
-      {/* Special page overlay — transparent so wallpaper shows through */}
-      {showSpecialPage && activeTabUrl && (
+      {showPrimarySpecial && activeTabUrl && (
         <div className="absolute inset-0 z-20">
           <SpecialPage url={activeTabUrl} />
         </div>

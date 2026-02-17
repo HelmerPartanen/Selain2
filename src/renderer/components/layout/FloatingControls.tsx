@@ -1,13 +1,14 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
-import { useActiveTabId, useActiveTabNavState } from '@/hooks/useTabSelector'
+import { CaretLeft, CaretRight, SplitHorizontal } from '@phosphor-icons/react'
+import { useFocusedTabId, useFocusedTabNavState, useIsSplitView } from '@/hooks/useTabSelector'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { URLBar } from '@/components/browser/URLBar'
 import { AppMenu } from '@/components/layout/AppMenu'
 import { TabPill } from '@/components/browser/TabPill'
 import { Button } from '@/components/ui/Button'
 import { useUIStore } from '@/store/uiStore'
+import { useTabStore } from '@/store/tabStore'
 
 const IDLE_DELAY = 2500
 
@@ -65,8 +66,10 @@ function FloatingControlsInner(): React.JSX.Element {
   const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
   const isMenuOpen = useUIStore((s) => s.isMenuOpen)
 
-  const tabId = useActiveTabId()
-  const { canGoBack, canGoForward } = useActiveTabNavState()
+  const tabId = useFocusedTabId()
+  const { canGoBack, canGoForward } = useFocusedTabNavState()
+  const isSplit = useIsSplitView()
+  const focusedPanel = useTabStore((s) => s.focusedPanel)
 
   const isActive = isHovered || isInputFocused || isSettingsOpen || isDropdownOpen || isMenuOpen
   const isIdle = useIdleVisibility(isActive)
@@ -94,6 +97,10 @@ function FloatingControlsInner(): React.JSX.Element {
     if (!tabId) return
     webviewRegistry.get(tabId)?.goForward()
   }, [tabId])
+
+  const handleUnsplit = useCallback(() => {
+    useTabStore.getState().unsplit()
+  }, [])
 
   return (
     <motion.div
@@ -158,9 +165,43 @@ function FloatingControlsInner(): React.JSX.Element {
         {/* URL Pod */}
         <URLBar onFocusChange={handleFocusChange} />
 
+        {/* Split indicator */}
+        <AnimatePresence initial={false}>
+          {isSplit && (
+            <motion.div
+              initial={{ width: 0, opacity: 0, scale: 0.3 }}
+              animate={{ width: 40, opacity: 1, scale: 1 }}
+              exit={{ width: 0, opacity: 0, scale: 0.3 }}
+              transition={springBounce}
+              style={{ overflow: 'hidden', flexShrink: 0 }}
+            >
+              <div className="rounded-full h-10 flex items-center justify-center px-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg">
+                <Button variant="icon" onClick={handleUnsplit} aria-label="Exit split view">
+                  <SplitHorizontal size={15} weight="bold" className="text-indigo-500" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Tab Pod */}
         <TabPill />
       </div>
+
+      {/* Split panel indicator dot */}
+      <AnimatePresence>
+        {isSplit && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            className="flex justify-center mt-1.5 gap-1.5"
+          >
+            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-150 ${focusedPanel === 'primary' ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-neutral-600'}`} />
+            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-150 ${focusedPanel === 'split' ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-neutral-600'}`} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
