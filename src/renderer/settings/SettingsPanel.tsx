@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { motion } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import sunSvg from '@/assets/icons/Weather/Sun_1.svg?raw'
@@ -17,7 +17,7 @@ import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSearchEngineStore, SEARCH_ENGINES } from '@/store/searchEngineStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
-import { BUNDLED_WALLPAPERS } from '@/theme/bundledWallpapers'
+import { BUNDLED_WALLPAPERS, generateAllThumbnails } from '@/theme/bundledWallpapers'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -94,9 +94,18 @@ function AppearancePane(): React.JSX.Element {
 
 // ─── Wallpaper Pane ──────────────────────────────────────────────────────────
 
-function WallpaperPane(): React.JSX.Element {
+const WallpaperPane = memo(function WallpaperPane(): React.JSX.Element {
   const wallpaper = useThemeStore((s) => s.wallpaper)
   const setWallpaper = useThemeStore((s) => s.setWallpaper)
+  const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map())
+
+  useEffect(() => {
+    let cancelled = false
+    generateAllThumbnails().then((map) => {
+      if (!cancelled) setThumbnails(map)
+    })
+    return () => { cancelled = true }
+  }, [])
 
   const handleSelectPreset = useCallback(
     (dataUrl: string) => setWallpaper(dataUrl),
@@ -130,14 +139,15 @@ function WallpaperPane(): React.JSX.Element {
         </div>
         <div className="flex gap-2.5 overflow-x-auto p-2 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
           {BUNDLED_WALLPAPERS.map((wp, i) => {
-            const isActive = wallpaper === wp.url
+            const isActive = wallpaper === wp.storageKey
+            const thumbUrl = thumbnails.get(wp.url) ?? wp.url
             return (
               <button
                 key={wp.filename}
-                onClick={() => handleSelectPreset(wp.url)}
+                onClick={() => handleSelectPreset(wp.storageKey)}
                 className="relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.97]"
                 style={{
-                  backgroundImage: `url(${wp.url})`,
+                  backgroundImage: `url(${thumbUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   border: isActive ? '2.5px solid #6366f1' : '1px solid rgba(128,128,128,0.2)',
@@ -151,7 +161,7 @@ function WallpaperPane(): React.JSX.Element {
                 {isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <SvgIcon svg={checkSvg} size={11} className="text-indigo-500" />
+                      <SvgIcon svg={checkSvg} size={18} className="text-indigo-500" />
                     </div>
                   </div>
                 )}
@@ -192,7 +202,7 @@ function WallpaperPane(): React.JSX.Element {
                 {isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <SvgIcon svg={checkSvg} size={11} className="text-indigo-500" />
+                      <SvgIcon svg={checkSvg} size={18} className="text-indigo-500" />
                     </div>
                   </div>
                 )}
@@ -231,7 +241,7 @@ function WallpaperPane(): React.JSX.Element {
                 {isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                     <div className="w-4 h-4 rounded-full flex items-center justify-center bg-white/90 shadow-md">
-                      <SvgIcon svg={checkSvg} size={9} className="text-indigo-500" />
+                      <SvgIcon svg={checkSvg} size={18} className="text-indigo-500" />
                     </div>
                   </div>
                 )}
@@ -260,11 +270,11 @@ function WallpaperPane(): React.JSX.Element {
       </div>
     </div>
   )
-}
+})
 
 // ─── Search Engine Pane ──────────────────────────────────────────────────────
 
-function SearchEnginePane(): React.JSX.Element {
+const SearchEnginePane = memo(function SearchEnginePane(): React.JSX.Element {
   const engineId = useSearchEngineStore((s) => s.engineId)
   const setEngine = useSearchEngineStore((s) => s.setEngine)
 
@@ -306,7 +316,7 @@ function SearchEnginePane(): React.JSX.Element {
       </div>
     </div>
   )
-}
+})
 
 // ─── About Pane ──────────────────────────────────────────────────────────────
 

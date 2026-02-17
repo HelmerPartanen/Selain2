@@ -12,6 +12,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useThemeStore } from '@/store/themeStore'
 import { useUIStore } from '@/store/uiStore'
 import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
+import { resolveWallpaperUrl } from '@/theme/bundledWallpapers'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { ToastContainer } from '@/components/ui/Toast'
 
@@ -45,10 +46,13 @@ function BrowserLayoutInner(): React.JSX.Element {
   const prevBlobRef = useRef<string | null>(null)
   const wallpaperUrl = useMemo(() => {
     if (!wallpaper) return null
-    if (wallpaper.startsWith('data:image/svg+xml')) return wallpaper
-    if (wallpaper.startsWith('blob:')) return wallpaper
-    if (wallpaper.startsWith('data:')) return dataUrlToBlobUrl(wallpaper)
-    return wallpaper
+    // Resolve bundled keys (e.g. "bundled:image.jpg") to Vite asset URLs
+    const resolved = resolveWallpaperUrl(wallpaper)
+    if (!resolved) return null
+    if (resolved.startsWith('data:image/svg+xml')) return resolved
+    if (resolved.startsWith('blob:')) return resolved
+    if (resolved.startsWith('data:')) return dataUrlToBlobUrl(resolved)
+    return resolved
   }, [wallpaper])
 
   // Revoke the previous blob URL after React has committed the new one to the DOM
