@@ -97,7 +97,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   return (
     <div
       className={`
-        flex items-center rounded-full h-10 px-2 gap-1
+        flex items-center rounded-full h-10 px-1
         bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700
         transition-all duration-200 ease-out will-change-[width,box-shadow]
         ${isFocused
