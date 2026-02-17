@@ -68,13 +68,13 @@ function FrequentlyVisited(): React.JSX.Element | null {
   if (topSites.length === 0) return null
 
   return (
-    <div className="w-full max-w-[520px]">
-      <div className="grid grid-cols-4 gap-3">
+    <div className="w-full max-w-[380px]">
+      <div className="grid grid-cols-4 gap-2">
         {topSites.map((site, i) => (
           <motion.button
             key={site.hostname}
             onClick={() => handleNavigate(site.url)}
-            className="flex flex-col items-center gap-2.5 p-3 rounded-2xl bg-white/8 backdrop-blur-md border border-white/8 hover:bg-white/15 hover:border-white/15 transition-all duration-150 active:scale-[0.95] group"
+            className="flex flex-col items-center justify-center gap-1.5 aspect-square rounded-xl border border-transparent hover:bg-white/15 hover:border-white/15 transition-all duration-150 active:scale-[0.95] group"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04, duration: 0.3 }}
