@@ -80,11 +80,10 @@ function AppMenuInner(): React.JSX.Element {
                   <motion.button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 [app-region:no-drag]"
+                    className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-100 [app-region:no-drag]"
                     initial={{ opacity: 0, y: 6, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ ...springItem, delay: 0.02 + idx * 0.04 }}
-                    whileHover={{ backgroundColor: '#f3f4f6', color: '#111827' }}
                     whileTap={{ scale: 0.97 }}
                   >
                     <Icon size={16} weight="bold" />

@@ -16,12 +16,12 @@ function ActiveFavicon(): React.JSX.Element {
   const isLoading = meta?.isLoading ?? false
 
   if (isLoading) {
-    return <CircleNotch size={14} className="animate-spin" style={{ color: 'var(--text-muted)' }} weight="bold" />
+    return <CircleNotch size={14} className="animate-spin text-gray-400" weight="bold" />
   }
   if (favicon) {
     return <img src={favicon} alt="" className="w-3.5 h-3.5 rounded-sm" draggable={false} />
   }
-  return <Globe size={14} style={{ color: 'var(--text-muted)' }} weight="regular" />
+  return <Globe size={14} className="text-gray-400" weight="regular" />
 }
 
 const TabRow = memo(function TabRow({
@@ -59,40 +59,31 @@ const TabRow = memo(function TabRow({
   return (
     <motion.button
       onClick={handleClick}
-      className="group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left"
+      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
       layout
       initial={{ opacity: 0, y: 6, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.15 } }}
       transition={{ ...springRow, delay: index * 0.03 }}
-      style={{
-        background: isActive ? 'var(--bg-surface)' : 'transparent',
-        color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)'
-      }}
-      whileHover={{
-        backgroundColor: isActive ? undefined : 'var(--bg-surface-hover)',
-        x: 1
-      }}
       whileTap={{ scale: 0.98 }}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
         {isLoading ? (
-          <CircleNotch size={13} className="animate-spin" style={{ color: 'var(--text-muted)' }} weight="bold" />
+          <CircleNotch size={13} className="animate-spin text-gray-400" weight="bold" />
         ) : favicon ? (
           <img src={favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
         ) : (
-          <Globe size={13} style={{ color: 'var(--text-muted)' }} weight="regular" />
+          <Globe size={13} className="text-gray-400" weight="regular" />
         )}
       </div>
 
       <span className="flex-1 text-xs truncate">{title}</span>
 
       <motion.div
-        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer"
+        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 transition-colors duration-100"
         onClick={handleClose}
-        whileHover={{ scale: 1.15, backgroundColor: 'var(--bg-surface-active)' }}
+        whileHover={{ scale: 1.15 }}
         whileTap={{ scale: 0.9 }}
-        style={{ color: 'var(--text-muted)' }}
       >
         <X size={11} weight="bold" />
       </motion.div>

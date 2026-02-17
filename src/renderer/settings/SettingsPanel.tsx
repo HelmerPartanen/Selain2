@@ -46,7 +46,7 @@ function ThemeModePicker(): React.JSX.Element {
                 ? { background: '#111827', color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
                 : { background: '#f9fafb', color: '#4b5563', border: '1px solid #e5e7eb' }
             }
-            whileHover={!isActive ? { scale: 1.02, backgroundColor: '#f3f4f6' } : { scale: 1.01 }}
+            whileHover={!isActive ? { scale: 1.02, backgroundColor: '#e5e7eb' } : { scale: 1.01 }}
             whileTap={{ scale: 0.96 }}
             transition={springItem}
           >
@@ -167,7 +167,7 @@ function WallpaperPicker(): React.JSX.Element {
         <motion.button
           onClick={handleCustomImage}
           className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 bg-gray-50 border border-gray-200"
-          whileHover={{ scale: 1.02, backgroundColor: '#f3f4f6', color: '#111827' }}
+          whileHover={{ scale: 1.02, backgroundColor: '#e5e7eb', color: '#111827' }}
           whileTap={{ scale: 0.97 }}
           transition={springItem}
         >
@@ -177,7 +177,7 @@ function WallpaperPicker(): React.JSX.Element {
         <motion.button
           onClick={handleClear}
           className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 bg-red-50 border border-red-100"
-          whileHover={{ scale: 1.02, backgroundColor: '#fef2f2', color: '#dc2626' }}
+          whileHover={{ scale: 1.02, backgroundColor: '#fecaca', color: '#dc2626' }}
           whileTap={{ scale: 0.97 }}
           transition={springItem}
         >

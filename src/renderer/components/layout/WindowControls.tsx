@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { motion } from 'motion/react'
-import { Minus, Square, X, CornersIn } from '@phosphor-icons/react'
+import { Minus, Square, X, CardsIcon } from '@phosphor-icons/react'
 
 const spring = { type: 'spring' as const, stiffness: 400, damping: 28 }
 
@@ -39,10 +39,10 @@ function WindowControlsInner(): React.JSX.Element {
       </ControlButton>
 
       <ControlButton onClick={handleToggleMaximize} label={isMaximized ? 'Restore' : 'Maximize'} color="hover:bg-gray-100">
-        {isMaximized ? <CornersIn size={12} weight="bold" /> : <Square size={10} weight="bold" />}
+        {isMaximized ? <CardsIcon size={12} weight="bold" /> : <Square size={10} weight="bold" />}
       </ControlButton>
 
-      <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-500 hover:text-white">
+      <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-600 hover:text-white">
         <X size={12} weight="bold" />
       </ControlButton>
     </motion.div>
