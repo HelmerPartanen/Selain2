@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { useActiveTabId, useActiveTabNavState } from '@/hooks/useTabSelector'
@@ -7,8 +7,10 @@ import { URLBar } from '@/components/browser/URLBar'
 import { AppMenu } from '@/components/layout/AppMenu'
 import { TabPill } from '@/components/browser/TabPill'
 import { Button } from '@/components/ui/Button'
-import { SettingsPanel } from '@/settings/SettingsPanel'
 import { useUIStore } from '@/store/uiStore'
+
+// Lazy-load SettingsPanel — only needed on user interaction
+const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
 
 const IDLE_DELAY = 2500
 
@@ -16,9 +18,12 @@ const springSnappy = { type: 'spring' as const, stiffness: 400, damping: 28, mas
 const springGentle = { type: 'spring' as const, stiffness: 220, damping: 24, mass: 1.0 }
 const springBounce = { type: 'spring' as const, stiffness: 500, damping: 20, mass: 0.6 }
 
+const THROTTLE_MS = 100
+
 function useIdleVisibility(isActive: boolean): boolean {
   const [isIdle, setIsIdle] = useState(false)
   const timerRef = useRef<number | null>(null)
+  const lastActivityRef = useRef<number>(0)
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) window.clearTimeout(timerRef.current)
@@ -33,11 +38,16 @@ function useIdleVisibility(isActive: boolean): boolean {
     }
 
     const handleActivity = (): void => {
+      // Throttle: skip if called within THROTTLE_MS of last invocation
+      const now = performance.now()
+      if (now - lastActivityRef.current < THROTTLE_MS) return
+      lastActivityRef.current = now
+
       setIsIdle(false)
       resetTimer()
     }
 
-    window.addEventListener('mousemove', handleActivity)
+    window.addEventListener('mousemove', handleActivity, { passive: true })
     window.addEventListener('keydown', handleActivity)
     resetTimer()
 
@@ -78,7 +88,7 @@ function FloatingControlsInner(): React.JSX.Element {
 
   return (
     <motion.div
-      className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag]"
+      className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
       initial={{ x: '-50%', y: 40, scale: 0.85, opacity: 0 }}
       animate={
         isIdle
@@ -91,7 +101,11 @@ function FloatingControlsInner(): React.JSX.Element {
       onMouseLeave={() => setIsHovered(false)}
     >
       <AnimatePresence>
-        {isSettingsOpen && <SettingsPanel />}
+        {isSettingsOpen && (
+          <Suspense fallback={null}>
+            <SettingsPanel />
+          </Suspense>
+        )}
       </AnimatePresence>
 
       <div className="flex items-center gap-1.5">

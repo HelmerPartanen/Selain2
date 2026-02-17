@@ -24,6 +24,11 @@ function solidToDataUrl(hex: string): string {
   return `data:image/svg+xml;base64,${btoa(svg)}`
 }
 
+/** Pre-computed lookup: hex → data URL (avoids recalculating btoa on every render) */
+const SOLID_DATA_URL_MAP = new Map<string, string>(
+  SOLID_COLOR_PRESETS.map((c) => [c.hex, solidToDataUrl(c.hex)])
+)
+
 // ─── Main Settings Page ──────────────────────────────────────────────────────
 
 function SettingsPageInner(): React.JSX.Element {
@@ -193,7 +198,7 @@ function WallpaperPicker(): React.JSX.Element {
         <SectionLabel text="Solid Colors" />
         <div className="grid grid-cols-6 gap-2 mt-2">
           {SOLID_COLOR_PRESETS.map((color) => {
-            const isActive = wallpaper === solidToDataUrl(color.hex)
+            const isActive = wallpaper === SOLID_DATA_URL_MAP.get(color.hex)
             return (
               <WallpaperSwatch
                 key={color.hex}

@@ -77,7 +77,7 @@ function WebViewManagerInner(): React.JSX.Element {
     <div className="relative h-full">
       {/* Webview container — solid background so web pages aren't transparent */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 webview-container"
         style={{
           backgroundColor: showSpecialPage ? 'transparent' : 'var(--bg-solid-fallback)',
           transition: 'background-color 200ms'

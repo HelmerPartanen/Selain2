@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Plus, X, Globe, CircleNotch } from '@phosphor-icons/react'
-import { useTabOrder, useActiveTabId, useTabMeta } from '@/hooks/useTabSelector'
+import { useTabOrder, useActiveTabId, useTabMeta, useTabFaviconState } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { Button } from '@/components/ui/Button'
 
@@ -10,9 +10,9 @@ const springCounter = { type: 'spring' as const, stiffness: 500, damping: 24, ma
 
 function ActiveFavicon(): React.JSX.Element {
   const activeTabId = useActiveTabId()
-  const meta = useTabMeta(activeTabId ?? '')
-  const favicon = meta?.favicon
-  const isLoading = meta?.isLoading ?? false
+  const state = useTabFaviconState(activeTabId ?? '')
+  const favicon = state?.favicon
+  const isLoading = state?.isLoading ?? false
 
   if (isLoading) {
     return <CircleNotch size={14} className="animate-spin text-gray-400" weight="bold" />

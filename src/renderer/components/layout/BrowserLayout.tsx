@@ -1,14 +1,35 @@
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { FloatingControls } from '@/components/layout/FloatingControls'
 import { WindowControls } from '@/components/layout/WindowControls'
 import { WebViewManager } from '@/webview/WebViewManager'
 import { useLRUTabManager } from '@/webview/useLRUTabManager'
 import { useTabStore } from '@/store/tabStore'
 import { useThemeStore } from '@/store/themeStore'
+import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
   const wallpaper = useThemeStore((s) => s.wallpaper)
+
+  // Convert data URLs to blob URLs for efficient CSS rendering.
+  // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
+  const blobUrlRef = useRef<string | null>(null)
+  const wallpaperUrl = useMemo(() => {
+    // Revoke previous blob URL to free memory
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current)
+      blobUrlRef.current = null
+    }
+    if (!wallpaper) return null
+    // Only convert data: URLs to blob; SVG data URLs are small enough to keep
+    if (wallpaper.startsWith('data:image/svg+xml')) return wallpaper
+    if (wallpaper.startsWith('data:')) {
+      const blobUrl = dataUrlToBlobUrl(wallpaper)
+      blobUrlRef.current = blobUrl
+      return blobUrl
+    }
+    return wallpaper
+  }, [wallpaper])
 
   useEffect(() => {
     const state = useTabStore.getState()
@@ -24,10 +45,10 @@ function BrowserLayoutInner(): React.JSX.Element {
       className={`
         fixed inset-0 z-0 transition-opacity duration-500
         bg-gray-100
-        ${wallpaper ? 'bg-cover bg-center bg-no-repeat' : ''}
+        ${wallpaperUrl ? 'bg-cover bg-center bg-no-repeat' : ''}
       `}
-      {...(wallpaper && {
-        style: { backgroundImage: `url(${wallpaper})` }
+      {...(wallpaperUrl && {
+        style: { backgroundImage: `url(${wallpaperUrl})` }
       })}
     />
 

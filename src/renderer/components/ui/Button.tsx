@@ -1,5 +1,4 @@
 import { type ButtonHTMLAttributes, forwardRef, memo } from 'react'
-import { motion } from 'motion/react'
 
 type ButtonVariant = 'ghost' | 'solid' | 'icon'
 
@@ -33,29 +32,25 @@ const variantStyles: Record<ButtonVariant, string> = {
   `
 }
 
-const tap = { scale: 0.9, transition: { type: 'spring' as const, stiffness: 500, damping: 18 } }
-const hover = { scale: 1.08, transition: { type: 'spring' as const, stiffness: 380, damping: 16, mass: 0.6 } }
-
 const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'ghost', className = '', rounded = 'rounded-full', children, ...props }, ref) => (
-    <motion.button
+    <button
       ref={ref}
-      whileTap={tap}
-      whileHover={hover}
       className={`
         inline-flex items-center justify-center
         ${rounded}
         text-sm select-none
-        transition-colors duration-100 ease-out
+        transition-all duration-100 ease-out
+        hover:scale-105 active:scale-90
         focus:outline-none
         disabled:opacity-40 disabled:pointer-events-none
         ${variantStyles[variant]}
         ${className}
       `}
-      {...(props as React.ComponentProps<typeof motion.button>)}
+      {...props}
     >
       {children}
-    </motion.button>
+    </button>
   )
 )
 

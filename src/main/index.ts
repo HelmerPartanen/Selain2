@@ -1,4 +1,4 @@
-import { app, BrowserWindow, components, dialog, ipcMain, Menu, session } from 'electron'
+import { app, BrowserWindow, components, dialog, ipcMain, Menu, nativeImage, session } from 'electron'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 
@@ -11,10 +11,9 @@ app.commandLine.appendSwitch('enable-hardware-overlays', 'single-fullscreen,sing
 app.commandLine.appendSwitch('ignore-gpu-blocklist')
 app.commandLine.appendSwitch('disable-software-rasterizer')
 
-// Disable background throttling so hidden webviews stay responsive
-app.commandLine.appendSwitch('disable-renderer-backgrounding')
-app.commandLine.appendSwitch('disable-background-timer-throttling')
-app.commandLine.appendSwitch('disable-backgrounding-occluded-windows')
+// NOTE: Background throttling is intentionally re-enabled (defaults).
+// Hidden/suspended webviews should be throttled to save CPU/RAM.
+// The LRU tab manager handles tab suspension separately.
 
 // Privacy: disable all telemetry, translation, sync, crash reporting
 app.commandLine.appendSwitch('disable-breakpad')
@@ -27,9 +26,7 @@ app.commandLine.appendSwitch('disable-features',
 // Allow autoplay for media (needed for Spotify, YouTube, etc.)
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 
-// Disable speculative features that burn CPU/memory
-app.commandLine.appendSwitch('disable-ipc-flooding-protection')
-app.commandLine.appendSwitch('disable-hang-monitor')
+// Keep IPC flooding protection and hang monitor enabled for stability
 
 Menu.setApplicationMenu(null)
 
@@ -125,11 +122,20 @@ function setupIPC(): void {
     const filePath = result.filePaths[0]!
     const buffer = await readFile(filePath)
     const ext = filePath.split('.').pop()?.toLowerCase() ?? 'png'
-    const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
-      : ext === 'webp' ? 'image/webp'
-      : ext === 'gif' ? 'image/gif'
-      : 'image/png'
-    return `data:${mime};base64,${buffer.toString('base64')}`
+
+    // Resize large images to max 1920px width to reduce memory usage
+    // nativeImage handles decoding efficiently in the main process
+    let img = nativeImage.createFromBuffer(buffer)
+    const size = img.getSize()
+    const MAX_WIDTH = 1920
+    if (size.width > MAX_WIDTH) {
+      const ratio = MAX_WIDTH / size.width
+      img = img.resize({ width: MAX_WIDTH, height: Math.round(size.height * ratio), quality: 'good' })
+    }
+
+    // Always output as JPEG for wallpapers (smaller than PNG)
+    const resizedBuffer = img.toJPEG(85)
+    return `data:image/jpeg;base64,${resizedBuffer.toString('base64')}`
   })
 }
 
@@ -202,14 +208,20 @@ function setupCSP(): void {
 }
 
 app.whenReady().then(async () => {
-  // Wait for Widevine CDM to be installed/updated (castlabs ECS)
-  await components.whenReady()
-  console.log('Widevine CDM ready:', components.status())
+  // Start CDM init in background — don't block window creation
+  const cdmReady = components.whenReady().then(() => {
+    console.log('Widevine CDM ready:', components.status())
+  }).catch((err) => {
+    console.warn('Widevine CDM init failed (DRM may be unavailable):', err)
+  })
 
   setupIPC()
   setupPermissions()
   setupCSP()
   createWindow()
+
+  // Ensure CDM is ready before any DRM playback is attempted
+  await cdmReady
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

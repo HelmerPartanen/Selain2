@@ -47,4 +47,15 @@ export function useTabMeta(id: string): { title: string; favicon: string; isLoad
   )
 }
 
+/** Subscribe only to favicon + loading state (avoids re-renders on title changes) */
+export function useTabFaviconState(id: string): { favicon: string; isLoading: boolean } | undefined {
+  return useTabStore(
+    useShallow((s) => {
+      const tab = s.tabs[id]
+      if (!tab) return undefined
+      return { favicon: tab.favicon, isLoading: tab.isLoading }
+    })
+  )
+}
+
 

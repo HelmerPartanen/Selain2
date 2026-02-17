@@ -2,6 +2,14 @@ import { memo, useCallback, useEffect, useRef } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from './webviewRegistry'
 
+/** Scrollbar CSS injected into every webview (module-level constant to avoid re-allocation) */
+const SCROLLBAR_CSS = `
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+`
+
 interface WebViewInstanceProps {
   tabId: string
   isActive: boolean
@@ -30,14 +38,6 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
     rafIdRef.current = requestAnimationFrame(flushUpdate)
   }, [flushUpdate])
-
-  /** Scrollbar CSS injected into every webview */
-  const SCROLLBAR_CSS = `
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
-  `
 
   const handleDomReady = useCallback(() => {
     domReadyRef.current = true

@@ -30,6 +30,14 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/renderer/index.html')
+        },
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react/jsx-runtime'],
+            'vendor-motion': ['motion', 'motion/react'],
+            'vendor-icons': ['@phosphor-icons/react'],
+            'vendor-zustand': ['zustand', 'zustand/middleware', 'zustand/react/shallow']
+          }
         }
       }
     },

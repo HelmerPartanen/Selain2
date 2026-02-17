@@ -6,7 +6,6 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
 const springMenu = { type: 'spring' as const, stiffness: 400, damping: 24, mass: 0.7 }
-const springItem = { type: 'spring' as const, stiffness: 450, damping: 26 }
 
 const menuItems = [
   { id: 'home', label: 'Home', icon: House },
@@ -46,8 +45,6 @@ function AppMenuInner(): React.JSX.Element {
     [handleClose]
   )
 
-  let itemIndex = 0
-
   return (
     <div ref={containerRef} className="relative">
       <Button variant="icon" onClick={handleToggle} aria-label="Menu" aria-expanded={isOpen}>
@@ -68,27 +65,26 @@ function AppMenuInner(): React.JSX.Element {
               transition={{ ...springMenu, opacity: { duration: 0.12 } }}
             >
               <div className="py-1">
-              {menuItems.map((item) => {
+              {menuItems.map((item, idx) => {
                 if (item.id === 'divider') {
                   return <div key="divider" className="border-t border-gray-100 my-1" />
                 }
 
                 const Icon = item.icon!
-                const idx = itemIndex++
 
                 return (
-                  <motion.button
+                  <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-100 [app-region:no-drag]"
-                    initial={{ opacity: 0, y: 8, scale: 0.92 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ ...springItem, delay: 0.04 + idx * 0.045 }}
-                    whileTap={{ scale: 0.97 }}
+                    className="w-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
+                    style={{
+                      opacity: 0,
+                      animation: `menu-item-in 150ms ease-out ${40 + idx * 30}ms forwards`
+                    }}
                   >
                     <Icon size={16} weight="bold" />
                     <span>{item.label}</span>
-                  </motion.button>
+                  </button>
                 )
               })}
               </div>

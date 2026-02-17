@@ -6,7 +6,6 @@ import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
-const springWidth = { type: 'spring' as const, stiffness: 320, damping: 28, mass: 0.8 }
 const springIcon = { type: 'spring' as const, stiffness: 450, damping: 24 }
 
 function normalizeURL(input: string): string {
@@ -96,15 +95,15 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const iconKey = !isFocused && hasUrl ? (isSecure ? 'lock' : 'globe') : 'search'
 
   return (
-    <motion.div
-      className="flex items-center rounded-full h-10 px-2 gap-1 bg-white shadow-lg"
-      animate={{
-        width: isFocused ? 500 : 360,
-        boxShadow: isFocused
-          ? '0 0 0 2.5px rgba(59,130,246,0.35), 0 12px 20px -4px rgba(0,0,0,0.12)'
-          : '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)'
-      }}
-      transition={springWidth}
+    <div
+      className={`
+        flex items-center rounded-full h-10 px-2 gap-1 bg-white
+        transition-all duration-200 ease-out will-change-[width,box-shadow]
+        ${isFocused
+          ? 'w-[500px] shadow-[0_0_0_2.5px_rgba(59,130,246,0.35),0_12px_20px_-4px_rgba(0,0,0,0.12)]'
+          : 'w-[360px] shadow-lg'
+        }
+      `}
     >
       <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>
         <AnimatePresence mode="wait" initial={false}>
@@ -153,7 +152,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           className="w-full h-full pl-9 pr-3 text-sm text-gray-900 bg-transparent outline-none placeholder:text-gray-400 focus:ring-0"
         />
       </div>
-    </motion.div>
+    </div>
   )
 }
 

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { motion } from 'motion/react'
 import {
   Sun,
@@ -15,13 +15,16 @@ import { useUIStore } from '@/store/uiStore'
 import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
 
 const springPanel = { type: 'spring' as const, stiffness: 380, damping: 26, mass: 0.8 }
-const springItem = { type: 'spring' as const, stiffness: 450, damping: 26 }
-const springExit = { type: 'spring' as const, stiffness: 500, damping: 32, mass: 0.6 }
 
 function solidToDataUrl(hex: string): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="${hex}"/></svg>`
   return `data:image/svg+xml;base64,${btoa(svg)}`
 }
+
+/** Pre-computed lookup: hex → data URL (avoids recalculating btoa on every render) */
+const SOLID_DATA_URL_MAP = new Map<string, string>(
+  SOLID_COLOR_PRESETS.map((c) => [c.hex, solidToDataUrl(c.hex)])
+)
 
 const THEME_MODES: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
   { mode: 'light', label: 'Light', icon: Sun },
@@ -38,22 +41,19 @@ function ThemeModePicker(): React.JSX.Element {
       {THEME_MODES.map(({ mode, label, icon: Icon }) => {
         const isActive = themeMode === mode
         return (
-          <motion.button
+          <button
             key={mode}
             onClick={() => setThemeMode(mode)}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-semibold"
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 hover:scale-[1.02] active:scale-[0.96]"
             style={
               isActive
                 ? { background: '#111827', color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
                 : { background: '#f9fafb', color: '#4b5563', border: '1px solid #e5e7eb' }
             }
-            whileHover={!isActive ? { scale: 1.02, backgroundColor: '#e5e7eb' } : { scale: 1.01 }}
-            whileTap={{ scale: 0.96 }}
-            transition={springItem}
           >
             <Icon size={15} weight={isActive ? 'fill' : 'bold'} />
             {label}
-          </motion.button>
+          </button>
         )
       })}
     </div>
@@ -96,23 +96,20 @@ function WallpaperPicker(): React.JSX.Element {
           {WALLPAPER_PRESETS.map((preset, i) => {
             const isActive = wallpaper === preset.dataUrl
             return (
-              <motion.button
+              <button
                 key={preset.id}
                 onClick={() => handleSelectPreset(preset.dataUrl)}
                 title={preset.name}
-                className="relative aspect-[16/10] rounded-xl overflow-hidden"
+                className="relative aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 hover:scale-[1.06] active:scale-[0.97]"
                 style={{
                   backgroundImage: `url(${preset.dataUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   border: isActive ? '2.5px solid #111827' : '1px solid #e5e7eb',
-                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)'
+                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)',
+                  opacity: 0,
+                  animation: `menu-item-in 150ms ease-out ${i * 30}ms forwards`
                 }}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ ...springItem, delay: i * 0.03 }}
-                whileHover={{ scale: 1.06 }}
-                whileTap={{ scale: 0.97 }}
               >
                 {isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
@@ -121,7 +118,7 @@ function WallpaperPicker(): React.JSX.Element {
                     </div>
                   </div>
                 )}
-              </motion.button>
+              </button>
             )
           })}
         </div>
@@ -133,23 +130,20 @@ function WallpaperPicker(): React.JSX.Element {
         </div>
         <div className="grid grid-cols-6 gap-2">
           {SOLID_COLOR_PRESETS.map((color, i) => {
-            const isActive = wallpaper === solidToDataUrl(color.hex)
+            const isActive = wallpaper === SOLID_DATA_URL_MAP.get(color.hex)
             return (
-              <motion.button
+              <button
                 key={color.hex}
                 onClick={() => handleSelectSolid(color.hex)}
                 title={color.name}
-                className="relative aspect-square rounded-xl overflow-hidden"
+                className="relative aspect-square rounded-xl overflow-hidden transition-all duration-150 hover:scale-[1.08] active:scale-[0.97]"
                 style={{
                   backgroundColor: color.hex,
                   border: isActive ? '2.5px solid #111827' : '1px solid #e5e7eb',
-                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)'
+                  boxShadow: isActive ? '0 0 0 1px #111827, 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.06)',
+                  opacity: 0,
+                  animation: `menu-item-in 150ms ease-out ${i * 20}ms forwards`
                 }}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ ...springItem, delay: i * 0.02 }}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.97 }}
               >
                 {isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20">
@@ -158,33 +152,27 @@ function WallpaperPicker(): React.JSX.Element {
                     </div>
                   </div>
                 )}
-              </motion.button>
+              </button>
             )
           })}
         </div>
       </div>
 
       <div className="flex gap-2">
-        <motion.button
+        <button
           onClick={handleCustomImage}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 bg-gray-50 border border-gray-200"
-          whileHover={{ scale: 1.02, backgroundColor: '#e5e7eb', color: '#111827' }}
-          whileTap={{ scale: 0.97 }}
-          transition={springItem}
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-gray-600 bg-gray-50 border border-gray-200 transition-all duration-150 hover:scale-[1.02] hover:bg-gray-200 hover:text-gray-900 active:scale-[0.97]"
         >
           <UploadSimple size={14} weight="bold" />
           Upload Image
-        </motion.button>
-        <motion.button
+        </button>
+        <button
           onClick={handleClear}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 bg-red-50 border border-red-100"
-          whileHover={{ scale: 1.02, backgroundColor: '#fecaca', color: '#dc2626' }}
-          whileTap={{ scale: 0.97 }}
-          transition={springItem}
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-red-500 bg-red-50 border border-red-100 transition-all duration-150 hover:scale-[1.02] hover:bg-red-200 hover:text-red-600 active:scale-[0.97]"
         >
           <Trash size={14} weight="bold" />
           Remove
-        </motion.button>
+        </button>
       </div>
     </div>
   )
@@ -230,7 +218,7 @@ function SettingsPanelInner(): React.JSX.Element {
             className="bg-gray-50 rounded-xl p-4 border border-gray-100"
             initial={{ opacity: 0, y: 12, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ ...springItem, delay: 0.08 }}
+            transition={{ delay: 0.06, duration: 0.2, ease: 'easeOut' }}
           >
             <h3 className="text-[13px] font-bold text-gray-900 mb-1">Theme</h3>
             <p className="text-[11px] text-gray-500 mb-3">Control how the interface looks.</p>
@@ -241,7 +229,7 @@ function SettingsPanelInner(): React.JSX.Element {
             className="bg-gray-50 rounded-xl p-4 border border-gray-100"
             initial={{ opacity: 0, y: 12, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ ...springItem, delay: 0.16 }}
+            transition={{ delay: 0.12, duration: 0.2, ease: 'easeOut' }}
           >
             <h3 className="text-[13px] font-bold text-gray-900 mb-1">Wallpaper</h3>
             <p className="text-[11px] text-gray-500 mb-3">Personalize your browser background.</p>

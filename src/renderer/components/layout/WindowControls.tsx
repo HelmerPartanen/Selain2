@@ -1,8 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react'
-import { motion } from 'motion/react'
 import { MinusIcon, SquareIcon, XIcon, CardsIcon } from '@phosphor-icons/react'
-
-const spring = { type: 'spring' as const, stiffness: 380, damping: 24, mass: 0.7 }
 
 function WindowControlsInner(): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
@@ -18,15 +15,13 @@ function WindowControlsInner(): React.JSX.Element {
   const handleClose = useCallback(() => window.electronAPI.closeWindow(), [])
 
   return (
-    <motion.div
-      className="fixed top-2.5 right-3 z-[60] flex items-center gap-1 rounded-full bg-white shadow-lg px-1.5 py-1 [app-region:no-drag]"
-      initial={{ opacity: 0, scale: 0.8, y: -10 }}
-      animate={{
-        opacity: isHovered ? 1 : 0,
-        scale: isHovered ? 1 : 0.85,
-        y: isHovered ? 0 : -6
-      }}
-      transition={spring}
+    <div
+      className={`
+        fixed top-2.5 right-3 z-[60] flex items-center gap-1 rounded-full
+        bg-white shadow-lg px-1.5 py-1 [app-region:no-drag]
+        transition-all duration-200 ease-out
+        ${isHovered ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.85] -translate-y-1.5'}
+      `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{ pointerEvents: 'auto' }}
@@ -45,7 +40,7 @@ function WindowControlsInner(): React.JSX.Element {
       <ControlButton onClick={handleClose} label="Close" color="hover:bg-red-600 hover:text-white">
         <XIcon size={12} weight="bold" />
       </ControlButton>
-    </motion.div>
+    </div>
   )
 }
 
@@ -61,15 +56,13 @@ function ControlButton({
   children: React.ReactNode
 }): React.JSX.Element {
   return (
-    <motion.button
+    <button
       onClick={onClick}
       aria-label={label}
-      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-600 transition-colors duration-75 ${color}`}
-      whileTap={{ scale: 0.85 }}
-      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-600 transition-all duration-75 active:scale-85 ${color}`}
     >
       {children}
-    </motion.button>
+    </button>
   )
 }
 
