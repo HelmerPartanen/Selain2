@@ -1,4 +1,4 @@
-import { type ButtonHTMLAttributes, forwardRef, memo } from 'react'
+import { type ButtonHTMLAttributes, forwardRef, memo, useState } from 'react'
 
 type ButtonVariant = 'ghost' | 'solid' | 'icon'
 
@@ -33,16 +33,10 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      variant = 'ghost',
-      className = '',
-      rounded = 'rounded-full',
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ variant = 'ghost', className = '', rounded = 'rounded-full', children, ...props }, ref) => {
+    const [pressed, setPressed] = useState(false)
+    const scale = pressed ? 0.92 : 1
+
     return (
       <button
         ref={ref}
@@ -50,12 +44,16 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
           inline-flex items-center justify-center
           ${rounded}
           text-sm select-none
-          transition-colors duration-75
+          transition-all duration-100 ease-out
           focus:outline-none
           disabled:opacity-40 disabled:pointer-events-none
           ${variantStyles[variant]}
           ${className}
         `}
+        style={{ transform: `scale(${scale})`, willChange: 'transform' }}
+        onMouseDown={() => setPressed(true)}
+        onMouseUp={() => setPressed(false)}
+        onMouseLeave={() => setPressed(false)}
         {...props}
       >
         {children}
