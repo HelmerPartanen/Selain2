@@ -38,8 +38,9 @@ function useIdleVisibility(isActive: boolean): boolean {
       return
     }
 
-    const handleActivity = (): void => {
-      // Throttle: skip if called within THROTTLE_MS of last invocation
+    // Only keyboard activity keeps the bar visible; mouse reveal is handled
+    // exclusively by hovering the bottom-edge zone or the bar itself.
+    const handleKeyActivity = (): void => {
       const now = performance.now()
       if (now - lastActivityRef.current < THROTTLE_MS) return
       lastActivityRef.current = now
@@ -48,13 +49,11 @@ function useIdleVisibility(isActive: boolean): boolean {
       resetTimer()
     }
 
-    window.addEventListener('mousemove', handleActivity, { passive: true })
-    window.addEventListener('keydown', handleActivity)
+    window.addEventListener('keydown', handleKeyActivity)
     resetTimer()
 
     return () => {
-      window.removeEventListener('mousemove', handleActivity)
-      window.removeEventListener('keydown', handleActivity)
+      window.removeEventListener('keydown', handleKeyActivity)
       if (timerRef.current) window.clearTimeout(timerRef.current)
     }
   }, [isActive, resetTimer])
@@ -134,6 +133,13 @@ function FloatingControlsInner(): React.JSX.Element {
   }, [])
 
   return (
+    <>
+    {/* Bottom-edge hover zone to reveal floating UI */}
+    <div
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-5 z-[49] [app-region:no-drag] bg-red-500/25"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    />
     <motion.div
       className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
       initial={{ x: '-50%', y: 40, scale: 0.85, opacity: 0 }}
@@ -260,6 +266,7 @@ function FloatingControlsInner(): React.JSX.Element {
         )}
       </AnimatePresence>
     </motion.div>
+    </>
   )
 }
 
