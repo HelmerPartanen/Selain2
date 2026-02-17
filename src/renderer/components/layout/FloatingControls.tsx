@@ -65,12 +65,24 @@ function FloatingControlsInner(): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
+  const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
+  const isMenuOpen = useUIStore((s) => s.isMenuOpen)
 
   const tabId = useActiveTabId()
   const { canGoBack, canGoForward } = useActiveTabNavState()
 
-  const isActive = isHovered || isInputFocused || isSettingsOpen
+  const isActive = isHovered || isInputFocused || isSettingsOpen || isDropdownOpen || isMenuOpen
   const isIdle = useIdleVisibility(isActive)
+
+  // Close all popups when UI goes idle
+  useEffect(() => {
+    if (isIdle) {
+      const store = useUIStore.getState()
+      if (store.isDropdownOpen) store.setDropdownOpen(false)
+      if (store.isMenuOpen) store.setMenuOpen(false)
+      if (store.isSettingsOpen) store.closeSettings()
+    }
+  }, [isIdle])
 
   const handleFocusChange = useCallback((focused: boolean) => {
     setIsInputFocused(focused)
