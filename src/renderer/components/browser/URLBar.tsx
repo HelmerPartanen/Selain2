@@ -247,11 +247,11 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {suggestions.length > 0 && isFocused && (
           <motion.div
-            className="absolute top-full mt-2 left-0 right-0 rounded-xl overflow-hidden z-[100] p-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
-            style={{ originY: 0 }}
-            initial={{ scaleY: 0.6, opacity: 0, y: -8 }}
+            className="absolute bottom-full mb-2 left-0 right-0 rounded-xl overflow-hidden z-[100] p-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
+            style={{ originY: 1 }}
+            initial={{ scaleY: 0.6, opacity: 0, y: 8 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
-            exit={{ scaleY: 0.6, opacity: 0, y: -8 }}
+            exit={{ scaleY: 0.6, opacity: 0, y: 8 }}
             transition={springDropdown}
           >
             {suggestions.map((entry, i) => (

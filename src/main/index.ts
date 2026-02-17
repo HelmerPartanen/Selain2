@@ -73,6 +73,40 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // ── Forward keyboard shortcuts from webviews to the renderer ──
+  // When a <webview> has focus, keydown events never reach the renderer window.
+  // We intercept them here via before-input-event on the host webContents and
+  // forward matching combos as IPC so the renderer can handle them.
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown' || !mainWindow) return
+
+    const ctrl = input.control || input.meta
+    const shift = input.shift
+    const alt = input.alt
+    const key = input.key.toLowerCase()
+
+    const isShortcut =
+      (ctrl && !shift && (key === 't' || key === 'w' || key === 'l' || key === 'f' || key === 'r')) ||
+      (ctrl && shift && (key === 't' || key === 's')) ||
+      (ctrl && key === 'tab') ||
+      (ctrl && !shift && /^[1-9]$/.test(input.key)) ||
+      (!ctrl && key === 'f5') ||
+      (alt && !ctrl && (key === 'arrowleft' || key === 'arrowright')) ||
+      (key === 'escape')
+
+    if (isShortcut) {
+      event.preventDefault()
+      mainWindow.webContents.send('shortcut-pressed', {
+        key: input.key,
+        code: input.code,
+        ctrlKey: input.control,
+        metaKey: input.meta,
+        shiftKey: input.shift,
+        altKey: input.alt
+      })
+    }
+  })
+
   mainWindow.webContents.on('will-attach-webview', (_event, webPreferences) => {
     webPreferences.nodeIntegration = false
     webPreferences.contextIsolation = true

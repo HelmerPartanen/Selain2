@@ -196,7 +196,7 @@ function TabPillInner(): React.JSX.Element {
       </AnimatePresence>
 
       <div
-        className="relative flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full h-10 px-1 gap-0.5 overflow-visible"
+        className="relative flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full p-1.5 gap-0.5 overflow-visible"
       >
         <Button variant="icon" onClick={handleAddTab} aria-label="New tab">
           <Plus size={15} weight="bold" />

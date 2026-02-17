@@ -17,7 +17,16 @@ const api: ElectronAPI = {
   },
   openImageDialog: () => ipcRenderer.invoke('open-image-dialog'),
   saveWallpaper: (dataUrl: string | null) => ipcRenderer.invoke('save-wallpaper', dataUrl),
-  loadWallpaper: () => ipcRenderer.invoke('load-wallpaper')
+  loadWallpaper: () => ipcRenderer.invoke('load-wallpaper'),
+  onShortcutPressed: (callback: (shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }): void => {
+      callback(shortcut)
+    }
+    ipcRenderer.on('shortcut-pressed', handler)
+    return () => {
+      ipcRenderer.removeListener('shortcut-pressed', handler)
+    }
+  }
 }
 
 // Freeze the API object so renderer code cannot mutate or extend it

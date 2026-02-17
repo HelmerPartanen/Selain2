@@ -11,6 +11,20 @@ function getFocusedTabId(): string | null {
 
 export function useKeyboardShortcuts(): void {
   useEffect(() => {
+    // Listen for shortcuts forwarded from main process (when webview has focus)
+    const unsubIPC = window.electronAPI.onShortcutPressed((shortcut) => {
+      window.dispatchEvent(new KeyboardEvent('keydown', {
+        key: shortcut.key,
+        code: shortcut.code,
+        ctrlKey: shortcut.ctrlKey,
+        metaKey: shortcut.metaKey,
+        shiftKey: shortcut.shiftKey,
+        altKey: shortcut.altKey,
+        bubbles: true,
+        cancelable: true
+      }))
+    })
+
     function handleKeyDown(e: KeyboardEvent): void {
       const ctrl = e.ctrlKey || e.metaKey
       const shift = e.shiftKey
@@ -144,6 +158,9 @@ export function useKeyboardShortcuts(): void {
     }
 
     window.addEventListener('keydown', handleKeyDown, true)
-    return () => window.removeEventListener('keydown', handleKeyDown, true)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true)
+      unsubIPC()
+    }
   }, [])
 }

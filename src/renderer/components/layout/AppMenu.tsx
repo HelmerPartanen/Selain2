@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { House, Gear, BookmarkSimple, ClockCounterClockwise, ListIcon } from '@phosphor-icons/react'
+import { House, Gear, BookmarkSimple, ClockCounterClockwise, DotsThreeVerticalIcon  } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/Button'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -47,9 +47,9 @@ function AppMenuInner(): React.JSX.Element {
   )
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative flex">
       <Button variant="icon" onClick={handleToggle} aria-label="Menu" aria-expanded={isOpen}>
-        <ListIcon size={18} weight="bold" />
+        <DotsThreeVerticalIcon  size={18} weight="bold" />
       </Button>
 
       <AnimatePresence>

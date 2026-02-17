@@ -10,6 +10,8 @@ export interface ElectronAPI {
   saveWallpaper(dataUrl: string | null): Promise<boolean>
   /** Load persisted wallpaper data URL from disk */
   loadWallpaper(): Promise<string | null>
+  /** Listen for keyboard shortcuts forwarded from the main process (for webview-focused shortcuts) */
+  onShortcutPressed(callback: (shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }) => void): () => void
 }
 
 declare global {

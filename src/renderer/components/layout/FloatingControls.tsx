@@ -119,7 +119,7 @@ function FloatingControlsInner(): React.JSX.Element {
       <div className="flex items-center gap-1.5">
         {/* Nav Pod */}
         <div
-          className="rounded-full h-10 flex items-center px-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg"
+          className="rounded-full flex items-center p-1.5 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg"
         >
           <AppMenu />
 
