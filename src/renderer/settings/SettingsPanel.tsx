@@ -112,7 +112,7 @@ function SettingRow({ label, desc, children }: { label: string; desc?: string; c
     <div className="flex items-center justify-between gap-4 py-2.5">
       <div className="min-w-0">
         <div className="text-[13px] font-medium text-gray-800 dark:text-neutral-200">{label}</div>
-        {desc && <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5">{desc}</div>}
+        {desc && <div className="text-[11px] font-normal text-gray-400 dark:text-neutral-500 mt-0.5">{desc}</div>}
       </div>
       <div className="flex-shrink-0">{children}</div>
     </div>
@@ -142,7 +142,7 @@ function GeneralPane(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Startup</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Startup</h3>
         <Desc>Control what happens when the browser opens.</Desc>
         <div className="space-y-1">
           <SettingRow label="Restore previous tabs" desc="Reopen tabs from your last session on startup">
@@ -537,7 +537,7 @@ const SearchEnginePane = memo(function SearchEnginePane(): React.JSX.Element {
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-200 dark:hover:bg-neutral-700'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-bold flex-shrink-0 ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-semibold flex-shrink-0 ${
                   isActive
                     ? 'bg-white/20 dark:bg-black/20'
                     : 'bg-gray-200 dark:bg-neutral-700'
@@ -568,7 +568,7 @@ function AboutPane(): React.JSX.Element {
 
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
-      <h3 className="text-[18px] font-bold text-gray-900 dark:text-white mb-1">Browser</h3>
+      <h3 className="text-[18px] font-semibold text-gray-900 dark:text-white mb-1">Browser</h3>
       <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-6">Version 1.0.0</p>
       <div className="text-[11px] text-gray-400 dark:text-neutral-500 space-y-1">
         <p>Chromium {chromeVersion}</p>
@@ -671,7 +671,7 @@ function SettingsPanelInner(): React.JSX.Element {
           <div className="flex h-full">
             <div className="w-[180px] flex-shrink-0 bg-gray-50 dark:bg-neutral-800 border-r border-gray-200 dark:border-neutral-700 flex flex-col">
               <div className="px-4 pt-5 pb-3">
-                <h2 className="text-[13px] font-bold text-gray-900 dark:text-white tracking-wide flex items-center gap-2">
+                <h2 className="text-[13px] font-semibold text-gray-900 dark:text-white tracking-relaxed flex items-center gap-2">
                   Settings
                 </h2>
               </div>
@@ -682,7 +682,7 @@ function SettingsPanelInner(): React.JSX.Element {
 
             <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
               <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800">
-                <h3 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight">
+                <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white tracking-relaxed">
                   {categoryLabel}
                 </h3>
                 <button

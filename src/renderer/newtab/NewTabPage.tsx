@@ -160,7 +160,7 @@ function FavouriteTile({
           <SvgIcon svg={globeSvg} size={20} className="text-black/40 dark:text-white/40" />
         )}
       </div>
-        <span className="text-[11px] font-medium tracking-wide text-white truncate w-full text-center pointer-events-none px-1 [text-shadow:0_1px_2px_rgba(0,0,0,1)]">
+        <span className="text-[11px] font-medium text-white truncate w-full text-center pointer-events-none px-1 [text-shadow:0_1px_2px_rgba(0,0,0,1)]">
         {hostname}
       </span>
     </motion.div>

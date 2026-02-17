@@ -1,7 +1,7 @@
 import { memo, useCallback, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import homeSvg from '@/assets/icons/Interface/Home_Fill.svg?raw'
+import homeSvg from '@/assets/icons/Interface/Home_2.svg?raw'
 import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
@@ -138,7 +138,7 @@ function AppMenuInner(): React.JSX.Element {
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className="w-full rounded-xl flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
+                    className="w-full rounded-xl flex items-center gap-3 px-3.5 h-9 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
                     style={{
                       opacity: 0,
                       animation: `menu-item-in 180ms ease-out ${60 + idx * 25}ms forwards`
@@ -147,7 +147,7 @@ function AppMenuInner(): React.JSX.Element {
                     <SvgIcon svg={Icon} size={16} />
                     <span className="flex-1 text-left">{item.label}</span>
                     {item.shortcut && (
-                      <span className="text-[11px] text-gray-400 dark:text-neutral-600 font-normal ml-2">
+                      <span className="text-[11px] text-gray-400 dark:text-neutral-600 font-light ml-2">
                         {item.shortcut}
                       </span>
                     )}
