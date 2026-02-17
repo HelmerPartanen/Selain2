@@ -297,13 +297,9 @@ const SearchEnginePane = memo(function SearchEnginePane(): React.JSX.Element {
 function AboutPane(): React.JSX.Element {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg mb-4">
-        <SvgIcon svg={settingsSvg} size={32} className="text-white" />
-      </div>
       <h3 className="text-[18px] font-bold text-gray-900 dark:text-white mb-1">Browser</h3>
       <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-4">Version 1.0.0</p>
       <div className="text-[11px] text-gray-400 dark:text-neutral-500 space-y-0.5">
-        <p>Built with Electron &amp; React</p>
         <p>Widevine DRM enabled</p>
       </div>
     </div>
