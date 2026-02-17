@@ -313,16 +313,17 @@ function SettingsPanelInner(): React.JSX.Element {
         onMouseDown={closeSettings}
       />
 
-      {/* Panel */}
-      <motion.div
-        ref={panelRef}
-        className="fixed z-[85] top-1/2 left-1/2 w-[640px] h-[440px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag]"
-        style={{ perspective: 800 }}
-        initial={{ x: '-50%', y: '-50%', scale: 0.92, opacity: 0 }}
-        animate={{ x: '-50%', y: '-50%', scale: 1, opacity: 1 }}
-        exit={{ x: '-50%', y: '-50%', scale: 0.95, opacity: 0 }}
-        transition={springPanel}
-      >
+      {/* Panel — genie entrance from the floating controls bar */}
+      <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
+        <motion.div
+          ref={panelRef}
+          className="w-[640px] h-[440px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
+          style={{ transformOrigin: '50% 100%', perspective: 800 }}
+          initial={{ y: 220, scaleX: 0.3, scaleY: 0.06, opacity: 0, rotateX: -15 }}
+          animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
+          exit={{ y: 180, scaleX: 0.35, scaleY: 0.06, opacity: 0, rotateX: -10 }}
+          transition={springPanel}
+        >
         <div className="flex h-full">
           {/* ─── Sidebar ─── */}
           <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/60 border-r border-gray-200 dark:border-neutral-700 flex flex-col">
@@ -356,6 +357,7 @@ function SettingsPanelInner(): React.JSX.Element {
           </div>
         </div>
       </motion.div>
+      </div>
     </>
   )
 }
