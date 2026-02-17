@@ -152,7 +152,7 @@ function GeneralPane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">New Tab</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">New Tab</h3>
         <Desc>Choose what appears when you open a new tab.</Desc>
         <div className="flex gap-2">
           {(['bookmarks', 'blank'] as NewTabMode[]).map((mode) => {
@@ -175,7 +175,7 @@ function GeneralPane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Homepage</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Homepage</h3>
         <Desc>URL to navigate when clicking the home button. Leave empty to disable.</Desc>
         <input
           type="text"
@@ -205,7 +205,7 @@ function AppearancePane(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Theme</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Theme</h3>
         <Desc>Choose how the browser interface looks.</Desc>
         <div className="flex gap-3">
           {THEME_MODES.map(({ mode, label, icon }) => {
@@ -229,7 +229,7 @@ function AppearancePane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Interface Scale</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Interface Scale</h3>
         <Desc>Scale the browser UI. Does not affect web page content.</Desc>
         <div className="flex gap-1.5">
           {UI_ZOOM_OPTIONS.map((z) => {
@@ -252,7 +252,7 @@ function AppearancePane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Toolbar Auto-Hide</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Toolbar Auto-Hide</h3>
         <Desc>How long the floating toolbar stays visible after inactivity.</Desc>
         <div className="flex items-center gap-3">
           <input
@@ -471,7 +471,7 @@ function PrivacyPane(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Session</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Session</h3>
         <Desc>Control how data is managed between sessions.</Desc>
         <SettingRow label="Clear data on exit" desc="Wipe history, downloads, and bookmarks when the browser closes">
           <Toggle checked={clearOnExit} onChange={setClearOnExit} />
@@ -479,7 +479,7 @@ function PrivacyPane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Browsing Data</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Browsing Data</h3>
         <Desc>Permanently delete stored data. This cannot be undone.</Desc>
         <div className="grid grid-cols-2 gap-2">
           {actions.map((action) => {
@@ -522,7 +522,7 @@ const SearchEnginePane = memo(function SearchEnginePane(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-white mb-1">Default Search Engine</h3>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Default Search Engine</h3>
         <Desc>Choose the search engine used for address bar and new tab searches.</Desc>
         <div className="space-y-1.5">
           {SEARCH_ENGINES.map((engine) => {
@@ -568,7 +568,7 @@ function AboutPane(): React.JSX.Element {
 
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
-      <h3 className="text-[18px] font-semibold text-gray-900 dark:text-white mb-1">Browser</h3>
+      <h3 className="text-[18px] font-medium text-gray-900 dark:text-white mb-1">Browser</h3>
       <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-6">Version 1.0.0</p>
       <div className="text-[11px] text-gray-400 dark:text-neutral-500 space-y-1">
         <p>Chromium {chromeVersion}</p>
@@ -615,7 +615,7 @@ function Sidebar({
           <button
             key={id}
             onClick={() => onSelect(id)}
-            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-100 ${
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-100 ${
               isActive
                 ? 'bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black shadow-sm'
                 : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white'
