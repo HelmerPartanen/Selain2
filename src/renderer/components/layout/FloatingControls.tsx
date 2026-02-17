@@ -136,7 +136,7 @@ function FloatingControlsInner(): React.JSX.Element {
     <>
     {/* Bottom-edge hover zone to reveal floating UI */}
     <div
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-5 z-[49] [app-region:no-drag] bg-red-500/25"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-8 z-[49] [app-region:no-drag] bg-red-500/25"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     />
@@ -149,8 +149,6 @@ function FloatingControlsInner(): React.JSX.Element {
           : { x: '-50%', y: 0, scale: 1, opacity: 1 }
       }
       transition={isIdle ? springGentle : springSnappy}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex items-center gap-1.5">
         {/* Menu Pod */}
