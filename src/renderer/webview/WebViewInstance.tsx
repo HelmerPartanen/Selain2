@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from './webviewRegistry'
 
@@ -9,6 +9,8 @@ const SCROLLBAR_CSS = `
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 `
+
+const TAB_TRANSITION_MS = 200
 
 interface WebViewInstanceProps {
   tabId: string
@@ -177,21 +179,41 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     return unsub
   }, [tabId])
 
+  // Keep the outgoing tab visible during exit animation, then truly hide it
+  const [shouldRender, setShouldRender] = useState(isActive)
+
+  useEffect(() => {
+    if (isActive) {
+      setShouldRender(true)
+    } else {
+      const timer = setTimeout(() => setShouldRender(false), TAB_TRANSITION_MS + 20)
+      return () => clearTimeout(timer)
+    }
+  }, [isActive])
+
+  const isVisible = isActive || shouldRender
+
   return (
-    <webview
-      ref={webviewRef}
-      src={initialUrl}
-      partition="persist:default"
-      {...{ plugins: '', allowpopups: '', allow: 'encrypted-media; autoplay; fullscreen' } as Record<string, string>}
-      className={
-        isActive
-          ? 'absolute inset-0 w-full h-full z-10 visible'
-          : 'absolute inset-0 w-full h-full z-0 invisible'
-      }
+    <div
+      className="absolute inset-0 w-full h-full"
       style={{
-        display: 'inline-flex'
+        opacity: isActive ? 1 : 0,
+        transform: isActive ? 'scale(1)' : 'scale(0.97)',
+        transition: `opacity ${TAB_TRANSITION_MS}ms ease-out, transform ${TAB_TRANSITION_MS}ms ease-out`,
+        zIndex: isActive ? 10 : 1,
+        visibility: isVisible ? 'visible' : 'hidden',
+        pointerEvents: isActive ? 'auto' : 'none'
       }}
-    />
+    >
+      <webview
+        ref={webviewRef}
+        src={initialUrl}
+        partition="persist:default"
+        {...{ plugins: '', allowpopups: '', allow: 'encrypted-media; autoplay; fullscreen' } as Record<string, string>}
+        className="w-full h-full"
+        style={{ display: 'inline-flex' }}
+      />
+    </div>
   )
 }
 

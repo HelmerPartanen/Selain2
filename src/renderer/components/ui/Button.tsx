@@ -25,7 +25,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     active:bg-gray-100 dark:active:bg-neutral-600
   `,
   icon: `
-    w-8 h-8
+    w-7 h-7
     text-gray-700 dark:text-neutral-300
     bg-transparent
     hover:bg-gray-100 hover:text-gray-900
@@ -43,7 +43,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
         ${rounded}
         text-sm select-none
         transition-all duration-100 ease-out
-        hover:scale-105 active:scale-90
+        active:scale-90
         focus:outline-none
         disabled:opacity-40 disabled:pointer-events-none
         ${variantStyles[variant]}
