@@ -10,7 +10,6 @@ import { URLBar } from '@/components/browser/URLBar'
 import { AppMenu } from '@/components/layout/AppMenu'
 import { TabPill } from '@/components/browser/TabPill'
 import { DownloadPill } from '@/components/browser/DownloadPill'
-import { Button } from '@/components/ui/Button'
 import { useUIStore } from '@/store/uiStore'
 import { useTabStore } from '@/store/tabStore'
 
@@ -188,19 +187,17 @@ function FloatingControlsInner(): React.JSX.Element {
         {/* Split indicator */}
         <AnimatePresence initial={false}>
           {isSplit && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 'auto', opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ ...springExpand, opacity: { duration: 0.15 } }}
-              style={{ overflow: 'hidden', flexShrink: 0 }}
+            <motion.button
+              onClick={handleUnsplit}
+              aria-label="Exit split view"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+              className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-indigo-500 hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-90 transition-[background-color] duration-100 select-none flex-shrink-0"
             >
-              <div className="rounded-full h-10 w-10 flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg">
-                <Button variant="icon" onClick={handleUnsplit} aria-label="Exit split view">
-                  <SvgIcon svg={unsplitSvg} size={15} className="text-indigo-500" />
-                </Button>
-              </div>
-            </motion.div>
+              <SvgIcon svg={unsplitSvg} size={15} />
+            </motion.button>
           )}
         </AnimatePresence>
 
