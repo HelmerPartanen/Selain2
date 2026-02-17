@@ -4,7 +4,7 @@ import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_fill.svg?raw'
-import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
+import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_3_Fill.svg?raw'
 import splitSvg from '@/assets/icons/Arrows/Left_Line_Right_Outside_Fill.svg?raw'
 import unsplitSvg from '@/assets/icons/Arrows/Left_Line_Right_Inside_Fill.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
@@ -87,7 +87,7 @@ const TabRow = memo(function TabRow({
   return (
     <button
       onClick={handleClick}
-      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-100 ${
+      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-xl text-left transition-colors duration-100 ${
         isHighlighted
           ? 'bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white'
           : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
@@ -170,7 +170,7 @@ function TabPillInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full mb-2 right-0 rounded-xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
+              className="absolute bottom-full mb-2 right-0 rounded-2xl overflow-hidden z-[100] min-w-[230px] max-w-[290px] bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
               style={{ originX: 0.5, originY: 1, perspective: 600 }}
               initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}

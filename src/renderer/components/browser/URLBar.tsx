@@ -7,8 +7,8 @@ import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
-import starSvg from '@/assets/icons/Interface/Star.svg?raw'
-import starFillSvg from '@/assets/icons/Interface/Star_Fill.svg?raw'
+import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
+import bookmarkFillSvg from '@/assets/icons/Objects/Bookmark_Fill.svg?raw'
 import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState, useFocusedTabMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -294,7 +294,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                     className="flex items-center justify-center"
                   >
                     <SvgIcon
-                      svg={isBookmarked ? starFillSvg : starSvg}
+                      svg={isBookmarked ? bookmarkFillSvg : bookmarkSvg}
                       size={15}
                       className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
                     />

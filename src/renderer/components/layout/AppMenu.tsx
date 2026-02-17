@@ -113,7 +113,7 @@ function AppMenuInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[260px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
+              className="absolute bottom-full mb-2 left-1/2 z-[100] min-w-[260px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
               style={{ originX: 0.5, originY: 1, x: '-50%', perspective: 600 }}
               initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
@@ -132,7 +132,7 @@ function AppMenuInner(): React.JSX.Element {
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className="w-full rounded-lg flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
+                    className="w-full rounded-xl flex items-center gap-3 px-3.5 h-9 text-[13px] font-medium text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
                     style={{
                       opacity: 0,
                       animation: `menu-item-in 180ms ease-out ${60 + idx * 25}ms forwards`
