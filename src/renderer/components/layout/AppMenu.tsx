@@ -1,7 +1,7 @@
 import { memo, useCallback, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import homeSvg from '@/assets/icons/Interface/Home.svg?raw'
+import homeSvg from '@/assets/icons/Interface/Home_Fill.svg?raw'
 import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'

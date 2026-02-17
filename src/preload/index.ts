@@ -56,7 +56,8 @@ const api: ElectronAPI = {
     ipcRenderer.on('open-url-in-new-tab', handler)
     return () => { ipcRenderer.removeListener('open-url-in-new-tab', handler) }
   },
-  capturePage: () => ipcRenderer.invoke('capture-page')
+  capturePage: () => ipcRenderer.invoke('capture-page'),
+  setZoomFactor: (factor: number) => ipcRenderer.send('set-zoom-factor', factor)
 }
 
 // Freeze the API object so renderer code cannot mutate or extend it

@@ -85,10 +85,10 @@ function BrowserLayoutInner(): React.JSX.Element {
     }
   }, [wallpaperUrl, wallpaper])
 
-  // ── Apply UI zoom scale ──
+  // ── Apply UI zoom scale via Electron webFrame ──
   useEffect(() => {
-    document.documentElement.style.zoom = uiZoom === 100 ? '' : `${uiZoom}%`
-    return () => { document.documentElement.style.zoom = '' }
+    window.electronAPI.setZoomFactor(uiZoom / 100)
+    return () => { window.electronAPI.setZoomFactor(1) }
   }, [uiZoom])
 
   // ── Clear browsing data on exit if enabled ──

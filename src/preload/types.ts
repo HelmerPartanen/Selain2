@@ -21,6 +21,8 @@ export interface ElectronAPI {
   onOpenUrlInNewTab(callback: (url: string) => void): () => void
   /** Capture the main window content as a data URL */
   capturePage(): Promise<string | null>
+  /** Set the renderer zoom factor (1.0 = 100%) */
+  setZoomFactor(factor: number): void
 }
 
 declare global {

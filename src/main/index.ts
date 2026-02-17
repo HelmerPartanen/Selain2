@@ -459,6 +459,10 @@ function setupIPC(): void {
     }
   })
 
+  ipcMain.on('set-zoom-factor', (_event, factor: number) => {
+    mainWindow?.webContents.setZoomFactor(factor)
+  })
+
   // ── Image picker dialog ──
   ipcMain.handle('open-image-dialog', async () => {
     if (!mainWindow) return null

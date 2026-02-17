@@ -312,17 +312,21 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         {/* PiP button */}
         <AnimatePresence>
           {isPlayingMedia && !isFocused && (
-            <motion.button
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-              onClick={handlePiP}
-              aria-label="Picture in Picture"
-              className="w-8 h-8 rounded-full flex items-center justify-center mr-0.5 flex-shrink-0 transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 32, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              className="flex-shrink-0 overflow-hidden mr-0.5"
             >
-              <SvgIcon svg={PIP_SVG} size={15} className="text-gray-400 dark:text-neutral-500" />
-            </motion.button>
+              <button
+                onClick={handlePiP}
+                aria-label="Picture in Picture"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
+              >
+                <SvgIcon svg={PIP_SVG} size={15} className="text-gray-400 dark:text-neutral-500" />
+              </button>
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -365,7 +369,11 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                     : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                <SvgIcon svg={counterclockwiseSvg} size={13} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
+                {entry.favicon ? (
+                  <img src={entry.favicon} alt="" className="flex-shrink-0 w-[14px] h-[14px] rounded-sm object-contain" />
+                ) : (
+                  <SvgIcon svg={counterclockwiseSvg} size={13} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
+                )}
                 <span className="flex-1 text-xs truncate">{entry.title || simplifyUrl(entry.url)}</span>
                 <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[140px]">
                   {simplifyUrl(entry.url)}

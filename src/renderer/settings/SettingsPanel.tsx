@@ -9,7 +9,7 @@ import uploadSvg from '@/assets/icons/Objects/Tray_Arrow_Up.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import brushSvg from '@/assets/icons/Objects/Brush.svg?raw'
-import cameraSvg from '@/assets/icons/Objects/Camera_Rctangle.svg?raw'
+import cameraSvg from '@/assets/icons/News/Image_picture.svg?raw'
 import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import settingsSvg from '@/assets/icons/Objects/Settings.svg?raw'
 import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
@@ -163,7 +163,7 @@ function GeneralPane(): React.JSX.Element {
                 onClick={() => setNewTabMode(mode)}
                 className={`flex-1 px-4 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-150 ${
                   isActive
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-sm'
+                    ? 'bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black shadow-sm'
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-200 dark:hover:bg-neutral-700'
                 }`}
               >
@@ -240,7 +240,7 @@ function AppearancePane(): React.JSX.Element {
                 onClick={() => setUiZoom(z)}
                 className={`flex-1 py-2 rounded-lg text-[11px] font-semibold transition-all duration-150 ${
                   isActive
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-sm'
+                    ? 'bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black shadow-sm'
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:bg-gray-200 dark:hover:bg-neutral-700'
                 }`}
               >
@@ -286,31 +286,16 @@ function LazyWallpaperThumb({
   isActive: boolean
   onSelect: (key: string) => void
 }): React.JSX.Element {
-  const ref = useRef<HTMLButtonElement>(null)
   const [thumbUrl, setThumbUrl] = useState<string | null>(null)
-  const observedRef = useRef(false)
 
   useEffect(() => {
-    const el = ref.current
-    if (!el || observedRef.current) return
-    observedRef.current = true
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry && entry.isIntersecting) {
-          observer.disconnect()
-          generateThumbnail(url).then(setThumbUrl)
-        }
-      },
-      { rootMargin: '100px' }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
+    let cancelled = false
+    generateThumbnail(url).then((t) => { if (!cancelled) setThumbUrl(t) })
+    return () => { cancelled = true }
   }, [url])
 
   return (
     <button
-      ref={ref}
       onClick={() => onSelect(storageKey)}
       className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
         isActive
@@ -548,7 +533,7 @@ const SearchEnginePane = memo(function SearchEnginePane(): React.JSX.Element {
                 onClick={() => setEngine(engine.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 ${
                   isActive
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-sm'
+                    ? 'bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black shadow-sm'
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-200 dark:hover:bg-neutral-700'
                 }`}
               >
