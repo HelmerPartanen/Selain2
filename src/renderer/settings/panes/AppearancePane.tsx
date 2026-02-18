@@ -26,7 +26,7 @@ function AppearancePaneInner(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Theme</h3>
+        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Theme</h3>
         <Desc>Choose how the browser interface looks.</Desc>
         <div className="flex gap-3" role="radiogroup" aria-label="Theme mode">
           {THEME_MODES.map(({ mode, label, icon }) => {
@@ -45,7 +45,7 @@ function AppearancePaneInner(): React.JSX.Element {
                 }`}
               >
                 <SvgIcon svg={icon} size={22} />
-                <span className="text-[12px] font-semibold">{label}</span>
+                <span className="text-[12px] font-medium">{label}</span>
               </button>
             )
           })}
@@ -53,7 +53,7 @@ function AppearancePaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Interface Scale</h3>
+        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Interface Scale</h3>
         <Desc>Scale the browser UI. Does not affect web page content.</Desc>
         <div className="flex gap-1.5" role="radiogroup" aria-label="Interface scale">
           {UI_ZOOM_OPTIONS.map((z) => {
@@ -65,7 +65,7 @@ function AppearancePaneInner(): React.JSX.Element {
                 aria-checked={isActive}
                 aria-label={`${z}% zoom`}
                 onClick={() => setUiZoom(z)}
-                className={`flex-1 py-2 rounded-lg text-[11px] font-semibold transition-all duration-150 ${
+                className={`flex-1 py-2 rounded-lg text-[11px] font-medium transition-all duration-150 ${
                   isActive
                     ? 'bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black shadow-sm'
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:bg-gray-200 dark:hover:bg-neutral-700'
@@ -79,7 +79,7 @@ function AppearancePaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Toolbar Auto-Hide</h3>
+        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Toolbar Auto-Hide</h3>
         <Desc>How long the floating toolbar stays visible after inactivity.</Desc>
         <div className="flex items-center gap-3">
           <input
@@ -96,7 +96,7 @@ function AppearancePaneInner(): React.JSX.Element {
             aria-valuetext={`${(autoHideDelay / 1000).toFixed(1)} seconds`}
             className="flex-1 h-1.5 rounded-full appearance-none bg-gray-200 dark:bg-neutral-700 accent-indigo-500 dark:accent-indigo-400 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-500 dark:[&::-webkit-slider-thumb]:bg-indigo-400 [&::-webkit-slider-thumb]:shadow-sm"
           />
-          <span className="text-[12px] font-mono font-medium text-gray-500 dark:text-neutral-400 w-10 text-right tabular-nums" aria-hidden="true">
+          <span className="text-[12px] font-mono font-normal text-gray-500 dark:text-neutral-400 w-10 text-right tabular-nums" aria-hidden="true">
             {(autoHideDelay / 1000).toFixed(1)}s
           </span>
         </div>

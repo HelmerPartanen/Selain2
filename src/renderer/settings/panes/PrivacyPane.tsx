@@ -57,7 +57,7 @@ function PrivacyPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Session</h3>
+        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Session</h3>
         <Desc>Control how data is managed between sessions.</Desc>
         <SettingRow label="Clear data on exit" desc="Wipe history, downloads, and bookmarks when the browser closes">
           <Toggle checked={clearOnExit} onChange={setClearOnExit} label="Clear data on exit" />
@@ -65,7 +65,7 @@ function PrivacyPaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Browsing Data</h3>
+        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Browsing Data</h3>
         <Desc>Permanently delete stored data. This cannot be undone.</Desc>
         <div className="grid grid-cols-2 gap-2">
           {actions.map((action) => {
@@ -82,7 +82,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                     setTimeout(() => setConfirmAction((c) => c === action.id ? null : c), 3000)
                   }
                 }}
-                className={`px-4 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-150 active:scale-[0.97] ${
+                className={`px-4 py-2.5 rounded-xl text-[12px] font-medium transition-all duration-150 active:scale-[0.97] ${
                   isConfirming
                     ? 'bg-red-500 dark:bg-red-500 text-white border border-red-500'
                     : action.destructive

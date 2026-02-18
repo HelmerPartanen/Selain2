@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40">
           <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-700 p-8 max-w-sm text-center">
             <div className="text-3xl mb-3">⚠️</div>
-            <h3 className="text-[15px] font-bold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-2">
               Something went wrong
             </h3>
             <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-5">
@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <button
               onClick={this.handleRetry}
-              className="px-5 py-2 rounded-xl text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 active:scale-[0.97] transition-all duration-150"
+              className="px-5 py-2 rounded-xl text-[13px] font-medium text-white bg-indigo-500 hover:bg-indigo-600 active:scale-[0.97] transition-all duration-150"
             >
               Try Again
             </button>

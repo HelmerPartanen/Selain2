@@ -5,7 +5,7 @@
 
 export function SectionLabel({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <span className="text-[11px] font-semibold tracking-wide uppercase text-gray-400 dark:text-neutral-500">
+    <span className="text-[11px] font-medium tracking-wide uppercase text-gray-400 dark:text-neutral-500">
       {children}
     </span>
   )
@@ -59,8 +59,8 @@ export function SettingRow({
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
       <div className="min-w-0">
-        <div className="text-[13px] font-medium text-gray-800 dark:text-neutral-200">{label}</div>
-        {desc && <div className="text-[11px] font-normal text-gray-400 dark:text-neutral-500 mt-0.5">{desc}</div>}
+        <div className="text-[13px] font-normal text-gray-800 dark:text-neutral-200">{label}</div>
+        {desc && <div className="text-[12px] text-gray-500 dark:text-neutral-400 mt-0.5">{desc}</div>}
       </div>
       <div className="flex-shrink-0">{children}</div>
     </div>

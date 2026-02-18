@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, SQUARE_SVG, CARDS_SVG } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
+import { WALLPAPER_PRESETS } from '@/theme/presets'
 import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
@@ -632,6 +633,7 @@ function OnboardingWindowControls(): React.JSX.Element {
 
 function OnboardingFlowInner(): React.JSX.Element {
   const setOnboardingCompleted = useSettingsStore((s) => s.setOnboardingCompleted)
+  const setWallpaper = useThemeStore((s) => s.setWallpaper)
   const [step, setStep] = useState(0)
   const [exiting, setExiting] = useState(false)
   const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -647,8 +649,11 @@ function OnboardingFlowInner(): React.JSX.Element {
   const finish = useCallback(() => {
     if (exiting) return
     setExiting(true)
+    // Set the Bloom wallpaper (matches last onboarding orb colors) for a seamless transition
+    const bloom = WALLPAPER_PRESETS.find((p) => p.id === 'ready_bloom')
+    if (bloom) setWallpaper(bloom.dataUrl)
     exitTimer.current = setTimeout(() => setOnboardingCompleted(true), 550)
-  }, [exiting, setOnboardingCompleted])
+  }, [exiting, setOnboardingCompleted, setWallpaper])
 
   const next = useCallback(() => {
     if (exiting) return

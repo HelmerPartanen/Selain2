@@ -83,7 +83,7 @@ function ToastContainerInner(): React.JSX.Element {
                 }
               />
             </div>
-            <span className="flex-1 text-[13px] font-medium text-gray-800 dark:text-neutral-200 truncate">
+            <span className="flex-1 text-[13px] font-normal text-gray-800 dark:text-neutral-200 truncate">
               {toast.message}
             </span>
             {toast.action && (
@@ -92,7 +92,7 @@ function ToastContainerInner(): React.JSX.Element {
                   toast.action!.onClick()
                   handleDismiss(toast.id)
                 }}
-                className="text-[12px] font-semibold text-blue-500 hover:text-blue-600 flex-shrink-0 transition-colors"
+                className="text-[12px] font-medium text-blue-500 hover:text-blue-600 flex-shrink-0 transition-colors"
               >
                 {toast.action.label}
               </button>

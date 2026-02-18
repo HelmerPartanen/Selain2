@@ -13,7 +13,7 @@ function SearchEnginePaneInner(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-1">Default Search Engine</h3>
+        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Default Search Engine</h3>
         <Desc>Choose the search engine used for address bar and new tab searches.</Desc>
         <div className="space-y-1.5" role="radiogroup" aria-label="Search engine selection">
           {SEARCH_ENGINES.map((engine) => {
@@ -31,14 +31,14 @@ function SearchEnginePaneInner(): React.JSX.Element {
                     : 'bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 hover:bg-gray-200 dark:hover:bg-neutral-700'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-semibold flex-shrink-0 ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium flex-shrink-0 ${
                   isActive
                     ? 'bg-white/20 dark:bg-black/20'
                     : 'bg-gray-200 dark:bg-neutral-700'
                 }`}>
                   {engine.icon}
                 </div>
-                <span className="text-[13px] font-medium">{engine.name}</span>
+                <span className="text-[13px] font-normal">{engine.name}</span>
                 {isActive && (
                   <SvgIcon svg={checkSvg} size={14} className="ml-auto" />
                 )}

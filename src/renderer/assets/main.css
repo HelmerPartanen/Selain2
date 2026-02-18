@@ -16,6 +16,19 @@
 
 @theme {
   --font-sans: "SF Pro", "Segoe UI Variable", system-ui, sans-serif;
+
+  /* ─── Lighter font-weight scale ─────────────────────────────────────────── */
+  /* Shift entire scale down: normal→light, medium→normal, semibold→medium,   */
+  /* bold→semibold. Keeps SF Pro feeling airy and refined.                     */
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 300;
+  --font-weight-medium: 400;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-black: 700;
 }
 
 /* ─── Base Resets ─────────────────────────────────────────────────────────── */
