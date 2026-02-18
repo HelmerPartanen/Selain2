@@ -11,6 +11,8 @@ export function GeneralPane(): React.JSX.Element {
   const setNewTabMode = useSettingsStore((s) => s.setNewTabMode)
   const homepageUrl = useSettingsStore((s) => s.homepageUrl)
   const setHomepageUrl = useSettingsStore((s) => s.setHomepageUrl)
+  const reduceTransparency = useSettingsStore((s) => s.reduceTransparency)
+  const setReduceTransparency = useSettingsStore((s) => s.setReduceTransparency)
   const [urlDraft, setUrlDraft] = useState(homepageUrl)
 
   const handleUrlBlur = useCallback(() => {
@@ -27,7 +29,7 @@ export function GeneralPane(): React.JSX.Element {
       <div>
         <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Startup</h3>
         <Desc>Control what happens when the browser opens.</Desc>
-        <div className="space-y-1 font-medium">
+        <div className="space-y-1">
           <SettingRow label="Restore previous tabs" desc="Reopen tabs from your last session on startup">
             <Toggle checked={restoreTabs} onChange={setRestoreTabs} label="Restore previous tabs" />
           </SettingRow>
@@ -74,6 +76,16 @@ export function GeneralPane(): React.JSX.Element {
           spellCheck={false}
           className="w-full px-3 py-2 rounded-xl text-[12px] bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors duration-150"
         />
+      </div>
+
+      <div>
+        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Performance</h3>
+        <Desc>Options that may improve responsiveness on lower-end hardware.</Desc>
+        <div className="space-y-1">
+          <SettingRow label="Reduce transparency" desc="Disable backdrop blur and translucent surfaces">
+            <Toggle checked={reduceTransparency} onChange={setReduceTransparency} label="Reduce transparency" />
+          </SettingRow>
+        </div>
       </div>
     </div>
   )

@@ -90,6 +90,34 @@ body,
 }
 
 /* ─── Performance: CSS containment & GPU promotion ────────────────────────── */
+
+/* ── Reduce Transparency mode ─────────────────────────────────────────────── */
+/* When .reduce-transparency is on <html>, strip all backdrop-filter effects   */
+/* and promote translucent backgrounds to opaque. This avoids expensive GPU    */
+/* compositing while keeping the layout visually intact.                       */
+.reduce-transparency *,
+.reduce-transparency *::before,
+.reduce-transparency *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Translucent UI surfaces → opaque equivalents */
+.reduce-transparency {
+  /* Settings sidebar */
+  & .bg-gray-50\/80   { background-color: rgb(249 250 251) !important; }
+  & .bg-neutral-800\/80 { background-color: rgb(38 38 38) !important; }
+
+  /* Settings content */
+  & .bg-white\/95     { background-color: rgb(255 255 255) !important; }
+  & .bg-neutral-900\/95 { background-color: rgb(23 23 23) !important; }
+
+  /* Modal overlays — slightly more opaque to compensate for no blur */
+  & .bg-black\/30     { background-color: rgba(0, 0, 0, 0.45) !important; }
+  & .bg-black\/50     { background-color: rgba(0, 0, 0, 0.65) !important; }
+  & .bg-black\/60     { background-color: rgba(0, 0, 0, 0.75) !important; }
+}
+
 .floating-controls-bar {
   will-change: transform, opacity;
   contain: layout style;
