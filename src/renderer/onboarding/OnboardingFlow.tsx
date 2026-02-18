@@ -180,27 +180,11 @@ function FadeUp({
 function WelcomeStep(): React.JSX.Element {
   return (
     <div className="flex flex-col items-center text-center gap-8">
-      {/* Brand mark — circle → squircle morph with gradient */}
-      <motion.div
-        className="relative w-[88px] h-[88px] bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-500 flex items-center justify-center shadow-2xl shadow-indigo-500/25 dark:shadow-indigo-400/15"
-        initial={{ scale: 0, borderRadius: '50%', rotate: -120 }}
-        animate={{ scale: 1, borderRadius: 24, rotate: 0 }}
-        transition={{ ...SPRING, stiffness: 280, damping: 22 }}
-      >
-        <motion.span
-          className="text-white text-[36px] font-bold select-none leading-none"
-          initial={{ opacity: 0, scale: 0.3 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...SPRING, delay: 0.2 }}
-        >
-          C
-        </motion.span>
-      </motion.div>
 
       {/* Hero text — staggered word reveal */}
       <div className="space-y-4">
         <StaggeredWords
-          text="Welcome to Chromium"
+          text="Welcome"
           as="h1"
           className="text-[42px] font-semibold tracking-tight text-gray-900 dark:text-white leading-[1.08]"
           delay={0.25}
@@ -220,8 +204,7 @@ function WelcomeStep(): React.JSX.Element {
 }
 
 // ─── Step 1 — Appearance ─────────────────────────────────────────────────────
-// Mini browser mockups give a tangible preview of each theme mode.
-// Selecting a card instantly changes the real theme — tactile feedback.
+// Improved theme cards: richer hover states, glow ring, depth, tactile feel.
 
 function BrowserMockup({ mode }: { mode: 'light' | 'dark' }): React.JSX.Element {
   const isLight = mode === 'light'
@@ -302,45 +285,82 @@ function AppearanceStep(): React.JSX.Element {
         </FadeUp>
       </div>
 
-      <div className="flex gap-4">
+      {/* Card tray — subtle inset surface to ground the cards */}
+      <div className="
+        flex gap-3 p-3 rounded-[22px]
+        bg-gray-100/80 dark:bg-neutral-800/60
+        border border-gray-200/60 dark:border-neutral-700/40
+        shadow-inner shadow-gray-200/60 dark:shadow-black/20
+      ">
         {themes.map(({ id, label }, i) => {
           const selected = themeMode === id
+
           return (
             <motion.button
               key={id}
               onClick={() => setThemeMode(id)}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...SPRING_SOFT, delay: 0.35 + i * 0.08 }}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.97 }}
               className={`
-                relative flex flex-col items-center gap-3 w-[154px] p-3 pb-4 rounded-2xl border-2
-                transition-[border-color,background-color,box-shadow] duration-200
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2
+                relative flex flex-col items-center gap-3 w-[148px] p-3 pb-4 rounded-[16px]
+                outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-neutral-800
+                transition-[background-color,box-shadow] duration-200 ease-out
                 ${selected
-                  ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/[0.08] shadow-lg shadow-indigo-500/10 dark:shadow-indigo-400/5'
-                  : 'border-gray-200/80 dark:border-neutral-700/80 bg-white/50 dark:bg-neutral-800/50 hover:border-gray-300 dark:hover:border-neutral-600'
+                  ? /* selected: white card elevated off the tray */
+                    'bg-white dark:bg-neutral-700 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]'
+                  : /* unselected: nearly flush with tray; lifts on hover */
+                    'bg-transparent hover:bg-white/70 dark:hover:bg-neutral-700/50 hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)] dark:hover:shadow-[0_2px_10px_rgba(0,0,0,0.3)]'
                 }
               `}
               aria-pressed={selected}
             >
+              {/* Glow ring — renders behind the card content, only when selected */}
+              <AnimatePresence>
+                {selected && (
+                  <motion.span
+                    className="pointer-events-none absolute inset-0 rounded-[16px] ring-2 ring-indigo-500 dark:ring-indigo-400"
+                    initial={{ opacity: 0, scale: 0.94 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.94 }}
+                    transition={SPRING}
+                  />
+                )}
+              </AnimatePresence>
+
+              {/* Subtle indigo tint overlay when selected */}
+              <AnimatePresence>
+                {selected && (
+                  <motion.span
+                    className="pointer-events-none absolute inset-0 rounded-[16px] bg-indigo-500/[0.04] dark:bg-indigo-400/[0.06]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                  />
+                )}
+              </AnimatePresence>
+
               {id === 'system' ? <SystemMockup /> : <BrowserMockup mode={id} />}
 
-              <span className={`text-[13px] font-medium transition-colors duration-150 ${
-                selected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-neutral-400'
-              }`}>
+              <span className={`
+                text-[13px] font-medium transition-colors duration-150
+                ${selected
+                  ? 'text-indigo-600 dark:text-indigo-400'
+                  : 'text-gray-500 dark:text-neutral-500'
+                }
+              `}>
                 {label}
               </span>
 
-              {/* Selection badge */}
+              {/* Selection check badge */}
               <AnimatePresence>
                 {selected && (
                   <motion.div
-                    className="absolute -top-1.5 -right-1.5 w-[22px] h-[22px] rounded-full bg-indigo-500 dark:bg-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-500/30"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
+                    className="absolute -top-2 -right-2 w-[22px] h-[22px] rounded-full bg-indigo-500 dark:bg-indigo-400 flex items-center justify-center shadow-md shadow-indigo-500/40 dark:shadow-indigo-400/30"
+                    initial={{ scale: 0, rotate: -20 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    exit={{ scale: 0, rotate: 20 }}
                     transition={SPRING}
                   >
                     <SvgIcon svg={checkSvg} size={11} className="text-white dark:text-black" />
@@ -536,7 +556,7 @@ function OnboardingFlowInner(): React.JSX.Element {
           : { duration: 0.35, ease: EASE_OUT }
       }
       role="dialog"
-      aria-label="Welcome to Chromium"
+      aria-label="Welcome"
       aria-modal="true"
     >
       {/* Living gradient background */}
