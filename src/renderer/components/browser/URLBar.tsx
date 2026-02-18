@@ -14,26 +14,11 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
-import { useSearchEngineStore } from '@/store/searchEngineStore'
-import { simplifyUrl } from '@/utils/urlUtils'
+import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
 import { SPRING_FAST, SPRING_POPUP } from '@/utils/springs'
-
-function normalizeURL(input: string): string {
-  const trimmed = input.trim()
-  if (!trimmed) return 'browser://newtab'
-  if (trimmed === 'about:blank') return trimmed
-  if (trimmed.startsWith('browser://')) return trimmed
-  if (/^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\//.test(trimmed)) return trimmed
-  if (/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}/.test(trimmed)) {
-    return `https://${trimmed}`
-  }
-  return useSearchEngineStore.getState().getSearchUrl(trimmed)
-}
-
-// simplifyUrl is imported from @/utils/urlUtils
 
 function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => void }): React.JSX.Element {
   const tabId = useFocusedTabId()
@@ -239,7 +224,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.5, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                transition={SPRING_FAST}
                 className="flex items-center justify-center"
               >
                 {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={15} className="text-green-600" />}
@@ -271,7 +256,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+              transition={SPRING_FAST}
               className="flex-shrink-0"
             >
               <Button variant="icon" onClick={handleToggleBookmark} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>

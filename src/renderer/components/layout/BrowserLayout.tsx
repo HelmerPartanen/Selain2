@@ -2,7 +2,6 @@ import {
   lazy,
   memo,
   Suspense,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -16,6 +15,7 @@ import { WebViewManager } from "@/webview/WebViewManager";
 import { useLRUTabManager } from "@/webview/useLRUTabManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useDownloadListener } from "@/hooks/useDownloadListener";
+import { useTrackpadTabSwipe } from "@/hooks/useTrackpadTabSwipe";
 import { useIsDark } from "@/hooks/useIsDark";
 import { useTabStore } from "@/store/tabStore";
 import { useThemeStore } from "@/store/themeStore";
@@ -66,6 +66,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager();
   useKeyboardShortcuts();
   useDownloadListener();
+  useTrackpadTabSwipe();
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const uiZoom = useSettingsStore((s) => s.uiZoom);
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);
@@ -165,53 +166,6 @@ function BrowserLayoutInner(): React.JSX.Element {
       useTabStore.getState().addTab(url);
     });
   }, []);
-
-  // ── Trackpad two-finger swipe to switch tabs ──
-  const swipeDelta = useRef(0);
-  const swipeTimeout = useRef<number>(0);
-  const SWIPE_THRESHOLD = 120;
-
-  const handleWheel = useCallback((e: WheelEvent) => {
-    // Only respond to horizontal trackpad gestures (deltaX dominant)
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-    // Skip if any panel/overlay is open
-    const ui = useUIStore.getState();
-    if (
-      ui.isSettingsOpen ||
-      ui.isBookmarksOpen ||
-      ui.isHistoryOpen ||
-      ui.isDownloadsOpen
-    )
-      return;
-
-    swipeDelta.current += e.deltaX;
-
-    // Reset accumulator if user stops swiping
-    if (swipeTimeout.current) window.clearTimeout(swipeTimeout.current);
-    swipeTimeout.current = window.setTimeout(() => {
-      swipeDelta.current = 0;
-    }, 300);
-
-    if (Math.abs(swipeDelta.current) >= SWIPE_THRESHOLD) {
-      const { tabOrder, activeTabId, setActiveTab } = useTabStore.getState();
-      if (!activeTabId || tabOrder.length <= 1) {
-        swipeDelta.current = 0;
-        return;
-      }
-      const idx = tabOrder.indexOf(activeTabId);
-      const direction = swipeDelta.current > 0 ? 1 : -1;
-      const nextIdx = idx + direction;
-      if (nextIdx >= 0 && nextIdx < tabOrder.length) {
-        setActiveTab(tabOrder[nextIdx]!);
-      }
-      swipeDelta.current = 0;
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("wheel", handleWheel, { passive: true });
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, [handleWheel]);
 
   return (
     <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">

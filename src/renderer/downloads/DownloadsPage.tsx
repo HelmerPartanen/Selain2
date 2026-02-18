@@ -1,6 +1,5 @@
-import { memo, useMemo, useEffect } from 'react'
-import { motion } from 'motion/react'
-import { SPRING } from '@/utils/springs'
+import { memo, useMemo } from 'react'
+import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
 import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
@@ -138,32 +137,14 @@ function DownloadsPanelInner(): React.JSX.Element {
   const items = useMemo(() => Object.values(downloads).sort((a, b) => b.startTime - a.startTime), [downloads])
   const closeDownloads = useUIStore((s) => s.closeDownloads)
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') closeDownloads() }
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [closeDownloads])
-
   return (
-    <>
-      <motion.div
-        className="fixed inset-0 z-[80] bg-black/30 dark:bg-black/50"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-        onMouseDown={closeDownloads}
-      />
-      <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
-        <motion.div
-          className="w-[520px] h-[440px] rounded-3xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto flex flex-col"
-          style={{ transformOrigin: '50% 100%', perspective: 800 }}
-          initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
-          animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
-          exit={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 }}
-          transition={{ ...SPRING, damping: 26 }}
-        >
-          <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
+    <PanelModal
+      onClose={closeDownloads}
+      width="520px"
+      height="440px"
+      className="bg-white dark:bg-neutral-900 flex flex-col"
+    >
+      <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
             <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <SvgIcon svg={downloadSvg} size={16} />
               Downloads
@@ -190,10 +171,8 @@ function DownloadsPanelInner(): React.JSX.Element {
                 ))}
               </div>
             )}
-          </div>
-        </motion.div>
       </div>
-    </>
+    </PanelModal>
   )
 }
 

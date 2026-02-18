@@ -8,13 +8,14 @@ import {
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import chevronLeftSvg from "@/assets/icons/Arrows/Chevron_Left.svg?raw";
 import chevronRightSvg from "@/assets/icons/Arrows/Chevron_Right.svg?raw";
-import unsplitSvg from "@/assets/icons/Arrows/Left_Line_Right_Inside_Fill.svg?raw";
+import unsplitSvg from "@/assets/icons/Arrows/Triangle_Merge.svg?raw";
 import { webviewRegistry } from "@/webview/webviewRegistry";
 import { URLBar } from "@/components/browser/URLBar";
 import { AppMenu } from "@/components/layout/AppMenu";
 import { TabPill } from "@/components/browser/TabPill";
 import { DownloadPill } from "@/components/browser/DownloadPill";
 import { useUIStore } from "@/store/uiStore";
+import { useShallow } from 'zustand/react/shallow';
 import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { SPRING, SPRING_GENTLE, SPRING_EXPAND } from '@/utils/springs';
@@ -65,14 +66,27 @@ function useIdleVisibility(isActive: boolean): boolean {
 function FloatingControlsInner(): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const isSettingsOpen = useUIStore((s) => s.isSettingsOpen);
-  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen);
-  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
-  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen);
-  const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen);
-  const isDropdownOpen = useUIStore((s) => s.isDropdownOpen);
-  const isMenuOpen = useUIStore((s) => s.isMenuOpen);
-  const isHotkeysOpen = useUIStore((s) => s.isHotkeysOpen);
+  const {
+    isSettingsOpen,
+    isBookmarksOpen,
+    isHistoryOpen,
+    isDownloadsOpen,
+    isTabOverviewOpen,
+    isDropdownOpen,
+    isMenuOpen,
+    isHotkeysOpen,
+  } = useUIStore(
+    useShallow((s) => ({
+      isSettingsOpen: s.isSettingsOpen,
+      isBookmarksOpen: s.isBookmarksOpen,
+      isHistoryOpen: s.isHistoryOpen,
+      isDownloadsOpen: s.isDownloadsOpen,
+      isTabOverviewOpen: s.isTabOverviewOpen,
+      isDropdownOpen: s.isDropdownOpen,
+      isMenuOpen: s.isMenuOpen,
+      isHotkeysOpen: s.isHotkeysOpen,
+    }))
+  );
 
   const tabId = useFocusedTabId();
   const { canGoBack, canGoForward } = useFocusedTabNavState();

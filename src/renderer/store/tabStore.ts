@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { useSettingsStore } from './settingsStore'
+import { isSpecialPage } from '@/utils/urlUtils'
 
 export interface Tab {
   id: string

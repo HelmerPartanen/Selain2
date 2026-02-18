@@ -3,14 +3,11 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { WebViewInstance } from './WebViewInstance'
 import { NewTabPage } from '@/newtab/NewTabPage'
+import { isSpecialPage } from '@/utils/urlUtils'
 
 interface WebViewEntry {
   id: string
   initialUrl: string
-}
-
-function isSpecialPage(url: string): boolean {
-  return url === 'browser://newtab'
 }
 
 function SpecialPage({ url }: { url: string }): React.JSX.Element | null {

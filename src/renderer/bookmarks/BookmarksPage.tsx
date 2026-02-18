@@ -1,6 +1,5 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { motion } from 'motion/react'
-import { SPRING } from '@/utils/springs'
+import { memo, useCallback, useState } from 'react'
+import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
@@ -9,9 +8,9 @@ import starSvg from '@/assets/icons/Interface/Star.svg?raw'
 import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useBookmarkStore, type BookmarkEntry } from '@/store/bookmarkStore'
-import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
+import { navigateActiveTab } from '@/utils/tabUtils'
 
 
 const BookmarkRow = memo(function BookmarkRow({
@@ -66,51 +65,27 @@ function BookmarksPanelInner(): React.JSX.Element {
 
   const filtered = query ? searchFn(query) : bookmarks
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') closeBookmarks()
-    }
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [closeBookmarks])
-
-  const handleNavigate = useCallback((url: string) => {
-    const store = useTabStore.getState()
-    const activeId = store.activeTabId
-    if (activeId) {
-      store.updateTab(activeId, { url })
-    }
-    closeBookmarks()
-  }, [closeBookmarks])
+  const handleNavigate = useCallback(
+    (url: string) => {
+      navigateActiveTab(url)
+      closeBookmarks()
+    },
+    [closeBookmarks]
+  )
 
   const handleRemove = useCallback((url: string) => {
     removeBookmark(url)
   }, [removeBookmark])
 
   return (
-    <>
-      {/* Backdrop */}
-      <motion.div
-        className="fixed inset-0 z-[80] bg-black/30 dark:bg-black/50"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-        onMouseDown={closeBookmarks}
-      />
-
-      {/* Panel — genie entrance matching Settings */}
-      <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
-        <motion.div
-          className="w-[480px] h-[440px] rounded-3xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto flex flex-col"
-          style={{ transformOrigin: '50% 100%', perspective: 800 }}
-          initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
-          animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
-          exit={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 }}
-          transition={{ ...SPRING, damping: 26 }}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
+    <PanelModal
+      onClose={closeBookmarks}
+      width="480px"
+      height="440px"
+      className="bg-white dark:bg-neutral-900 flex flex-col"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
             <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <SvgIcon svg={bookmarkSvg} size={16} />
               Bookmarks
@@ -160,10 +135,8 @@ function BookmarksPanelInner(): React.JSX.Element {
                 ))}
               </div>
             )}
-          </div>
-        </motion.div>
       </div>
-    </>
+    </PanelModal>
   )
 }
 
