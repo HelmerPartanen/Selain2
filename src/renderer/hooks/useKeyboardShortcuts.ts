@@ -104,6 +104,16 @@ export function useKeyboardShortcuts(): void {
         return
       }
 
+      // Ctrl+Shift+X — Swap split panels
+      if (ctrl && shift && key === 'x') {
+        e.preventDefault()
+        const state = useTabStore.getState()
+        if (state.splitTabId) {
+          state.swapSplitPanels()
+        }
+        return
+      }
+
       // Ctrl+Tab / Ctrl+Shift+Tab — Cycle tabs
       if (ctrl && key === 'tab') {
         e.preventDefault()

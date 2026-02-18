@@ -4,6 +4,9 @@ import type { ElectronAPI } from '../preload/types'
 
 // Electron webview tag types for the renderer process
 declare global {
+  /** App version injected at build time by electron-vite */
+  const __APP_VERSION__: string
+
   interface Window {
     electronAPI: ElectronAPI
   }
@@ -27,6 +30,13 @@ declare global {
       removeEventListener(event: string, listener: EventListener): void
     }
 
+    interface NativeImage {
+      toDataURL(options?: { scaleFactor?: number }): string
+      toPNG(): Buffer
+      toJPEG(quality: number): Buffer
+      getSize(): { width: number; height: number }
+    }
+
     interface PageTitleUpdatedEvent extends Event {
       title: string
       explicitSet: boolean
@@ -45,6 +55,13 @@ declare global {
     interface DidNavigateInPageEvent extends Event {
       url: string
       isMainFrame: boolean
+    }
+
+    interface DidFailLoadEvent extends Event {
+      readonly errorCode: number
+      readonly errorDescription: string
+      readonly validatedURL: string
+      readonly isMainFrame: boolean
     }
 
     interface IpcRendererEvent extends Event {

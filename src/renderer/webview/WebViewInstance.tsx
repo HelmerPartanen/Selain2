@@ -119,6 +119,22 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     [batchUpdate]
   )
 
+  const handleDidFailLoad = useCallback(
+    (event: Electron.DidFailLoadEvent) => {
+      // Ignore subframe failures and user-aborted navigations
+      if (!event.isMainFrame) return
+      if (event.errorCode === -3) return // ERR_ABORTED (user navigated away)
+      const webview = webviewRef.current
+      batchUpdate({
+        isLoading: false,
+        loadProgress: 0,
+        canGoBack: webview?.canGoBack() ?? false,
+        canGoForward: webview?.canGoForward() ?? false
+      })
+    },
+    [batchUpdate]
+  )
+
   const handleMediaStartedPlaying = useCallback(() => {
     batchUpdate({ isPlayingMedia: true })
   }, [batchUpdate])
@@ -163,6 +179,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     webview.addEventListener('page-favicon-updated', handlePageFaviconUpdated as EventListener)
     webview.addEventListener('did-navigate', handleDidNavigate as EventListener)
     webview.addEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
+    webview.addEventListener('did-fail-load', handleDidFailLoad as EventListener)
     webview.addEventListener('media-started-playing', handleMediaStartedPlaying)
     webview.addEventListener('media-paused', handleMediaPaused)
     webview.addEventListener('focus', handleWebviewFocus)
@@ -175,6 +192,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webview.removeEventListener('page-favicon-updated', handlePageFaviconUpdated as EventListener)
       webview.removeEventListener('did-navigate', handleDidNavigate as EventListener)
       webview.removeEventListener('did-navigate-in-page', handleDidNavigateInPage as EventListener)
+      webview.removeEventListener('did-fail-load', handleDidFailLoad as EventListener)
       webview.removeEventListener('media-started-playing', handleMediaStartedPlaying)
       webview.removeEventListener('media-paused', handleMediaPaused)
       webview.removeEventListener('focus', handleWebviewFocus)

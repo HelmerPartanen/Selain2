@@ -70,6 +70,7 @@ function HistoryPanelInner(): React.JSX.Element {
   const removeEntry = useHistoryStore((s) => s.removeEntry)
   const clearAll = useHistoryStore((s) => s.clearAll)
   const [query, setQuery] = useState('')
+  const [confirmingClear, setConfirmingClear] = useState(false)
 
   const grouped = getGrouped()
   const searchResults = query.length >= 2 ? searchFn(query) : null
@@ -87,12 +88,30 @@ function HistoryPanelInner(): React.JSX.Element {
   }, [removeEntry])
 
   const clearButton = entries.length > 0 ? (
-    <button
-      onClick={clearAll}
-      className="text-xs text-gray-500 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-100 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-    >
-      Clear all
-    </button>
+    confirmingClear ? (
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-gray-500 dark:text-neutral-400">Clear all history?</span>
+        <button
+          onClick={() => { clearAll(); setConfirmingClear(false) }}
+          className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-100"
+        >
+          Confirm
+        </button>
+        <button
+          onClick={() => setConfirmingClear(false)}
+          className="text-xs text-gray-500 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-100"
+        >
+          Cancel
+        </button>
+      </div>
+    ) : (
+      <button
+        onClick={() => setConfirmingClear(true)}
+        className="text-xs text-gray-500 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-100 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+      >
+        Clear all
+      </button>
+    )
   ) : undefined
 
   return (

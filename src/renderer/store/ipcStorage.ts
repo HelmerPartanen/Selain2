@@ -40,7 +40,9 @@ function createIPCStateStorage(): StateStorage {
 
     removeItem: async (name: string): Promise<void> => {
       try {
-        await window.electronAPI.saveStore(name, '')
+        // Write JSON null so that JSON.parse succeeds on next read and
+        // Zustand treats the value as "no persisted state" (falls back to defaults).
+        await window.electronAPI.saveStore(name, 'null')
       } catch {
         // no-op
       }

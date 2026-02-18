@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createIPCStorage } from './ipcStorage'
 
 export interface DownloadItem {
   id: string
@@ -25,6 +26,9 @@ interface DownloadState {
   openDownload: (id: string) => void
   showInFolder: (id: string) => void
 }
+
+/** Shape of the state that is actually written to disk (partialize output) */
+type PersistedDownloadState = { downloads: Record<string, DownloadItem> }
 
 const MAX_PERSISTED_DOWNLOADS = 50
 
@@ -97,7 +101,8 @@ export const useDownloadStore = create<DownloadState>()(
     {
       name: 'download-history',
       version: 1,
-      partialize: (state) => {
+      storage: createIPCStorage<PersistedDownloadState>(),
+      partialize: (state): PersistedDownloadState => {
         // Only persist completed/failed/cancelled downloads (not active ones)
         // Limit to MAX_PERSISTED_DOWNLOADS most recent
         const finished = Object.values(state.downloads)

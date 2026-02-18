@@ -235,6 +235,22 @@ function Favourites(): React.JSX.Element | null {
 function NewTabPageInner(): React.JSX.Element {
   const newTabMode = useSettingsStore((s) => s.newTabMode)
 
+  if (newTabMode === 'blank') {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center select-none">
+        <div className="flex flex-col items-center gap-3 opacity-20">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2" />
+            <path d="M16 3C16 3 11 10 11 16C11 22 16 29 16 29" stroke="currentColor" strokeWidth="2" />
+            <path d="M16 3C16 3 21 10 21 16C21 22 16 29 16 29" stroke="currentColor" strokeWidth="2" />
+            <line x1="3" y1="16" x2="29" y2="16" stroke="currentColor" strokeWidth="2" />
+          </svg>
+          <span className="text-xs font-medium text-current tracking-wide">Press Ctrl+L to navigate</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="absolute inset-0 select-none">
       {newTabMode === 'bookmarks' && <Favourites />}

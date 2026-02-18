@@ -153,10 +153,25 @@ function BrowserLayoutInner(): React.JSX.Element {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [clearOnExit]);
 
+  // Gate initial tab creation on hydration to avoid a spurious blank tab
+  // being added before the persisted session has been restored.
   useEffect(() => {
-    const state = useTabStore.getState();
-    if (state.tabOrder.length === 0) {
-      state.addTab();
+    function ensureTab(): void {
+      if (useTabStore.getState().tabOrder.length === 0) {
+        useTabStore.getState().addTab()
+      }
+    }
+
+    if (useTabStore.persist.hasHydrated()) {
+      // Already hydrated synchronously (e.g. localStorage fallback)
+      ensureTab()
+    } else {
+      // Wait for async IPC hydration to complete before deciding whether to
+      // create a starter tab — prevents a spurious tab when restoring a session.
+      const unsub = useTabStore.persist.onFinishHydration(() => {
+        ensureTab()
+        unsub()
+      })
     }
   }, []);
 

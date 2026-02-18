@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { useSettingsStore } from './settingsStore'
-import { isSpecialPage } from '@/utils/urlUtils'
+import { createIPCStorage } from './ipcStorage'
 
 export interface Tab {
   id: string
@@ -55,6 +55,11 @@ export interface TabStore {
 
   // Reopen closed tab
   reopenLastClosed: () => void
+}
+
+/** Shape persisted to disk — a subset of TabStore without action methods */
+type PersistedTabState = Pick<TabStore, 'tabOrder' | 'activeTabId' | 'splitTabId' | 'focusedPanel'> & {
+  tabs: Record<string, Omit<Tab, 'isPlayingMedia' | 'virtualBackUrl' | 'virtualForwardUrl'>>
 }
 
 function isSpecialPage(url: string): boolean {
@@ -330,7 +335,8 @@ export const useTabStore = create<TabStore>()(
       {
         name: 'tab-session',
         version: 1,
-        partialize: (state) => ({
+        storage: createIPCStorage<PersistedTabState>(),
+        partialize: (state): PersistedTabState => ({
           tabOrder: state.tabOrder,
           activeTabId: state.activeTabId,
           splitTabId: state.splitTabId,

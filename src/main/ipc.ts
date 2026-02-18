@@ -162,7 +162,15 @@ export function setupIPC(): void {
   })
 
   // ── Settings store persistence ───────────────────────────────────────────
-  const ALLOWED_STORES = new Set(['browser-settings', 'search-engine', 'theme-store'])
+  const ALLOWED_STORES = new Set([
+    'browser-settings',
+    'search-engine',
+    'theme-store',
+    'tab-session',
+    'bookmark-store',
+    'browser-history',
+    'download-history'
+  ])
   const storeDir = app.getPath('userData')
 
   ipcMain.handle('load-store', async (_event, name: string) => {

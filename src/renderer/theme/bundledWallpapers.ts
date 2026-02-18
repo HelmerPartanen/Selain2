@@ -98,3 +98,17 @@ export async function generateAllThumbnails(): Promise<Map<string, string>> {
   )
   return new Map(entries)
 }
+
+/**
+ * Revoke all cached thumbnail blob URLs and clear the cache.
+ * Call this when the wallpaper settings pane unmounts to prevent memory leaks
+ * in long-running sessions.
+ */
+export function clearThumbCache(): void {
+  for (const url of thumbCache.values()) {
+    if (url.startsWith('blob:')) {
+      URL.revokeObjectURL(url)
+    }
+  }
+  thumbCache.clear()
+}

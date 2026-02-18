@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createIPCStorage } from './ipcStorage'
 
 export interface BookmarkEntry {
   id: string
@@ -52,8 +53,10 @@ export const useBookmarkStore = create<BookmarkState>()(
 
       reorderBookmarks: (fromIndex, toIndex) => {
         set((state) => {
+          if (fromIndex < 0 || fromIndex >= state.bookmarks.length) return state
           const next = [...state.bookmarks]
           const [moved] = next.splice(fromIndex, 1)
+          if (moved === undefined) return state
           next.splice(toIndex, 0, moved)
           return { bookmarks: next }
         })
@@ -77,6 +80,6 @@ export const useBookmarkStore = create<BookmarkState>()(
         )
       }
     }),
-    { name: 'bookmark-store', version: 1 }
+    { name: 'bookmark-store', version: 1, storage: createIPCStorage<BookmarkState>() }
   )
 )

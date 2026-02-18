@@ -7,7 +7,7 @@ import { PanelModal } from "@/components/ui/PanelModal";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
-import brushSvg from "@/assets/icons/Objects/Brush.svg?raw";
+import brushSvg from "@/assets/icons/News/Camera_Macro.svg?raw";
 import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
 import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";

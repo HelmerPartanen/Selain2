@@ -12,6 +12,7 @@ import {
 import {
   BUNDLED_WALLPAPERS,
   generateThumbnail,
+  clearThumbCache,
 } from "@/theme/bundledWallpapers";
 import { showToast } from "@/components/ui/Toast";
 import { useIsDark } from "@/hooks/useIsDark";
@@ -115,6 +116,13 @@ function WallpaperPaneInner(): React.JSX.Element {
     setWallpaper(null);
     showToast({ message: "Wallpaper removed", type: "info" });
   }, [setWallpaper]);
+
+  // Revoke blob thumbnail URLs when the pane unmounts to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      clearThumbCache()
+    }
+  }, [])
 
   return (
     <div className="space-y-6">

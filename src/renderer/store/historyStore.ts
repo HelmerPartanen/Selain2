@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createIPCStorage } from './ipcStorage'
 
 export interface HistoryEntry {
   url: string
@@ -85,7 +86,10 @@ export const useHistoryStore = create<HistoryState>()(
         const now = new Date()
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
         const startOfYesterday = startOfToday - 86400000
-        const startOfWeek = startOfToday - now.getDay() * 86400000
+        // Anchor the week to Monday regardless of locale
+        const dayOfWeek = now.getDay() // 0 = Sun, 1 = Mon, ..., 6 = Sat
+        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+        const startOfWeek = startOfToday - daysSinceMonday * 86400000
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
 
         const groups: Record<string, HistoryEntry[]> = {
@@ -115,6 +119,6 @@ export const useHistoryStore = create<HistoryState>()(
           .map(([label, entries]) => ({ label, entries }))
       }
     }),
-    { name: 'browser-history', version: 1 }
+    { name: 'browser-history', version: 1, storage: createIPCStorage<HistoryState>() }
   )
 )

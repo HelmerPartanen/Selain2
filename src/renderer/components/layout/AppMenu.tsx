@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import homeSvg from "@/assets/icons/Interface/Home_2.svg?raw";
@@ -55,17 +55,9 @@ function AppMenuInner(): React.JSX.Element {
     isHistoryOpen ||
     isDownloadsOpen ||
     isHotkeysOpen;
-  const [menuPosition, setMenuPosition] = useState({ bottom: 0, left: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = useCallback(() => {
-    if (!isOpen && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setMenuPosition({
-        bottom: window.innerHeight - rect.top + 4,
-        left: rect.left,
-      });
-    }
     setMenuOpen(!isOpen);
   }, [isOpen, setMenuOpen]);
 

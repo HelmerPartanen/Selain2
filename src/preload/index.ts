@@ -56,7 +56,6 @@ const api: ElectronAPI = {
     ipcRenderer.on('open-url-in-new-tab', handler)
     return () => { ipcRenderer.removeListener('open-url-in-new-tab', handler) }
   },
-  capturePage: () => ipcRenderer.invoke('capture-page'),
   setZoomFactor: (factor: number) => ipcRenderer.send('set-zoom-factor', factor),
   loadStore: (name: string) => ipcRenderer.invoke('load-store', name),
   saveStore: (name: string, data: string) => ipcRenderer.invoke('save-store', name, data)
