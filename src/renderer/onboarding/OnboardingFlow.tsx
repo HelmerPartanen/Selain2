@@ -242,18 +242,42 @@ function BrowserMockup({ mode }: { mode: 'light' | 'dark' }): React.JSX.Element 
 
 function SystemMockup(): React.JSX.Element {
   return (
-    <div className="w-full rounded-xl overflow-hidden border border-gray-300 dark:border-neutral-600 flex">
-      {/* Light half */}
-      <div className="w-1/2 bg-white p-2.5 space-y-[6px] border-r border-gray-200 dark:border-neutral-700">
-        <div className="h-[4px] rounded-full w-[80%] bg-gray-200" />
-        <div className="h-[4px] rounded-full w-[55%] bg-gray-200/60" />
-        <div className="h-[4px] rounded-full w-[68%] bg-gray-200" />
+    <div className="w-full rounded-xl overflow-hidden border border-gray-300 dark:border-neutral-600">
+      {/* Window chrome — split light/dark */}
+      <div className="flex">
+        <div className="w-1/2 flex items-center gap-1.5 px-2.5 py-[7px] bg-gray-100">
+          <div className="flex gap-[5px]">
+            <div className="w-[7px] h-[7px] rounded-full bg-[#ff5f57]/60" />
+            <div className="w-[7px] h-[7px] rounded-full bg-[#febc2e]/60" />
+            <div className="w-[7px] h-[7px] rounded-full bg-[#28c840]/60" />
+          </div>
+          <div className="flex-1 h-[14px] rounded-md ml-2 bg-white" />
+        </div>
+        <div className="w-1/2 flex items-center px-2.5 py-[7px] bg-neutral-800">
+          <div className="flex-1 h-[14px] rounded-md bg-neutral-700" />
+        </div>
       </div>
-      {/* Dark half */}
-      <div className="w-1/2 bg-neutral-900 p-2.5 space-y-[6px]">
-        <div className="h-[4px] rounded-full w-[80%] bg-neutral-700" />
-        <div className="h-[4px] rounded-full w-[55%] bg-neutral-700/60" />
-        <div className="h-[4px] rounded-full w-[68%] bg-neutral-700" />
+      {/* URL row — split */}
+      <div className="flex">
+        <div className="w-1/2 px-2.5 py-[6px] bg-white">
+          <div className="h-[16px] rounded-lg bg-gray-50" />
+        </div>
+        <div className="w-1/2 px-2.5 py-[6px] bg-neutral-900">
+          <div className="h-[16px] rounded-lg bg-neutral-800" />
+        </div>
+      </div>
+      {/* Content skeleton — split */}
+      <div className="flex">
+        <div className="w-1/2 px-2.5 pb-3 pt-1 space-y-[6px] bg-white">
+          <div className="h-[4px] rounded-full w-[82%] bg-gray-200" />
+          <div className="h-[4px] rounded-full w-[56%] bg-gray-200/60" />
+          <div className="h-[4px] rounded-full w-[70%] bg-gray-200" />
+        </div>
+        <div className="w-1/2 px-2.5 pb-3 pt-1 space-y-[6px] bg-neutral-900">
+          <div className="h-[4px] rounded-full w-[82%] bg-neutral-700" />
+          <div className="h-[4px] rounded-full w-[56%] bg-neutral-700/60" />
+          <div className="h-[4px] rounded-full w-[70%] bg-neutral-700" />
+        </div>
       </div>
     </div>
   )
@@ -388,9 +412,9 @@ function PrivacyStep(): React.JSX.Element {
     <div className="flex flex-col items-center text-center gap-8">
       {/* Shield with shape-morph entrance */}
       <motion.div
-        className="w-[72px] h-[72px] rounded-[20px] bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center"
-        initial={{ scale: 0, borderRadius: '50%', rotate: -20 }}
-        animate={{ scale: 1, borderRadius: 20, rotate: 0 }}
+        className="w-[72px] h-[72px] rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center pt-[2px]"
+        initial={{ scale: 0, rotate: -20 }}
+        animate={{ scale: 1, rotate: 0 }}
         transition={{ ...SPRING, stiffness: 300, damping: 20 }}
       >
         <motion.div
