@@ -1,5 +1,6 @@
 import { memo, useMemo, useEffect } from 'react'
 import { motion } from 'motion/react'
+import { SPRING } from '@/utils/springs'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
 import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
@@ -160,10 +161,10 @@ function DownloadsPanelInner(): React.JSX.Element {
           initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
           exit={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 26, mass: 0.8 }}
+          transition={{ ...SPRING, damping: 26 }}
         >
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
-            <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <SvgIcon svg={downloadSvg} size={16} />
               Downloads
             </h2>

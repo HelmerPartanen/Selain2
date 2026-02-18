@@ -17,25 +17,7 @@ import { DownloadPill } from "@/components/browser/DownloadPill";
 import { useUIStore } from "@/store/uiStore";
 import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
-
-const springSnappy = {
-  type: "spring" as const,
-  stiffness: 400,
-  damping: 28,
-  mass: 0.8,
-};
-const springGentle = {
-  type: "spring" as const,
-  stiffness: 220,
-  damping: 24,
-  mass: 1.0,
-};
-const springExpand = {
-  type: "spring" as const,
-  stiffness: 340,
-  damping: 32,
-  mass: 0.9,
-};
+import { SPRING, SPRING_GENTLE, SPRING_EXPAND } from '@/utils/springs';
 
 const THROTTLE_MS = 100;
 
@@ -179,7 +161,7 @@ function FloatingControlsInner(): React.JSX.Element {
             ? { x: "-50%", y: 12, scale: 0.94, opacity: 0 }
             : { x: "-50%", y: 0, scale: 1, opacity: 1 }
         }
-        transition={isIdle ? springGentle : springSnappy}
+        transition={isIdle ? SPRING_GENTLE : SPRING}
       >
         <div className="flex items-center gap-1.5">
           {/* Menu Pod */}
@@ -193,7 +175,7 @@ function FloatingControlsInner(): React.JSX.Element {
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ ...springExpand, opacity: { duration: 0.15 } }}
+                transition={{ ...SPRING_EXPAND, opacity: { duration: 0.15 } }}
                 className="flex-shrink-0"
               >
                 <div className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full">
@@ -221,7 +203,7 @@ function FloatingControlsInner(): React.JSX.Element {
                         animate={{ width: "auto", opacity: 1 }}
                         exit={{ width: 0, opacity: 0 }}
                         transition={{
-                          ...springExpand,
+                          ...SPRING_EXPAND,
                           opacity: { duration: 0.12 },
                         }}
                         className="flex items-center overflow-hidden"

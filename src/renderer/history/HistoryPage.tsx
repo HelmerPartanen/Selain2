@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { motion } from 'motion/react'
+import { SPRING } from '@/utils/springs'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
@@ -124,10 +125,10 @@ function HistoryPanelInner(): React.JSX.Element {
           initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
           exit={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 26, mass: 0.8 }}
+          transition={{ ...SPRING, damping: 26 }}
         >
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
-            <h2 className="text-[15px] font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <SvgIcon svg={counterclockwiseSvg} size={16} />
               History
             </h2>

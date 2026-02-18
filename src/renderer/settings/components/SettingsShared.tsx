@@ -3,6 +3,13 @@
 // Extracted from SettingsPanel to enforce single-responsibility and reduce
 // duplication. Each component is intentionally minimal.
 
+/** Primary section heading used in every settings pane */
+export function SectionHeader({ children }: { children: React.ReactNode }): React.JSX.Element {
+  return (
+    <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">{children}</h3>
+  )
+}
+
 export function SectionLabel({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <span className="text-[11px] font-medium tracking-wide uppercase text-gray-400 dark:text-neutral-500">

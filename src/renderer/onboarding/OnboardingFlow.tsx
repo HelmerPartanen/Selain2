@@ -13,6 +13,7 @@ import { SvgIcon, SQUARE_SVG, CARDS_SVG } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { WALLPAPER_PRESETS, PRESET_PREFIX } from '@/theme/presets'
+import { SPRING, SPRING_GENTLE, SPRING_ORB } from '@/utils/springs'
 import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
@@ -24,9 +25,6 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 // Core spring matches SettingsPanel: { stiffness: 400, damping: 28, mass: 0.8 }
 // Gentler variants for large-scale ambient motion and text reveals.
 
-const SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 0.8 }
-const SPRING_SOFT = { type: 'spring' as const, stiffness: 220, damping: 28, mass: 1 }
-const SPRING_ORB = { type: 'spring' as const, stiffness: 30, damping: 20, mass: 2.5 }
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 const TOTAL_STEPS = 4
@@ -143,7 +141,7 @@ function StaggeredWords({
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{
             opacity: { duration: 0.55, delay: delay + i * stagger, ease: EASE_OUT },
-            y: { ...SPRING_SOFT, delay: delay + i * stagger },
+            y: { ...SPRING_GENTLE, delay: delay + i * stagger },
             filter: { duration: 0.45, delay: delay + i * stagger, ease: EASE_OUT },
           }}
         >
@@ -328,7 +326,7 @@ function AppearanceStep(): React.JSX.Element {
               onClick={() => setThemeMode(id)}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ ...SPRING_SOFT, delay: 0.35 + i * 0.08 }}
+              transition={{ ...SPRING_GENTLE, delay: 0.35 + i * 0.08 }}
               className={`
                 relative flex flex-col items-center gap-3 w-[148px] p-3 pb-4 rounded-[16px]
                 outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-neutral-800
@@ -452,7 +450,7 @@ function PrivacyStep(): React.JSX.Element {
             className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/60 dark:bg-neutral-800/50 border border-gray-100 dark:border-neutral-700/50 text-left"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ ...SPRING_SOFT, delay: 0.48 + i * 0.1 }}
+            transition={{ ...SPRING_GENTLE, delay: 0.48 + i * 0.1 }}
           >
             <motion.div
               className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0"
@@ -727,7 +725,7 @@ function OnboardingFlowInner(): React.JSX.Element {
             exit={{ opacity: 0, y: -20, scale: 0.97 }}
             transition={{
               opacity: { duration: 0.3, ease: EASE_OUT },
-              y: SPRING_SOFT,
+              y: SPRING_GENTLE,
               scale: { duration: 0.35, ease: EASE_OUT },
             }}
             className="w-full max-w-[560px] px-6"

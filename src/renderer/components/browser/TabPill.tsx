@@ -12,9 +12,7 @@ import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta,
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
-const springDropdown = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 0.7 }
-const springExpand = { type: 'spring' as const, stiffness: 500, damping: 26, mass: 0.6 }
-const springPop = { type: 'spring' as const, stiffness: 400, damping: 26, mass: 0.7 }
+import { SPRING_POPUP, SPRING_FAST } from '@/utils/springs'
 
 function ActiveFavicon(): React.JSX.Element {
   const activeTabId = useActiveTabId()
@@ -218,7 +216,7 @@ function TabPillInner(): React.JSX.Element {
                       initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
                       animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
                       exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
-                      transition={{ ...springDropdown, opacity: { duration: 0.1 } }}
+                      transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
                     >
                       <div className="rounded-2xl bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl">
                       <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 space-y-0.5">
@@ -272,7 +270,7 @@ function TabPillInner(): React.JSX.Element {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={springPop}
+            transition={SPRING_FAST}
             className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-neutral-900 pointer-events-none"
           >
             <SvgIcon svg={soundFillSvg} size={10} className="text-white" />

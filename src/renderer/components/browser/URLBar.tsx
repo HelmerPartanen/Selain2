@@ -19,8 +19,7 @@ import { simplifyUrl } from '@/utils/urlUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
-const springIcon = { type: 'spring' as const, stiffness: 450, damping: 24 }
-const springDropdown = { type: 'spring' as const, stiffness: 420, damping: 26, mass: 0.7 }
+import { SPRING_FAST, SPRING_POPUP } from '@/utils/springs'
 
 function normalizeURL(input: string): string {
   const trimmed = input.trim()
@@ -223,7 +222,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
-                transition={springIcon}
+                transition={SPRING_FAST}
                 className="flex items-center justify-center"
               >
                 {isLoading ? <SvgIcon svg={closeSvg} size={15} /> : <SvgIcon svg={roundArrowsSvg} size={15} />}
@@ -283,7 +282,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
-                      transition={springIcon}
+                      transition={SPRING_FAST}
                       className="flex items-center justify-center"
                     >
                       <SvgIcon
@@ -344,7 +343,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
             initial={{ scaleY: 0.6, opacity: 0, y: 8 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
             exit={{ scaleY: 0.6, opacity: 0, y: 8 }}
-            transition={springDropdown}
+            transition={SPRING_POPUP}
           >
             {suggestions.map((entry, i) => (
               <button

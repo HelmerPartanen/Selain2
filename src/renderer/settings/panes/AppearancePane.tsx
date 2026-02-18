@@ -2,7 +2,7 @@
 
 import { memo } from 'react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import { Desc } from '@/settings/components/SettingsShared'
+import { Desc, SectionHeader } from '@/settings/components/SettingsShared'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { useSettingsStore, UI_ZOOM_OPTIONS } from '@/store/settingsStore'
 import sunSvg from '@/assets/icons/Weather/Sun_1.svg?raw'
@@ -26,7 +26,7 @@ function AppearancePaneInner(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Theme</h3>
+        <SectionHeader>Theme</SectionHeader>
         <Desc>Choose how the browser interface looks.</Desc>
         <div className="flex gap-3" role="radiogroup" aria-label="Theme mode">
           {THEME_MODES.map(({ mode, label, icon }) => {
@@ -53,7 +53,7 @@ function AppearancePaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Interface Scale</h3>
+        <SectionHeader>Interface Scale</SectionHeader>
         <Desc>Scale the browser UI. Does not affect web page content.</Desc>
         <div className="flex gap-1.5" role="radiogroup" aria-label="Interface scale">
           {UI_ZOOM_OPTIONS.map((z) => {
@@ -79,7 +79,7 @@ function AppearancePaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Toolbar Auto-Hide</h3>
+        <SectionHeader>Toolbar Auto-Hide</SectionHeader>
         <Desc>How long the floating toolbar stays visible after inactivity.</Desc>
         <div className="flex items-center gap-3">
           <input

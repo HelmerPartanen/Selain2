@@ -1,7 +1,7 @@
 // ─── General Settings Pane ───────────────────────────────────────────────────
 
 import { useCallback, useState } from 'react'
-import { Desc, SettingRow, Toggle } from '@/settings/components/SettingsShared'
+import { Desc, SectionHeader, SettingRow, Toggle } from '@/settings/components/SettingsShared'
 import { useSettingsStore, type NewTabMode } from '@/store/settingsStore'
 
 export function GeneralPane(): React.JSX.Element {
@@ -27,7 +27,7 @@ export function GeneralPane(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Startup</h3>
+        <SectionHeader>Startup</SectionHeader>
         <Desc>Control what happens when the browser opens.</Desc>
         <div className="space-y-1">
           <SettingRow label="Restore previous tabs" desc="Reopen tabs from your last session on startup">
@@ -37,7 +37,7 @@ export function GeneralPane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">New Tab</h3>
+        <SectionHeader>New Tab</SectionHeader>
         <Desc>Choose what appears when you open a new tab.</Desc>
         <div className="flex gap-2" role="radiogroup" aria-label="New tab page mode">
           {(['bookmarks', 'blank'] as NewTabMode[]).map((mode) => {
@@ -63,7 +63,7 @@ export function GeneralPane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Homepage</h3>
+        <SectionHeader>Homepage</SectionHeader>
         <Desc>URL to navigate when clicking the home button. Leave empty to disable.</Desc>
         <input
           type="text"
@@ -79,7 +79,7 @@ export function GeneralPane(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Performance</h3>
+        <SectionHeader>Performance</SectionHeader>
         <Desc>Options that may improve responsiveness on lower-end hardware.</Desc>
         <div className="space-y-1">
           <SettingRow label="Reduce transparency" desc="Disable backdrop blur and translucent surfaces">

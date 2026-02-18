@@ -5,6 +5,7 @@ import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import warnSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
 import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import { SPRING } from '@/utils/springs'
 
 export interface Toast {
   id: string
@@ -48,8 +49,6 @@ function useToasts(): Toast[] {
   return toasts
 }
 
-const springToast = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
-
 function ToastContainerInner(): React.JSX.Element {
   const items = useToasts()
 
@@ -66,7 +65,7 @@ function ToastContainerInner(): React.JSX.Element {
             initial={{ opacity: 0, x: 60, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 60, scale: 0.9 }}
-            transition={springToast}
+            transition={SPRING}
             className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-neutral-900 shadow-xl border border-gray-200 dark:border-neutral-700 min-w-[280px] max-w-[380px]"
           >
             <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${toast.type === 'success' ? 'bg-green-100 dark:bg-green-900/30' :

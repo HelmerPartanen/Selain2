@@ -2,7 +2,7 @@
 
 import { memo } from 'react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import { Desc } from '@/settings/components/SettingsShared'
+import { Desc, SectionHeader } from '@/settings/components/SettingsShared'
 import { useSearchEngineStore, SEARCH_ENGINES } from '@/store/searchEngineStore'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 
@@ -13,7 +13,7 @@ function SearchEnginePaneInner(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Default Search Engine</h3>
+        <SectionHeader>Default Search Engine</SectionHeader>
         <Desc>Choose the search engine used for address bar and new tab searches.</Desc>
         <div className="space-y-1.5" role="radiogroup" aria-label="Search engine selection">
           {SEARCH_ENGINES.map((engine) => {

@@ -11,8 +11,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { formatBytes } from '@/utils/formatUtils'
 
-const springExpand = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.9 }
-const springDropdown = { type: 'spring' as const, stiffness: 420, damping: 26, mass: 0.7 }
+import { SPRING_EXPAND, SPRING_POPUP } from '@/utils/springs'
 
 const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }): React.JSX.Element {
   const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
@@ -178,7 +177,7 @@ function DownloadPillInner(): React.JSX.Element {
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 'auto', opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ ...springExpand, opacity: { duration: 0.15 } }}
+            transition={{ ...SPRING_EXPAND, opacity: { duration: 0.15 } }}
             style={{ overflow: 'hidden', flexShrink: 0 }}
             onClick={() => setIsOpen((v) => !v)}
             aria-label="Downloads"
@@ -227,7 +226,7 @@ function DownloadPillInner(): React.JSX.Element {
               initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: 8 }}
               animate={{ scaleY: 1, scaleX: 1, opacity: 1, y: 0 }}
               exit={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: 8 }}
-              transition={{ ...springDropdown, opacity: { duration: 0.12 } }}
+              transition={{ ...SPRING_POPUP, opacity: { duration: 0.12 } }}
             >
               <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
                 <span className="text-xs font-semibold text-gray-500 dark:text-neutral-500 uppercase tracking-wide">

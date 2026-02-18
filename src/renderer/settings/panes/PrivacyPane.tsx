@@ -1,7 +1,7 @@
 // ─── Privacy Settings Pane ───────────────────────────────────────────────────
 
 import { memo, useCallback, useState } from 'react'
-import { Desc, SettingRow, Toggle } from '@/settings/components/SettingsShared'
+import { Desc, SectionHeader, SettingRow, Toggle } from '@/settings/components/SettingsShared'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useHistoryStore } from '@/store/historyStore'
 import { useDownloadStore } from '@/store/downloadStore'
@@ -57,7 +57,7 @@ function PrivacyPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Session</h3>
+        <SectionHeader>Session</SectionHeader>
         <Desc>Control how data is managed between sessions.</Desc>
         <SettingRow label="Clear data on exit" desc="Wipe history, downloads, and bookmarks when the browser closes">
           <Toggle checked={clearOnExit} onChange={setClearOnExit} label="Clear data on exit" />
@@ -65,7 +65,7 @@ function PrivacyPaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">Browsing Data</h3>
+        <SectionHeader>Browsing Data</SectionHeader>
         <Desc>Permanently delete stored data. This cannot be undone.</Desc>
         <div className="grid grid-cols-2 gap-2">
           {actions.map((action) => {

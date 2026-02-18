@@ -4,6 +4,7 @@
 
 import { memo, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { SPRING } from '@/utils/springs';
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
@@ -20,14 +21,6 @@ import { PrivacyPane } from "@/settings/panes/PrivacyPane";
 import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
 import { AboutPane } from "@/settings/panes/AboutPane";
 
-// --- Constants ----------------------------------------------------------------
-
-const springPanel = {
-  type: "spring" as const,
-  stiffness: 400,
-  damping: 28,
-  mass: 0.8,
-};
 
 // --- Sidebar Categories -------------------------------------------------------
 
@@ -158,7 +151,7 @@ function SettingsPanelInner(): React.JSX.Element {
           }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}
           exit={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 }}
-          transition={{ ...springPanel, damping: 26 }}
+          transition={{ ...SPRING, damping: 26 }}
         >
           <div className="flex h-full">
             <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/80 backdrop-blur-md border-r border-gray-200 dark:border-neutral-700 flex flex-col">

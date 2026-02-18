@@ -14,13 +14,7 @@ import filtrSvg from "@/assets/icons/Interface/Filtr.svg?raw";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import { useTabStore } from "@/store/tabStore";
 import { useUIStore } from "@/store/uiStore";
-
-const springMenu = {
-  type: "spring" as const,
-  stiffness: 400,
-  damping: 24,
-  mass: 0.7,
-};
+import { SPRING_POPUP } from '@/utils/springs';
 
 const menuItems = [
   { id: "new-tab", label: "New Tab", icon: plusSvg, shortcut: "Ctrl+T" },
@@ -163,7 +157,7 @@ function AppMenuInner(): React.JSX.Element {
                 y: 28,
                 rotateX: -10,
               }}
-              transition={{ ...springMenu, opacity: { duration: 0.1 } }}
+              transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
               <div className="rounded-2xl bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700">
                 <div className="p-1">

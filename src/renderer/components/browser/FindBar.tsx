@@ -9,7 +9,7 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import chevronUpSvg from '@/assets/icons/Arrows/Chevron_Up.svg?raw'
 import chevronDownSvg from '@/assets/icons/Arrows/Chevron_Down.svg?raw'
 
-const springBar = { type: 'spring' as const, stiffness: 400, damping: 26, mass: 0.7 }
+import { SPRING_POPUP } from '@/utils/springs'
 
 function FindBarInner(): React.JSX.Element {
   const tabId = useFocusedTabId()
@@ -110,7 +110,7 @@ function FindBarInner(): React.JSX.Element {
       initial={{ y: -40, opacity: 0, scale: 0.95 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
       exit={{ y: -40, opacity: 0, scale: 0.95 }}
-      transition={springBar}
+      transition={SPRING_POPUP}
     >
       <div className="flex items-center gap-1 rounded-xl h-9 px-2 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl">
         <input
