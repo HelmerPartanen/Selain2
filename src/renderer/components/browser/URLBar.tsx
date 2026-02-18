@@ -15,6 +15,7 @@ import { useUIStore } from '@/store/uiStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useSearchEngineStore } from '@/store/searchEngineStore'
+import { simplifyUrl } from '@/utils/urlUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
@@ -33,18 +34,7 @@ function normalizeURL(input: string): string {
   return useSearchEngineStore.getState().getSearchUrl(trimmed)
 }
 
-function simplifyUrl(raw: string): string {
-  if (!raw || raw === 'about:blank' || raw.startsWith('browser://')) return ''
-  try {
-    const u = new URL(raw)
-    const host = u.hostname.replace(/^www\./, '')
-    const path = u.pathname + u.search + u.hash
-    const trimmedPath = path === '/' ? '' : path
-    return host + trimmedPath
-  } catch {
-    return raw
-  }
-}
+// simplifyUrl is imported from @/utils/urlUtils
 
 function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => void }): React.JSX.Element {
   const tabId = useFocusedTabId()
@@ -196,7 +186,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     if (!tabId) return
     const webview = webviewRegistry.get(tabId)
     if (!webview) return
-    ;(webview as unknown as { executeJavaScript(code: string): Promise<unknown> }).executeJavaScript(`
+      ; (webview as unknown as { executeJavaScript(code: string): Promise<unknown> }).executeJavaScript(`
       (function() {
         const videos = document.querySelectorAll('video');
         for (const v of videos) {
@@ -296,11 +286,11 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                       transition={springIcon}
                       className="flex items-center justify-center"
                     >
-                    <SvgIcon
-                      svg={isBookmarked ? bookmarkFillSvg : bookmarkSvg}
-                      size={15}
-                      className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
-                    />
+                      <SvgIcon
+                        svg={isBookmarked ? bookmarkFillSvg : bookmarkSvg}
+                        size={15}
+                        className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
+                      />
                     </motion.span>
                   </AnimatePresence>
                 </div>
@@ -363,11 +353,10 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   e.preventDefault()
                   handleSuggestionClick(entry.url)
                 }}
-                className={`flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-75 ${
-                  i === selectedIndex
-                    ? 'bg-blue-50 dark:bg-neutral-800 text-gray-900 dark:text-white'
-                    : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
-                }`}
+                className={`flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-75 ${i === selectedIndex
+                  ? 'bg-blue-50 dark:bg-neutral-800 text-gray-900 dark:text-white'
+                  : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
+                  }`}
               >
                 {entry.favicon ? (
                   <img src={entry.favicon} alt="" className="flex-shrink-0 w-[14px] h-[14px] rounded-sm object-contain" />

@@ -9,17 +9,10 @@ import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
+import { formatBytes } from '@/utils/formatUtils'
 
 const springExpand = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.9 }
 const springDropdown = { type: 'spring' as const, stiffness: 420, damping: 26, mass: 0.7 }
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${(bytes / Math.pow(k, i)).toFixed(i > 1 ? 1 : 0)} ${sizes[i]}`
-}
 
 const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }): React.JSX.Element {
   const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
@@ -191,34 +184,34 @@ function DownloadPillInner(): React.JSX.Element {
             aria-label="Downloads"
             className="h-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-3 gap-1.5 select-none hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-95 transition-colors duration-100"
           >
-        <div className="relative">
-          <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
-          {hasActive && (
-            <svg
-              className="absolute -inset-[5px]"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              style={{ transform: 'rotate(-90deg)' }}
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r={radius}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-                className="text-blue-500 transition-[stroke-dashoffset] duration-300"
-              />
-            </svg>
-          )}
-        </div>
-        {activeCount > 0 && (
-          <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
-        )}
+            <div className="relative">
+              <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
+              {hasActive && (
+                <svg
+                  className="absolute -inset-[5px]"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  style={{ transform: 'rotate(-90deg)' }}
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r={radius}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    className="text-blue-500 transition-[stroke-dashoffset] duration-300"
+                  />
+                </svg>
+              )}
+            </div>
+            {activeCount > 0 && (
+              <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
+            )}
           </motion.button>
         )}
       </AnimatePresence>

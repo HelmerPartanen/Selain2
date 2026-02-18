@@ -9,14 +9,7 @@ import warnSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
 import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useUIStore } from '@/store/uiStore'
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${(bytes / Math.pow(k, i)).toFixed(i > 1 ? 1 : 0)} ${sizes[i]}`
-}
+import { formatBytes } from '@/utils/formatUtils'
 
 function formatSpeed(bytesPerSec: number): string {
   return `${formatBytes(bytesPerSec)}/s`

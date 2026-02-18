@@ -10,17 +10,9 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useBookmarkStore, type BookmarkEntry } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
+import { simplifyUrl } from '@/utils/urlUtils'
 
 const springPanel = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
-
-function simplifyUrl(raw: string): string {
-  try {
-    const u = new URL(raw)
-    return u.hostname.replace(/^www\./, '') + (u.pathname === '/' ? '' : u.pathname)
-  } catch {
-    return raw
-  }
-}
 
 const BookmarkRow = memo(function BookmarkRow({
   entry,
@@ -110,7 +102,7 @@ function BookmarksPanelInner(): React.JSX.Element {
       {/* Panel — genie entrance matching Settings */}
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
         <motion.div
-          className="w-[480px] h-[440px] rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto flex flex-col"
+          className="w-[480px] h-[440px] rounded-3xl overflow-hidden bg-white dark:bg-neutral-900 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto flex flex-col"
           style={{ transformOrigin: '50% 100%', perspective: 800 }}
           initial={{ y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 }}
           animate={{ y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 }}

@@ -2,6 +2,8 @@ import { memo, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
+import warnSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
+import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 
 export interface Toast {
@@ -67,18 +69,17 @@ function ToastContainerInner(): React.JSX.Element {
             transition={springToast}
             className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-neutral-900 shadow-xl border border-gray-200 dark:border-neutral-700 min-w-[280px] max-w-[380px]"
           >
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-              toast.type === 'success' ? 'bg-green-100 dark:bg-green-900/30' :
-              toast.type === 'error' ? 'bg-red-100 dark:bg-red-900/30' :
-              'bg-blue-100 dark:bg-blue-900/30'
-            }`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${toast.type === 'success' ? 'bg-green-100 dark:bg-green-900/30' :
+                toast.type === 'error' ? 'bg-red-100 dark:bg-red-900/30' :
+                  'bg-blue-100 dark:bg-blue-900/30'
+              }`}>
               <SvgIcon
-                svg={checkSvg}
+                svg={toast.type === 'error' ? warnSvg : toast.type === 'info' ? infoSvg : checkSvg}
                 size={12}
                 className={
                   toast.type === 'success' ? 'text-green-500' :
-                  toast.type === 'error' ? 'text-red-500' :
-                  'text-blue-500'
+                    toast.type === 'error' ? 'text-red-500' :
+                      'text-blue-500'
                 }
               />
             </div>

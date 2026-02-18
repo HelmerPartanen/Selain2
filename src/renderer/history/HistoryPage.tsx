@@ -9,15 +9,7 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
-
-function simplifyUrl(raw: string): string {
-  try {
-    const u = new URL(raw)
-    return u.hostname.replace(/^www\./, '') + (u.pathname === '/' ? '' : u.pathname)
-  } catch {
-    return raw
-  }
-}
+import { simplifyUrl } from '@/utils/urlUtils'
 
 function formatTime(ts: number): string {
   const d = new Date(ts)
