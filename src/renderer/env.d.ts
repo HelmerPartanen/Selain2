@@ -2,12 +2,6 @@
 import type React from 'react'
 import type { ElectronAPI } from '../preload/types'
 
-// SVG raw imports (Vite ?raw suffix)
-declare module '*.svg?raw' {
-  const content: string
-  export default content
-}
-
 // Electron webview tag types for the renderer process
 declare global {
   interface Window {
