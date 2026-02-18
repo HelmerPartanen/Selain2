@@ -176,6 +176,8 @@ function FloatingControlsInner(): React.JSX.Element {
             : { x: "-50%", y: 0, scale: 1, opacity: 1 }
         }
         transition={isIdle ? SPRING_GENTLE : SPRING}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <div className="flex items-center gap-1.5">
           {/* Menu Pod */}

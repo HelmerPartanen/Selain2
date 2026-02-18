@@ -14,11 +14,13 @@ function createIPCStateStorage(): StateStorage {
         const data = await window.electronAPI.loadStore(name)
         if (data !== null) return data
 
-        // Migration: seed from localStorage if the file doesn't exist yet
+        // Migration: seed from localStorage if the IPC file doesn't exist yet.
+        // Only remove the localStorage entry after confirming the save succeeded
+        // to prevent data loss if the main process rejects the write.
         const local = localStorage.getItem(name)
         if (local !== null) {
-          await window.electronAPI.saveStore(name, local)
-          localStorage.removeItem(name)
+          const saved = await window.electronAPI.saveStore(name, local)
+          if (saved) localStorage.removeItem(name)
           return local
         }
 
