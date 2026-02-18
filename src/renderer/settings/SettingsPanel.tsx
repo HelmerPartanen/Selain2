@@ -147,7 +147,7 @@ function SettingsPanelInner(): React.JSX.Element {
           role="dialog"
           aria-label="Settings"
           aria-modal="true"
-          className="w-[720px] h-[500px] rounded-3xl overflow-hidden bg-white/95 dark:bg-neutral-900/95 shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
+          className="w-[720px] h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-gray-200/80 dark:border-neutral-700 [app-region:no-drag] pointer-events-auto"
           style={{ transformOrigin: "50% 100%", perspective: 800 }}
           initial={{
             y: 280,
@@ -161,7 +161,7 @@ function SettingsPanelInner(): React.JSX.Element {
           transition={{ ...springPanel, damping: 26 }}
         >
           <div className="flex h-full">
-            <div className="w-[180px] flex-shrink-0 bg-gray-50 dark:bg-neutral-800 border-r border-gray-200 dark:border-neutral-700 flex flex-col">
+            <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/80 backdrop-blur-md border-r border-gray-200 dark:border-neutral-700 flex flex-col">
               <div className="px-4 pt-5 pb-3">
                 <h2 className="text-[13px] font-medium text-gray-900 dark:text-white tracking-relaxed flex items-center gap-2">
                   Settings
@@ -176,7 +176,7 @@ function SettingsPanelInner(): React.JSX.Element {
             </div>
 
             <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
-              <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800">
+              <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-200 dark:border-neutral-800">
                 <h3 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-relaxed">
                   {categoryLabel}
                 </h3>

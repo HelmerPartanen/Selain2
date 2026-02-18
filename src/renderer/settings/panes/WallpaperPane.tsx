@@ -112,7 +112,7 @@ function WallpaperPaneInner(): React.JSX.Element {
           <SectionLabel>Wallpapers</SectionLabel>
         </div>
         <div
-          className="flex gap-2.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700"
+          className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700"
           role="listbox"
           aria-label="Bundled wallpapers"
         >
@@ -133,7 +133,7 @@ function WallpaperPaneInner(): React.JSX.Element {
           <SectionLabel>Gradients</SectionLabel>
         </div>
         <div
-          className="flex gap-2.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700"
+          className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700"
           role="listbox"
           aria-label="Gradient wallpapers"
         >
