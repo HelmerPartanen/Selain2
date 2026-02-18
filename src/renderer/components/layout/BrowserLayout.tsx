@@ -1,286 +1,330 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
-import { AnimatePresence } from 'motion/react'
-import { FloatingControls } from '@/components/layout/FloatingControls'
-import { WindowControls } from '@/components/layout/WindowControls'
-import { FindBar } from '@/components/browser/FindBar'
-import { SplitDivider } from '@/components/layout/SplitDivider'
-import { WebViewManager } from '@/webview/WebViewManager'
-import { useLRUTabManager } from '@/webview/useLRUTabManager'
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import { useDownloadListener } from '@/hooks/useDownloadListener'
-import { useTabStore } from '@/store/tabStore'
-import { useThemeStore } from '@/store/themeStore'
-import { useUIStore } from '@/store/uiStore'
-import { dataUrlToBlobUrl } from '@/store/wallpaperDB'
-import { resolveWallpaperUrl } from '@/theme/bundledWallpapers'
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
-import { ToastContainer } from '@/components/ui/Toast'
-import { useSettingsStore } from '@/store/settingsStore'
-import { useHistoryStore } from '@/store/historyStore'
-import { useDownloadStore } from '@/store/downloadStore'
-import { useBookmarkStore } from '@/store/bookmarkStore'
+import {
+  lazy,
+  memo,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+import { AnimatePresence } from "motion/react";
+import { FloatingControls } from "@/components/layout/FloatingControls";
+import { WindowControls } from "@/components/layout/WindowControls";
+import { FindBar } from "@/components/browser/FindBar";
+import { SplitDivider } from "@/components/layout/SplitDivider";
+import { WebViewManager } from "@/webview/WebViewManager";
+import { useLRUTabManager } from "@/webview/useLRUTabManager";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useDownloadListener } from "@/hooks/useDownloadListener";
+import { useTabStore } from "@/store/tabStore";
+import { useThemeStore } from "@/store/themeStore";
+import { useUIStore } from "@/store/uiStore";
+import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
+import { resolveWallpaperUrl } from "@/theme/bundledWallpapers";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { ToastContainer } from "@/components/ui/Toast";
+import { useSettingsStore } from "@/store/settingsStore";
+import { useHistoryStore } from "@/store/historyStore";
+import { useDownloadStore } from "@/store/downloadStore";
+import { useBookmarkStore } from "@/store/bookmarkStore";
 
-const SettingsPanel = lazy(() => import('@/settings/SettingsPanel').then(m => ({ default: m.SettingsPanel })))
-const BookmarksPanel = lazy(() => import('@/bookmarks/BookmarksPage').then(m => ({ default: m.BookmarksPanel })))
-const HistoryPanel = lazy(() => import('@/history/HistoryPage').then(m => ({ default: m.HistoryPanel })))
-const DownloadsPanel = lazy(() => import('@/downloads/DownloadsPage').then(m => ({ default: m.DownloadsPanel })))
-const HotkeysPanel = lazy(() => import('@/hotkeys/HotkeysPanel').then(m => ({ default: m.HotkeysPanel })))
-const TabOverview = lazy(() => import('@/components/browser/TabOverview').then(m => ({ default: m.TabOverview })))
-const OnboardingFlow = lazy(() => import('@/onboarding/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })))
+const SettingsPanel = lazy(() =>
+  import("@/settings/SettingsPanel").then((m) => ({
+    default: m.SettingsPanel,
+  })),
+);
+const BookmarksPanel = lazy(() =>
+  import("@/bookmarks/BookmarksPage").then((m) => ({
+    default: m.BookmarksPanel,
+  })),
+);
+const HistoryPanel = lazy(() =>
+  import("@/history/HistoryPage").then((m) => ({ default: m.HistoryPanel })),
+);
+const DownloadsPanel = lazy(() =>
+  import("@/downloads/DownloadsPage").then((m) => ({
+    default: m.DownloadsPanel,
+  })),
+);
+const HotkeysPanel = lazy(() =>
+  import("@/hotkeys/HotkeysPanel").then((m) => ({ default: m.HotkeysPanel })),
+);
+const TabOverview = lazy(() =>
+  import("@/components/browser/TabOverview").then((m) => ({
+    default: m.TabOverview,
+  })),
+);
+const OnboardingFlow = lazy(() =>
+  import("@/onboarding/OnboardingFlow").then((m) => ({
+    default: m.OnboardingFlow,
+  })),
+);
 
 function BrowserLayoutInner(): React.JSX.Element {
-  useLRUTabManager()
-  useKeyboardShortcuts()
-  useDownloadListener()
-  const wallpaper = useThemeStore((s) => s.wallpaper)
-  const uiZoom = useSettingsStore((s) => s.uiZoom)
-  const clearOnExit = useSettingsStore((s) => s.clearOnExit)
-  const isDropdownOpen = useUIStore((s) => s.isDropdownOpen)
-  const isMenuOpen = useUIStore((s) => s.isMenuOpen)
-  const isSettingsOpen = useUIStore((s) => s.isSettingsOpen)
-  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen)
-  const isFindBarOpen = useUIStore((s) => s.isFindBarOpen)
-  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen)
-  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen)
-  const isHotkeysOpen = useUIStore((s) => s.isHotkeysOpen)
-  const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen)
-  const isSplitView = useTabStore((s) => s.splitTabId !== null)
-  const closeDropdown = useUIStore((s) => s.setDropdownOpen)
-  const closeMenu = useUIStore((s) => s.setMenuOpen)
-  const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted)
+  useLRUTabManager();
+  useKeyboardShortcuts();
+  useDownloadListener();
+  const wallpaper = useThemeStore((s) => s.wallpaper);
+  const uiZoom = useSettingsStore((s) => s.uiZoom);
+  const clearOnExit = useSettingsStore((s) => s.clearOnExit);
+  const isDropdownOpen = useUIStore((s) => s.isDropdownOpen);
+  const isMenuOpen = useUIStore((s) => s.isMenuOpen);
+  const isSettingsOpen = useUIStore((s) => s.isSettingsOpen);
+  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen);
+  const isFindBarOpen = useUIStore((s) => s.isFindBarOpen);
+  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
+  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen);
+  const isHotkeysOpen = useUIStore((s) => s.isHotkeysOpen);
+  const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen);
+  const isSplitView = useTabStore((s) => s.splitTabId !== null);
+  const closeDropdown = useUIStore((s) => s.setDropdownOpen);
+  const closeMenu = useUIStore((s) => s.setMenuOpen);
+  const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
 
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
   // NOTE: Revocation is deferred to useEffect (after commit) so the DOM
   // never references a revoked blob URL during the render-to-commit gap.
-  const prevBlobRef = useRef<string | null>(null)
+  const prevBlobRef = useRef<string | null>(null);
   const wallpaperUrl = useMemo(() => {
-    if (!wallpaper) return null
+    if (!wallpaper) return null;
     // Resolve bundled keys (e.g. "bundled:image.jpg") to Vite asset URLs
-    const resolved = resolveWallpaperUrl(wallpaper)
-    if (!resolved) return null
-    if (resolved.startsWith('data:image/svg+xml')) return resolved
-    if (resolved.startsWith('blob:')) return resolved
-    if (resolved.startsWith('data:')) return dataUrlToBlobUrl(resolved)
-    return resolved
-  }, [wallpaper])
+    const resolved = resolveWallpaperUrl(wallpaper);
+    if (!resolved) return null;
+    if (resolved.startsWith("data:image/svg+xml")) return resolved;
+    if (resolved.startsWith("blob:")) return resolved;
+    if (resolved.startsWith("data:")) return dataUrlToBlobUrl(resolved);
+    return resolved;
+  }, [wallpaper]);
 
   // Revoke the previous blob URL after React has committed the new one to the DOM
   useEffect(() => {
-    const prev = prevBlobRef.current
+    const prev = prevBlobRef.current;
     // Only revoke if it's a blob URL we created (not one from the store)
     if (prev && prev !== wallpaperUrl) {
-      URL.revokeObjectURL(prev)
+      URL.revokeObjectURL(prev);
     }
     // Track the current blob URL for future cleanup
     prevBlobRef.current =
-      wallpaperUrl && wallpaperUrl.startsWith('blob:') && !wallpaper?.startsWith('blob:')
+      wallpaperUrl &&
+      wallpaperUrl.startsWith("blob:") &&
+      !wallpaper?.startsWith("blob:")
         ? wallpaperUrl
-        : null
+        : null;
 
     return () => {
       // On unmount, revoke any outstanding blob URL
       if (prevBlobRef.current) {
-        URL.revokeObjectURL(prevBlobRef.current)
-        prevBlobRef.current = null
+        URL.revokeObjectURL(prevBlobRef.current);
+        prevBlobRef.current = null;
       }
-    }
-  }, [wallpaperUrl, wallpaper])
+    };
+  }, [wallpaperUrl, wallpaper]);
 
   // ── Apply UI zoom scale via Electron webFrame ──
   useEffect(() => {
-    window.electronAPI.setZoomFactor(uiZoom / 100)
-    return () => { window.electronAPI.setZoomFactor(1) }
-  }, [uiZoom])
+    window.electronAPI.setZoomFactor(uiZoom / 100);
+    return () => {
+      window.electronAPI.setZoomFactor(1);
+    };
+  }, [uiZoom]);
 
   // ── Clear browsing data on exit if enabled ──
   useEffect(() => {
-    if (!clearOnExit) return
+    if (!clearOnExit) return;
     const handleBeforeUnload = (): void => {
-      useHistoryStore.getState().clearAll()
-      const dlStore = useDownloadStore.getState()
-      Object.keys(dlStore.downloads).forEach((id) => dlStore.removeDownload(id))
-      const bmStore = useBookmarkStore.getState()
-      bmStore.bookmarks.forEach((b) => bmStore.removeBookmark(b.url))
-    }
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [clearOnExit])
+      useHistoryStore.getState().clearAll();
+      const dlStore = useDownloadStore.getState();
+      Object.keys(dlStore.downloads).forEach((id) =>
+        dlStore.removeDownload(id),
+      );
+      const bmStore = useBookmarkStore.getState();
+      bmStore.bookmarks.forEach((b) => bmStore.removeBookmark(b.url));
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [clearOnExit]);
 
   useEffect(() => {
-    const state = useTabStore.getState()
+    const state = useTabStore.getState();
     if (state.tabOrder.length === 0) {
-      state.addTab()
+      state.addTab();
     }
-  }, [])
+  }, []);
 
   // ── Open links from webviews in new tabs ──
   useEffect(() => {
     return window.electronAPI.onOpenUrlInNewTab((url: string) => {
-      useTabStore.getState().addTab(url)
-    })
-  }, [])
+      useTabStore.getState().addTab(url);
+    });
+  }, []);
 
   // ── Trackpad two-finger swipe to switch tabs ──
-  const swipeDelta = useRef(0)
-  const swipeTimeout = useRef<number>(0)
-  const SWIPE_THRESHOLD = 120
+  const swipeDelta = useRef(0);
+  const swipeTimeout = useRef<number>(0);
+  const SWIPE_THRESHOLD = 120;
 
   const handleWheel = useCallback((e: WheelEvent) => {
     // Only respond to horizontal trackpad gestures (deltaX dominant)
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
     // Skip if any panel/overlay is open
-    const ui = useUIStore.getState()
-    if (ui.isSettingsOpen || ui.isBookmarksOpen || ui.isHistoryOpen || ui.isDownloadsOpen) return
+    const ui = useUIStore.getState();
+    if (
+      ui.isSettingsOpen ||
+      ui.isBookmarksOpen ||
+      ui.isHistoryOpen ||
+      ui.isDownloadsOpen
+    )
+      return;
 
-    swipeDelta.current += e.deltaX
+    swipeDelta.current += e.deltaX;
 
     // Reset accumulator if user stops swiping
-    if (swipeTimeout.current) window.clearTimeout(swipeTimeout.current)
-    swipeTimeout.current = window.setTimeout(() => { swipeDelta.current = 0 }, 300)
+    if (swipeTimeout.current) window.clearTimeout(swipeTimeout.current);
+    swipeTimeout.current = window.setTimeout(() => {
+      swipeDelta.current = 0;
+    }, 300);
 
     if (Math.abs(swipeDelta.current) >= SWIPE_THRESHOLD) {
-      const { tabOrder, activeTabId, setActiveTab } = useTabStore.getState()
+      const { tabOrder, activeTabId, setActiveTab } = useTabStore.getState();
       if (!activeTabId || tabOrder.length <= 1) {
-        swipeDelta.current = 0
-        return
+        swipeDelta.current = 0;
+        return;
       }
-      const idx = tabOrder.indexOf(activeTabId)
-      const direction = swipeDelta.current > 0 ? 1 : -1
-      const nextIdx = idx + direction
+      const idx = tabOrder.indexOf(activeTabId);
+      const direction = swipeDelta.current > 0 ? 1 : -1;
+      const nextIdx = idx + direction;
       if (nextIdx >= 0 && nextIdx < tabOrder.length) {
-        setActiveTab(tabOrder[nextIdx]!)
+        setActiveTab(tabOrder[nextIdx]!);
       }
-      swipeDelta.current = 0
+      swipeDelta.current = 0;
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    window.addEventListener('wheel', handleWheel, { passive: true })
-    return () => window.removeEventListener('wheel', handleWheel)
-  }, [handleWheel])
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
 
   return (
-  <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
-    {/* Wallpaper layer — fixed behind everything */}
-    <div
-      className={`
+    <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
+      {/* Wallpaper layer — fixed behind everything */}
+      <div
+        className={`
         fixed inset-0 z-0 transition-opacity duration-500
         bg-gray-100 dark:bg-neutral-900
-        ${wallpaperUrl ? 'bg-cover bg-center bg-no-repeat' : ''}
+        ${wallpaperUrl ? "bg-cover bg-center bg-no-repeat" : ""}
       `}
-      {...(wallpaperUrl && {
-        style: { backgroundImage: `url(${wallpaperUrl})` }
-      })}
-    />
-
-    {/* Transparent drag region for window movement */}
-    <div className="fixed top-0 left-0 right-[138px] h-2.5 z-[60] [app-region:drag]" />
-
-    {/* Web content — fills entire viewport */}
-    <div className="relative z-10 h-full">
-      <WebViewManager />
-    </div>
-
-    {/* Floating controls overlay */}
-    <FloatingControls />
-
-    {/* Find bar */}
-    <AnimatePresence>
-      {isFindBarOpen && <FindBar />}
-    </AnimatePresence>
-
-    {/* Split divider overlay */}
-    {isSplitView && <SplitDivider />}
-
-    {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
-    {(isDropdownOpen || isMenuOpen) && (
-      <div
-        className="fixed inset-0 z-[45]"
-        onMouseDown={() => {
-          closeDropdown(false)
-          closeMenu(false)
-        }}
+        {...(wallpaperUrl && {
+          style: { backgroundImage: `url(${wallpaperUrl})` },
+        })}
       />
-    )}
 
-    {/* Window controls */}
-    <WindowControls />
+      {/* Transparent drag region for window movement */}
+      <div className="fixed top-0 left-0 right-[138px] h-2.5 z-[60] [app-region:drag]" />
 
-    {/* Toast notifications */}
-    <ToastContainer />
+      {/* Web content — fills entire viewport */}
+      <div className="relative z-10 h-full">
+        <WebViewManager />
+      </div>
 
-    {/* Settings modal — rendered at root level to escape FloatingControls transform */}
-    <AnimatePresence>
-      {isSettingsOpen && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <SettingsPanel />
-          </Suspense>
-        </ErrorBoundary>
+      {/* Floating controls overlay */}
+      <FloatingControls />
+
+      {/* Find bar */}
+      <AnimatePresence>{isFindBarOpen && <FindBar />}</AnimatePresence>
+
+      {/* Split divider overlay */}
+      {isSplitView && <SplitDivider />}
+
+      {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
+      {(isDropdownOpen || isMenuOpen) && (
+        <div
+          className="fixed inset-0 z-[45]"
+          onMouseDown={() => {
+            closeDropdown(false);
+            closeMenu(false);
+          }}
+        />
       )}
-    </AnimatePresence>
 
-    {/* Bookmarks panel */}
-    <AnimatePresence>
-      {isBookmarksOpen && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <BookmarksPanel />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-    </AnimatePresence>
+      {/* Window controls */}
+      <WindowControls />
 
-    {/* History panel */}
-    <AnimatePresence>
-      {isHistoryOpen && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <HistoryPanel />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-    </AnimatePresence>
+      {/* Toast notifications */}
+      <ToastContainer />
 
-    {/* Downloads panel */}
-    <AnimatePresence>
-      {isDownloadsOpen && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <DownloadsPanel />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-    </AnimatePresence>
+      {/* Settings modal — rendered at root level to escape FloatingControls transform */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <SettingsPanel />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </AnimatePresence>
 
-    {/* Hotkeys panel */}
-    <AnimatePresence>
-      {isHotkeysOpen && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <HotkeysPanel />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-    </AnimatePresence>
+      {/* Bookmarks panel */}
+      <AnimatePresence>
+        {isBookmarksOpen && (
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <BookmarksPanel />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </AnimatePresence>
 
-    {/* Tab overview (Ctrl+Shift+A) */}
-    <ErrorBoundary>
-      <Suspense fallback={null}>
-        <TabOverview />
-      </Suspense>
-    </ErrorBoundary>
+      {/* History panel */}
+      <AnimatePresence>
+        {isHistoryOpen && (
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <HistoryPanel />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </AnimatePresence>
 
-    {/* Onboarding — shown once for first-run users */}
-    <AnimatePresence>
-      {!onboardingCompleted && (
+      {/* Downloads panel */}
+      <AnimatePresence>
+        {isDownloadsOpen && (
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <DownloadsPanel />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </AnimatePresence>
+
+      {/* Hotkeys panel */}
+      <AnimatePresence>
+        {isHotkeysOpen && (
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <HotkeysPanel />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </AnimatePresence>
+
+      {/* Tab overview (Ctrl+Shift+A) */}
+      <ErrorBoundary>
         <Suspense fallback={null}>
-          <OnboardingFlow />
+          <TabOverview />
         </Suspense>
-      )}
-    </AnimatePresence>
-  </div>
-)
+      </ErrorBoundary>
+
+      {/* Onboarding — shown once for first-run users */}
+      <AnimatePresence>
+        {!onboardingCompleted && (
+          <Suspense fallback={null}>
+            <OnboardingFlow />
+          </Suspense>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
-export const BrowserLayout = memo(BrowserLayoutInner)
+export const BrowserLayout = memo(BrowserLayoutInner);

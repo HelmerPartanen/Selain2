@@ -1,112 +1,177 @@
 // ─── Onboarding Flow ─────────────────────────────────────────────────────────
-// First-run experience: introduces core value, guides mental models,
-// and lets the user configure theme + privacy defaults.
-// Uses spring-physics shape-morphing for premium, tactile transitions.
+// Full-screen immersive first-run experience.
+// Ambient gradient orbs + staggered typography + spring-physics transitions.
+//
+// Design intent: premium, calm, intentional. Apple-level tactility.
+// Every animation communicates structure — nothing decorative.
+//
+// Steps: Welcome → Appearance → Privacy → Ready
 
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
-import arrowSvg from '@/assets/icons/Arrows/Right_Small.svg?raw'
+import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
+import chevronLeftSvg from '@/assets/icons/Arrows/Chevron_Left.svg?raw'
 
-// ─── Physics & Motion Constants ──────────────────────────────────────────────
+// ─── Motion Constants ────────────────────────────────────────────────────────
+// Core spring matches SettingsPanel: { stiffness: 400, damping: 28, mass: 0.8 }
+// Gentler variants for large-scale ambient motion and text reveals.
 
-const SPRING = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.8 }
-const SPRING_SOFT = { type: 'spring' as const, stiffness: 300, damping: 30, mass: 1 }
-const FADE = { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const }
-
-// Card dimensions morph per step for shape-morphing effect
-const STEP_DIMENSIONS: { width: number; height: number }[] = [
-  { width: 440, height: 340 },  // Welcome
-  { width: 520, height: 400 },  // Theme
-  { width: 480, height: 360 },  // Privacy
-  { width: 440, height: 320 },  // Ready
-]
-
-// ─── Step Definitions ────────────────────────────────────────────────────────
+const SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 0.8 }
+const SPRING_SOFT = { type: 'spring' as const, stiffness: 220, damping: 28, mass: 1 }
+const SPRING_ORB = { type: 'spring' as const, stiffness: 30, damping: 20, mass: 2.5 }
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 const TOTAL_STEPS = 4
 
-// ─── Shared Sub-Components ───────────────────────────────────────────────────
+// ─── Ambient Orb System ──────────────────────────────────────────────────────
+// Three soft radial-gradient circles float behind content.
+// Positions + hues shift per step with very slow springs so the
+// background feels alive without being distracting.
+// Using radial-gradient avoids expensive filter:blur — GPU-friendly.
 
-function ProgressDots({ current, total }: { current: number; total: number }): React.JSX.Element {
+interface OrbDef {
+  x: string
+  y: string
+  size: number
+  hue: string
+}
+
+const ORB_STEPS: OrbDef[][] = [
+  // Welcome — indigo / violet (brand)
+  [
+    { x: '18%', y: '20%', size: 550, hue: '#6366f1' },
+    { x: '76%', y: '66%', size: 440, hue: '#8b5cf6' },
+    { x: '54%', y: '8%', size: 340, hue: '#3b82f6' },
+  ],
+  // Appearance — purple / pink shift
+  [
+    { x: '26%', y: '32%', size: 500, hue: '#8b5cf6' },
+    { x: '72%', y: '54%', size: 460, hue: '#a855f7' },
+    { x: '44%', y: '78%', size: 300, hue: '#ec4899' },
+  ],
+  // Privacy — emerald / teal
+  [
+    { x: '22%', y: '24%', size: 520, hue: '#10b981' },
+    { x: '74%', y: '62%', size: 400, hue: '#34d399' },
+    { x: '50%', y: '14%', size: 340, hue: '#6366f1' },
+  ],
+  // Ready — warm indigo, cinematic bloom
+  [
+    { x: '34%', y: '30%', size: 600, hue: '#6366f1' },
+    { x: '66%', y: '52%', size: 500, hue: '#8b5cf6' },
+    { x: '42%', y: '72%', size: 380, hue: '#4f46e5' },
+  ],
+]
+
+function AmbientOrbs({ step }: { step: number }): React.JSX.Element {
+  const orbs = ORB_STEPS[step] ?? ORB_STEPS[0]!
   return (
-    <div className="flex items-center gap-2" role="progressbar" aria-valuenow={current + 1} aria-valuemin={1} aria-valuemax={total}>
-      {Array.from({ length: total }, (_, i) => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      {orbs.map((orb, i) => (
         <motion.div
           key={i}
-          className="rounded-full"
-          animate={{
-            width: i === current ? 20 : 6,
-            height: 6,
-            backgroundColor: i === current
-              ? 'var(--dot-active, #6366f1)'
-              : i < current
-                ? 'var(--dot-done, #a5b4fc)'
-                : 'var(--dot-idle, #d1d5db)',
+          className="absolute rounded-full opacity-[0.15] dark:opacity-[0.07]"
+          animate={{ left: orb.x, top: orb.y }}
+          transition={SPRING_ORB}
+          style={{
+            width: orb.size,
+            height: orb.size,
+            background: `radial-gradient(circle at center, ${orb.hue} 0%, transparent 70%)`,
+            transform: 'translate(-50%, -50%)',
           }}
-          transition={SPRING}
         />
       ))}
     </div>
   )
 }
 
-function PrimaryButton({
-  children,
-  onClick,
-  disabled = false,
-}: {
-  children: React.ReactNode
-  onClick: () => void
-  disabled?: boolean
-}): React.JSX.Element {
+// ─── Progress Bar ────────────────────────────────────────────────────────────
+// Thin, elegant bar — replaces clunky dot indicators.
+
+function ProgressBar({ step, total }: { step: number; total: number }): React.JSX.Element {
   return (
-    <motion.button
-      onClick={onClick}
-      disabled={disabled}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.97 }}
-      transition={SPRING}
-      className="
-        inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-[13px] font-medium
-        bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black
-        shadow-sm hover:shadow-md transition-shadow duration-150
-        disabled:opacity-50 disabled:cursor-not-allowed
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2
-      "
+    <div
+      className="w-48 h-[3px] rounded-full bg-gray-200/50 dark:bg-neutral-700/30 overflow-hidden"
+      role="progressbar"
+      aria-valuenow={step + 1}
+      aria-valuemin={1}
+      aria-valuemax={total}
     >
-      {children}
-    </motion.button>
+      <motion.div
+        className="h-full rounded-full bg-gray-400/60 dark:bg-white/20"
+        animate={{ width: `${((step + 1) / total) * 100}%` }}
+        transition={SPRING}
+      />
+    </div>
   )
 }
 
-function SecondaryButton({
+// ─── Staggered Text ──────────────────────────────────────────────────────────
+// Each word fades up individually with a stagger delay.
+// Creates the Apple-keynote "words appearing as spoken" effect.
+
+function StaggeredWords({
+  text,
+  className = '',
+  stagger = 0.06,
+  delay = 0,
+  as: Tag = 'span',
+}: {
+  text: string
+  className?: string
+  stagger?: number
+  delay?: number
+  as?: 'h1' | 'h2' | 'p' | 'span'
+}): React.JSX.Element {
+  const words = text.split(' ')
+  return (
+    <Tag className={className}>
+      {words.map((word, i) => (
+        <motion.span
+          key={`${word}-${i}`}
+          className="inline-block"
+          style={{ marginRight: '0.28em' }}
+          initial={{ opacity: 0, y: 22, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{
+            opacity: { duration: 0.55, delay: delay + i * stagger, ease: EASE_OUT },
+            y: { ...SPRING_SOFT, delay: delay + i * stagger },
+            filter: { duration: 0.45, delay: delay + i * stagger, ease: EASE_OUT },
+          }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </Tag>
+  )
+}
+
+// ─── Fade-Up ─────────────────────────────────────────────────────────────────
+// Simple block-level fade+rise for subtitles and descriptions.
+
+function FadeUp({
   children,
-  onClick,
+  delay = 0,
+  className = '',
 }: {
   children: React.ReactNode
-  onClick: () => void
+  delay?: number
+  className?: string
 }): React.JSX.Element {
   return (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.97 }}
-      transition={SPRING}
-      className="
-        inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-medium
-        text-gray-500 dark:text-neutral-400
-        hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800
-        transition-colors duration-150
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2
-      "
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay, ease: EASE_OUT }}
     >
       {children}
-    </motion.button>
+    </motion.div>
   )
 }
 
@@ -114,128 +179,165 @@ function SecondaryButton({
 
 function WelcomeStep(): React.JSX.Element {
   return (
-    <div className="flex flex-col items-center text-center gap-5">
-      {/* Morphing logo shape */}
+    <div className="flex flex-col items-center text-center gap-8">
+      {/* Brand mark — circle → squircle morph with gradient */}
       <motion.div
-        className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 dark:from-indigo-400 dark:to-violet-400 flex items-center justify-center shadow-lg"
-        initial={{ scale: 0, rotate: -180, borderRadius: '50%' }}
-        animate={{ scale: 1, rotate: 0, borderRadius: '28%' }}
-        transition={{ ...SPRING, stiffness: 300, damping: 22 }}
+        className="relative w-[88px] h-[88px] bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-500 flex items-center justify-center shadow-2xl shadow-indigo-500/25 dark:shadow-indigo-400/15"
+        initial={{ scale: 0, borderRadius: '50%', rotate: -120 }}
+        animate={{ scale: 1, borderRadius: 24, rotate: 0 }}
+        transition={{ ...SPRING, stiffness: 280, damping: 22 }}
       >
         <motion.span
-          className="text-white text-2xl font-bold select-none"
-          initial={{ opacity: 0, scale: 0.5 }}
+          className="text-white text-[36px] font-bold select-none leading-none"
+          initial={{ opacity: 0, scale: 0.3 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ ...SPRING, delay: 0.15 }}
+          transition={{ ...SPRING, delay: 0.2 }}
         >
           C
         </motion.span>
       </motion.div>
 
-      <div className="space-y-2">
-        <motion.h1
-          className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...FADE, delay: 0.1 }}
-        >
-          Welcome to Chromium
-        </motion.h1>
-        <motion.p
-          className="text-[13px] text-gray-500 dark:text-neutral-400 leading-relaxed max-w-[320px]"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...FADE, delay: 0.2 }}
-        >
-          A focused, minimal browser designed for speed, privacy, and clarity.
-          Let's set things up in a few seconds.
-        </motion.p>
+      {/* Hero text — staggered word reveal */}
+      <div className="space-y-4">
+        <StaggeredWords
+          text="Welcome to Chromium"
+          as="h1"
+          className="text-[42px] font-semibold tracking-tight text-gray-900 dark:text-white leading-[1.08]"
+          delay={0.25}
+          stagger={0.07}
+        />
+        <FadeUp delay={0.7}>
+          <p className="text-[16px] text-gray-500 dark:text-neutral-400 leading-relaxed max-w-[380px] mx-auto">
+            A browser designed around what matters most —{' '}
+            <span className="text-gray-700 dark:text-neutral-300">speed</span>,{' '}
+            <span className="text-gray-700 dark:text-neutral-300">clarity</span>, and{' '}
+            <span className="text-gray-700 dark:text-neutral-300">your privacy</span>.
+          </p>
+        </FadeUp>
       </div>
     </div>
   )
 }
 
-// ─── Step 1 — Theme Selection ────────────────────────────────────────────────
+// ─── Step 1 — Appearance ─────────────────────────────────────────────────────
+// Mini browser mockups give a tangible preview of each theme mode.
+// Selecting a card instantly changes the real theme — tactile feedback.
 
-function ThemeStep(): React.JSX.Element {
+function BrowserMockup({ mode }: { mode: 'light' | 'dark' }): React.JSX.Element {
+  const isLight = mode === 'light'
+  const chrome = isLight ? 'bg-gray-100' : 'bg-neutral-800'
+  const body = isLight ? 'bg-white' : 'bg-neutral-900'
+  const line1 = isLight ? 'bg-gray-200' : 'bg-neutral-700'
+  const line2 = isLight ? 'bg-gray-200/60' : 'bg-neutral-700/60'
+  const pill = isLight ? 'bg-white' : 'bg-neutral-700'
+  const border = isLight ? 'border-gray-200' : 'border-neutral-700'
+
+  return (
+    <div className={`w-full rounded-xl overflow-hidden border ${border} ${isLight ? 'bg-gray-50' : 'bg-neutral-900'}`}>
+      {/* Window chrome */}
+      <div className={`flex items-center gap-1.5 px-2.5 py-[7px] ${chrome}`}>
+        <div className="flex gap-[5px]">
+          <div className="w-[7px] h-[7px] rounded-full bg-[#ff5f57]/60" />
+          <div className="w-[7px] h-[7px] rounded-full bg-[#febc2e]/60" />
+          <div className="w-[7px] h-[7px] rounded-full bg-[#28c840]/60" />
+        </div>
+        <div className={`flex-1 h-[14px] rounded-md ml-2 ${pill}`} />
+      </div>
+      {/* URL row */}
+      <div className={`px-2.5 py-[6px] ${body}`}>
+        <div className={`h-[16px] rounded-lg ${isLight ? 'bg-gray-50' : 'bg-neutral-800'}`} />
+      </div>
+      {/* Content skeleton */}
+      <div className={`px-2.5 pb-3 pt-1 space-y-[6px] ${body}`}>
+        <div className={`h-[4px] rounded-full w-[82%] ${line1}`} />
+        <div className={`h-[4px] rounded-full w-[56%] ${line2}`} />
+        <div className={`h-[4px] rounded-full w-[70%] ${line1}`} />
+      </div>
+    </div>
+  )
+}
+
+function SystemMockup(): React.JSX.Element {
+  return (
+    <div className="w-full rounded-xl overflow-hidden border border-gray-300 dark:border-neutral-600 flex">
+      {/* Light half */}
+      <div className="w-1/2 bg-white p-2.5 space-y-[6px] border-r border-gray-200 dark:border-neutral-700">
+        <div className="h-[4px] rounded-full w-[80%] bg-gray-200" />
+        <div className="h-[4px] rounded-full w-[55%] bg-gray-200/60" />
+        <div className="h-[4px] rounded-full w-[68%] bg-gray-200" />
+      </div>
+      {/* Dark half */}
+      <div className="w-1/2 bg-neutral-900 p-2.5 space-y-[6px]">
+        <div className="h-[4px] rounded-full w-[80%] bg-neutral-700" />
+        <div className="h-[4px] rounded-full w-[55%] bg-neutral-700/60" />
+        <div className="h-[4px] rounded-full w-[68%] bg-neutral-700" />
+      </div>
+    </div>
+  )
+}
+
+function AppearanceStep(): React.JSX.Element {
   const themeMode = useThemeStore((s) => s.themeMode)
   const setThemeMode = useThemeStore((s) => s.setThemeMode)
 
-  const themes: { id: ThemeMode; label: string; description: string }[] = useMemo(() => [
-    { id: 'light', label: 'Light', description: 'Clean and bright' },
-    { id: 'dark', label: 'Dark', description: 'Easy on the eyes' },
-    { id: 'system', label: 'System', description: 'Follows your OS' },
-  ], [])
+  const themes: { id: ThemeMode; label: string }[] = [
+    { id: 'light', label: 'Light' },
+    { id: 'dark', label: 'Dark' },
+    { id: 'system', label: 'System' },
+  ]
 
   return (
-    <div className="flex flex-col items-center text-center gap-5">
-      <div className="space-y-2">
-        <motion.h2
-          className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={FADE}
-        >
-          Choose your look
-        </motion.h2>
-        <motion.p
-          className="text-[13px] text-gray-500 dark:text-neutral-400"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...FADE, delay: 0.08 }}
-        >
-          You can always change this later in Settings.
-        </motion.p>
+    <div className="flex flex-col items-center text-center gap-8">
+      <div className="space-y-3">
+        <StaggeredWords
+          text="Make it yours"
+          as="h2"
+          className="text-[32px] font-semibold tracking-tight text-gray-900 dark:text-white"
+          delay={0.05}
+        />
+        <FadeUp delay={0.28}>
+          <p className="text-[14px] text-gray-500 dark:text-neutral-400">
+            Choose your preferred appearance. You can change this anytime.
+          </p>
+        </FadeUp>
       </div>
 
-      <div className="flex gap-3">
-        {themes.map(({ id, label, description }, i) => {
+      <div className="flex gap-4">
+        {themes.map(({ id, label }, i) => {
           const selected = themeMode === id
           return (
             <motion.button
               key={id}
               onClick={() => setThemeMode(id)}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ ...SPRING_SOFT, delay: 0.06 * i }}
-              whileHover={{ scale: 1.03 }}
+              transition={{ ...SPRING_SOFT, delay: 0.35 + i * 0.08 }}
+              whileHover={{ y: -3 }}
               whileTap={{ scale: 0.97 }}
               className={`
-                relative flex flex-col items-center gap-2 w-[130px] p-4 rounded-2xl border-2 transition-colors duration-150
+                relative flex flex-col items-center gap-3 w-[154px] p-3 pb-4 rounded-2xl border-2
+                transition-[border-color,background-color,box-shadow] duration-200
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2
                 ${selected
-                  ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50/60 dark:bg-indigo-500/10'
-                  : 'border-gray-200 dark:border-neutral-700 hover:border-gray-300 dark:hover:border-neutral-600 bg-white dark:bg-neutral-800'
+                  ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/[0.08] shadow-lg shadow-indigo-500/10 dark:shadow-indigo-400/5'
+                  : 'border-gray-200/80 dark:border-neutral-700/80 bg-white/50 dark:bg-neutral-800/50 hover:border-gray-300 dark:hover:border-neutral-600'
                 }
               `}
               aria-pressed={selected}
             >
-              {/* Theme preview swatch */}
-              <div className={`
-                w-full h-14 rounded-xl overflow-hidden border
-                ${id === 'light' ? 'bg-gray-50 border-gray-200' : ''}
-                ${id === 'dark' ? 'bg-neutral-800 border-neutral-700' : ''}
-                ${id === 'system' ? 'bg-gradient-to-r from-gray-50 to-neutral-800 border-gray-300 dark:border-neutral-600' : ''}
-              `}>
-                <div className="w-full h-full flex items-end p-2 gap-1">
-                  {[1, 0.7, 0.4].map((opacity, j) => (
-                    <div
-                      key={j}
-                      className={`h-1 rounded-full flex-1 ${id === 'dark' ? 'bg-white' : id === 'light' ? 'bg-gray-900' : j === 0 ? 'bg-gray-900' : 'bg-white'}`}
-                      style={{ opacity }}
-                    />
-                  ))}
-                </div>
-              </div>
+              {id === 'system' ? <SystemMockup /> : <BrowserMockup mode={id} />}
 
-              <span className="text-[12px] font-medium text-gray-900 dark:text-white">{label}</span>
-              <span className="text-[11px] text-gray-400 dark:text-neutral-500">{description}</span>
+              <span className={`text-[13px] font-medium transition-colors duration-150 ${
+                selected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-neutral-400'
+              }`}>
+                {label}
+              </span>
 
-              {/* Selection indicator */}
+              {/* Selection badge */}
               <AnimatePresence>
                 {selected && (
                   <motion.div
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-indigo-500 dark:bg-indigo-400 flex items-center justify-center shadow-sm"
+                    className="absolute -top-1.5 -right-1.5 w-[22px] h-[22px] rounded-full bg-indigo-500 dark:bg-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-500/30"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
@@ -255,64 +357,71 @@ function ThemeStep(): React.JSX.Element {
 
 // ─── Step 2 — Privacy ────────────────────────────────────────────────────────
 
+const PRIVACY_FEATURES = [
+  { text: 'Ad & tracker blocking', detail: 'Powered by uBlock Origin' },
+  { text: 'No telemetry', detail: 'Nothing leaves your device' },
+  { text: 'Local-first storage', detail: 'Your data stays on your machine' },
+] as const
+
 function PrivacyStep(): React.JSX.Element {
   return (
-    <div className="flex flex-col items-center text-center gap-5">
+    <div className="flex flex-col items-center text-center gap-8">
+      {/* Shield with shape-morph entrance */}
       <motion.div
-        className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={SPRING}
+        className="w-[72px] h-[72px] rounded-[20px] bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center"
+        initial={{ scale: 0, borderRadius: '50%', rotate: -20 }}
+        animate={{ scale: 1, borderRadius: 20, rotate: 0 }}
+        transition={{ ...SPRING, stiffness: 300, damping: 20 }}
       >
-        <SvgIcon svg={shieldSvg} size={28} className="text-emerald-500 dark:text-emerald-400" />
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ ...SPRING, delay: 0.14 }}
+        >
+          <SvgIcon svg={shieldSvg} size={34} className="text-emerald-500 dark:text-emerald-400" />
+        </motion.div>
       </motion.div>
 
-      <div className="space-y-2">
-        <motion.h2
-          className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={FADE}
-        >
-          Privacy built in
-        </motion.h2>
-        <motion.p
-          className="text-[13px] text-gray-500 dark:text-neutral-400 leading-relaxed max-w-[340px]"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...FADE, delay: 0.08 }}
-        >
-          Chromium includes a built-in ad blocker powered by uBlock Origin.
-          Trackers and intrusive ads are blocked by default — no extensions needed.
-        </motion.p>
+      <div className="space-y-3">
+        <StaggeredWords
+          text="Privacy, built in"
+          as="h2"
+          className="text-[32px] font-semibold tracking-tight text-gray-900 dark:text-white"
+          delay={0.12}
+        />
+        <FadeUp delay={0.38}>
+          <p className="text-[14px] text-gray-500 dark:text-neutral-400 leading-relaxed max-w-[380px] mx-auto">
+            Trackers and intrusive ads are blocked from day one.
+            No configuration needed, no extensions required.
+          </p>
+        </FadeUp>
       </div>
 
-      {/* Privacy features list */}
-      <motion.div
-        className="flex flex-col gap-2 w-full max-w-[320px]"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...FADE, delay: 0.15 }}
-      >
-        {[
-          'Ad & tracker blocking enabled',
-          'No telemetry or analytics',
-          'Local-first data storage',
-        ].map((feature, i) => (
+      {/* Feature rows — staggered entrance */}
+      <div className="flex flex-col gap-3 w-full max-w-[380px]">
+        {PRIVACY_FEATURES.map(({ text, detail }, i) => (
           <motion.div
-            key={feature}
-            className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-gray-50 dark:bg-neutral-800 text-left"
-            initial={{ opacity: 0, x: -8 }}
+            key={text}
+            className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/60 dark:bg-neutral-800/50 border border-gray-100 dark:border-neutral-700/50 text-left"
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ ...SPRING_SOFT, delay: 0.2 + i * 0.06 }}
+            transition={{ ...SPRING_SOFT, delay: 0.48 + i * 0.1 }}
           >
-            <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-              <SvgIcon svg={checkSvg} size={10} className="text-emerald-600 dark:text-emerald-400" />
+            <motion.div
+              className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ ...SPRING, delay: 0.58 + i * 0.1 }}
+            >
+              <SvgIcon svg={checkSvg} size={12} className="text-emerald-600 dark:text-emerald-400" />
+            </motion.div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-medium text-gray-800 dark:text-neutral-200">{text}</div>
+              <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5">{detail}</div>
             </div>
-            <span className="text-[12px] font-medium text-gray-700 dark:text-neutral-300">{feature}</span>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -321,39 +430,36 @@ function PrivacyStep(): React.JSX.Element {
 
 function ReadyStep(): React.JSX.Element {
   return (
-    <div className="flex flex-col items-center text-center gap-5">
+    <div className="flex flex-col items-center text-center gap-8">
+      {/* Bouncy checkmark reveal */}
       <motion.div
-        className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center"
+        className="w-[88px] h-[88px] rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ ...SPRING, stiffness: 350, damping: 20 }}
+        transition={{ ...SPRING, stiffness: 280, damping: 18 }}
       >
         <motion.div
-          initial={{ scale: 0, rotate: -90 }}
+          initial={{ scale: 0, rotate: -60 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ ...SPRING, delay: 0.12, stiffness: 400, damping: 18 }}
+          transition={{ ...SPRING, delay: 0.15, stiffness: 350, damping: 16 }}
         >
-          <SvgIcon svg={checkSvg} size={28} className="text-indigo-500 dark:text-indigo-400" />
+          <SvgIcon svg={checkSvg} size={40} className="text-indigo-500 dark:text-indigo-400" />
         </motion.div>
       </motion.div>
 
-      <div className="space-y-2">
-        <motion.h2
-          className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...FADE, delay: 0.08 }}
-        >
-          You're all set
-        </motion.h2>
-        <motion.p
-          className="text-[13px] text-gray-500 dark:text-neutral-400 leading-relaxed max-w-[300px]"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...FADE, delay: 0.15 }}
-        >
-          Chromium is ready. Browse with focus, speed, and peace of mind.
-        </motion.p>
+      <div className="space-y-4">
+        <StaggeredWords
+          text="You're ready"
+          as="h2"
+          className="text-[42px] font-semibold tracking-tight text-gray-900 dark:text-white leading-[1.08]"
+          delay={0.18}
+          stagger={0.1}
+        />
+        <FadeUp delay={0.45}>
+          <p className="text-[16px] text-gray-500 dark:text-neutral-400 leading-relaxed max-w-[320px] mx-auto">
+            Enjoy a faster, cleaner, more private web.
+          </p>
+        </FadeUp>
       </div>
     </div>
   )
@@ -364,141 +470,173 @@ function ReadyStep(): React.JSX.Element {
 function StepContent({ step }: { step: number }): React.JSX.Element {
   switch (step) {
     case 0: return <WelcomeStep />
-    case 1: return <ThemeStep />
+    case 1: return <AppearanceStep />
     case 2: return <PrivacyStep />
     case 3: return <ReadyStep />
     default: return <WelcomeStep />
   }
 }
 
-// ─── Main Onboarding Flow ────────────────────────────────────────────────────
+// ─── Main Orchestrator ───────────────────────────────────────────────────────
 
 function OnboardingFlowInner(): React.JSX.Element {
   const setOnboardingCompleted = useSettingsStore((s) => s.setOnboardingCompleted)
   const [step, setStep] = useState(0)
-  const [direction, setDirection] = useState(1) // 1 = forward, -1 = backward
+  const [exiting, setExiting] = useState(false)
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const isFirst = step === 0
   const isLast = step === TOTAL_STEPS - 1
 
-  const next = useCallback(() => {
-    if (isLast) {
-      setOnboardingCompleted(true)
-      return
-    }
-    setDirection(1)
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1))
-  }, [isLast, setOnboardingCompleted])
-
-  const back = useCallback(() => {
-    setDirection(-1)
-    setStep((s) => Math.max(s - 1, 0))
+  // Cleanup exit timer on unmount
+  useEffect(() => {
+    return () => { if (exitTimer.current) clearTimeout(exitTimer.current) }
   }, [])
 
-  const skip = useCallback(() => {
-    setOnboardingCompleted(true)
-  }, [setOnboardingCompleted])
+  const finish = useCallback(() => {
+    if (exiting) return
+    setExiting(true)
+    exitTimer.current = setTimeout(() => setOnboardingCompleted(true), 550)
+  }, [exiting, setOnboardingCompleted])
+
+  const next = useCallback(() => {
+    if (exiting) return
+    if (isLast) { finish(); return }
+    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1))
+  }, [isLast, finish, exiting])
+
+  const back = useCallback(() => {
+    if (exiting) return
+    setStep((s) => Math.max(s - 1, 0))
+  }, [exiting])
+
+  const skip = useCallback(() => finish(), [finish])
 
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent): void => {
+      if (exiting) return
       if (e.key === 'ArrowRight' || e.key === 'Enter') next()
       else if (e.key === 'ArrowLeft' && !isFirst) back()
       else if (e.key === 'Escape') skip()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [next, back, skip, isFirst])
-
-  const dims = STEP_DIMENSIONS[step] ?? STEP_DIMENSIONS[0]!
+  }, [next, back, skip, isFirst, exiting])
 
   return (
     <motion.div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-white dark:bg-neutral-900"
+      className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-neutral-900 [app-region:no-drag]"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={FADE}
+      animate={{ opacity: exiting ? 0 : 1, scale: exiting ? 1.04 : 1 }}
+      exit={{ opacity: 0, scale: 1.04 }}
+      transition={
+        exiting
+          ? { duration: 0.5, ease: EASE_OUT }
+          : { duration: 0.35, ease: EASE_OUT }
+      }
       role="dialog"
       aria-label="Welcome to Chromium"
       aria-modal="true"
     >
-      {/* Subtle radial gradient backdrop */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-50/40 via-transparent to-transparent dark:from-indigo-500/5 dark:via-transparent dark:to-transparent pointer-events-none" />
+      {/* Living gradient background */}
+      <AmbientOrbs step={step} />
 
-      <div className="relative flex flex-col items-center gap-8">
-        {/* Shape-morphing card container */}
-        <motion.div
-          className="relative bg-white dark:bg-neutral-900 border border-gray-200/80 dark:border-neutral-700/80 rounded-3xl shadow-xl overflow-hidden flex items-center justify-center"
-          animate={{
-            width: dims.width,
-            height: dims.height,
-          }}
-          transition={SPRING_SOFT}
-          layout
-        >
-          {/* Animated step content */}
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={step}
-              custom={direction}
-              variants={{
-                enter: (d: number) => ({
-                  opacity: 0,
-                  x: d * 40,
-                  scale: 0.96,
-                }),
-                center: {
-                  opacity: 1,
-                  x: 0,
-                  scale: 1,
-                },
-                exit: (d: number) => ({
-                  opacity: 0,
-                  x: d * -40,
-                  scale: 0.96,
-                }),
-              }}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={SPRING}
-              className="absolute inset-0 flex items-center justify-center p-8"
-            >
-              <StepContent step={step} />
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
+      {/* Skip — top right, very subtle, appears late */}
+      <motion.button
+        onClick={skip}
+        className="
+          absolute top-5 right-6 z-10 text-[12px] text-gray-400 dark:text-neutral-500
+          hover:text-gray-600 dark:hover:text-neutral-300 transition-colors duration-150
+          px-3 py-1.5 rounded-lg hover:bg-gray-100/50 dark:hover:bg-neutral-800/50
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
+        "
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 1.2, ease: EASE_OUT }}
+      >
+        Skip
+      </motion.button>
 
-        {/* Progress dots */}
-        <ProgressDots current={step} total={TOTAL_STEPS} />
-
-        {/* Navigation controls */}
-        <motion.div
-          className="flex items-center gap-3"
-          layout
-          transition={SPRING}
-        >
-          {!isFirst && (
-            <SecondaryButton onClick={back}>Back</SecondaryButton>
-          )}
-          <PrimaryButton onClick={next}>
-            {isFirst ? 'Get Started' : isLast ? 'Start Browsing' : 'Continue'}
-            <SvgIcon svg={isLast ? checkSvg : arrowSvg} size={14} />
-          </PrimaryButton>
-        </motion.div>
-
-        {/* Skip link */}
-        <motion.button
-          onClick={skip}
-          className="text-[12px] text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 rounded-md px-2 py-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ ...FADE, delay: 0.4 }}
-        >
-          Skip setup
-        </motion.button>
+      {/* Step content — centered, full-width */}
+      <div className="flex-1 flex items-center justify-center relative z-[1]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, y: 30, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.97 }}
+            transition={{
+              opacity: { duration: 0.3, ease: EASE_OUT },
+              y: SPRING_SOFT,
+              scale: { duration: 0.35, ease: EASE_OUT },
+            }}
+            className="w-full max-w-[560px] px-6"
+          >
+            <StepContent step={step} />
+          </motion.div>
+        </AnimatePresence>
       </div>
+
+      {/* Bottom bar — CTA + progress */}
+      <motion.div
+        className="relative z-[1] flex flex-col items-center gap-6 pb-12"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3, ease: EASE_OUT }}
+      >
+        {/* Action row */}
+        <div className="flex items-center gap-3">
+          {/* Back — icon-only, hidden on first step */}
+          <AnimatePresence>
+            {!isFirst && (
+              <motion.button
+                onClick={back}
+                initial={{ opacity: 0, scale: 0.8, width: 0 }}
+                animate={{ opacity: 1, scale: 1, width: 44 }}
+                exit={{ opacity: 0, scale: 0.8, width: 0 }}
+                transition={SPRING}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                className="
+                  h-11 rounded-full flex items-center justify-center overflow-hidden
+                  text-gray-400 dark:text-neutral-500
+                  hover:text-gray-600 dark:hover:text-neutral-300
+                  hover:bg-gray-100/60 dark:hover:bg-neutral-800/60
+                  transition-colors duration-150
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
+                "
+                aria-label="Go back"
+              >
+                <SvgIcon svg={chevronLeftSvg} size={18} />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Primary CTA */}
+          <motion.button
+            onClick={next}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            transition={SPRING}
+            className="
+              inline-flex items-center gap-2 px-8 py-3 rounded-2xl text-[14px] font-medium
+              bg-gray-900 dark:bg-white text-white dark:text-gray-900
+              shadow-xl shadow-gray-900/12 dark:shadow-black/20
+              hover:shadow-2xl hover:shadow-gray-900/18 dark:hover:shadow-black/30
+              transition-shadow duration-200
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2
+            "
+          >
+            {isFirst ? 'Get Started' : isLast ? 'Start Browsing' : 'Continue'}
+            {!isLast && <SvgIcon svg={chevronRightSvg} size={15} />}
+            {isLast && <SvgIcon svg={checkSvg} size={15} />}
+          </motion.button>
+        </div>
+
+        {/* Progress */}
+        <ProgressBar step={step} total={TOTAL_STEPS} />
+      </motion.div>
     </motion.div>
   )
 }
