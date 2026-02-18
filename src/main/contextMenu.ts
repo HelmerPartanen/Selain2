@@ -181,7 +181,7 @@ export function buildContextMenu(
       label: 'Inspect Element',
       click: () => {
         if (!webContents.isDevToolsOpened()) {
-          webContents.openDevTools({ mode: 'right' })
+          webContents.openDevTools({ mode: 'detach' })
         }
         webContents.inspectElement(params.x, params.y)
       }

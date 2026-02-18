@@ -36,7 +36,7 @@ export function createWindow(): void {
 
   // Open DevTools automatically in dev mode
   if (process.env['ELECTRON_RENDERER_URL']) {
-    win.webContents.openDevTools({ mode: 'right' })
+    win.webContents.openDevTools({ mode: 'detach' })
   }
 
   win.on('maximize', () => {
