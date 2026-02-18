@@ -52,8 +52,28 @@ export function createWindow(): void {
 
   // Intercept new-window requests and keyboard shortcuts from all webviews
   ;(win.webContents as NodeJS.EventEmitter).on('did-attach-webview', (_event: unknown, webViewContents: Electron.WebContents) => {
-    // Redirect target="_blank" links to new tabs instead of new windows
-    webViewContents.setWindowOpenHandler(({ url }) => {
+    // Redirect target="_blank" links to new tabs instead of new windows.
+    // Exception: popup windows (OAuth / login flows) specify explicit width+height
+    // in the features string and rely on window.opener for postMessage — allow
+    // those as real native windows using the same session so cookies are shared.
+    webViewContents.setWindowOpenHandler(({ url, features }) => {
+      const isPopup = /\bwidth\s*=/.test(features) && /\bheight\s*=/.test(features)
+      if (isPopup) {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 520,
+            height: 720,
+            frame: true,
+            webPreferences: {
+              partition: 'persist:default',
+              contextIsolation: true,
+              sandbox: true,
+              nodeIntegration: false,
+            }
+          }
+        }
+      }
       win.webContents.send('open-url-in-new-tab', url)
       return { action: 'deny' }
     })
