@@ -22,6 +22,8 @@ export interface SettingsState {
   autoHideDelay: number
   /** Clear browsing data on exit */
   clearOnExit: boolean
+  /** Whether the user has completed the onboarding flow */
+  onboardingCompleted: boolean
 }
 
 export interface SettingsActions {
@@ -31,6 +33,7 @@ export interface SettingsActions {
   setUiZoom: (zoom: number) => void
   setAutoHideDelay: (ms: number) => void
   setClearOnExit: (v: boolean) => void
+  setOnboardingCompleted: (v: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -47,6 +50,7 @@ export const useSettingsStore = create<SettingsStore>()(
       uiZoom: 100,
       autoHideDelay: 2500,
       clearOnExit: false,
+      onboardingCompleted: false,
 
       // ── Actions ──
       setRestoreTabs: (v) => set({ restoreTabs: v }),
@@ -55,6 +59,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setUiZoom: (zoom) => set({ uiZoom: zoom }),
       setAutoHideDelay: (ms) => set({ autoHideDelay: Math.max(1000, Math.min(5000, ms)) }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
+      setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }
   )

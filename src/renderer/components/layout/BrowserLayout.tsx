@@ -26,6 +26,7 @@ const HistoryPanel = lazy(() => import('@/history/HistoryPage').then(m => ({ def
 const DownloadsPanel = lazy(() => import('@/downloads/DownloadsPage').then(m => ({ default: m.DownloadsPanel })))
 const HotkeysPanel = lazy(() => import('@/hotkeys/HotkeysPanel').then(m => ({ default: m.HotkeysPanel })))
 const TabOverview = lazy(() => import('@/components/browser/TabOverview').then(m => ({ default: m.TabOverview })))
+const OnboardingFlow = lazy(() => import('@/onboarding/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })))
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager()
@@ -46,6 +47,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isSplitView = useTabStore((s) => s.splitTabId !== null)
   const closeDropdown = useUIStore((s) => s.setDropdownOpen)
   const closeMenu = useUIStore((s) => s.setMenuOpen)
+  const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted)
 
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
@@ -269,6 +271,15 @@ function BrowserLayoutInner(): React.JSX.Element {
         <TabOverview />
       </Suspense>
     </ErrorBoundary>
+
+    {/* Onboarding — shown once for first-run users */}
+    <AnimatePresence>
+      {!onboardingCompleted && (
+        <Suspense fallback={null}>
+          <OnboardingFlow />
+        </Suspense>
+      )}
+    </AnimatePresence>
   </div>
 )
 }
