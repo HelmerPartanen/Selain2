@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
-import { SectionLabel } from "@/settings/components/SettingsShared";
+import { SectionHeader } from "@/settings/components/SettingsShared";
 import { useThemeStore } from "@/store/themeStore";
 import {
   WALLPAPER_PRESETS,
@@ -119,9 +119,7 @@ function WallpaperPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center gap-1.5 mb-3">
-          <SectionLabel>Wallpapers</SectionLabel>
-        </div>
+        <SectionHeader className="mb-3">Wallpapers</SectionHeader>
         <div
           className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700"
           role="listbox"
@@ -140,9 +138,7 @@ function WallpaperPaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <div className="flex items-center gap-1.5 mb-3">
-          <SectionLabel>Gradients</SectionLabel>
-        </div>
+        <SectionHeader className="mb-3">Gradients</SectionHeader>
         <div
           className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700"
           role="listbox"
@@ -175,9 +171,7 @@ function WallpaperPaneInner(): React.JSX.Element {
       </div>
 
       <div>
-        <div className="flex items-center gap-1.5 mb-3">
-          <SectionLabel>Solid Colors</SectionLabel>
-        </div>
+        <SectionHeader className="mb-3">Solid Colors</SectionHeader>
         <div
           className="grid grid-cols-10 gap-2"
           role="listbox"

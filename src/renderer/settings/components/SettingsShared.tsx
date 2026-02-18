@@ -4,17 +4,19 @@
 // duplication. Each component is intentionally minimal.
 
 /** Primary section heading used in every settings pane */
-export function SectionHeader({ children }: { children: React.ReactNode }): React.JSX.Element {
+export function SectionHeader({
+  children,
+  className = ""
+}: {
+  children: React.ReactNode
+  className?: string
+}): React.JSX.Element {
   return (
-    <h3 className="text-[15px] font-normal text-gray-900 dark:text-white mb-1">{children}</h3>
-  )
-}
-
-export function SectionLabel({ children }: { children: React.ReactNode }): React.JSX.Element {
-  return (
-    <span className="text-[11px] font-bold uppercase text-gray-400 dark:text-neutral-500">
+    <h3
+      className={`text-[15px] font-normal text-gray-900 dark:text-white mb-1 ${className}`}
+    >
       {children}
-    </span>
+    </h3>
   )
 }
 
