@@ -16,11 +16,13 @@ import { WebViewManager } from "@/webview/WebViewManager";
 import { useLRUTabManager } from "@/webview/useLRUTabManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useDownloadListener } from "@/hooks/useDownloadListener";
+import { useIsDark } from "@/hooks/useIsDark";
 import { useTabStore } from "@/store/tabStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useUIStore } from "@/store/uiStore";
 import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
 import { resolveWallpaperUrl } from "@/theme/bundledWallpapers";
+import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useSettingsStore } from "@/store/settingsStore";
@@ -83,6 +85,9 @@ function BrowserLayoutInner(): React.JSX.Element {
   //const onboardingCompleted = false // useSettingsStore((s) => s.onboardingCompleted);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
 
+  // Resolve theme-aware wallpapers — preset gradients adapt to dark/light.
+  const isDark = useIsDark();
+
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
   // NOTE: Revocation is deferred to useEffect (after commit) so the DOM
@@ -90,6 +95,8 @@ function BrowserLayoutInner(): React.JSX.Element {
   const prevBlobRef = useRef<string | null>(null);
   const wallpaperUrl = useMemo(() => {
     if (!wallpaper) return null;
+    // Resolve preset keys (e.g. "preset:ready_bloom") to theme-appropriate SVG
+    if (isPresetKey(wallpaper)) return resolvePresetUrl(wallpaper, isDark);
     // Resolve bundled keys (e.g. "bundled:image.jpg") to Vite asset URLs
     const resolved = resolveWallpaperUrl(wallpaper);
     if (!resolved) return null;
@@ -97,7 +104,7 @@ function BrowserLayoutInner(): React.JSX.Element {
     if (resolved.startsWith("blob:")) return resolved;
     if (resolved.startsWith("data:")) return dataUrlToBlobUrl(resolved);
     return resolved;
-  }, [wallpaper]);
+  }, [wallpaper, isDark]);
 
   // Revoke the previous blob URL after React has committed the new one to the DOM
   useEffect(() => {

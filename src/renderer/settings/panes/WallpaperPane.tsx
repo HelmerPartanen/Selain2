@@ -4,19 +4,14 @@ import { memo, useCallback, useEffect, useState } from 'react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import { SectionLabel } from '@/settings/components/SettingsShared'
 import { useThemeStore } from '@/store/themeStore'
-import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS } from '@/theme/presets'
+import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS, PRESET_PREFIX } from '@/theme/presets'
 import { BUNDLED_WALLPAPERS, generateThumbnail } from '@/theme/bundledWallpapers'
 import { showToast } from '@/components/ui/Toast'
+import { useIsDark } from '@/hooks/useIsDark'
 import uploadSvg from '@/assets/icons/Objects/Tray_Arrow_Up.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 
 // --- Computed constants -------------------------------------------------------
-
-const gradientBaseStyles: React.CSSProperties[] = WALLPAPER_PRESETS.map((preset) => ({
-  backgroundImage: `url(${preset.dataUrl})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-}))
 
 const solidBaseColors: string[] = SOLID_COLOR_PRESETS.map((c) => c.hex)
 
@@ -75,9 +70,15 @@ function LazyWallpaperThumb({
 function WallpaperPaneInner(): React.JSX.Element {
   const wallpaper = useThemeStore((s) => s.wallpaper)
   const setWallpaper = useThemeStore((s) => s.setWallpaper)
+  const isDark = useIsDark()
 
   const handleSelectPreset = useCallback(
     (dataUrl: string) => setWallpaper(dataUrl),
+    [setWallpaper]
+  )
+
+  const handleSelectGradient = useCallback(
+    (presetId: string) => setWallpaper(`${PRESET_PREFIX}${presetId}`),
     [setWallpaper]
   )
 
@@ -136,12 +137,14 @@ function WallpaperPaneInner(): React.JSX.Element {
           role="listbox"
           aria-label="Gradient wallpapers"
         >
-          {WALLPAPER_PRESETS.map((preset, i) => {
-            const isActive = wallpaper === preset.dataUrl
+          {WALLPAPER_PRESETS.map((preset) => {
+            const presetKey = `${PRESET_PREFIX}${preset.id}`
+            const isActive = wallpaper === presetKey
+            const thumbUrl = isDark ? preset.dark : preset.light
             return (
               <button
                 key={preset.id}
-                onClick={() => handleSelectPreset(preset.dataUrl)}
+                onClick={() => handleSelectGradient(preset.id)}
                 aria-label={`Select gradient: ${preset.name}`}
                 aria-pressed={isActive}
                 className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
@@ -149,7 +152,11 @@ function WallpaperPaneInner(): React.JSX.Element {
                     ? 'outline outline-[3px] outline-indigo-500 dark:outline-indigo-400'
                     : 'outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600'
                 }`}
-                style={gradientBaseStyles[i]}
+                style={{
+                  backgroundImage: `url(${thumbUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
               />
             )
           })}

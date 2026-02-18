@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, SQUARE_SVG, CARDS_SVG } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
-import { WALLPAPER_PRESETS } from '@/theme/presets'
+import { WALLPAPER_PRESETS, PRESET_PREFIX } from '@/theme/presets'
 import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
@@ -651,7 +651,7 @@ function OnboardingFlowInner(): React.JSX.Element {
     setExiting(true)
     // Set the Bloom wallpaper (matches last onboarding orb colors) for a seamless transition
     const bloom = WALLPAPER_PRESETS.find((p) => p.id === 'ready_bloom')
-    if (bloom) setWallpaper(bloom.dataUrl)
+    if (bloom) setWallpaper(`${PRESET_PREFIX}${bloom.id}`)
     exitTimer.current = setTimeout(() => setOnboardingCompleted(true), 550)
   }, [exiting, setOnboardingCompleted, setWallpaper])
 
