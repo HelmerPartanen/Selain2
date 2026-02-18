@@ -5,6 +5,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createIPCStorage } from './ipcStorage'
 
 export type NewTabMode = 'bookmarks' | 'blank'
 
@@ -55,6 +56,6 @@ export const useSettingsStore = create<SettingsStore>()(
       setAutoHideDelay: (ms) => set({ autoHideDelay: Math.max(1000, Math.min(5000, ms)) }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
     }),
-    { name: 'browser-settings', version: 1 }
+    { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }
   )
 )

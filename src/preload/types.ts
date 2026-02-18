@@ -23,6 +23,10 @@ export interface ElectronAPI {
   capturePage(): Promise<string | null>
   /** Set the renderer zoom factor (1.0 = 100%) */
   setZoomFactor(factor: number): void
+  /** Load persisted store data from filesystem */
+  loadStore(name: string): Promise<string | null>
+  /** Save store data to filesystem */
+  saveStore(name: string, data: string): Promise<boolean>
 }
 
 declare global {

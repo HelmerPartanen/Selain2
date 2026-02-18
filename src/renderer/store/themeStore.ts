@@ -5,6 +5,7 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { saveWallpaper, loadWallpaper } from './wallpaperDB'
+import { createIPCStorage } from './ipcStorage'
 
 export type ThemeMode = 'dark' | 'light' | 'system'
 
@@ -51,10 +52,11 @@ export const useThemeStore = create<ThemeStore>()(
       }),
       {
         name: 'theme-store',
-        // Only persist themeMode to localStorage — wallpaper goes to IndexedDB
+        storage: createIPCStorage<Pick<ThemeState, 'themeMode'>>(),
+        // Only persist themeMode — wallpaper goes to filesystem via wallpaperDB
         partialize: (state) => ({
           themeMode: state.themeMode
-        })
+        }) as ThemeStore
       }
     ),
     { name: 'ThemeStore', enabled: import.meta.env.DEV }

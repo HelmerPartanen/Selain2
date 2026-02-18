@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createIPCStorage } from './ipcStorage'
 
 export interface SearchEngine {
   id: string
@@ -38,6 +39,6 @@ export const useSearchEngineStore = create<SearchEngineState>()(
         return engine.searchUrl.replace('{query}', encodeURIComponent(query))
       }
     }),
-    { name: 'search-engine', version: 1 }
+    { name: 'search-engine', version: 1, storage: createIPCStorage<SearchEngineState>() }
   )
 )

@@ -524,6 +524,35 @@ function setupIPC(): void {
       return null
     }
   })
+
+  // ── Store persistence (filesystem-backed settings) ──
+  const ALLOWED_STORES = new Set(['browser-settings', 'search-engine', 'theme-store'])
+  const storeDir = app.getPath('userData')
+
+  ipcMain.handle('load-store', async (_event, name: string) => {
+    if (typeof name !== 'string' || !ALLOWED_STORES.has(name)) return null
+    const filePath = join(storeDir, `${name}.json`)
+    try {
+      if (!existsSync(filePath)) return null
+      return await readFile(filePath, 'utf-8')
+    } catch (err) {
+      console.warn(`Failed to load store "${name}":`, err)
+      return null
+    }
+  })
+
+  ipcMain.handle('save-store', async (_event, name: string, data: string) => {
+    if (typeof name !== 'string' || !ALLOWED_STORES.has(name)) return false
+    if (typeof data !== 'string') return false
+    const filePath = join(storeDir, `${name}.json`)
+    try {
+      await writeFile(filePath, data, 'utf-8')
+      return true
+    } catch (err) {
+      console.warn(`Failed to save store "${name}":`, err)
+      return false
+    }
+  })
 }
 
 function setupPermissions(): void {
