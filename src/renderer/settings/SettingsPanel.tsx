@@ -4,7 +4,7 @@
 
 import { memo, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { SPRING } from '@/utils/springs';
+import { SPRING } from "@/utils/springs";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
@@ -20,7 +20,6 @@ import { WallpaperPane } from "@/settings/panes/WallpaperPane";
 import { PrivacyPane } from "@/settings/panes/PrivacyPane";
 import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
 import { AboutPane } from "@/settings/panes/AboutPane";
-
 
 // --- Sidebar Categories -------------------------------------------------------
 

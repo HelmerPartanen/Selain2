@@ -1,28 +1,35 @@
 // ─── Wallpaper Settings Pane ─────────────────────────────────────────────────
 
-import { memo, useCallback, useEffect, useState } from 'react'
-import { SvgIcon } from '@/components/ui/SvgIcon'
-import { SectionLabel } from '@/settings/components/SettingsShared'
-import { useThemeStore } from '@/store/themeStore'
-import { WALLPAPER_PRESETS, SOLID_COLOR_PRESETS, PRESET_PREFIX } from '@/theme/presets'
-import { BUNDLED_WALLPAPERS, generateThumbnail } from '@/theme/bundledWallpapers'
-import { showToast } from '@/components/ui/Toast'
-import { useIsDark } from '@/hooks/useIsDark'
-import uploadSvg from '@/assets/icons/Objects/Tray_Arrow_Up.svg?raw'
-import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
+import { memo, useCallback, useEffect, useState } from "react";
+import { SvgIcon } from "@/components/ui/SvgIcon";
+import { SectionLabel } from "@/settings/components/SettingsShared";
+import { useThemeStore } from "@/store/themeStore";
+import {
+  WALLPAPER_PRESETS,
+  SOLID_COLOR_PRESETS,
+  PRESET_PREFIX,
+} from "@/theme/presets";
+import {
+  BUNDLED_WALLPAPERS,
+  generateThumbnail,
+} from "@/theme/bundledWallpapers";
+import { showToast } from "@/components/ui/Toast";
+import { useIsDark } from "@/hooks/useIsDark";
+import uploadSvg from "@/assets/icons/Objects/Tray_Arrow_Up.svg?raw";
+import trashSvg from "@/assets/icons/Objects/Trash.svg?raw";
 
 // --- Computed constants -------------------------------------------------------
 
-const solidBaseColors: string[] = SOLID_COLOR_PRESETS.map((c) => c.hex)
+const solidBaseColors: string[] = SOLID_COLOR_PRESETS.map((c) => c.hex);
 
 function solidToDataUrl(hex: string): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="${hex}"/></svg>`
-  return `data:image/svg+xml;base64,${btoa(svg)}`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="${hex}"/></svg>`;
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
 
 const SOLID_DATA_URL_MAP = new Map<string, string>(
-  SOLID_COLOR_PRESETS.map((c) => [c.hex, solidToDataUrl(c.hex)])
-)
+  SOLID_COLOR_PRESETS.map((c) => [c.hex, solidToDataUrl(c.hex)]),
+);
 
 // --- Lazy Wallpaper Thumbnail ------------------------------------------------
 
@@ -30,80 +37,84 @@ function LazyWallpaperThumb({
   url,
   storageKey,
   isActive,
-  onSelect
+  onSelect,
 }: {
-  url: string
-  storageKey: string
-  isActive: boolean
-  onSelect: (key: string) => void
+  url: string;
+  storageKey: string;
+  isActive: boolean;
+  onSelect: (key: string) => void;
 }): React.JSX.Element {
-  const [thumbUrl, setThumbUrl] = useState<string | null>(null)
+  const [thumbUrl, setThumbUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false
-    generateThumbnail(url).then((t) => { if (!cancelled) setThumbUrl(t) })
-    return () => { cancelled = true }
-  }, [url])
+    let cancelled = false;
+    generateThumbnail(url).then((t) => {
+      if (!cancelled) setThumbUrl(t);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
 
   return (
     <button
       onClick={() => onSelect(storageKey)}
-      aria-label={`Select wallpaper ${storageKey.replace('bundled:', '')}`}
+      aria-label={`Select wallpaper ${storageKey.replace("bundled:", "")}`}
       aria-pressed={isActive}
       className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
         isActive
-          ? 'outline outline-[3px] outline-indigo-500 dark:outline-indigo-400'
-          : 'outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600'
+          ? "outline outline-[3px] outline-indigo-500 dark:outline-indigo-400"
+          : "outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600"
       }`}
       style={{
         backgroundImage: thumbUrl ? `url(${thumbUrl})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundColor: thumbUrl ? undefined : 'rgb(38 38 38)',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundColor: thumbUrl ? undefined : "rgb(38 38 38)",
       }}
     />
-  )
+  );
 }
 
 // --- Wallpaper Pane ----------------------------------------------------------
 
 function WallpaperPaneInner(): React.JSX.Element {
-  const wallpaper = useThemeStore((s) => s.wallpaper)
-  const setWallpaper = useThemeStore((s) => s.setWallpaper)
-  const isDark = useIsDark()
+  const wallpaper = useThemeStore((s) => s.wallpaper);
+  const setWallpaper = useThemeStore((s) => s.setWallpaper);
+  const isDark = useIsDark();
 
   const handleSelectPreset = useCallback(
     (dataUrl: string) => setWallpaper(dataUrl),
-    [setWallpaper]
-  )
+    [setWallpaper],
+  );
 
   const handleSelectGradient = useCallback(
     (presetId: string) => setWallpaper(`${PRESET_PREFIX}${presetId}`),
-    [setWallpaper]
-  )
+    [setWallpaper],
+  );
 
   const handleSelectSolid = useCallback(
     (hex: string) => setWallpaper(solidToDataUrl(hex)),
-    [setWallpaper]
-  )
+    [setWallpaper],
+  );
 
   const handleCustomImage = useCallback(async () => {
     try {
-      const dataUrl = await window.electronAPI.openImageDialog()
+      const dataUrl = await window.electronAPI.openImageDialog();
       if (dataUrl) {
-        setWallpaper(dataUrl)
-        showToast({ message: 'Wallpaper updated', type: 'success' })
+        setWallpaper(dataUrl);
+        showToast({ message: "Wallpaper updated", type: "success" });
       }
     } catch (err) {
-      console.error('Failed to open image dialog:', err)
-      showToast({ message: 'Failed to set wallpaper', type: 'error' })
+      console.error("Failed to open image dialog:", err);
+      showToast({ message: "Failed to set wallpaper", type: "error" });
     }
-  }, [setWallpaper])
+  }, [setWallpaper]);
 
   const handleClear = useCallback(() => {
-    setWallpaper(null)
-    showToast({ message: 'Wallpaper removed', type: 'info' })
-  }, [setWallpaper])
+    setWallpaper(null);
+    showToast({ message: "Wallpaper removed", type: "info" });
+  }, [setWallpaper]);
 
   return (
     <div className="space-y-6">
@@ -138,9 +149,9 @@ function WallpaperPaneInner(): React.JSX.Element {
           aria-label="Gradient wallpapers"
         >
           {WALLPAPER_PRESETS.map((preset) => {
-            const presetKey = `${PRESET_PREFIX}${preset.id}`
-            const isActive = wallpaper === presetKey
-            const thumbUrl = isDark ? preset.dark : preset.light
+            const presetKey = `${PRESET_PREFIX}${preset.id}`;
+            const isActive = wallpaper === presetKey;
+            const thumbUrl = isDark ? preset.dark : preset.light;
             return (
               <button
                 key={preset.id}
@@ -149,16 +160,16 @@ function WallpaperPaneInner(): React.JSX.Element {
                 aria-pressed={isActive}
                 className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
                   isActive
-                    ? 'outline outline-[3px] outline-indigo-500 dark:outline-indigo-400'
-                    : 'outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600'
+                    ? "outline outline-[3px] outline-indigo-500 dark:outline-indigo-400"
+                    : "outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600"
                 }`}
                 style={{
                   backgroundImage: `url(${thumbUrl})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
                 }}
               />
-            )
+            );
           })}
         </div>
       </div>
@@ -167,9 +178,13 @@ function WallpaperPaneInner(): React.JSX.Element {
         <div className="flex items-center gap-1.5 mb-3">
           <SectionLabel>Solid Colors</SectionLabel>
         </div>
-        <div className="grid grid-cols-10 gap-2" role="listbox" aria-label="Solid color wallpapers">
+        <div
+          className="grid grid-cols-10 gap-2"
+          role="listbox"
+          aria-label="Solid color wallpapers"
+        >
           {SOLID_COLOR_PRESETS.map((color, i) => {
-            const isActive = wallpaper === SOLID_DATA_URL_MAP.get(color.hex)
+            const isActive = wallpaper === SOLID_DATA_URL_MAP.get(color.hex);
             return (
               <button
                 key={color.hex}
@@ -178,12 +193,12 @@ function WallpaperPaneInner(): React.JSX.Element {
                 aria-pressed={isActive}
                 className={`relative aspect-square rounded-full overflow-hidden transition-all duration-150 ${
                   isActive
-                    ? 'outline outline-[3px] outline-indigo-500 dark:outline-indigo-400'
-                    : 'outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600'
+                    ? "outline outline-[3px] outline-indigo-500 dark:outline-indigo-400"
+                    : "outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600"
                 }`}
                 style={{ backgroundColor: solidBaseColors[i] }}
               />
-            )
+            );
           })}
         </div>
       </div>
@@ -207,7 +222,7 @@ function WallpaperPaneInner(): React.JSX.Element {
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export const WallpaperPane = memo(WallpaperPaneInner)
+export const WallpaperPane = memo(WallpaperPaneInner);
