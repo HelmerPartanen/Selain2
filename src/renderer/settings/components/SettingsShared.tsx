@@ -12,7 +12,7 @@ export function SectionHeader({ children }: { children: React.ReactNode }): Reac
 
 export function SectionLabel({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <span className="text-[11px] font-medium tracking-wide uppercase text-gray-400 dark:text-neutral-500">
+    <span className="text-[11px] font-bold uppercase text-gray-400 dark:text-neutral-500">
       {children}
     </span>
   )

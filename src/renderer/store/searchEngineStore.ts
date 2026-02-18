@@ -13,6 +13,7 @@ export const SEARCH_ENGINES: SearchEngine[] = [
   { id: 'google', name: 'Google', searchUrl: 'https://www.google.com/search?q={query}', icon: 'G' },
   { id: 'duckduckgo', name: 'DuckDuckGo', searchUrl: 'https://duckduckgo.com/?q={query}', icon: 'D' },
   { id: 'bing', name: 'Bing', searchUrl: 'https://www.bing.com/search?q={query}', icon: 'B' },
+  { id: 'yahoo', name: 'Yahoo', searchUrl: 'https://search.yahoo.com/search?p={query}', icon: 'Y' },
   { id: 'brave', name: 'Brave Search', searchUrl: 'https://search.brave.com/search?q={query}', icon: 'Br' },
   { id: 'startpage', name: 'Startpage', searchUrl: 'https://www.startpage.com/do/dsearch?query={query}', icon: 'S' }
 ]
