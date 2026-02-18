@@ -80,7 +80,8 @@ function BrowserLayoutInner(): React.JSX.Element {
   const closeDropdown = useUIStore((s) => s.setDropdownOpen);
   const closeMenu = useUIStore((s) => s.setMenuOpen);
   // DEV: force onboarding to show on every start
-  const onboardingCompleted = false // useSettingsStore((s) => s.onboardingCompleted);
+  //const onboardingCompleted = false // useSettingsStore((s) => s.onboardingCompleted);
+  const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
 
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.

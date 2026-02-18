@@ -9,13 +9,15 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { SvgIcon } from '@/components/ui/SvgIcon'
+import { SvgIcon, SQUARE_SVG, CARDS_SVG } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
 import chevronLeftSvg from '@/assets/icons/Arrows/Chevron_Left.svg?raw'
+import minusSvg from '@/assets/icons/Maths/Minus.svg?raw'
+import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 
 // ─── Motion Constants ────────────────────────────────────────────────────────
 // Core spring matches SettingsPanel: { stiffness: 400, damping: 28, mass: 0.8 }
@@ -521,6 +523,111 @@ function StepContent({ step }: { step: number }): React.JSX.Element {
   }
 }
 
+// ─── Window Controls (rendered inside onboarding to stay above z-100) ────────
+
+const HIDE_DELAY = 800
+
+function OnboardingWindowControls(): React.JSX.Element {
+  const [isVisible, setIsVisible] = useState(false)
+  const [isMaximized, setIsMaximized] = useState(false)
+  const hideTimer = useRef<number>(0)
+
+  useEffect(() => {
+    const unsub = window.electronAPI.onMaximizeChange(setIsMaximized)
+    return unsub
+  }, [])
+
+  useEffect(() => {
+    return () => { if (hideTimer.current) clearTimeout(hideTimer.current) }
+  }, [])
+
+  const handleEnter = useCallback(() => {
+    if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = 0 }
+    setIsVisible(true)
+  }, [])
+
+  const handleLeave = useCallback(() => {
+    hideTimer.current = window.setTimeout(() => {
+      setIsVisible(false)
+      hideTimer.current = 0
+    }, HIDE_DELAY)
+  }, [])
+
+  return (
+    <motion.div
+      className="absolute top-0 right-0 z-10 [app-region:no-drag]"
+      style={{ pointerEvents: 'none' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.6, ease: EASE_OUT }}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      {/* Trigger zone — top-right corner */}
+      <div
+        className="absolute top-0 right-0 w-12 h-4"
+        style={{ pointerEvents: 'auto' }}
+      />
+
+      {/* Hint dots — visible when controls are hidden */}
+      {!isVisible && (
+        <div
+          className="absolute top-2.5 right-5 flex gap-1.5 opacity-30 hover:opacity-60 transition-opacity duration-300"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+        </div>
+      )}
+
+      {/* Controls pill */}
+      <div
+        className={`
+          mt-2.5 mr-2.5 flex items-center gap-1 rounded-full
+          bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg p-1
+          transition-all duration-200 ease-out
+          ${isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.85] -translate-y-1.5'}
+        `}
+        style={{ pointerEvents: isVisible ? 'auto' : 'none' }}
+      >
+        <button
+          onClick={() => window.electronAPI.minimizeWindow()}
+          aria-label="Minimize"
+          className="w-7 h-7 rounded-full flex items-center justify-center
+            text-gray-600 dark:text-neutral-400
+            hover:bg-gray-100 dark:hover:bg-neutral-800
+            transition-all duration-75 active:scale-85"
+        >
+          <SvgIcon svg={minusSvg} size={12} />
+        </button>
+        <button
+          onClick={() => window.electronAPI.toggleMaximizeWindow()}
+          aria-label={isMaximized ? 'Restore' : 'Maximize'}
+          className="w-7 h-7 rounded-full flex items-center justify-center
+            text-gray-600 dark:text-neutral-400
+            hover:bg-gray-100 dark:hover:bg-neutral-800
+            transition-all duration-75 active:scale-85"
+        >
+          {isMaximized
+            ? <SvgIcon svg={CARDS_SVG} size={12} />
+            : <SvgIcon svg={SQUARE_SVG} size={10} />}
+        </button>
+        <button
+          onClick={() => window.electronAPI.closeWindow()}
+          aria-label="Close"
+          className="w-7 h-7 rounded-full flex items-center justify-center
+            text-gray-600 dark:text-neutral-400
+            hover:bg-red-200 hover:text-red-500 dark:hover:bg-red-900/50 dark:hover:text-red-400
+            transition-all duration-75 active:scale-85"
+        >
+          <SvgIcon svg={closeSvg} size={12} />
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
 // ─── Main Orchestrator ───────────────────────────────────────────────────────
 
 function OnboardingFlowInner(): React.JSX.Element {
@@ -586,11 +693,11 @@ function OnboardingFlowInner(): React.JSX.Element {
       {/* Living gradient background */}
       <AmbientOrbs step={step} />
 
-      {/* Skip — top right, very subtle, appears late */}
+      {/* Skip — top left, very subtle, appears late */}
       <motion.button
         onClick={skip}
         className="
-          absolute top-5 right-6 z-10 text-[12px] text-gray-400 dark:text-neutral-500
+          absolute top-5 left-6 z-10 text-[12px] text-gray-400 dark:text-neutral-500
           hover:text-gray-600 dark:hover:text-neutral-300 transition-colors duration-150
           px-3 py-1.5 rounded-lg hover:bg-gray-100/50 dark:hover:bg-neutral-800/50
           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
@@ -601,6 +708,9 @@ function OnboardingFlowInner(): React.JSX.Element {
       >
         Skip
       </motion.button>
+
+      {/* Window controls — top right */}
+      <OnboardingWindowControls />
 
       {/* Step content — centered, full-width */}
       <div className="flex-1 flex items-center justify-center relative z-[1]">
