@@ -67,15 +67,6 @@ export function useFocusedTabNavState(): {
   )
 }
 
-/** Legacy alias */
-export function useActiveTabNavState(): {
-  isLoading: boolean
-  canGoBack: boolean
-  canGoForward: boolean
-} {
-  return useFocusedTabNavState()
-}
-
 export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean } | undefined {
   return useTabStore(
     useShallow((s) => {

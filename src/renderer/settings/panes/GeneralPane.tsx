@@ -1,6 +1,6 @@
 // ─── General Settings Pane ───────────────────────────────────────────────────
 
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import {
   Desc,
   SectionHeader,
@@ -9,7 +9,7 @@ import {
 } from "@/settings/components/SettingsShared";
 import { useSettingsStore, type NewTabMode } from "@/store/settingsStore";
 
-export function GeneralPane(): React.JSX.Element {
+function GeneralPaneInner(): React.JSX.Element {
   const restoreTabs = useSettingsStore((s) => s.restoreTabs);
   const setRestoreTabs = useSettingsStore((s) => s.setRestoreTabs);
   const newTabMode = useSettingsStore((s) => s.newTabMode);
@@ -119,3 +119,5 @@ export function GeneralPane(): React.JSX.Element {
     </div>
   );
 }
+
+export const GeneralPane = memo(GeneralPaneInner);

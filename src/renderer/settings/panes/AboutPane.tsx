@@ -1,6 +1,8 @@
 // ─── About Pane ─────────────────────────────────────────────────────────────
 
-export function AboutPane(): React.JSX.Element {
+import { memo } from 'react'
+
+function AboutPaneInner(): React.JSX.Element {
   const ua = navigator.userAgent
   const chromeMatch = ua.match(/Chrome\/([\d.]+)/)
   const electronMatch = ua.match(/Electron\/([\d.]+)/)
@@ -19,3 +21,5 @@ export function AboutPane(): React.JSX.Element {
     </div>
   )
 }
+
+export const AboutPane = memo(AboutPaneInner);

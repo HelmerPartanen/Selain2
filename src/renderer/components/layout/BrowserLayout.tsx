@@ -81,8 +81,6 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const closeDropdown = useUIStore((s) => s.setDropdownOpen);
   const closeMenu = useUIStore((s) => s.setMenuOpen);
-  // DEV: force onboarding to show on every start
-  //const onboardingCompleted = false // useSettingsStore((s) => s.onboardingCompleted);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
 
   // Resolve theme-aware wallpapers — preset gradients adapt to dark/light.

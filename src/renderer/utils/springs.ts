@@ -10,7 +10,7 @@
 //   SPRING_EXPAND — pill/bar width expansion             (340/32/0.9)
 //   SPRING_ORB    — slow ambient background orbs         (30/20/2.5)
 
-type SpringConfig = {
+export type SpringConfig = {
   type: 'spring'
   stiffness: number
   damping: number
