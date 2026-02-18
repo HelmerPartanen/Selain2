@@ -165,7 +165,7 @@ function AppMenuInner(): React.JSX.Element {
               }}
               transition={{ ...springMenu, opacity: { duration: 0.1 } }}
             >
-              <div className="rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700">
+              <div className="rounded-2xl bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700">
                 <div className="p-1">
                   {menuItems.map((item, idx) => {
                     if (item.id.startsWith("divider")) {
@@ -201,15 +201,18 @@ function AppMenuInner(): React.JSX.Element {
                   })}
                 </div>{" "}
               </div>
-              {/* Triangle pointer */}
-              <div className="flex justify-center -mt-px">
+              {/* Arrow pointer — overlaps bottom border to form a single connected shape */}
+              <div className="flex justify-center -mt-[1px] relative z-10">
                 <svg
-                  width="16"
-                  height="8"
-                  viewBox="0 0 16 8"
-                  className="fill-white dark:fill-neutral-900"
+                  width="18"
+                  height="9"
+                  viewBox="0 0 18 9"
+                  className="drop-shadow-sm"
                 >
-                  <path d="M0,0 C4,0 5,6 8,6 C11,6 12,0 16,0" />
+                  {/* Border stroke */}
+                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0" fill="none" className="stroke-gray-100 dark:stroke-neutral-700" strokeWidth="1" />
+                  {/* Fill covers border junction */}
+                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z" className="fill-white dark:fill-neutral-900" />
                 </svg>
               </div>{" "}
             </motion.div>

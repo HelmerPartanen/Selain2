@@ -161,7 +161,7 @@ function SettingsPanelInner(): React.JSX.Element {
           transition={{ ...springPanel, damping: 26 }}
         >
           <div className="flex h-full">
-            <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/90 backdrop-blur-md border-r border-gray-200 dark:border-neutral-700 flex flex-col">
+            <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/80 backdrop-blur-md border-r border-gray-200 dark:border-neutral-700 flex flex-col">
               <div className="px-4 pt-5 pb-3">
                 <h2 className="text-[13px] font-medium text-gray-900 dark:text-white tracking-relaxed flex items-center gap-2">
                   Settings

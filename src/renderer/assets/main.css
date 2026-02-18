@@ -102,17 +102,25 @@ body,
   backdrop-filter: none !important;
 }
 
-/* Translucent UI surfaces → opaque equivalents */
-.reduce-transparency {
+/* Translucent UI surfaces → opaque equivalents                                */
+/* Light and dark overrides are scoped separately because elements carry both  */
+/* classes (e.g. bg-gray-50/80 dark:bg-neutral-800/80) simultaneously.        */
+.reduce-transparency:not(.dark) {
   /* Settings sidebar */
   & .bg-gray-50\/80   { background-color: rgb(249 250 251) !important; }
-  & .bg-neutral-800\/80 { background-color: rgb(38 38 38) !important; }
-
   /* Settings content */
   & .bg-white\/95     { background-color: rgb(255 255 255) !important; }
-  & .bg-neutral-900\/95 { background-color: rgb(23 23 23) !important; }
+}
 
-  /* Modal overlays — slightly more opaque to compensate for no blur */
+.reduce-transparency.dark {
+  /* Settings sidebar */
+  & .dark\:bg-neutral-800\/80 { background-color: rgb(38 38 38) !important; }
+  /* Settings content */
+  & .dark\:bg-neutral-900\/95 { background-color: rgb(23 23 23) !important; }
+}
+
+/* Modal overlays — slightly more opaque to compensate for no blur */
+.reduce-transparency {
   & .bg-black\/30     { background-color: rgba(0, 0, 0, 0.45) !important; }
   & .bg-black\/50     { background-color: rgba(0, 0, 0, 0.65) !important; }
   & .bg-black\/60     { background-color: rgba(0, 0, 0, 0.75) !important; }

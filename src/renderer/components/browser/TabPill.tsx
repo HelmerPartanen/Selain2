@@ -220,7 +220,7 @@ function TabPillInner(): React.JSX.Element {
                       exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
                       transition={{ ...springDropdown, opacity: { duration: 0.1 } }}
                     >
-                      <div className="rounded-2xl overflow-hidden bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl">
+                      <div className="rounded-2xl bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl">
                       <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 space-y-0.5">
                         {tabOrder.map((id, index) => (
                           <TabRow
@@ -249,10 +249,11 @@ function TabPillInner(): React.JSX.Element {
                         </>
                       )}
                       </div>
-                      {/* Triangle pointer */}
-                      <div className="flex justify-center -mt-px">
-                        <svg width="16" height="8" viewBox="0 0 16 8" className="fill-white dark:fill-neutral-900">
-                          <path d="M0,0 C4,0 5,6 8,6 C11,6 12,0 16,0" />
+                      {/* Arrow pointer — overlaps bottom border to form a single connected shape */}
+                      <div className="flex justify-center -mt-[1px] relative z-10">
+                        <svg width="18" height="9" viewBox="0 0 18 9" className="drop-shadow-sm">
+                          <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0" fill="none" className="stroke-gray-100 dark:stroke-neutral-700" strokeWidth="1" />
+                          <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z" className="fill-white dark:fill-neutral-900" />
                         </svg>
                       </div>
                     </motion.div>
