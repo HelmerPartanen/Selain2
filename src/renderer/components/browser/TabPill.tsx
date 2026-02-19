@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
@@ -35,7 +35,10 @@ const TabRow = memo(function TabRow({
   isSplitTarget,
   isSplit,
   index,
-  onSelect
+  onSelect,
+  hovered,
+  onHover,
+  onLeave,
 }: {
   tabId: string
   isActive: boolean
@@ -43,6 +46,9 @@ const TabRow = memo(function TabRow({
   isSplit: boolean
   index: number
   onSelect: () => void
+  hovered?: boolean
+  onHover?: () => void
+  onLeave?: () => void
 }): React.JSX.Element {
   const meta = useTabMeta(tabId)
   const setActiveTab = useTabStore((s) => s.setActiveTab)
@@ -85,40 +91,49 @@ const TabRow = memo(function TabRow({
   return (
     <button
       onClick={handleClick}
-      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-xl text-left transition-colors duration-75 ${
-        isHighlighted
-          ? 'bg-black/[0.05] dark:bg-white/[0.08] text-gray-900 dark:text-white'
-          : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      className={`relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:scale-105 ${
+        isHighlighted ? 'text-gray-900 dark:text-white' : ''
       }`}
       style={{
         opacity: 0,
         animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`
       }}
     >
-      <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
+      {(hovered || isHighlighted) && (
+        <motion.div
+          layoutId="tab-row-highlight"
+          className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/6 dark:ring-white/8"
+          transition={SPRING_SNAPPY}
+          style={{ zIndex: 1 }}
+        />
+      )}
+
+      <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
         {isLoading ? (
-          <SvgIcon svg={SPINNER_SVG} size={13} className="animate-spin text-gray-400" />
+          <SvgIcon svg={SPINNER_SVG} size={16} className="animate-spin text-gray-400" />
         ) : favicon ? (
           <img src={favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
         ) : (
-          <SvgIcon svg={globeSvg} size={13} className="text-gray-400" />
+          <SvgIcon svg={globeSvg} size={16} className="text-gray-400" />
         )}
       </div>
 
-      <span className="flex-1 text-xs truncate">{title}</span>
+      <span className="flex-1 text-[13px] truncate z-10">{title}</span>
 
       {isSplitTarget && (
-        <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-indigo-500" />
+        <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-indigo-500 z-10" />
       )}
 
       {!isHighlighted && isPlayingMedia && (
-        <SvgIcon svg={soundFillSvg} size={12} className="flex-shrink-0 text-blue-500" />
+        <SvgIcon svg={soundFillSvg} size={12} className="flex-shrink-0 text-blue-500 z-10" />
       )}
 
       {/* Split/unsplit action — shown when not the active tab */}
       {!isActive && (
         <div
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors duration-100"
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors duration-100 z-10"
           onClick={handleSplit}
           title={isSplitTarget ? 'Unsplit' : (isSplit ? 'Replace split' : 'Split view')}
         >
@@ -127,7 +142,7 @@ const TabRow = memo(function TabRow({
       )}
 
       <div
-        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
+        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100 z-10"
         onClick={handleClose}
       >
         <SvgIcon svg={closeSvg} size={11} />
@@ -160,6 +175,8 @@ function TabPillInner(): React.JSX.Element {
     reopenLastClosed()
   }, [reopenLastClosed])
 
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+
   return (
     <div className="relative">
       <div className="flex items-center glass rounded-full">
@@ -168,7 +185,7 @@ function TabPillInner(): React.JSX.Element {
           aria-label="New tab"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none flex-shrink-0 rounded-full"
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
         >
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
@@ -240,8 +257,8 @@ function TabPillInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className="rounded-2xl glass-heavy overflow-hidden">
-                <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden glass-scroll space-y-0.5">
+              <div className="rounded-3xl glass-heavy overflow-hidden">
+                <div className="px-3 py-2 max-h-[320px] overflow-y-auto overflow-x-hidden glass-scroll">
                   {tabOrder.map((id, index) => (
                     <TabRow
                       key={id}
@@ -251,6 +268,9 @@ function TabPillInner(): React.JSX.Element {
                       isSplit={isSplit}
                       index={index}
                       onSelect={handleClose}
+                      hovered={hoveredIdx === index}
+                      onHover={() => setHoveredIdx(index)}
+                      onLeave={() => setHoveredIdx(null)}
                     />
                   ))}
                 </div>
@@ -260,7 +280,7 @@ function TabPillInner(): React.JSX.Element {
                     <div className="mx-2 my-1 h-px bg-[var(--border-divider)]" />
                     <button
                       onClick={handleReopen}
-                      className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
+                      className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-full text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
                     >
                       <SvgIcon svg={counterclockwiseSvg} size={13} />
                       <span className="text-xs">Reopen closed tab</span>

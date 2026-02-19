@@ -79,37 +79,50 @@ function Sidebar({
   activeCategory: SettingsCategory;
   onSelect: (id: SettingsCategory) => void;
 }): React.JSX.Element {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+
   return (
     <nav aria-label="Settings categories" className="flex flex-col gap-0.5">
-      {CATEGORIES.map(({ id, label, icon }) => {
-        const isActive = activeCategory === id;
-        return (
-          <button
-            key={id}
-            onClick={() => onSelect(id)}
-            aria-current={isActive ? "page" : undefined}
-            className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-normal transition-colors duration-100 ${
-              isActive
-                ? "text-gray-900 dark:text-white"
-                : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-            }`}
-          >
-            {isActive && (
-              <motion.div
-                layoutId="settings-active"
-                className="absolute inset-0 rounded-xl bg-black/[0.05] dark:bg-white/[0.08]"
-                transition={SPRING_SNAPPY}
-              />
-            )}
-            <span className="relative flex items-center gap-2.5">
-              <SvgIcon svg={icon} size={16} />
-              {label}
-            </span>
-          </button>
-        );
-      })}
+      {(() => {
+        let actionable = -1
+        return CATEGORIES.map(({ id, label, icon }) => {
+          if (id.startsWith("divider")) return null
+          actionable++
+          const thisIdx = actionable
+          const isActive = activeCategory === id
+          return (
+            <button
+              key={id}
+              onClick={() => onSelect(id)}
+              onMouseEnter={() => setHoveredIdx(thisIdx)}
+              onMouseLeave={() => setHoveredIdx(null)}
+              aria-current={isActive ? "page" : undefined}
+              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 hover:scale-105 ${
+                isActive
+                  ? "text-gray-900 dark:text-white"
+                  : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
+              }`}
+            >
+              {(isActive || hoveredIdx === thisIdx) && (
+                <motion.div
+                  layoutId="settings-active"
+                  className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                  initial={{ opacity: 0.6, filter: 'blur(2px)' }}
+                  animate={{ opacity: 1, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, filter: 'blur(2px)' }}
+                  transition={SPRING_SNAPPY}
+                />
+              )}
+              <span className="relative flex items-center gap-2.5 z-10">
+                <SvgIcon svg={icon} size={16} />
+                {label}
+              </span>
+            </button>
+          )
+        })
+      })()}
     </nav>
-  );
+  )
 }
 
 // --- Main Panel ---------------------------------------------------------------
@@ -131,20 +144,23 @@ function SettingsPanelInner(): React.JSX.Element {
       aria-label="Settings"
       aria-modal={true}
     >
+
       <div className="flex h-full overflow-hidden">
-            <div className="w-[180px] flex-shrink-0 glass-subtle flex flex-col" style={{ borderRight: '1px solid var(--border-subtle)' }}>
-              <div className="px-4 pt-5 pb-3">
-                <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
-                  Settings
-                </h2>
-              </div>
-              <div className="flex-1 px-2.5 pb-4">
-                <Sidebar
-                  activeCategory={activeCategory}
-                  onSelect={setActiveCategory}
-                />
-              </div>
+        <div className="p-3 flex-shrink-0 h-full">
+          <div className="w-[180px] h-full glass-heavy flex flex-col rounded-3xl overflow-hidden shadow-sm" style={{ borderRight: '1px solid var(--border-subtle)' }}>
+            <div className="px-4 pt-5 pb-3">
+              <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
+                Settings
+              </h2>
             </div>
+            <div className="flex-1 px-2.5 pb-4">
+              <Sidebar
+                activeCategory={activeCategory}
+                onSelect={setActiveCategory}
+              />
+            </div>
+          </div>
+        </div>
 
             <div className="flex-1 flex flex-col min-w-0">
               <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
