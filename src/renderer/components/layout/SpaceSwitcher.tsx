@@ -396,18 +396,41 @@ function SpaceSwitcherInner(): React.JSX.Element {
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
               <div className="rounded-2xl glass-heavy overflow-hidden">
-                {editingId && spaces[editingId] ? (
-                  <EditSpaceForm
-                    space={spaces[editingId]!}
-                    onDone={() => setEditingId(null)}
-                  />
-                ) : isCreating ? (
-                  <NewSpaceForm
-                    onSubmit={handleCreate}
-                    onCancel={() => setIsCreating(false)}
-                  />
-                ) : (
-                  <>
+                <AnimatePresence mode="wait" initial={false}>
+                  {editingId && spaces[editingId] ? (
+                    <motion.div
+                      key={`edit-${editingId}`}
+                      initial={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
+                      <EditSpaceForm
+                        space={spaces[editingId]!}
+                        onDone={() => setEditingId(null)}
+                      />
+                    </motion.div>
+                  ) : isCreating ? (
+                    <motion.div
+                      key="create"
+                      initial={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
+                      <NewSpaceForm
+                        onSubmit={handleCreate}
+                        onCancel={() => setIsCreating(false)}
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="list"
+                      initial={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
                     <div className="p-1 space-y-0.5">
                       {/* Header */}
                       <div className="px-2.5 pt-1.5 pb-1">
@@ -448,8 +471,9 @@ function SpaceSwitcherInner(): React.JSX.Element {
                         <span className="text-xs">New Space</span>
                       </button>
                     </div>
-                  </>
-                )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Glass arrow pointer */}
