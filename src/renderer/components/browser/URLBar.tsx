@@ -189,7 +189,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     <div className="relative">
       <motion.div
         className="relative flex items-center h-10 will-change-[width]"
-        animate={{ width: isFocused ? 500 : 360 }}
+        animate={{ width: isFocused ? 500 : 320 }}
         transition={SPRING_EXPAND}
       >
         <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>
@@ -318,7 +318,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {suggestions.length > 0 && isFocused && (
           <motion.div
-            className="absolute bottom-full mb-2.5 left-0 right-0 rounded-[22px] overflow-hidden z-[100] p-1.5 glass"
+            className="absolute bottom-full mb-2.5 left-0 right-0 rounded-[22px] overflow-hidden z-[100] glass"
             style={{ originY: 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}

@@ -157,6 +157,19 @@ function NewSpaceForm({
 
       {/* Color picker */}
       <div className="flex items-center gap-1.5 px-0.5">
+        <button
+          onClick={() => setSelectedHue(-1)}
+          className={`w-5 h-5 rounded-full border border-gray-300 dark:border-neutral-600 transition-all duration-100 ${
+            selectedHue === -1
+              ? 'ring-2 ring-offset-1 ring-gray-400 dark:ring-neutral-400 dark:ring-offset-neutral-800 scale-110'
+              : 'hover:scale-110'
+          }`}
+          style={{
+            background:
+              'linear-gradient(135deg, transparent 45%, rgba(200,200,200,0.4) 45%, rgba(200,200,200,0.4) 55%, transparent 55%)',
+          }}
+          title="No tint"
+        />
         {SPACE_PRESET_HUES.filter((p) => p.hue >= 0).map((preset) => (
           <button
             key={preset.hue}

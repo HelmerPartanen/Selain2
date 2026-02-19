@@ -12,7 +12,7 @@ import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta,
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
-import { SPRING_POPUP, SPRING_FAST, SPRING_SNAPPY } from '@/utils/springs'
+import { SPRING_POPUP, SPRING_FAST, SPRING_SNAPPY, SPRING_EXPAND } from '@/utils/springs'
 
 function ActiveFavicon(): React.JSX.Element {
   const activeTabId = useActiveTabId()
@@ -162,106 +162,83 @@ function TabPillInner(): React.JSX.Element {
 
   return (
     <div className="relative">
-      <div
-        className="flex items-center overflow-visible"
-      >
+      <div className="flex items-center glass rounded-full">
         <motion.button
           onClick={handleAddTab}
           aria-label="New tab"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className={`h-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none flex-shrink-0 ${tabCount > 1 ? 'rounded-l-full px-4' : 'rounded-full w-10'}`}
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none flex-shrink-0 rounded-full"
         >
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
 
-        <AnimatePresence initial={false}>
-          {tabCount > 1 && (
+        {tabCount > 1 && (
+          <motion.button
+            onClick={handleToggle}
+            whileTap={{ scale: 0.82 }}
+            transition={SPRING_SNAPPY}
+            className="flex items-center gap-1.5 h-10 px-3 rounded-full text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 whitespace-nowrap flex-shrink-0"
+          >
+            <ActiveFavicon />
+            <span className="text-xs font-medium tabular-nums">
+              {tabCount}
+            </span>
+          </motion.button>
+        )}
+      </div>
+
+      {/* Dropdown */}
+      <AnimatePresence>
+        {isExpanded && tabCount > 1 && (
+          <>
+            <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              key="tab-counter"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 'auto', opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{
-                width: SPRING_SNAPPY,
-                opacity: { duration: 0.12 }
-              }}
-              className="relative flex items-center"
-              style={{ overflow: 'visible', flexShrink: 0 }}
+              className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
+              style={{ originX: 0.5, originY: 1, perspective: 600 }}
+              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
+              animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
+              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
+              transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
-              <div className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0" />
-              <motion.button
-                onClick={handleToggle}
-                initial={{ scale: 0.5 }}
-                animate={{ scale: isExpanded ? 0.92 : 1 }}
-                exit={{ scale: 0.5 }}
-                whileTap={{ scale: 0.82 }}
-                transition={SPRING_SNAPPY}
-                className="flex items-center gap-1.5 h-10 pr-3.5 pl-2.5 rounded-r-full text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 whitespace-nowrap"
-              >
-                <ActiveFavicon />
-                <span className="text-xs font-medium tabular-nums">
-                  {tabCount}
-                </span>
-              </motion.button>
+              <div className="rounded-2xl glass-heavy overflow-hidden">
+                <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden glass-scroll space-y-0.5">
+                  {tabOrder.map((id, index) => (
+                    <TabRow
+                      key={id}
+                      tabId={id}
+                      isActive={id === activeTabId}
+                      isSplitTarget={id === splitTabId}
+                      isSplit={isSplit}
+                      index={index}
+                      onSelect={handleClose}
+                    />
+                  ))}
+                </div>
 
-              <AnimatePresence>
-                {isExpanded && (
+                {recentlyClosed.length > 0 && (
                   <>
-                    {/* Click-away */}
-                    <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
-                    <motion.div
-                      className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
-                      style={{ originX: 0.5, originY: 1, perspective: 600 }}
-                      initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
-                      animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-                      exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
-                      transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
+                    <div className="mx-2 my-1 h-px bg-[var(--border-divider)]" />
+                    <button
+                      onClick={handleReopen}
+                      className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
                     >
-                      <div className="rounded-2xl glass-heavy overflow-hidden">
-                      <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden glass-scroll space-y-0.5">
-                        {tabOrder.map((id, index) => (
-                          <TabRow
-                            key={id}
-                            tabId={id}
-                            isActive={id === activeTabId}
-                            isSplitTarget={id === splitTabId}
-                            isSplit={isSplit}
-                            index={index}
-                            onSelect={handleClose}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Reopen last closed */}
-                      {recentlyClosed.length > 0 && (
-                        <>
-                          <div className="mx-2 my-1 h-px bg-[var(--border-divider)]" />
-                          <button
-                            onClick={handleReopen}
-                            className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
-                          >
-                            <SvgIcon svg={counterclockwiseSvg} size={13} />
-                            <span className="text-xs">Reopen closed tab</span>
-                          </button>
-                        </>
-                      )}
-                      </div>
-                      {/* Glass arrow pointer */}
-                      <div className="flex justify-center -mt-[1px] relative z-10">
-                        <svg width="18" height="9" viewBox="0 0 18 9" className="drop-shadow-sm">
-                          <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0" fill="none" className="stroke-[var(--border-subtle)]" strokeWidth="1" />
-                          <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z" style={{ fill: 'var(--glass-bg-heavy)' }} />
-                        </svg>
-                      </div>
-                    </motion.div>
+                      <SvgIcon svg={counterclockwiseSvg} size={13} />
+                      <span className="text-xs">Reopen closed tab</span>
+                    </button>
                   </>
                 )}
-              </AnimatePresence>
+              </div>
+              <div className="flex justify-center -mt-[1px] relative z-10">
+                <svg width="18" height="9" viewBox="0 0 18 9" className="drop-shadow-sm">
+                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0" fill="none" className="stroke-[var(--border-subtle)]" strokeWidth="1" />
+                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z" style={{ fill: 'var(--glass-bg-heavy)' }} />
+                </svg>
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence initial={false}>
         {bgMediaPlaying && (

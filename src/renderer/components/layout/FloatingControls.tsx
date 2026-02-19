@@ -163,11 +163,21 @@ function FloatingControlsInner(): React.JSX.Element {
     useTabStore.getState().unsplit();
   }, []);
 
+  // Shared liquid-morph hover spring for individual pods
+  const liquidHover = {
+    scale: 1.03,
+    transition: { type: 'spring' as const, stiffness: 500, damping: 22, mass: 0.4 },
+  };
+  const liquidTap = {
+    scale: 0.97,
+    transition: { type: 'spring' as const, stiffness: 600, damping: 20, mass: 0.3 },
+  };
+
   return (
     <>
       {/* Bottom-edge hover zone to reveal floating UI */}
       <div
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-5 z-[49] [app-region:no-drag]"
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-5 z-[49] [app-region:no-drag]"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
@@ -184,111 +194,106 @@ function FloatingControlsInner(): React.JSX.Element {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Unified glass bar — single frosted surface with internal dividers */}
-        <div className="flex items-center glass rounded-full p-1 gap-0.5">
-          {/* Menu */}
-          <AppMenu />
+        {/* Pod constellation — separate glass pills with liquid morphing */}
+        <div className="flex items-center gap-1.5 max-w-[calc(100vw-40px)]">
 
-          {/* Space Switcher */}
-          <SpaceSwitcher />
+          {/* ── Menu + Spaces Pod ── */}
+          <motion.div
+            className="flex items-center glass rounded-full gap-0.5"
+            layout
+            layoutId="pod-menu"
+            transition={SPRING_EXPAND}
+            whileHover={liquidHover}
+            whileTap={liquidTap}
+          >
+            <AppMenu />
+            <SpaceSwitcher />
+          </motion.div>
 
-          {/* Divider */}
-          <div className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0" />
-
-          {/* Nav Pod */}
+          {/* ── Nav Pod ── */}
           <AnimatePresence initial={false}>
             {(canGoBack || canGoForward) && (
               <motion.div
                 key="nav-pod"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "auto", opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ ...SPRING_EXPAND, opacity: { duration: 0.15 } }}
-                className="flex-shrink-0 overflow-hidden"
+                className="flex items-center glass rounded-full gap-0.5"
+                layout
+                layoutId="pod-nav"
+                initial={{ scale: 0.5, opacity: 0, width: 0, filter: 'blur(8px)' }}
+                animate={{ scale: 1, opacity: 1, width: 'auto', filter: 'blur(0px)' }}
+                exit={{ scale: 0.5, opacity: 0, width: 0, filter: 'blur(8px)' }}
+                transition={SPRING_EXPAND}
+                whileHover={liquidHover}
+                whileTap={liquidTap}
               >
-                <div className="flex items-center">
-                  <motion.button
-                    onClick={handleGoBack}
-                    disabled={!canGoBack}
-                    aria-label="Go back"
-                    whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
-                    transition={SPRING_SNAPPY}
-                    className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
-                  >
-                    <SvgIcon svg={chevronLeftSvg} size={16} />
-                  </motion.button>
+                <motion.button
+                  onClick={handleGoBack}
+                  disabled={!canGoBack}
+                  aria-label="Go back"
+                  whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
+                  transition={SPRING_SNAPPY}
+                  className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
+                >
+                  <SvgIcon svg={chevronLeftSvg} size={16} />
+                </motion.button>
 
-                  <AnimatePresence initial={false}>
-                    {canGoForward && (
-                      <motion.div
-                        key="forward"
-                        initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: "auto", opacity: 1 }}
-                        exit={{ width: 0, opacity: 0 }}
-                        transition={{
-                          ...SPRING_EXPAND,
-                          opacity: { duration: 0.12 },
-                        }}
-                        className="flex items-center overflow-hidden"
-                        style={{ flexShrink: 0 }}
+                <AnimatePresence initial={false}>
+                  {canGoForward && (
+                    <motion.div
+                      key="forward"
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: "auto", opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{
+                        ...SPRING_EXPAND,
+                        opacity: { duration: 0.12 },
+                      }}
+                      className="flex items-center overflow-hidden"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <motion.button
+                        onClick={handleGoForward}
+                        aria-label="Go forward"
+                        whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
+                        transition={SPRING_SNAPPY}
+                        className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
                       >
-                        <motion.button
-                          onClick={handleGoForward}
-                          aria-label="Go forward"
-                          whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
-                          transition={SPRING_SNAPPY}
-                          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
-                        >
-                          <SvgIcon svg={chevronRightSvg} size={16} />
-                        </motion.button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                        <SvgIcon svg={chevronRightSvg} size={16} />
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Divider — only when nav is visible */}
-          <AnimatePresence initial={false}>
-            {(canGoBack || canGoForward) && (
-              <motion.div
-                key="nav-divider"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0"
-              />
-            )}
-          </AnimatePresence>
+          {/* ── URL Pod ── */}
+          <motion.div
+            className="flex items-center glass rounded-full min-w-0 flex-shrink"
+            layout
+            layoutId="pod-url"
+            transition={SPRING_EXPAND}
+          >
+            <URLBar onFocusChange={handleFocusChange} />
+          </motion.div>
 
-          {/* URL Pod */}
-          <URLBar onFocusChange={handleFocusChange} />
-
-          {/* Divider */}
-          <div className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0" />
-
-          {/* Split indicator */}
+          {/* ── Split Unsplit Button ── */}
           <AnimatePresence initial={false}>
             {isSplit && (
               <motion.div
-                key="unsplit-slot"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 40, opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
+                key="unsplit-pod"
+                className="flex items-center glass rounded-full p-1"
+                layout
+                layoutId="pod-unsplit"
+                initial={{ scale: 0.4, opacity: 0, width: 0, filter: 'blur(8px)' }}
+                animate={{ scale: 1, opacity: 1, width: 'auto', filter: 'blur(0px)' }}
+                exit={{ scale: 0.4, opacity: 0, width: 0, filter: 'blur(8px)' }}
                 transition={SPRING_EXPAND}
-                style={{
-                  flexShrink: 0,
-                  clipPath: "inset(-12px -12px -12px -12px)",
-                }}
+                whileHover={liquidHover}
+                whileTap={liquidTap}
               >
                 <motion.button
                   onClick={handleUnsplit}
                   aria-label="Exit split view"
-                  initial={{ scale: 0.4, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.4, opacity: 0 }}
                   whileTap={{ scale: 0.85 }}
                   transition={SPRING_SNAPPY}
                   className="h-10 w-10 rounded-full flex items-center justify-center text-indigo-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
@@ -299,10 +304,10 @@ function FloatingControlsInner(): React.JSX.Element {
             )}
           </AnimatePresence>
 
-          {/* Download Pill */}
+          {/* ── Download Pill (self-contained, already glass-styled) ── */}
           <DownloadPill />
 
-          {/* Tab Pod */}
+          {/* ── Tab Pod ── */}
           <TabPill />
         </div>
 
