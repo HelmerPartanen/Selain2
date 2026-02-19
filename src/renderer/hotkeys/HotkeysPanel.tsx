@@ -1,10 +1,50 @@
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { motion } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import keyboardSvg from '@/assets/icons/Keyboard/Keyboard.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useUIStore } from '@/store/uiStore'
-import { SPRING } from '@/utils/springs'
+import { SPRING, SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
+
+const ShortcutRow = memo(function ShortcutRow({
+  description,
+  keys,
+  index
+}: {
+  description: string
+  keys: string
+  index: number
+}): React.JSX.Element {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...SPRING_LIST, delay: index * 0.02 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-full hover:scale-105 transition-all duration-150"
+    >
+      {hovered && (
+        <motion.div
+          layoutId="history-hover"
+          className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, filter: 'blur(2px)' }}
+          transition={SPRING_SNAPPY}
+        />
+      )}
+      <span className="relative text-[13px] text-gray-700 dark:text-neutral-300 z-10">{description}</span>
+      <div className="relative z-10">
+        <KeyCombo keys={keys} />
+      </div>
+    </motion.div>
+  )
+})
 
 // ─── Shortcut data ───────────────────────────────────────────────────────────
 
@@ -56,7 +96,7 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
 
 function KeyBadge({ label }: { label: string }): React.JSX.Element {
   return (
-    <span className="inline-flex items-center justify-center h-[22px] min-w-[22px] px-1.5 rounded-md bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-[11px] font-semibold text-gray-500 dark:text-neutral-400 leading-none">
+    <span className="inline-flex items-center justify-center h-[22px] min-w-[22px] px-1.5 rounded-md glass border border-gray-200 dark:border-neutral-700 text-[11px] font-semibold text-gray-500 dark:text-neutral-400 leading-none">
       {label}
     </span>
   )
@@ -137,16 +177,13 @@ function HotkeysPanelInner(): React.JSX.Element {
                     {group.label}
                   </h3>
                   <div className="space-y-0.5">
-                    {group.shortcuts.map((shortcut) => (
-                      <div
+                    {group.shortcuts.map((shortcut, idx) => (
+                      <ShortcutRow
                         key={shortcut.keys}
-                        className="flex items-center justify-between gap-4 px-3 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-neutral-800/50 transition-colors duration-100"
-                      >
-                        <span className="text-[13px] text-gray-700 dark:text-neutral-300">
-                          {shortcut.description}
-                        </span>
-                        <KeyCombo keys={shortcut.keys} />
-                      </div>
+                        description={shortcut.description}
+                        keys={shortcut.keys}
+                        index={idx}
+                      />
                     ))}
                   </div>
                 </div>

@@ -188,7 +188,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   return (
     <div className="relative">
       <motion.div
-        className="relative flex items-center h-10 will-change-[width]"
+        className="relative flex items-center h-10 will-change-[width] pl-2"
         animate={{ width: isFocused ? 500 : 320 }}
         transition={SPRING_EXPAND}
       >
