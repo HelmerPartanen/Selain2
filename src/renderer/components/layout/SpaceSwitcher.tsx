@@ -159,17 +159,17 @@ function NewSpaceForm({
       <div className="flex items-center gap-1.5 px-0.5">
         <button
           onClick={() => setSelectedHue(-1)}
-          className={`w-5 h-5 rounded-full border border-gray-300 dark:border-neutral-600 transition-all duration-100 ${
+          className={`w-5 h-5 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
             selectedHue === -1
               ? 'ring-2 ring-offset-1 ring-gray-400 dark:ring-neutral-400 dark:ring-offset-neutral-800 scale-110'
               : 'hover:scale-110'
           }`}
-          style={{
-            background:
-              'linear-gradient(135deg, transparent 45%, rgba(200,200,200,0.4) 45%, rgba(200,200,200,0.4) 55%, transparent 55%)',
-          }}
           title="No tint"
-        />
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" className="text-gray-400 dark:text-neutral-500">
+            <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
         {SPACE_PRESET_HUES.filter((p) => p.hue >= 0).map((preset) => (
           <button
             key={preset.hue}
@@ -249,17 +249,17 @@ function EditSpaceForm({
       <div className="flex items-center gap-1.5 px-0.5">
         <button
           onClick={() => setSelectedHue(-1)}
-          className={`w-5 h-5 rounded-full border border-gray-300 dark:border-neutral-600 transition-all duration-100 ${
+          className={`w-5 h-5 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
             selectedHue === -1
               ? 'ring-2 ring-offset-1 ring-gray-400 dark:ring-neutral-400 dark:ring-offset-neutral-800 scale-110'
               : 'hover:scale-110'
           }`}
-          style={{
-            background:
-              'linear-gradient(135deg, transparent 45%, rgba(200,200,200,0.4) 45%, rgba(200,200,200,0.4) 55%, transparent 55%)',
-          }}
           title="None"
-        />
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" className="text-gray-400 dark:text-neutral-500">
+            <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
         {SPACE_PRESET_HUES.filter((p) => p.hue >= 0).map((preset) => (
           <button
             key={preset.hue}

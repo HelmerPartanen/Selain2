@@ -163,16 +163,6 @@ function FloatingControlsInner(): React.JSX.Element {
     useTabStore.getState().unsplit();
   }, []);
 
-  // Shared liquid-morph hover spring for individual pods
-  const liquidHover = {
-    scale: 1.03,
-    transition: { type: 'spring' as const, stiffness: 500, damping: 22, mass: 0.4 },
-  };
-  const liquidTap = {
-    scale: 0.97,
-    transition: { type: 'spring' as const, stiffness: 600, damping: 20, mass: 0.3 },
-  };
-
   return (
     <>
       {/* Bottom-edge hover zone to reveal floating UI */}
@@ -198,17 +188,10 @@ function FloatingControlsInner(): React.JSX.Element {
         <div className="flex items-center gap-1.5 max-w-[calc(100vw-40px)]">
 
           {/* ── Menu + Spaces Pod ── */}
-          <motion.div
-            className="flex items-center glass rounded-full gap-0.5"
-            layout
-            layoutId="pod-menu"
-            transition={SPRING_EXPAND}
-            whileHover={liquidHover}
-            whileTap={liquidTap}
-          >
+          <div className="flex items-center glass rounded-full gap-0.5">
             <AppMenu />
             <SpaceSwitcher />
-          </motion.div>
+          </div>
 
           {/* ── Nav Pod ── */}
           <AnimatePresence initial={false}>
@@ -216,14 +199,10 @@ function FloatingControlsInner(): React.JSX.Element {
               <motion.div
                 key="nav-pod"
                 className="flex items-center glass rounded-full gap-0.5"
-                layout
-                layoutId="pod-nav"
                 initial={{ scale: 0.5, opacity: 0, width: 0, filter: 'blur(8px)' }}
                 animate={{ scale: 1, opacity: 1, width: 'auto', filter: 'blur(0px)' }}
                 exit={{ scale: 0.5, opacity: 0, width: 0, filter: 'blur(8px)' }}
                 transition={SPRING_EXPAND}
-                whileHover={liquidHover}
-                whileTap={liquidTap}
               >
                 <motion.button
                   onClick={handleGoBack}
@@ -267,14 +246,9 @@ function FloatingControlsInner(): React.JSX.Element {
           </AnimatePresence>
 
           {/* ── URL Pod ── */}
-          <motion.div
-            className="flex items-center glass rounded-full min-w-0 flex-shrink"
-            layout
-            layoutId="pod-url"
-            transition={SPRING_EXPAND}
-          >
+          <div className="flex items-center glass rounded-full min-w-0 flex-shrink">
             <URLBar onFocusChange={handleFocusChange} />
-          </motion.div>
+          </div>
 
           {/* ── Split Unsplit Button ── */}
           <AnimatePresence initial={false}>
@@ -282,14 +256,10 @@ function FloatingControlsInner(): React.JSX.Element {
               <motion.div
                 key="unsplit-pod"
                 className="flex items-center glass rounded-full p-1"
-                layout
-                layoutId="pod-unsplit"
                 initial={{ scale: 0.4, opacity: 0, width: 0, filter: 'blur(8px)' }}
                 animate={{ scale: 1, opacity: 1, width: 'auto', filter: 'blur(0px)' }}
                 exit={{ scale: 0.4, opacity: 0, width: 0, filter: 'blur(8px)' }}
                 transition={SPRING_EXPAND}
-                whileHover={liquidHover}
-                whileTap={liquidTap}
               >
                 <motion.button
                   onClick={handleUnsplit}
