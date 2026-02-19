@@ -11,9 +11,6 @@ function AboutPaneInner(): React.JSX.Element {
 
   return (
     <div className="flex flex-col items-center justify-center h-full py-6 text-center">
-      <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-indigo-500 to-indigo-600 dark:from-indigo-400 dark:to-indigo-500 flex items-center justify-center shadow-md mb-5">
-        <span className="text-[22px] font-semibold text-white dark:text-black">B</span>
-      </div>
       <h3 className="text-[18px] font-medium text-gray-900 dark:text-white mb-0.5 tracking-tight">Browser</h3>
       <p className="text-[13px] text-gray-400 dark:text-neutral-500 mb-8">Version {__APP_VERSION__}</p>
       <div className="inline-flex flex-col gap-2 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] p-4 min-w-[200px]">

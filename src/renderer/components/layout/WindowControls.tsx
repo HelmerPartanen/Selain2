@@ -82,7 +82,7 @@ function WindowControlsInner(): React.JSX.Element {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="mt-2.5 mr-2.5 flex items-center gap-1 rounded-full glass p-1"
+            className="mt-2.5 mr-2.5 flex items-center rounded-full glass p-1"
             style={{ pointerEvents: "auto" }}
             initial={{ opacity: 0, scale: 0.85, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -139,15 +139,29 @@ function ControlButton({
   hoverText: string;
   children: React.ReactNode;
 }): React.JSX.Element {
+  const [hovered, setHovered] = useState(false)
+
   return (
     <motion.button
       onClick={onClick}
       aria-label={label}
       whileTap={{ scale: 0.78 }}
       transition={SPRING_SNAPPY}
-      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100 ${hoverBg} ${hoverText}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className={`relative w-7 h-7 rounded-full flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100 ${hoverBg} ${hoverText}`}
     >
-      {children}
+      {hovered && (
+        <motion.div
+          layoutId="window-controls-hover"
+          className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, filter: 'blur(2px)' }}
+          transition={SPRING_SNAPPY}
+        />
+      )}
+      <span className="relative z-10">{children}</span>
     </motion.button>
   );
 }

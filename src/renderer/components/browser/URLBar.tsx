@@ -33,6 +33,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   // Autocomplete state
   const [suggestions, setSuggestions] = useState<HistoryEntry[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // URL bar focus request from keyboard shortcuts
@@ -318,36 +319,53 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {suggestions.length > 0 && isFocused && (
           <motion.div
-            className="absolute bottom-full mb-2.5 left-0 right-0 rounded-[22px] overflow-hidden z-[100] glass"
+            className="absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[22px] overflow-hidden z-[100] glass"
             style={{ originY: 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
             exit={{ scaleY: 0.6, opacity: 0, y: 6 }}
             transition={SPRING_POPUP}
           >
-            {suggestions.map((entry, i) => (
-              <button
-                key={entry.url}
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  handleSuggestionClick(entry.url)
-                }}
-                className={`flex items-center gap-2.5 w-full px-3 h-9 rounded-full text-left transition-colors duration-75 ${i === selectedIndex
-                  ? 'bg-indigo-500/8 dark:bg-indigo-400/10 text-gray-900 dark:text-white'
-                  : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
-                  }`}
-              >
-                {entry.favicon ? (
-                  <img src={entry.favicon} alt="" className="flex-shrink-0 w-4 h-4 rounded-sm object-contain" />
-                ) : (
-                  <SvgIcon svg={counterclockwiseSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
-                )}
-                <span className="flex-1 text-[13px] truncate">{entry.title || simplifyUrl(entry.url)}</span>
-                <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">
-                  {simplifyUrl(entry.url)}
-                </span>
-              </button>
-            ))}
+            {suggestions.map((entry, i) => {
+              const isActive = selectedIndex === i
+              return (
+                <button
+                  key={entry.url}
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    handleSuggestionClick(entry.url)
+                  }}
+                  onMouseEnter={() => setHoveredIdx(i)}
+                  onMouseLeave={() => setHoveredIdx(null)}
+                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-full text-left transition-colors duration-75 ${isActive
+                    ? 'text-gray-900 dark:text-white'
+                    : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                >
+                  {(isActive || hoveredIdx === i) && (
+                    <motion.div
+                      layoutId="history-hover"
+                      className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6"
+                      initial={{ opacity: 0.6, filter: 'blur(2px)' }}
+                      animate={{ opacity: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, filter: 'blur(2px)' }}
+                      transition={SPRING_SNAPPY}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2.5 w-full">
+                    {entry.favicon ? (
+                      <img src={entry.favicon} alt="" className="flex-shrink-0 w-4 h-4 rounded-sm object-contain" />
+                    ) : (
+                      <SvgIcon svg={counterclockwiseSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
+                    )}
+                    <span className="flex-1 text-[13px] truncate">{entry.title || simplifyUrl(entry.url)}</span>
+                    <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">
+                      {simplifyUrl(entry.url)}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
           </motion.div>
         )}
       </AnimatePresence>

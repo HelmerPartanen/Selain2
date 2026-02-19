@@ -13,7 +13,7 @@ import { SvgIcon, SQUARE_SVG, CARDS_SVG } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { WALLPAPER_PRESETS, PRESET_PREFIX } from '@/theme/presets'
-import { SPRING, SPRING_GENTLE, SPRING_ORB } from '@/utils/springs'
+import { SPRING, SPRING_GENTLE, SPRING_ORB, SPRING_SNAPPY } from '@/utils/springs'
 import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
@@ -530,6 +530,7 @@ function OnboardingWindowControls(): React.JSX.Element {
   const [isVisible, setIsVisible] = useState(false)
   const [isMaximized, setIsMaximized] = useState(false)
   const hideTimer = useRef<number>(0)
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   useEffect(() => {
     const unsub = window.electronAPI.onMaximizeChange(setIsMaximized)
@@ -593,34 +594,70 @@ function OnboardingWindowControls(): React.JSX.Element {
         <button
           onClick={() => window.electronAPI.minimizeWindow()}
           aria-label="Minimize"
-          className="w-7 h-7 rounded-full flex items-center justify-center
+          onMouseEnter={() => setHoveredIdx(0)}
+          onMouseLeave={() => setHoveredIdx(null)}
+          className="relative w-7 h-7 rounded-full flex items-center justify-center
             text-gray-600 dark:text-neutral-400
             hover:bg-gray-100 dark:hover:bg-neutral-800
             transition-all duration-75 active:scale-85"
         >
-          <SvgIcon svg={minusSvg} size={12} />
+          {hoveredIdx === 0 && (
+            <motion.div
+              layoutId="window-controls-hover"
+              className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+              initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, filter: 'blur(2px)' }}
+              transition={SPRING_SNAPPY}
+            />
+          )}
+          <span className="relative z-10"><SvgIcon svg={minusSvg} size={12} /></span>
         </button>
         <button
           onClick={() => window.electronAPI.toggleMaximizeWindow()}
           aria-label={isMaximized ? 'Restore' : 'Maximize'}
-          className="w-7 h-7 rounded-full flex items-center justify-center
+          onMouseEnter={() => setHoveredIdx(1)}
+          onMouseLeave={() => setHoveredIdx(null)}
+          className="relative w-7 h-7 rounded-full flex items-center justify-center
             text-gray-600 dark:text-neutral-400
             hover:bg-gray-100 dark:hover:bg-neutral-800
             transition-all duration-75 active:scale-85"
         >
-          {isMaximized
-            ? <SvgIcon svg={CARDS_SVG} size={12} />
-            : <SvgIcon svg={SQUARE_SVG} size={10} />}
+          {hoveredIdx === 1 && (
+            <motion.div
+              layoutId="window-controls-hover"
+              className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+              initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, filter: 'blur(2px)' }}
+              transition={SPRING_SNAPPY}
+            />
+          )}
+          <span className="relative z-10">
+            {isMaximized ? <SvgIcon svg={CARDS_SVG} size={12} /> : <SvgIcon svg={SQUARE_SVG} size={10} />}
+          </span>
         </button>
         <button
           onClick={() => window.electronAPI.closeWindow()}
           aria-label="Close"
-          className="w-7 h-7 rounded-full flex items-center justify-center
+          onMouseEnter={() => setHoveredIdx(2)}
+          onMouseLeave={() => setHoveredIdx(null)}
+          className="relative w-7 h-7 rounded-full flex items-center justify-center
             text-gray-600 dark:text-neutral-400
             hover:bg-red-200 hover:text-red-500 dark:hover:bg-red-900/50 dark:hover:text-red-400
             transition-all duration-75 active:scale-85"
         >
-          <SvgIcon svg={closeSvg} size={12} />
+          {hoveredIdx === 2 && (
+            <motion.div
+              layoutId="window-controls-hover"
+              className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+              initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, filter: 'blur(2px)' }}
+              transition={SPRING_SNAPPY}
+            />
+          )}
+          <span className="relative z-10"><SvgIcon svg={closeSvg} size={12} /></span>
         </button>
       </div>
     </motion.div>
