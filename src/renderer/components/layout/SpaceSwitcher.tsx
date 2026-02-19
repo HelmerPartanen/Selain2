@@ -346,7 +346,9 @@ function SpaceSwitcherInner(): React.JSX.Element {
         aria-label="Switch space"
         whileTap={{ scale: 0.88 }}
         transition={SPRING_SNAPPY}
-        className="h-10 flex items-center gap-1.5 px-2.5 rounded-full text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+        className={`h-10 flex items-center justify-center rounded-full text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none ${
+          hasMultipleSpaces ? 'gap-1.5 px-2.5' : 'w-10'
+        }`}
       >
         <SpaceDot hue={activeSpace?.hue ?? -1} size={7} />
         <AnimatePresence initial={false} mode="wait">

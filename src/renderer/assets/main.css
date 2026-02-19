@@ -74,18 +74,21 @@
   background: var(--glass-bg);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-subtle);
+  transition: background 0.35s ease, border-color 0.35s ease;
 }
 
 .glass-heavy {
   background: var(--glass-bg-heavy);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-subtle);
+  transition: background 0.35s ease, border-color 0.35s ease;
 }
 
 .glass-subtle {
   background: var(--glass-bg-subtle);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-subtle);
+  transition: background 0.35s ease, border-color 0.35s ease;
 }
 
 /* ─── Base Resets ─────────────────────────────────────────────────────────── */
@@ -161,11 +164,6 @@ body,
 .floating-controls-bar {
   will-change: transform, opacity;
   contain: layout style;
-}
-
-/* Space color tint — smooth transitions when switching spaces */
-.space-tint-bar {
-  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .webview-container { contain: strict; }

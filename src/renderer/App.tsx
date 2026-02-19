@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { useThemeStore } from '@/store/themeStore'
+import { useSpaceTint } from '@/hooks/useSpaceTint'
 
 function useThemeMode(): void {
   const themeMode = useThemeStore((s) => s.themeMode)
@@ -28,5 +29,6 @@ function useThemeMode(): void {
 
 export default function App(): React.JSX.Element {
   useThemeMode()
+  useSpaceTint()
   return <BrowserLayout />
 }
