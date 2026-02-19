@@ -24,6 +24,8 @@ export interface SettingsState {
   clearOnExit: boolean
   /** Whether the user has completed the onboarding flow */
   onboardingCompleted: boolean
+  /** Adaptive UI color — tint glass surfaces based on wallpaper average color */
+  adaptiveColor: boolean
 }
 
 export interface SettingsActions {
@@ -34,6 +36,7 @@ export interface SettingsActions {
   setAutoHideDelay: (ms: number) => void
   setClearOnExit: (v: boolean) => void
   setOnboardingCompleted: (v: boolean) => void
+  setAdaptiveColor: (v: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -51,6 +54,7 @@ export const useSettingsStore = create<SettingsStore>()(
       autoHideDelay: 2500,
       clearOnExit: false,
       onboardingCompleted: false,
+      adaptiveColor: false,
 
       // ── Actions ──
       setRestoreTabs: (v) => set({ restoreTabs: v }),
@@ -60,6 +64,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setAutoHideDelay: (ms) => set({ autoHideDelay: Math.max(1000, Math.min(5000, ms)) }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
       setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
+      setAdaptiveColor: (v) => set({ adaptiveColor: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }
   )

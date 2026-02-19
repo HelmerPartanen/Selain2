@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { motion } from "motion/react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
-import { Desc, SectionHeader } from "@/settings/components/SettingsShared";
+import { Desc, SectionHeader, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
 import { useSettingsStore, UI_ZOOM_OPTIONS } from "@/store/settingsStore";
 import { SPRING_SNAPPY } from "@/utils/springs";
@@ -24,6 +24,8 @@ function AppearancePaneInner(): React.JSX.Element {
   const setUiZoom = useSettingsStore((s) => s.setUiZoom);
   const autoHideDelay = useSettingsStore((s) => s.autoHideDelay);
   const setAutoHideDelay = useSettingsStore((s) => s.setAutoHideDelay);
+  const adaptiveColor = useSettingsStore((s) => s.adaptiveColor);
+  const setAdaptiveColor = useSettingsStore((s) => s.setAdaptiveColor);
 
   return (
     <div className="space-y-7">
@@ -96,6 +98,25 @@ function AppearancePaneInner(): React.JSX.Element {
             );
           })}
         </div>
+      </div>
+
+      <div>
+        <SectionHeader>Adaptive Color</SectionHeader>
+        <Desc>
+          Tint the UI based on your wallpaper&apos;s dominant color. Space-specific tints take priority.
+        </Desc>
+        <SettingGroup>
+          <SettingRow
+            label="Adaptive UI tint"
+            desc="Automatically match the interface to your wallpaper"
+          >
+            <Toggle
+              checked={adaptiveColor}
+              onChange={setAdaptiveColor}
+              label="Adaptive UI tint"
+            />
+          </SettingRow>
+        </SettingGroup>
       </div>
 
       <div>
