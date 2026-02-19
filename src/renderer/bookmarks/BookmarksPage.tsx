@@ -27,22 +27,39 @@ const BookmarkRow = memo(function BookmarkRow({
   index: number
 }): React.JSX.Element {
   const delay = Math.min(index, 16) * 0.02
+  const [hovered, setHovered] = useState(false)
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay }}
       onClick={() => onNavigate(entry.url)}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors duration-100"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer hover:scale-105 transition-all duration-150"
     >
-      <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
+      {hovered && (
+        <motion.div
+          layoutId="history-hover"
+          className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, filter: 'blur(2px)' }}
+          transition={SPRING_SNAPPY}
+        />
+      )}
+
+      <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {entry.favicon ? (
-          <img src={entry.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
+          <img src={entry.favicon} alt="" className="w-6 h-6" draggable={false} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
-          <SvgIcon svg={globeSvg} size={16} className="text-gray-400 dark:text-neutral-500" />
+          <SvgIcon svg={globeSvg} size={28} className="text-gray-400 dark:text-neutral-500" />
         )}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 z-10">
         <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
           {entry.title || simplifyUrl(entry.url)}
         </div>
@@ -55,7 +72,7 @@ const BookmarkRow = memo(function BookmarkRow({
           e.stopPropagation()
           onRemove(entry.url)
         }}
-        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-100"
+        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 z-10"
         aria-label="Remove bookmark"
       >
         <SvgIcon svg={trashSvg} size={14} />
@@ -143,7 +160,7 @@ function BookmarksPanelInner(): React.JSX.Element {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search bookmarks..."
                   autoFocus
-                  className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-indigo-500/30 transition-colors duration-150"
+                  className="w-full h-9 pl-9 pr-3 rounded-full bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-indigo-500/30 transition-all duration-150"
                 />
               </div>
             </div>
