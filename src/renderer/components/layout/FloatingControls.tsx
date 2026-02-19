@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   useFocusedTabId,
-  useFocusedTabNavState,
+  useFocusedTabCanNavigate,
   useIsSplitView,
 } from "@/hooks/useTabSelector";
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -89,7 +89,7 @@ function FloatingControlsInner(): React.JSX.Element {
   );
 
   const tabId = useFocusedTabId();
-  const { canGoBack, canGoForward } = useFocusedTabNavState();
+  const { canGoBack, canGoForward } = useFocusedTabCanNavigate();
   const isSplit = useIsSplitView();
   const focusedPanel = useTabStore((s) => s.focusedPanel);
 
@@ -169,11 +169,11 @@ function FloatingControlsInner(): React.JSX.Element {
       <motion.div
         className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
         style={{ pointerEvents: isIdle ? "none" : "auto" }}
-        initial={{ x: "-50%", y: 40, scale: 0.85, opacity: 0, filter: "blur(6px)" }}
+        initial={{ x: "-50%", y: 40, scale: 0.85, opacity: 0 }}
         animate={
           isIdle
-            ? { x: "-50%", y: 20, scale: 0.92, opacity: 0, filter: "blur(6px)" }
-            : { x: "-50%", y: 0, scale: 1, opacity: 1, filter: "blur(0px)" }
+            ? { x: "-50%", y: 20, scale: 0.92, opacity: 0 }
+            : { x: "-50%", y: 0, scale: 1, opacity: 1 }
         }
         transition={isIdle ? SPRING_GENTLE : SPRING}
         onMouseEnter={() => setIsHovered(true)}

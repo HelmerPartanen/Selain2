@@ -12,9 +12,9 @@ import { useEscapeKey } from '@/hooks/useEscapeKey'
 import { SPRING } from '@/utils/springs'
 
 // Shared genie-motion values \u2014 single source of truth for all panels
-const PANEL_INITIAL = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20, filter: 'blur(8px)' } as const
-const PANEL_ANIMATE = { y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0, filter: 'blur(0px)' } as const
-const PANEL_EXIT    = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14, filter: 'blur(6px)' } as const
+const PANEL_INITIAL = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 } as const
+const PANEL_ANIMATE = { y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 } as const
+const PANEL_EXIT    = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 } as const
 const PANEL_TRANSITION = { ...SPRING, damping: 26 } as const
 
 interface PanelModalProps {

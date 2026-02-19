@@ -159,7 +159,7 @@ body,
 /* ─── Performance: CSS containment & GPU promotion ────────────────────────── */
 
 .floating-controls-bar {
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
   contain: layout style;
 }
 

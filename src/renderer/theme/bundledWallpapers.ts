@@ -59,33 +59,71 @@ const THUMB_W = 280 // 140px × 2 for retina
 const THUMB_H = 175 // 16:10 aspect
 
 const thumbCache = new Map<string, string>()
+const thumbInFlight = new Map<string, Promise<string>>()
+
+const THUMB_MAX_CONCURRENT = 2
+let activeThumbJobs = 0
+const thumbQueue: Array<() => void> = []
+
+function runThumbTask<T>(task: () => Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const run = (): void => {
+      activeThumbJobs += 1
+      task()
+        .then(resolve)
+        .catch(reject)
+        .finally(() => {
+          activeThumbJobs -= 1
+          const next = thumbQueue.shift()
+          if (next) next()
+        })
+    }
+
+    if (activeThumbJobs < THUMB_MAX_CONCURRENT) {
+      run()
+    } else {
+      thumbQueue.push(run)
+    }
+  })
+}
 
 export function generateThumbnail(fullUrl: string): Promise<string> {
   const cached = thumbCache.get(fullUrl)
   if (cached) return Promise.resolve(cached)
 
-  return new Promise<string>((resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = (): void => {
-      const canvas = document.createElement('canvas')
-      canvas.width = THUMB_W
-      canvas.height = THUMB_H
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0, THUMB_W, THUMB_H)
-      canvas.toBlob(
-        (blob) => {
-          const url = blob ? URL.createObjectURL(blob) : fullUrl
-          thumbCache.set(fullUrl, url)
-          resolve(url)
-        },
-        'image/jpeg',
-        0.65
-      )
-    }
-    img.onerror = (): void => resolve(fullUrl)
-    img.src = fullUrl
+  const pending = thumbInFlight.get(fullUrl)
+  if (pending) return pending
+
+  const queued = runThumbTask(
+    () =>
+      new Promise<string>((resolve) => {
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        img.onload = (): void => {
+          const canvas = document.createElement('canvas')
+          canvas.width = THUMB_W
+          canvas.height = THUMB_H
+          const ctx = canvas.getContext('2d')!
+          ctx.drawImage(img, 0, 0, THUMB_W, THUMB_H)
+          canvas.toBlob(
+            (blob) => {
+              const url = blob ? URL.createObjectURL(blob) : fullUrl
+              thumbCache.set(fullUrl, url)
+              resolve(url)
+            },
+            'image/jpeg',
+            0.65
+          )
+        }
+        img.onerror = (): void => resolve(fullUrl)
+        img.src = fullUrl
+      })
+  ).finally(() => {
+    thumbInFlight.delete(fullUrl)
   })
+
+  thumbInFlight.set(fullUrl, queued)
+  return queued
 }
 
 /** Generate all bundled wallpaper thumbnails. Returns a Map<fullUrl, thumbUrl>. */
@@ -105,10 +143,12 @@ export async function generateAllThumbnails(): Promise<Map<string, string>> {
  * in long-running sessions.
  */
 export function clearThumbCache(): void {
+  thumbQueue.length = 0
   for (const url of thumbCache.values()) {
     if (url.startsWith('blob:')) {
       URL.revokeObjectURL(url)
     }
   }
   thumbCache.clear()
+  thumbInFlight.clear()
 }

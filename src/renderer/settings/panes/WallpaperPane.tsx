@@ -1,6 +1,6 @@
 // ─── Wallpaper Settings Pane ─────────────────────────────────────────────────
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { SectionHeader } from "@/settings/components/SettingsShared";
 import { useThemeStore } from "@/store/themeStore";
@@ -12,7 +12,6 @@ import {
 import {
   BUNDLED_WALLPAPERS,
   generateThumbnail,
-  clearThumbCache,
 } from "@/theme/bundledWallpapers";
 import { showToast } from "@/components/ui/Toast";
 import { useIsDark } from "@/hooks/useIsDark";
@@ -46,8 +45,37 @@ function LazyWallpaperThumb({
   onSelect: (key: string) => void;
 }): React.JSX.Element {
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
+    const node = buttonRef.current;
+    if (!node) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setShouldLoad(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+            break;
+          }
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!shouldLoad) return;
     let cancelled = false;
     generateThumbnail(url).then((t) => {
       if (!cancelled) setThumbUrl(t);
@@ -55,10 +83,11 @@ function LazyWallpaperThumb({
     return () => {
       cancelled = true;
     };
-  }, [url]);
+  }, [url, shouldLoad]);
 
   return (
     <button
+      ref={buttonRef}
       onClick={() => onSelect(storageKey)}
       aria-label={`Select wallpaper ${storageKey.replace("bundled:", "")}`}
       aria-pressed={isActive}
@@ -95,7 +124,10 @@ function WallpaperPaneInner(): React.JSX.Element {
   );
 
   const handleSelectSolid = useCallback(
-    (hex: string) => setWallpaper(solidToDataUrl(hex)),
+    (hex: string) => {
+      const dataUrl = SOLID_DATA_URL_MAP.get(hex);
+      if (dataUrl) setWallpaper(dataUrl);
+    },
     [setWallpaper],
   );
 
@@ -116,13 +148,6 @@ function WallpaperPaneInner(): React.JSX.Element {
     setWallpaper(null);
     showToast({ message: "Wallpaper removed", type: "info" });
   }, [setWallpaper]);
-
-  // Revoke blob thumbnail URLs when the pane unmounts to prevent memory leaks
-  useEffect(() => {
-    return () => {
-      clearThumbCache()
-    }
-  }, [])
 
   return (
     <div className="space-y-6">

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { memo, useCallback, useDeferredValue, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, PIP_SVG } from '@/components/ui/SvgIcon'
 import roundArrowsSvg from '@/assets/icons/Arrows/Round_Arrows_2.svg?raw'
@@ -27,6 +27,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const updateTab = useTabStore((s) => s.updateTab)
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState('')
+  const deferredInputValue = useDeferredValue(inputValue)
   const [isFocused, setIsFocused] = useState(false)
 
   // Autocomplete state
@@ -53,21 +54,21 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   // Debounced autocomplete search
   useEffect(() => {
-    if (!isFocused || !inputValue) {
+    if (!isFocused || deferredInputValue.length < 2) {
       setSuggestions([])
       setSelectedIndex(-1)
       return
     }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
-      const results = useHistoryStore.getState().search(inputValue)
+      const results = useHistoryStore.getState().search(deferredInputValue)
       setSuggestions(results)
       setSelectedIndex(-1)
     }, 150)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [inputValue, isFocused])
+  }, [deferredInputValue, isFocused])
 
   const navigate = useCallback(
     (targetUrl: string) => {

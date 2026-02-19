@@ -67,6 +67,23 @@ export function useFocusedTabNavState(): {
   )
 }
 
+/** Subscribe only to focused-tab back/forward capability (stable for toolbar controls) */
+export function useFocusedTabCanNavigate(): { canGoBack: boolean; canGoForward: boolean } {
+  return useTabStore(
+    useShallow((s) => {
+      const id = s.focusedPanel === 'split' && s.splitTabId ? s.splitTabId : s.activeTabId
+      if (!id) return { canGoBack: false, canGoForward: false }
+      const tab = s.tabs[id]
+      if (!tab) return { canGoBack: false, canGoForward: false }
+      const isSpecial = tab.url === 'browser://newtab'
+      return {
+        canGoBack: tab.canGoBack || !!tab.virtualBackUrl,
+        canGoForward: tab.canGoForward || (isSpecial && !!tab.virtualForwardUrl)
+      }
+    })
+  )
+}
+
 export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean } | undefined {
   return useTabStore(
     useShallow((s) => {

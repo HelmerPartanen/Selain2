@@ -35,7 +35,7 @@ export function createWindow(): void {
   })
 
   // Open DevTools automatically in dev mode
-  if (process.env['ELECTRON_RENDERER_URL']) {
+  if (process.env['ELECTRON_RENDERER_URL'] && process.env['BROWSER_AUTO_DEVTOOLS'] === '1') {
     win.webContents.openDevTools({ mode: 'detach' })
   }
 

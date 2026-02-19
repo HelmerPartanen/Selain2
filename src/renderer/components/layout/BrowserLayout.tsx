@@ -182,6 +182,33 @@ function BrowserLayoutInner(): React.JSX.Element {
     });
   }, []);
 
+  // ── Preload heavy modal chunks after first paint (reduces first-open lag) ──
+  useEffect(() => {
+    const preload = (): void => {
+      void import("@/settings/SettingsPanel");
+      void import("@/bookmarks/BookmarksPage");
+      void import("@/history/HistoryPage");
+      void import("@/downloads/DownloadsPage");
+      void import("@/hotkeys/HotkeysPanel");
+      void import("@/components/browser/TabOverview");
+    };
+
+    const ric = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+
+    if (ric.requestIdleCallback) {
+      const id = ric.requestIdleCallback(preload, { timeout: 1200 });
+      return () => {
+        if (ric.cancelIdleCallback) ric.cancelIdleCallback(id);
+      };
+    }
+
+    const timer = window.setTimeout(preload, 450);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
       {/* Wallpaper layer — fixed behind everything */}
