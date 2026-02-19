@@ -198,7 +198,7 @@ function AppMenuInner(): React.JSX.Element {
                           <SvgIcon svg={Icon} size={16} />
                           <span className="flex-1 text-left">{item.label}</span>
                           {item.shortcut && (
-                            <span className="text-[10px] text-gray-400 dark:text-neutral-500 font-mono bg-black/[0.04] dark:bg-white/[0.06] rounded px-1.5 py-0.5 ml-2">
+                            <span className="text-[11px] text-gray-400 dark:text-neutral-500 bg-black/[0.04] dark:bg-white/[0.06] rounded px-1.5 py-0.5 ml-2">
                               {item.shortcut}
                             </span>
                           )}

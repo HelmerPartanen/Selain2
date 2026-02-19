@@ -16,7 +16,7 @@ export function SectionHeader({
 }): React.JSX.Element {
   return (
     <h3
-      className={`text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500 mb-3 ${className}`}
+      className={`text-[13px] font-medium text-gray-900 dark:text-white mb-1 ${className}`}
     >
       {children}
     </h3>
@@ -25,7 +25,7 @@ export function SectionHeader({
 
 export function Desc({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <p className="text-[12px] text-gray-500 dark:text-neutral-400 mb-4">{children}</p>
+    <p className="text-[11px] text-gray-400 dark:text-neutral-500 mb-4 leading-relaxed">{children}</p>
   )
 }
 
@@ -44,15 +44,15 @@ export function Toggle({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative w-[42px] h-[24px] rounded-full flex-shrink-0 transition-colors duration-200 ${
+      className={`relative w-[38px] h-[22px] rounded-full flex-shrink-0 transition-colors duration-200 ${
         checked
           ? 'bg-indigo-500 dark:bg-indigo-400'
           : 'bg-gray-300 dark:bg-neutral-600'
       }`}
     >
       <motion.span
-        className="absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full bg-white shadow-sm"
-        animate={{ x: checked ? 18 : 0 }}
+        className="absolute top-[2px] left-[2px] w-[18px] h-[18px] rounded-full bg-white shadow-md"
+        animate={{ x: checked ? 16 : 0 }}
         transition={SPRING_SNAPPY}
       />
     </button>
@@ -69,12 +69,27 @@ export function SettingRow({
   children: React.ReactNode
 }): React.JSX.Element {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 px-3 -mx-3 rounded-xl hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors duration-150">
+    <div className="flex items-center justify-between gap-4 py-3 px-3.5 -mx-3.5 rounded-xl hover:bg-black/[0.025] dark:hover:bg-white/[0.025] transition-colors duration-150">
       <div className="min-w-0">
-        <div className="text-[13px] font-normal text-gray-800 dark:text-neutral-200">{label}</div>
-        {desc && <div className="text-[12px] text-gray-500 dark:text-neutral-400 mt-0.5">{desc}</div>}
+        <div className="text-[13px] font-normal text-gray-700 dark:text-neutral-200">{label}</div>
+        {desc && <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5 leading-relaxed">{desc}</div>}
       </div>
       <div className="flex-shrink-0">{children}</div>
+    </div>
+  )
+}
+
+/** Grouped card surface for related settings */
+export function SettingGroup({
+  children,
+  className = ""
+}: {
+  children: React.ReactNode
+  className?: string
+}): React.JSX.Element {
+  return (
+    <div className={`rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] p-1 ${className}`}>
+      {children}
     </div>
   )
 }

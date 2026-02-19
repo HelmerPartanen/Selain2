@@ -64,8 +64,8 @@ function LazyWallpaperThumb({
       aria-pressed={isActive}
       className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
         isActive
-          ? "outline outline-[3px] outline-indigo-500 dark:outline-indigo-400"
-          : "outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600"
+          ? "ring-2 ring-indigo-500/60 dark:ring-indigo-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
+          : "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]"
       }`}
       style={{
         backgroundImage: thumbUrl ? `url(${thumbUrl})` : undefined,
@@ -164,8 +164,8 @@ function WallpaperPaneInner(): React.JSX.Element {
                 aria-pressed={isActive}
                 className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
                   isActive
-                    ? "outline outline-[3px] outline-indigo-500 dark:outline-indigo-400"
-                    : "outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600"
+                    ? "ring-2 ring-indigo-500/60 dark:ring-indigo-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
+                    : "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]"
                 }`}
                 style={{
                   backgroundImage: `url(${thumbUrl})`,
@@ -195,8 +195,8 @@ function WallpaperPaneInner(): React.JSX.Element {
                 aria-pressed={isActive}
                 className={`relative aspect-square rounded-full overflow-hidden transition-all duration-150 ${
                   isActive
-                    ? "outline outline-[3px] outline-indigo-500 dark:outline-indigo-400"
-                    : "outline-none hover:ring-2 hover:ring-gray-300 dark:hover:ring-neutral-600"
+                    ? "ring-2 ring-indigo-500/60 dark:ring-indigo-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
+                    : "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]"
                 }`}
                 style={{ backgroundColor: solidBaseColors[i] }}
               />
@@ -209,7 +209,7 @@ function WallpaperPaneInner(): React.JSX.Element {
         <button
           onClick={handleCustomImage}
           aria-label="Upload custom wallpaper image"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 transition-all duration-150 hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.06] dark:hover:bg-white/[0.07] hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
         >
           <SvgIcon svg={uploadSvg} size={14} />
           Upload Image
@@ -217,7 +217,7 @@ function WallpaperPaneInner(): React.JSX.Element {
         <button
           onClick={handleClear}
           aria-label="Remove current wallpaper"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-medium text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/15 border border-red-100 dark:border-red-800/30 transition-all duration-150 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-medium text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] transition-all duration-150 hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14] active:scale-[0.97]"
         >
           <SvgIcon svg={trashSvg} size={14} />
           Remove
