@@ -2,9 +2,8 @@
 // App lifecycle only. All subsystems live in their own modules.
 
 import { app, BrowserWindow, components, session } from 'electron'
-import { join } from 'path'
-import { existsSync } from 'fs'
-import { ElectronBlocker } from '@cliqz/adblocker-electron'
+import { ElectronBlocker } from '@ghostery/adblocker-electron'
+import { adsAndTrackingLists } from '@ghostery/adblocker'
 import fetch from 'cross-fetch'
 import './flags'                                     // side-effect: Chromium CLI switches
 import { createWindow } from './window'
@@ -33,11 +32,16 @@ app.whenReady().then(async () => {
     process.argv.includes('--no-extensions') || process.env['BROWSER_SKIP_EXTENSIONS'] === '1'
 
   if (!skipExtensions) {
-    ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
+    ElectronBlocker.fromLists(fetch, adsAndTrackingLists, {
+      loadNetworkFilters: true,
+      loadCosmeticFilters: false,
+      loadGenericCosmeticsFilters: false,
+      loadExtendedSelectors: false,
+      enableMutationObserver: false,
+    }).then((blocker) => {
       const ses = session.fromPartition('persist:default')
-      // Disable preload script injection to avoid registerPreloadScript error in newer Electron versions
       blocker.enableBlockingInSession(ses)
-      console.log('[Adblocker] Loaded Ghostery adblocker')
+      console.log('[Adblocker] Loaded Ghostery adblocker (network filters only)')
     }).catch((err) => {
       console.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
     })
