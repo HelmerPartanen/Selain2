@@ -11,6 +11,7 @@ import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
 import filtrSvg from "@/assets/icons/Interface/Filtr.svg?raw";
+import { CARDS_SVG } from "@/components/ui/SvgIcon";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import { useTabStore } from "@/store/tabStore";
 import { useUIStore } from "@/store/uiStore";
@@ -24,7 +25,7 @@ const menuItems = [
   {
     id: "tab-overview",
     label: "Tab Overview",
-    icon: filtrSvg,
+    icon: CARDS_SVG,
     shortcut: "Ctrl+Shift+A",
   },
   { id: "divider2", label: "", icon: null, shortcut: "" },
@@ -174,8 +175,8 @@ function AppMenuInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className="rounded-2xl glass-heavy overflow-hidden">
-                <div className="p-1 relative">
+              <div className="rounded-3xl glass-heavy overflow-hidden">
+                <div className="px-3 py-2 relative">
                   {menuItems.map((item, idx) => {
                     if (item.id.startsWith("divider")) {
                       return (
@@ -196,7 +197,7 @@ function AppMenuInner(): React.JSX.Element {
                         onClick={() => handleMenuItemClick(item.id)}
                         onMouseEnter={() => setHoveredIdx(thisIdx)}
                         onMouseLeave={() => setHoveredIdx(null)}
-                        className="w-full rounded-xl flex items-center gap-3 px-3.5 h-9 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-colors duration-75 relative [app-region:no-drag]"
+                        className="w-full rounded-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:scale-105 transition-all duration-150 relative [app-region:no-drag]"
                         style={{
                           opacity: 0,
                           animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
@@ -206,11 +207,15 @@ function AppMenuInner(): React.JSX.Element {
                         {hoveredIdx === thisIdx && (
                           <motion.div
                             layoutId="menu-highlight"
-                            className="absolute inset-0 rounded-xl bg-black/[0.04] dark:bg-white/[0.06]"
-                            transition={SPRING_SNAPPY}
+                            className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                            style={{ zIndex: 1 }}
+                            initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+                            animate={{ opacity: 1, filter: 'blur(0px)' }}
+                            exit={{ opacity: 0, filter: 'blur(2px)' }}
+                            transition={{ type: 'spring', stiffness: 540, damping: 30, mass: 0.45 }}
                           />
                         )}
-                        <span className="relative flex items-center gap-3 w-full">
+                        <span className="relative flex items-center gap-3 w-full z-10">
                           <SvgIcon svg={Icon} size={16} />
                           <span className="flex-1 text-left">{item.label}</span>
                           {item.shortcut && (
