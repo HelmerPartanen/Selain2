@@ -199,46 +199,45 @@ function FloatingControlsInner(): React.JSX.Element {
               <motion.div
                 key="nav-pod"
                 className="flex items-center glass rounded-full gap-0.5"
-                initial={{ scale: 0.5, opacity: 0, width: 0, filter: 'blur(8px)' }}
-                animate={{ scale: 1, opacity: 1, width: 'auto', filter: 'blur(0px)' }}
-                exit={{ scale: 0.5, opacity: 0, width: 0, filter: 'blur(8px)' }}
+                initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                 transition={SPRING_EXPAND}
+                style={{ overflow: 'hidden' }}
               >
-                <motion.button
-                  onClick={handleGoBack}
-                  disabled={!canGoBack}
-                  aria-label="Go back"
-                  whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
-                  transition={SPRING_SNAPPY}
-                  className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
-                >
-                  <SvgIcon svg={chevronLeftSvg} size={16} />
-                </motion.button>
-
+                <AnimatePresence initial={false}>
+                  {canGoBack && (
+                    <motion.button
+                      key="back"
+                      onClick={handleGoBack}
+                      disabled={!canGoBack}
+                      aria-label="Go back"
+                      whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
+                      initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                      animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                      exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                      transition={SPRING_EXPAND}
+                      className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
+                    >
+                      <SvgIcon svg={chevronLeftSvg} size={16} />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
                 <AnimatePresence initial={false}>
                   {canGoForward && (
-                    <motion.div
+                    <motion.button
                       key="forward"
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: "auto", opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{
-                        ...SPRING_EXPAND,
-                        opacity: { duration: 0.12 },
-                      }}
-                      className="flex items-center overflow-hidden"
-                      style={{ flexShrink: 0 }}
+                      onClick={handleGoForward}
+                      aria-label="Go forward"
+                      whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
+                      initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                      animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                      exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                      transition={SPRING_EXPAND}
+                      className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
                     >
-                      <motion.button
-                        onClick={handleGoForward}
-                        aria-label="Go forward"
-                        whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
-                        transition={SPRING_SNAPPY}
-                        className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
-                      >
-                        <SvgIcon svg={chevronRightSvg} size={16} />
-                      </motion.button>
-                    </motion.div>
+                      <SvgIcon svg={chevronRightSvg} size={16} />
+                    </motion.button>
                   )}
                 </AnimatePresence>
               </motion.div>
@@ -255,17 +254,21 @@ function FloatingControlsInner(): React.JSX.Element {
             {isSplit && (
               <motion.div
                 key="unsplit-pod"
-                className="flex items-center glass rounded-full p-1"
-                initial={{ scale: 0.4, opacity: 0, width: 0, filter: 'blur(8px)' }}
-                animate={{ scale: 1, opacity: 1, width: 'auto', filter: 'blur(0px)' }}
-                exit={{ scale: 0.4, opacity: 0, width: 0, filter: 'blur(8px)' }}
+                className="flex items-center glass rounded-full"
+                initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                 transition={SPRING_EXPAND}
+                style={{ overflow: 'hidden' }}
               >
                 <motion.button
                   onClick={handleUnsplit}
                   aria-label="Exit split view"
                   whileTap={{ scale: 0.85 }}
-                  transition={SPRING_SNAPPY}
+                  initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                  animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                  exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                  transition={SPRING_EXPAND}
                   className="h-10 w-10 rounded-full flex items-center justify-center text-indigo-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
                 >
                   <SvgIcon svg={unsplitSvg} size={15} />
