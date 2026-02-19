@@ -1,6 +1,6 @@
 // ─── Appearance Settings Pane ────────────────────────────────────────────────
 
-import { memo } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Desc, SectionHeader, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
@@ -22,10 +22,31 @@ function AppearancePaneInner(): React.JSX.Element {
   const setThemeMode = useThemeStore((s) => s.setThemeMode);
   const uiZoom = useSettingsStore((s) => s.uiZoom);
   const setUiZoom = useSettingsStore((s) => s.setUiZoom);
+  const [selectedUiZoom, setSelectedUiZoom] = useState(uiZoom);
+  const zoomCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoHideDelay = useSettingsStore((s) => s.autoHideDelay);
   const setAutoHideDelay = useSettingsStore((s) => s.setAutoHideDelay);
   const adaptiveColor = useSettingsStore((s) => s.adaptiveColor);
   const setAdaptiveColor = useSettingsStore((s) => s.setAdaptiveColor);
+
+  useEffect(() => {
+    setSelectedUiZoom(uiZoom);
+  }, [uiZoom]);
+
+  useEffect(() => {
+    return () => {
+      if (zoomCommitTimeoutRef.current) clearTimeout(zoomCommitTimeoutRef.current);
+    };
+  }, []);
+
+  const handleUiZoomSelect = (zoom: number): void => {
+    setSelectedUiZoom(zoom);
+    if (zoomCommitTimeoutRef.current) clearTimeout(zoomCommitTimeoutRef.current);
+    zoomCommitTimeoutRef.current = setTimeout(() => {
+      setUiZoom(zoom);
+      zoomCommitTimeoutRef.current = null;
+    }, 120);
+  };
 
   return (
     <div className="space-y-7">
@@ -42,16 +63,16 @@ function AppearancePaneInner(): React.JSX.Element {
                 aria-checked={isActive}
                 aria-label={`${label} theme`}
                 onClick={() => setThemeMode(mode)}
-                className={`relative flex-1 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-150 ${
+                className={`relative flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl transition-all duration-150 ${
                   isActive
-                    ? "text-indigo-500 dark:text-indigo-400"
-                    : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.025] dark:hover:bg-white/[0.025]"
+                    ? "text-gray-900 dark:text-white"
+                    : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                 }`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="theme-mode"
-                    className="absolute inset-0 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] ring-1 ring-indigo-500/20 dark:ring-indigo-400/20"
+                    className="absolute inset-0 rounded-3xl glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
                     transition={SPRING_SNAPPY}
                   />
                 )}
@@ -67,20 +88,20 @@ function AppearancePaneInner(): React.JSX.Element {
         <SectionHeader>Interface Scale</SectionHeader>
         <Desc>Scale the browser UI. Does not affect web page content.</Desc>
         <div
-          className="flex gap-1.5 p-1 rounded-xl bg-black/[0.03] dark:bg-white/[0.04]"
+          className="flex gap-1 p-1 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
           role="radiogroup"
           aria-label="Interface scale"
         >
           {UI_ZOOM_OPTIONS.map((z) => {
-            const isActive = uiZoom === z;
+            const isActive = selectedUiZoom === z;
             return (
               <button
                 key={z}
                 role="radio"
                 aria-checked={isActive}
                 aria-label={`${z}% zoom`}
-                onClick={() => setUiZoom(z)}
-                className={`relative flex-1 py-2 rounded-lg text-[11px] font-medium transition-colors duration-150 ${
+                onClick={() => handleUiZoomSelect(z)}
+                className={`relative flex-1 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 ${
                   isActive
                     ? "text-gray-900 dark:text-white"
                     : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
@@ -89,7 +110,7 @@ function AppearancePaneInner(): React.JSX.Element {
                 {isActive && (
                   <motion.div
                     layoutId="ui-zoom"
-                    className="absolute inset-0 rounded-lg bg-white dark:bg-white/[0.1] shadow-sm"
+                    className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
                     transition={SPRING_SNAPPY}
                   />
                 )}

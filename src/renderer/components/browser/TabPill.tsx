@@ -301,9 +301,9 @@ function TabPillInner(): React.JSX.Element {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={SPRING_FAST}
-            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md ring-2 ring-white dark:ring-neutral-900 pointer-events-none"
+            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center shadow-md pointer-events-none"
           >
-            <SvgIcon svg={soundFillSvg} size={10} className="text-white" />
+            <SvgIcon svg={soundFillSvg} size={14} className="text-white" />
           </motion.div>
         )}
       </AnimatePresence>
