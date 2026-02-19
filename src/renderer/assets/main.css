@@ -163,6 +163,11 @@ body,
   contain: layout style;
 }
 
+/* Space color tint — smooth transitions when switching spaces */
+.space-tint-bar {
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
 .webview-container { contain: strict; }
 .split-panel { contain: strict; }
 

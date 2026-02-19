@@ -82,6 +82,8 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const closeDropdown = useUIStore((s) => s.setDropdownOpen);
   const closeMenu = useUIStore((s) => s.setMenuOpen);
+  const isSpaceSwitcherOpen = useUIStore((s) => s.isSpaceSwitcherOpen);
+  const closeSpaceSwitcher = useUIStore((s) => s.setSpaceSwitcherOpen);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
 
   // Resolve theme-aware wallpapers — preset gradients adapt to dark/light.
@@ -241,12 +243,13 @@ function BrowserLayoutInner(): React.JSX.Element {
       {isSplitView && <SplitDivider />}
 
       {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
-      {(isDropdownOpen || isMenuOpen) && (
+      {(isDropdownOpen || isMenuOpen || isSpaceSwitcherOpen) && (
         <div
           className="fixed inset-0 z-[45]"
           onMouseDown={() => {
             closeDropdown(false);
             closeMenu(false);
+            closeSpaceSwitcher(false);
           }}
         />
       )}

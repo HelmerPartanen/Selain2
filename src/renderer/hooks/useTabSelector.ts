@@ -1,5 +1,6 @@
 import { useShallow } from 'zustand/react/shallow'
 import { useTabStore } from '@/store/tabStore'
+import { useSpaceStore } from '@/store/spaceStore'
 
 export function useActiveTabId(): string | null {
   return useTabStore((s) => s.activeTabId)
@@ -124,6 +125,26 @@ export function useFocusedTabMediaPlaying(): boolean {
     if (!id) return false
     return s.tabs[id]?.isPlayingMedia ?? false
   })
+}
+
+/** Returns tab order filtered to the active space's tabs */
+export function useSpaceTabOrder(): string[] {
+  const tabOrder = useTabStore(useShallow((s) => s.tabOrder))
+  const spaceTabIds = useSpaceStore(
+    useShallow((s) => s.spaces[s.activeSpaceId]?.tabIds ?? [])
+  )
+  const spaceSet = new Set(spaceTabIds)
+  return tabOrder.filter((id) => spaceSet.has(id))
+}
+
+/** Returns tab IDs belonging to a specific space (filtered by tabStore.tabOrder) */
+export function useSpaceTabIds(spaceId: string): string[] {
+  const tabOrder = useTabStore(useShallow((s) => s.tabOrder))
+  const spaceTabIds = useSpaceStore(
+    useShallow((s) => s.spaces[spaceId]?.tabIds ?? [])
+  )
+  const spaceSet = new Set(spaceTabIds)
+  return tabOrder.filter((id) => spaceSet.has(id))
 }
 
 

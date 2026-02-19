@@ -8,7 +8,7 @@ import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_3_Fill.svg?raw'
 import splitSvg from '@/assets/icons/Arrows/Triangle_Branch.svg?raw'
 import unsplitSvg from '@/assets/icons/Arrows/Triangle_Merge.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
-import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying } from '@/hooks/useTabSelector'
+import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying, useSpaceTabOrder } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 
@@ -137,7 +137,7 @@ const TabRow = memo(function TabRow({
 })
 
 function TabPillInner(): React.JSX.Element {
-  const tabOrder = useTabOrder()
+  const tabOrder = useSpaceTabOrder()
   const activeTabId = useActiveTabId()
   const splitTabId = useSplitTabId()
   const isSplit = useIsSplitView()

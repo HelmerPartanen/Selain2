@@ -9,6 +9,7 @@ interface UIState {
   isHotkeysOpen: boolean
   isDropdownOpen: boolean
   isMenuOpen: boolean
+  isSpaceSwitcherOpen: boolean
   isFindBarOpen: boolean
   splitRatio: number
   urlBarFocusRequested: boolean
@@ -28,6 +29,7 @@ interface UIState {
   closeHotkeys: () => void
   setDropdownOpen: (open: boolean) => void
   setMenuOpen: (open: boolean) => void
+  setSpaceSwitcherOpen: (open: boolean) => void
   openFindBar: () => void
   closeFindBar: () => void
   toggleFindBar: () => void
@@ -55,6 +57,7 @@ export const useUIStore = create<UIState>((set) => ({
   isHotkeysOpen: false,
   isDropdownOpen: false,
   isMenuOpen: false,
+  isSpaceSwitcherOpen: false,
   isFindBarOpen: false,
   splitRatio: 0.5,
   urlBarFocusRequested: false,
@@ -77,6 +80,7 @@ export const useUIStore = create<UIState>((set) => ({
 
   setDropdownOpen: (open) => set({ isDropdownOpen: open }),
   setMenuOpen: (open) => set({ isMenuOpen: open }),
+  setSpaceSwitcherOpen: (open) => set({ isSpaceSwitcherOpen: open }),
   openFindBar: () => set({ isFindBarOpen: true }),
   closeFindBar: () => set({ isFindBarOpen: false }),
   toggleFindBar: () => set((s) => ({ isFindBarOpen: !s.isFindBarOpen })),

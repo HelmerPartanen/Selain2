@@ -7,6 +7,7 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
+import { useSpaceStore } from '@/store/spaceStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { SPRING } from '@/utils/springs'
 
@@ -152,7 +153,10 @@ function TabOverviewInner(): React.JSX.Element {
 
     // Snapshot tab data at open time (decoupled from live `tabs` object)
     const { tabOrder, tabs } = useTabStore.getState()
-    const snapshots: TabPreview[] = tabOrder
+    const { spaces, activeSpaceId } = useSpaceStore.getState()
+    const spaceTabSet = new Set(spaces[activeSpaceId]?.tabIds ?? [])
+    const spaceTabOrder = tabOrder.filter((id) => spaceTabSet.has(id))
+    const snapshots: TabPreview[] = spaceTabOrder
       .map((id) => {
         const tab = tabs[id]
         if (!tab) return null

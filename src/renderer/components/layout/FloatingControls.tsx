@@ -12,12 +12,15 @@ import unsplitSvg from "@/assets/icons/Arrows/Triangle_Merge.svg?raw";
 import { webviewRegistry } from "@/webview/webviewRegistry";
 import { URLBar } from "@/components/browser/URLBar";
 import { AppMenu } from "@/components/layout/AppMenu";
+import { SpaceSwitcher } from "@/components/layout/SpaceSwitcher";
 import { TabPill } from "@/components/browser/TabPill";
 import { DownloadPill } from "@/components/browser/DownloadPill";
 import { useUIStore } from "@/store/uiStore";
 import { useShallow } from 'zustand/react/shallow';
 import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useSpaceStore } from "@/store/spaceStore";
+import { useIsDark } from "@/hooks/useIsDark";
 import { SPRING, SPRING_GENTLE, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs';
 
 const THROTTLE_MS = 100;
@@ -74,6 +77,7 @@ function FloatingControlsInner(): React.JSX.Element {
     isTabOverviewOpen,
     isDropdownOpen,
     isMenuOpen,
+    isSpaceSwitcherOpen,
     isHotkeysOpen,
   } = useUIStore(
     useShallow((s) => ({
@@ -84,6 +88,7 @@ function FloatingControlsInner(): React.JSX.Element {
       isTabOverviewOpen: s.isTabOverviewOpen,
       isDropdownOpen: s.isDropdownOpen,
       isMenuOpen: s.isMenuOpen,
+      isSpaceSwitcherOpen: s.isSpaceSwitcherOpen,
       isHotkeysOpen: s.isHotkeysOpen,
     }))
   );
@@ -92,6 +97,10 @@ function FloatingControlsInner(): React.JSX.Element {
   const { canGoBack, canGoForward } = useFocusedTabCanNavigate();
   const isSplit = useIsSplitView();
   const focusedPanel = useTabStore((s) => s.focusedPanel);
+  const isDark = useIsDark();
+
+  // Space color tint
+  const spaceHue = useSpaceStore((s) => s.spaces[s.activeSpaceId]?.hue ?? -1);
 
   const isActive =
     isHovered ||
@@ -103,6 +112,7 @@ function FloatingControlsInner(): React.JSX.Element {
     isTabOverviewOpen ||
     isDropdownOpen ||
     isMenuOpen ||
+    isSpaceSwitcherOpen ||
     isHotkeysOpen;
   const isIdle = useIdleVisibility(isActive);
 
@@ -112,6 +122,7 @@ function FloatingControlsInner(): React.JSX.Element {
       const store = useUIStore.getState();
       if (store.isDropdownOpen) store.setDropdownOpen(false);
       if (store.isMenuOpen) store.setMenuOpen(false);
+      if (store.isSpaceSwitcherOpen) store.setSpaceSwitcherOpen(false);
     }
   }, [isIdle]);
 
@@ -180,9 +191,22 @@ function FloatingControlsInner(): React.JSX.Element {
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Unified glass bar — single frosted surface with internal dividers */}
-        <div className="flex items-center glass rounded-full p-1 gap-0.5">
+        <div
+          className="flex items-center glass rounded-full p-1 gap-0.5 space-tint-bar"
+          style={spaceHue >= 0 ? {
+            background: isDark
+              ? `linear-gradient(hsl(${spaceHue} 40% 45% / 0.07), hsl(${spaceHue} 40% 45% / 0.05)), rgb(30, 30, 30)`
+              : `linear-gradient(hsl(${spaceHue} 50% 55% / 0.06), hsl(${spaceHue} 50% 55% / 0.04)), rgb(255, 255, 255)`,
+            borderColor: isDark
+              ? `hsl(${spaceHue} 35% 50% / 0.18)`
+              : `hsl(${spaceHue} 45% 55% / 0.14)`,
+          } : undefined}
+        >
           {/* Menu */}
           <AppMenu />
+
+          {/* Space Switcher */}
+          <SpaceSwitcher />
 
           {/* Divider */}
           <div className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0" />
