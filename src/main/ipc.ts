@@ -2,7 +2,7 @@
 // All ipcMain handlers: downloads, window controls, zoom, image picker,
 // wallpaper persistence, and settings store persistence.
 
-import { app, dialog, ipcMain, nativeImage, session, shell } from 'electron'
+import { app, dialog, ipcMain, nativeImage, session, shell, webContents } from 'electron'
 import { readFile, writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
@@ -246,6 +246,24 @@ export function setupIPC(): void {
       console.warn(`Failed to save store "${name}":`, err)
       return false
     }
+  })
+
+  // ── Picture-in-Picture ──────────────────────────────────────────────────
+  ipcMain.on('request-pip', (_event, webContentsId: number) => {
+    const wc = webContents.fromId(webContentsId)
+    if (!wc) return
+    wc.executeJavaScript(`
+      (function() {
+        const videos = document.querySelectorAll('video');
+        for (const v of videos) {
+          if (!v.paused && v.readyState >= 2) {
+            v.requestPictureInPicture().catch(() => {});
+            return;
+          }
+        }
+        if (videos.length > 0) videos[0].requestPictureInPicture().catch(() => {});
+      })()
+    `)
   })
 
   // ── Performance diagnostics ─────────────────────────────────────────────

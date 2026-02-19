@@ -4,6 +4,8 @@
 import { app, BrowserWindow, components, session } from 'electron'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { ElectronBlocker } from '@cliqz/adblocker-electron'
+import fetch from 'cross-fetch'
 import './flags'                                     // side-effect: Chromium CLI switches
 import { createWindow } from './window'
 import { setupIPC } from './ipc'
@@ -25,31 +27,22 @@ app.whenReady().then(async () => {
 
   createWindow()
 
-  // ── Load bundled extensions into the webview session ────────────────────
+  // ── Load adblocker into the webview session ────────────────────
   // Pass --no-extensions CLI flag to skip loading extensions for benchmarking
   const skipExtensions =
     process.argv.includes('--no-extensions') || process.env['BROWSER_SKIP_EXTENSIONS'] === '1'
 
   if (!skipExtensions) {
-    const extensionsDir = app.isPackaged
-      ? join(process.resourcesPath, 'uBlock0.chromium')
-      : join(__dirname, '../../uBlock0.chromium')
-
-    if (existsSync(extensionsDir)) {
-      session
-        .fromPartition('persist:default')
-        .loadExtension(extensionsDir, { allowFileAccess: true })
-        .then((ext) => {
-          console.log(`[Extension] Loaded: ${ext.name} v${ext.version}`)
-        })
-        .catch((err) => {
-          console.warn('[Extension] Failed to load uBlock Origin:', err)
-        })
-    } else {
-      console.warn('[Extension] uBlock0.chromium directory not found at', extensionsDir)
-    }
+    ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
+      const ses = session.fromPartition('persist:default')
+      // Disable preload script injection to avoid registerPreloadScript error in newer Electron versions
+      blocker.enableBlockingInSession(ses)
+      console.log('[Adblocker] Loaded Ghostery adblocker')
+    }).catch((err) => {
+      console.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
+    })
   } else {
-    console.log('[Extension] Skipped loading extensions (--no-extensions flag)')
+    console.log('[Adblocker] Skipped loading adblocker (--no-extensions flag)')
   }
 
   // Ensure CDM is ready before any DRM playback is attempted

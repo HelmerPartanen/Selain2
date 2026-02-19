@@ -403,7 +403,7 @@ function AppearanceStep(): React.JSX.Element {
 // ─── Step 2 — Privacy ────────────────────────────────────────────────────────
 
 const PRIVACY_FEATURES = [
-  { text: 'Ad & tracker blocking', detail: 'Powered by uBlock Origin' },
+  { text: 'Ad & tracker blocking', detail: 'Powered by Ghostery Adblocker' },
   { text: 'No telemetry', detail: 'Nothing leaves your device' },
   { text: 'Local-first storage', detail: 'Your data stays on your machine' },
 ] as const

@@ -62,7 +62,8 @@ const api: ElectronAPI = {
   },
   setZoomFactor: (factor: number) => ipcRenderer.send('set-zoom-factor', factor),
   loadStore: (name: string) => ipcRenderer.invoke('load-store', name),
-  saveStore: (name: string, data: string) => ipcRenderer.invoke('save-store', name, data)
+  saveStore: (name: string, data: string) => ipcRenderer.invoke('save-store', name, data),
+  requestPiP: (webContentsId: number) => ipcRenderer.send('request-pip', webContentsId)
 }
 
 // Freeze the API object so renderer code cannot mutate or extend it

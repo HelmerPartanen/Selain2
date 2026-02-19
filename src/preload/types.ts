@@ -43,6 +43,8 @@ export interface ElectronAPI {
   loadStore(name: string): Promise<string | null>
   /** Save store data to filesystem */
   saveStore(name: string, data: string): Promise<boolean>
+  /** Request Picture-in-Picture for a specific webContents */
+  requestPiP(webContentsId: number): void
 }
 
 declare global {

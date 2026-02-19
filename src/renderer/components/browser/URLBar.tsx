@@ -15,15 +15,35 @@ import { useUIStore } from '@/store/uiStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
+import { fetchSearchSuggestions } from '@/utils/searchUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
+import { SiteInfoPopover } from './SiteInfoPopover'
 
 import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
+
+const LoadingProgressBar = memo(function LoadingProgressBar() {
+  const { loadProgress } = useFocusedTabNavState()
+  return (
+    <div className="absolute bottom-0 left-4 right-4 h-[3px] rounded-full overflow-hidden">
+      <motion.div
+        className="h-full bg-indigo-500 rounded-full"
+        initial={false}
+        animate={{
+          scaleX: loadProgress > 0 ? loadProgress : 0,
+          opacity: loadProgress > 0 && loadProgress < 1 ? 1 : 0
+        }}
+        transition={loadProgress === 0 ? { duration: 0.3 } : SPRING_EXPAND}
+        style={{ transformOrigin: 'left' }}
+      />
+    </div>
+  )
+})
 
 function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => void }): React.JSX.Element {
   const tabId = useFocusedTabId()
   const url = useFocusedTabUrl()
-  const { isLoading, loadProgress } = useFocusedTabNavState()
+  const { isLoading } = useFocusedTabNavState()
   const updateTab = useTabStore((s) => s.updateTab)
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState('')
@@ -31,10 +51,12 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const [isFocused, setIsFocused] = useState(false)
 
   // Autocomplete state
-  const [suggestions, setSuggestions] = useState<HistoryEntry[]>([])
+  const [suggestions, setSuggestions] = useState<(HistoryEntry & { type?: 'history' | 'search' })[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [isSiteInfoOpen, setIsSiteInfoOpen] = useState(false)
 
   // URL bar focus request from keyboard shortcuts
   const urlBarFocusRequested = useUIStore((s) => s.urlBarFocusRequested)
@@ -61,9 +83,31 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       return
     }
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      const results = useHistoryStore.getState().search(deferredInputValue)
-      setSuggestions(results)
+    debounceRef.current = setTimeout(async () => {
+      const historyResults = useHistoryStore.getState().search(deferredInputValue).map(r => ({ ...r, type: 'history' as const }))
+      
+      let searchResults: (HistoryEntry & { type: 'search' })[] = []
+      try {
+        const liveSuggestions = await fetchSearchSuggestions(deferredInputValue)
+        searchResults = liveSuggestions.map(phrase => ({
+          id: `search-${phrase}`,
+          url: normalizeURL(phrase),
+          title: phrase,
+          visitCount: 0,
+          lastVisit: 0,
+          timestamp: Date.now(),
+          favicon: '',
+          type: 'search' as const
+        }))
+      } catch (e) {
+        console.error('Failed to fetch live suggestions', e)
+      }
+
+      // Combine and deduplicate by URL
+      const combined = [...historyResults, ...searchResults]
+      const unique = Array.from(new Map(combined.map(item => [item.url, item])).values())
+      
+      setSuggestions(unique.slice(0, 8))
       setSelectedIndex(-1)
     }, 150)
     return () => {
@@ -124,13 +168,10 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   }, [url, onFocusChange])
 
   const handleBlur = useCallback(() => {
-    // Delay blur to allow clicking suggestions
-    setTimeout(() => {
-      setIsFocused(false)
-      onFocusChange?.(false)
-      setSuggestions([])
-      setSelectedIndex(-1)
-    }, 150)
+    setIsFocused(false)
+    onFocusChange?.(false)
+    setSuggestions([])
+    setSelectedIndex(-1)
   }, [onFocusChange])
 
   const handleSuggestionClick = useCallback(
@@ -172,18 +213,10 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     if (!tabId) return
     const webview = webviewRegistry.get(tabId)
     if (!webview) return
-      ; (webview as unknown as { executeJavaScript(code: string): Promise<unknown> }).executeJavaScript(`
-      (function() {
-        const videos = document.querySelectorAll('video');
-        for (const v of videos) {
-          if (!v.paused && v.readyState >= 2) {
-            v.requestPictureInPicture().catch(() => {});
-            return;
-          }
-        }
-        if (videos.length > 0) videos[0].requestPictureInPicture().catch(() => {});
-      })()
-    `)
+    const webContentsId = (webview as any).getWebContentsId()
+    if (webContentsId) {
+      window.electronAPI.requestPiP(webContentsId)
+    }
   }, [tabId])
 
   return (
@@ -211,8 +244,16 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         </Button>
 
         <div className="relative flex-1 min-w-0 flex items-center h-full">
-          <div className="absolute left-2 z-10 flex items-center justify-center pointer-events-none">
-            <div className="w-5 h-5 flex items-center justify-center">
+          <div className="absolute left-2 z-10 flex items-center justify-center">
+            <button
+              onClick={() => {
+                if (iconKey !== 'search') {
+                  setIsSiteInfoOpen(true)
+                }
+              }}
+              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${iconKey !== 'search' ? 'hover:bg-gray-200 dark:hover:bg-neutral-700 cursor-pointer' : 'pointer-events-none'}`}
+              aria-label="Site information"
+            >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
                   key={iconKey}
@@ -227,7 +268,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   {iconKey === 'search' && <SvgIcon svg={searchSvg} size={14} />}
                 </motion.span>
               </AnimatePresence>
-            </div>
+            </button>
           </div>
 
           <input
@@ -241,8 +282,39 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
             placeholder="Search or enter URL"
             spellCheck={false}
             autoComplete="off"
-            className="w-full h-full pl-8 pr-2 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
+            className="w-full h-full pl-8 pr-8 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
           />
+
+          <AnimatePresence>
+            {isFocused && inputValue.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={SPRING_FAST}
+                className="absolute right-2 z-10 flex items-center justify-center"
+              >
+                <button
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setInputValue('')
+                    inputRef.current?.focus()
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setInputValue('')
+                    inputRef.current?.focus()
+                  }}
+                  className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-500 dark:text-neutral-400 transition-colors"
+                  aria-label="Clear input"
+                >
+                  <SvgIcon svg={closeSvg} size={12} />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Bookmark star */}
@@ -301,18 +373,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         </AnimatePresence>
 
         {/* Loading progress bar */}
-        <div className="absolute bottom-0 left-4 right-4 h-[3px] rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-indigo-500 rounded-full"
-            initial={false}
-            animate={{
-              scaleX: loadProgress > 0 ? loadProgress : 0,
-              opacity: loadProgress > 0 && loadProgress < 1 ? 1 : 0
-            }}
-            transition={loadProgress === 0 ? { duration: 0.3 } : SPRING_EXPAND}
-            style={{ transformOrigin: 'left' }}
-          />
-        </div>
+        <LoadingProgressBar />
       </motion.div>
 
       {/* Autocomplete dropdown */}
@@ -353,15 +414,19 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                     />
                   )}
                   <span className="relative z-10 flex items-center gap-2.5 w-full">
-                    {entry.favicon ? (
+                    {entry.type === 'search' ? (
+                      <SvgIcon svg={searchSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
+                    ) : entry.favicon ? (
                       <img src={entry.favicon} alt="" className="flex-shrink-0 w-4 h-4 rounded-sm object-contain" />
                     ) : (
                       <SvgIcon svg={counterclockwiseSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
                     )}
                     <span className="flex-1 text-[13px] truncate">{entry.title || simplifyUrl(entry.url)}</span>
-                    <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">
-                      {simplifyUrl(entry.url)}
-                    </span>
+                    {entry.type !== 'search' && (
+                      <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">
+                        {simplifyUrl(entry.url)}
+                      </span>
+                    )}
                   </span>
                 </button>
               )
@@ -369,6 +434,13 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SiteInfoPopover
+        isOpen={isSiteInfoOpen}
+        onClose={() => setIsSiteInfoOpen(false)}
+        url={url}
+        isSecure={isSecure}
+      />
     </div>
   )
 }
