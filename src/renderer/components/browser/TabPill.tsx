@@ -173,19 +173,30 @@ function TabPillInner(): React.JSX.Element {
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
 
-        {tabCount > 1 && (
-          <motion.button
-            onClick={handleToggle}
-            whileTap={{ scale: 0.82 }}
-            transition={SPRING_SNAPPY}
-            className="flex items-center gap-1.5 h-10 px-3 rounded-full text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 whitespace-nowrap flex-shrink-0"
-          >
-            <ActiveFavicon />
-            <span className="text-xs font-medium tabular-nums">
-              {tabCount}
-            </span>
-          </motion.button>
-        )}
+        <AnimatePresence initial={false}>
+          {tabCount > 1 && (
+            <motion.div
+              key="tab-count"
+              initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+              animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
+              exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+              transition={SPRING_EXPAND}
+              style={{ display: 'flex', alignItems: 'center', overflow: 'hidden' }}
+            >
+              <motion.button
+                onClick={handleToggle}
+                whileTap={{ scale: 0.82 }}
+                transition={SPRING_SNAPPY}
+                className="flex items-center gap-1.5 h-10 px-3 rounded-full text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 whitespace-nowrap flex-shrink-0"
+              >
+                <ActiveFavicon />
+                <span className="text-xs font-medium tabular-nums">
+                  {tabCount}
+                </span>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Dropdown */}
