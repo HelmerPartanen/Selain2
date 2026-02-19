@@ -11,7 +11,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { useIsDark } from '@/hooks/useIsDark'
 import { resolveWallpaperUrl } from '@/theme/bundledWallpapers'
 import { isPresetKey, resolvePresetUrl } from '@/theme/presets'
-import { extractDominantHue } from '@/utils/extractDominantHue'
+import { extractDominantHSL } from '@/utils/extractDominantHue'
 
 const root = document.documentElement
 
@@ -28,20 +28,24 @@ function clearVars(): void {
   root.style.removeProperty('--border-subtle')
 }
 
-function applyHue(hue: number, isDark: boolean): void {
+function applyHSL(h: number, s: number, l: number, isDark: boolean): void {
+  // Compose a beautiful glass palette from the extracted HSL
+  // Slightly boost saturation for vibrancy
+  const sat = Math.round((s * 100) * 1.08)
+  const light = Math.round(l * 100)
   if (isDark) {
     setVars({
-      '--glass-bg': `color-mix(in srgb, hsl(${hue} 45% 45%) 12%, rgb(30, 30, 30))`,
-      '--glass-bg-heavy': `color-mix(in srgb, hsl(${hue} 45% 45%) 14%, rgb(30, 30, 30))`,
-      '--glass-bg-subtle': `color-mix(in srgb, hsl(${hue} 45% 45%) 10%, rgb(38, 38, 38))`,
-      '--border-subtle': `color-mix(in srgb, hsl(${hue} 50% 55%) 25%, rgba(255, 255, 255, 0.06))`,
+      '--glass-bg': `color-mix(in srgb, hsl(${h} ${sat}% ${light}%) 16%, rgb(30, 30, 30))`,
+      '--glass-bg-heavy': `color-mix(in srgb, hsl(${h} ${sat}% ${light}%) 19%, rgb(30, 30, 30))`,
+      '--glass-bg-subtle': `color-mix(in srgb, hsl(${h} ${sat}% ${Math.max(light-6,32)}%) 12%, rgb(38, 38, 38))`,
+      '--border-subtle': `color-mix(in srgb, hsl(${h} ${Math.min(sat+8,48)}% ${Math.min(light+10,60)}%) 28%, rgba(255,255,255,0.07))`,
     })
   } else {
     setVars({
-      '--glass-bg': `color-mix(in srgb, hsl(${hue} 55% 60%) 8%, rgb(255, 255, 255))`,
-      '--glass-bg-heavy': `color-mix(in srgb, hsl(${hue} 55% 60%) 10%, rgb(255, 255, 255))`,
-      '--glass-bg-subtle': `color-mix(in srgb, hsl(${hue} 55% 60%) 6%, rgb(245, 245, 245))`,
-      '--border-subtle': `color-mix(in srgb, hsl(${hue} 60% 55%) 20%, rgba(0, 0, 0, 0.06))`,
+      '--glass-bg': `color-mix(in srgb, hsl(${h} ${sat}% ${light}%) 10%, rgb(255,255,255))`,
+      '--glass-bg-heavy': `color-mix(in srgb, hsl(${h} ${sat}% ${light}%) 13%, rgb(255,255,255))`,
+      '--glass-bg-subtle': `color-mix(in srgb, hsl(${h} ${sat}% ${Math.max(light-6,32)}%) 7%, rgb(245,245,245))`,
+      '--border-subtle': `color-mix(in srgb, hsl(${h} ${Math.min(sat+8,48)}% ${Math.max(light-8,32)}%) 18%, rgba(0,0,0,0.07))`,
     })
   }
 }
@@ -59,8 +63,9 @@ function resolveWallpaperForSampling(wallpaper: string | null, isDark: boolean):
  * Hook that extracts the dominant hue from the current wallpaper.
  * Returns -1 when adaptive color is off, no wallpaper, or image is achromatic.
  */
-function useAdaptiveHue(): number {
-  const [adaptiveHue, setAdaptiveHue] = useState(-1)
+type HSL = { h: number; s: number; l: number }
+function useAdaptiveHSL(): HSL | null {
+  const [adaptive, setAdaptive] = useState<HSL | null>(null)
   const adaptiveColor = useSettingsStore((s) => s.adaptiveColor)
   const wallpaper = useThemeStore((s) => s.wallpaper)
   const wallpaperLoaded = useThemeStore((s) => s.wallpaperLoaded)
@@ -68,42 +73,42 @@ function useAdaptiveHue(): number {
 
   useEffect(() => {
     if (!adaptiveColor || !wallpaperLoaded) {
-      setAdaptiveHue(-1)
+      setAdaptive(null)
       return
     }
-
     const url = resolveWallpaperForSampling(wallpaper, isDark)
     if (!url) {
-      setAdaptiveHue(-1)
+      setAdaptive(null)
       return
     }
-
     let cancelled = false
-    extractDominantHue(url).then((hue) => {
-      if (!cancelled) setAdaptiveHue(hue)
+    extractDominantHSL(url).then((hsl) => {
+      if (!cancelled) setAdaptive(hsl)
     })
-
     return () => { cancelled = true }
   }, [adaptiveColor, wallpaper, wallpaperLoaded, isDark])
-
-  return adaptiveHue
+  return adaptive
 }
 
 export function useSpaceTint(): void {
   const spaceHue = useSpaceStore((s) => s.spaces[s.activeSpaceId]?.hue ?? -1)
-  const adaptiveHue = useAdaptiveHue()
+  const adaptiveHSL = useAdaptiveHSL()
   const isDark = useIsDark()
 
-  // Space hue takes priority; adaptive hue is a fallback
-  const effectiveHue = spaceHue >= 0 ? spaceHue : adaptiveHue
-
   useEffect(() => {
-    if (effectiveHue < 0) {
-      clearVars()
-      return
+    if (spaceHue >= 0) {
+      // Use space-specific hue, but blend with adaptive HSL for vibrancy if available
+      const h = spaceHue
+      const s = adaptiveHSL ? Math.max(0.22, Math.min(0.38, adaptiveHSL.s + 0.06)) : (isDark ? 0.32 : 0.28)
+      const l = adaptiveHSL ? Math.max(0.36, Math.min(0.54, adaptiveHSL.l + 0.02)) : (isDark ? 0.44 : 0.48)
+      applyHSL(h, s, l, isDark)
+      return () => clearVars()
     }
-
-    applyHue(effectiveHue, isDark)
-    return () => clearVars()
-  }, [effectiveHue, isDark])
+    if (adaptiveHSL) {
+      applyHSL(adaptiveHSL.h, adaptiveHSL.s, adaptiveHSL.l, isDark)
+      return () => clearVars()
+    }
+    clearVars()
+    return () => {}
+  }, [spaceHue, adaptiveHSL, isDark])
 }
