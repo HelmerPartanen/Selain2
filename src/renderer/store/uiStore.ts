@@ -13,6 +13,7 @@ interface UIState {
   splitRatio: number
   urlBarFocusRequested: boolean
 
+  closeAllPanels: () => void
   toggleSettings: () => void
   closeSettings: () => void
   toggleBookmarks: () => void
@@ -35,6 +36,16 @@ interface UIState {
   clearUrlBarFocus: () => void
 }
 
+// Shared close-all used for mutual exclusion — only one panel at a time
+const PANELS_CLOSED = {
+  isSettingsOpen: false,
+  isBookmarksOpen: false,
+  isHistoryOpen: false,
+  isDownloadsOpen: false,
+  isTabOverviewOpen: false,
+  isHotkeysOpen: false,
+} as const
+
 export const useUIStore = create<UIState>((set) => ({
   isSettingsOpen: false,
   isBookmarksOpen: false,
@@ -47,18 +58,23 @@ export const useUIStore = create<UIState>((set) => ({
   isFindBarOpen: false,
   splitRatio: 0.5,
   urlBarFocusRequested: false,
-  toggleSettings: () => set((s) => ({ isSettingsOpen: !s.isSettingsOpen })),
+
+  closeAllPanels: () => set(PANELS_CLOSED),
+
+  // Mutual exclusion: closing others before opening
+  toggleSettings: () => set((s) => ({ ...PANELS_CLOSED, isSettingsOpen: !s.isSettingsOpen })),
   closeSettings: () => set({ isSettingsOpen: false }),
-  toggleBookmarks: () => set((s) => ({ isBookmarksOpen: !s.isBookmarksOpen })),
+  toggleBookmarks: () => set((s) => ({ ...PANELS_CLOSED, isBookmarksOpen: !s.isBookmarksOpen })),
   closeBookmarks: () => set({ isBookmarksOpen: false }),
-  toggleHistory: () => set((s) => ({ isHistoryOpen: !s.isHistoryOpen })),
+  toggleHistory: () => set((s) => ({ ...PANELS_CLOSED, isHistoryOpen: !s.isHistoryOpen })),
   closeHistory: () => set({ isHistoryOpen: false }),
-  toggleDownloads: () => set((s) => ({ isDownloadsOpen: !s.isDownloadsOpen })),
+  toggleDownloads: () => set((s) => ({ ...PANELS_CLOSED, isDownloadsOpen: !s.isDownloadsOpen })),
   closeDownloads: () => set({ isDownloadsOpen: false }),
-  toggleTabOverview: () => set((s) => ({ isTabOverviewOpen: !s.isTabOverviewOpen })),
+  toggleTabOverview: () => set((s) => ({ ...PANELS_CLOSED, isTabOverviewOpen: !s.isTabOverviewOpen })),
   closeTabOverview: () => set({ isTabOverviewOpen: false }),
-  toggleHotkeys: () => set((s) => ({ isHotkeysOpen: !s.isHotkeysOpen })),
+  toggleHotkeys: () => set((s) => ({ ...PANELS_CLOSED, isHotkeysOpen: !s.isHotkeysOpen })),
   closeHotkeys: () => set({ isHotkeysOpen: false }),
+
   setDropdownOpen: (open) => set({ isDropdownOpen: open }),
   setMenuOpen: (open) => set({ isMenuOpen: open }),
   openFindBar: () => set({ isFindBarOpen: true }),

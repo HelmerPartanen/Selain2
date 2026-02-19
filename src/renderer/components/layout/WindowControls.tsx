@@ -1,7 +1,9 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { SvgIcon, SQUARE_SVG, CARDS_SVG } from "@/components/ui/SvgIcon";
 import minusSvg from "@/assets/icons/Maths/Minus.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
+import { SPRING_FAST, SPRING_SNAPPY } from "@/utils/springs";
 
 const HIDE_DELAY = 800;
 
@@ -59,55 +61,67 @@ function WindowControlsInner(): React.JSX.Element {
         style={{ pointerEvents: "auto" }}
       />
 
-      {/* Subtle hint dots visible when controls are hidden */}
-      {!isVisible && (
-        <div
-          className="absolute top-2.5 right-5 flex gap-1.5 opacity-30 hover:opacity-60 transition-opacity duration-300"
-          style={{ pointerEvents: "auto" }}
-        >
-          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
-          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
-          <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
-        </div>
-      )}
+      {/* Subtle pulsing hint dots visible when controls are hidden */}
+      <AnimatePresence>
+        {!isVisible && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-2.5 right-5 flex gap-1.5"
+            style={{ pointerEvents: "auto", animation: "hint-pulse 3s ease-in-out infinite" }}
+          >
+            <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+            <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+            <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div
-        className={`
-          mt-2.5 mr-2.5 flex items-center gap-1 rounded-full
-          bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg p-1
-          transition-all duration-200 ease-out
-          ${isVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-[0.85] -translate-y-1.5"}
-        `}
-        style={{ pointerEvents: isVisible ? "auto" : "none" }}
-      >
-        <ControlButton
-          onClick={handleMinimize}
-          label="Minimize"
-          color="hover:bg-gray-100 dark:hover:bg-neutral-800"
-        >
-          <SvgIcon svg={minusSvg} size={12} />
-        </ControlButton>
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            className="mt-2.5 mr-2.5 flex items-center gap-1 rounded-full glass p-1"
+            style={{ pointerEvents: "auto" }}
+            initial={{ opacity: 0, scale: 0.85, y: -6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: -6 }}
+            transition={SPRING_FAST}
+          >
+            <ControlButton
+              onClick={handleMinimize}
+              label="Minimize"
+              hoverBg="hover:bg-amber-500/10 dark:hover:bg-amber-400/10"
+              hoverText="hover:text-amber-600 dark:hover:text-amber-400"
+            >
+              <SvgIcon svg={minusSvg} size={12} />
+            </ControlButton>
 
-        <ControlButton
-          onClick={handleToggleMaximize}
-          label={isMaximized ? "Restore" : "Maximize"}
-          color="hover:bg-gray-100 dark:hover:bg-neutral-800"
-        >
-          {isMaximized ? (
-            <SvgIcon svg={CARDS_SVG} size={12} />
-          ) : (
-            <SvgIcon svg={SQUARE_SVG} size={10} />
-          )}
-        </ControlButton>
+            <ControlButton
+              onClick={handleToggleMaximize}
+              label={isMaximized ? "Restore" : "Maximize"}
+              hoverBg="hover:bg-green-500/10 dark:hover:bg-green-400/10"
+              hoverText="hover:text-green-600 dark:hover:text-green-400"
+            >
+              {isMaximized ? (
+                <SvgIcon svg={CARDS_SVG} size={12} />
+              ) : (
+                <SvgIcon svg={SQUARE_SVG} size={10} />
+              )}
+            </ControlButton>
 
-        <ControlButton
-          onClick={handleClose}
-          label="Close"
-          color="hover:bg-red-200 hover:text-red-500 dark:hover:bg-red-900/50 dark:hover:text-red-400"
-        >
-          <SvgIcon svg={closeSvg} size={12} />
-        </ControlButton>
-      </div>
+            <ControlButton
+              onClick={handleClose}
+              label="Close"
+              hoverBg="hover:bg-red-500/15 dark:hover:bg-red-400/10"
+              hoverText="hover:text-red-500 dark:hover:text-red-400"
+            >
+              <SvgIcon svg={closeSvg} size={12} />
+            </ControlButton>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -115,22 +129,26 @@ function WindowControlsInner(): React.JSX.Element {
 function ControlButton({
   onClick,
   label,
-  color,
+  hoverBg,
+  hoverText,
   children,
 }: {
   onClick: () => void;
   label: string;
-  color: string;
+  hoverBg: string;
+  hoverText: string;
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <button
+    <motion.button
       onClick={onClick}
       aria-label={label}
-      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-600 dark:text-neutral-400 transition-all duration-75 active:scale-85 ${color}`}
+      whileTap={{ scale: 0.78 }}
+      transition={SPRING_SNAPPY}
+      className={`w-7 h-7 rounded-full flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100 ${hoverBg} ${hoverText}`}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
 

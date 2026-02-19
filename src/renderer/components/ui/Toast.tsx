@@ -5,7 +5,7 @@ import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import warnSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
 import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
-import { SPRING } from '@/utils/springs'
+import { SPRING, SPRING_SNAPPY } from '@/utils/springs'
 
 export interface Toast {
   id: string
@@ -62,12 +62,20 @@ function ToastContainerInner(): React.JSX.Element {
         {items.map((toast) => (
           <motion.div
             key={toast.id}
-            initial={{ opacity: 0, x: 60, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 60, scale: 0.9 }}
+            initial={{ opacity: 0, x: 60, scale: 0.9, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, x: 60, scale: 0.9, filter: 'blur(6px)' }}
             transition={SPRING}
-            className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-neutral-900 shadow-xl border border-gray-200 dark:border-neutral-700 min-w-[280px] max-w-[380px]"
+            className="pointer-events-auto relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl glass-heavy min-w-[280px] max-w-[380px]"
           >
+            {/* Auto-dismiss progress strip */}
+            <motion.div
+              initial={{ scaleX: 1 }}
+              animate={{ scaleX: 0 }}
+              transition={{ duration: 5, ease: 'linear' }}
+              className="absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-current opacity-15"
+              style={{ color: toast.type === 'success' ? '#22c55e' : toast.type === 'error' ? '#ef4444' : '#6366f1' }}
+            />
             <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${toast.type === 'success' ? 'bg-green-100 dark:bg-green-900/30' :
                 toast.type === 'error' ? 'bg-red-100 dark:bg-red-900/30' :
                   'bg-blue-100 dark:bg-blue-900/30'
@@ -91,17 +99,20 @@ function ToastContainerInner(): React.JSX.Element {
                   toast.action!.onClick()
                   handleDismiss(toast.id)
                 }}
-                className="text-[12px] font-medium text-blue-500 hover:text-blue-600 flex-shrink-0 transition-colors"
+                className="text-[12px] font-medium text-indigo-500 hover:text-indigo-600 flex-shrink-0 transition-colors"
               >
                 {toast.action.label}
               </button>
             )}
-            <button
+            <motion.button
               onClick={() => handleDismiss(toast.id)}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.85 }}
+              transition={SPRING_SNAPPY}
               className="w-5 h-5 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-white flex-shrink-0 transition-colors"
             >
               <SvgIcon svg={closeSvg} size={10} />
-            </button>
+            </motion.button>
           </motion.div>
         ))}
       </AnimatePresence>

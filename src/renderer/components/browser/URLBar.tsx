@@ -18,7 +18,7 @@ import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 
-import { SPRING_FAST, SPRING_POPUP } from '@/utils/springs'
+import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
 
 function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => void }): React.JSX.Element {
   const tabId = useFocusedTabId()
@@ -186,19 +186,11 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   return (
     <div className="relative">
-      <div
-        className={`
-          relative flex items-center rounded-full h-10 px-1
-          bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700
-          shadow-lg
-          transition-[width] duration-200 ease-out will-change-[width]
-          ${isFocused ? 'w-[500px]' : 'w-[360px]'}
-        `}
+      <motion.div
+        className="relative flex items-center h-10 will-change-[width]"
+        animate={{ width: isFocused ? 500 : 360 }}
+        transition={SPRING_EXPAND}
       >
-        {/* Focus ring */}
-        <div
-          className={`absolute inset-0 rounded-full pointer-events-none transition-opacity duration-200 ease-out ring-[2.5px] ring-blue-500/35 ${isFocused ? 'opacity-100' : 'opacity-0'}`}
-        />
         <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>
           <div className="relative flex items-center justify-center w-[15px] h-[15px]">
             <AnimatePresence mode="popLayout" initial={false}>
@@ -217,21 +209,23 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         </Button>
 
         <div className="relative flex-1 min-w-0 flex items-center h-full">
-          <div className="absolute left-3 z-10 flex items-center pointer-events-none text-gray-500 dark:text-neutral-400">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={iconKey}
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.5, opacity: 0 }}
-                transition={SPRING_FAST}
-                className="flex items-center justify-center"
-              >
-                {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={15} className="text-green-600" />}
-                {iconKey === 'globe' && <SvgIcon svg={globeSvg} size={15} />}
-                {iconKey === 'search' && <SvgIcon svg={searchSvg} size={15} />}
-              </motion.span>
-            </AnimatePresence>
+          <div className="absolute left-2 z-10 flex items-center justify-center pointer-events-none">
+            <div className="w-5 h-5 flex items-center justify-center">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={iconKey}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={SPRING_FAST}
+                  className="flex items-center justify-center text-gray-500 dark:text-neutral-400"
+                >
+                  {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />}
+                  {iconKey === 'globe' && <SvgIcon svg={globeSvg} size={14} />}
+                  {iconKey === 'search' && <SvgIcon svg={searchSvg} size={14} />}
+                </motion.span>
+              </AnimatePresence>
+            </div>
           </div>
 
           <input
@@ -245,7 +239,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
             placeholder="Search or enter URL"
             spellCheck={false}
             autoComplete="off"
-            className="w-full h-full pl-9 pr-3 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
+            className="w-full h-full pl-8 pr-2 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
           />
         </div>
 
@@ -253,10 +247,10 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         <AnimatePresence>
           {hasUrl && !isFocused && (
             <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={SPRING_FAST}
+              initial={{ scale: 0, opacity: 0, rotate: -15 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0, opacity: 0, rotate: 15 }}
+              transition={SPRING_SNAPPY}
               className="flex-shrink-0"
             >
               <Button variant="icon" onClick={handleToggleBookmark} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
@@ -290,13 +284,13 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 32, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              transition={SPRING_FAST}
               className="flex-shrink-0 overflow-hidden mr-0.5"
             >
               <button
                 onClick={handlePiP}
                 aria-label="Picture in Picture"
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-100 hover:bg-gray-100 dark:hover:bg-neutral-800 active:scale-90"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-90"
               >
                 <SvgIcon svg={PIP_SVG} size={15} className="text-gray-400 dark:text-neutral-500" />
               </button>
@@ -305,25 +299,25 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         </AnimatePresence>
 
         {/* Loading progress bar */}
-        <div className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full overflow-hidden">
+        <div className="absolute bottom-0 left-4 right-4 h-[3px] rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-blue-500 rounded-full"
+            className="h-full bg-indigo-500 rounded-full"
             initial={false}
             animate={{
               scaleX: loadProgress > 0 ? loadProgress : 0,
               opacity: loadProgress > 0 && loadProgress < 1 ? 1 : 0
             }}
-            transition={loadProgress === 0 ? { duration: 0.3 } : { type: 'spring', stiffness: 300, damping: 30 }}
+            transition={loadProgress === 0 ? { duration: 0.3 } : SPRING_EXPAND}
             style={{ transformOrigin: 'left' }}
           />
         </div>
-      </div>
+      </motion.div>
 
       {/* Autocomplete dropdown */}
       <AnimatePresence>
         {suggestions.length > 0 && isFocused && (
           <motion.div
-            className="absolute bottom-full mb-2 left-0 right-0 rounded-xl overflow-hidden z-[100] p-1 bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-xl"
+            className="absolute bottom-full mb-2 left-0 right-0 rounded-xl overflow-hidden z-[100] p-1 glass-heavy"
             style={{ originY: 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: 8 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
@@ -338,8 +332,8 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   handleSuggestionClick(entry.url)
                 }}
                 className={`flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-left transition-colors duration-75 ${i === selectedIndex
-                  ? 'bg-blue-50 dark:bg-neutral-800 text-gray-900 dark:text-white'
-                  : 'text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-indigo-500/8 dark:bg-indigo-400/10 text-gray-900 dark:text-white'
+                  : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
                   }`}
               >
                 {entry.favicon ? (

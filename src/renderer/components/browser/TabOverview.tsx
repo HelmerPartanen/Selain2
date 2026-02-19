@@ -8,6 +8,7 @@ import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
+import { SPRING } from '@/utils/springs'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -238,7 +239,7 @@ function TabOverviewInner(): React.JSX.Element {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8, opacity: { duration: 0.15 } }}
+            transition={{ ...SPRING, damping: 30, opacity: { duration: 0.15 } }}
             onClick={closeOverview}
           >
             {/* Header */}

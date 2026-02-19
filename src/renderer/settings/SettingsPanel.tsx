@@ -3,6 +3,7 @@
 // All panes are extracted to src/renderer/settings/panes/ for maintainability.
 
 import { memo, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { PanelModal } from "@/components/ui/PanelModal";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
@@ -19,6 +20,7 @@ import { WallpaperPane } from "@/settings/panes/WallpaperPane";
 import { PrivacyPane } from "@/settings/panes/PrivacyPane";
 import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
 import { AboutPane } from "@/settings/panes/AboutPane";
+import { SPRING_CONTENT, SPRING_SNAPPY } from "@/utils/springs";
 
 // --- Sidebar Categories -------------------------------------------------------
 
@@ -78,7 +80,7 @@ function Sidebar({
   onSelect: (id: SettingsCategory) => void;
 }): React.JSX.Element {
   return (
-    <nav aria-label="Settings categories" className="flex flex-col gap-1">
+    <nav aria-label="Settings categories" className="flex flex-col gap-0.5">
       {CATEGORIES.map(({ id, label, icon }) => {
         const isActive = activeCategory === id;
         return (
@@ -86,14 +88,23 @@ function Sidebar({
             key={id}
             onClick={() => onSelect(id)}
             aria-current={isActive ? "page" : undefined}
-            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-100 ${
+            className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-normal transition-colors duration-100 ${
               isActive
-                ? "bg-indigo-500 dark:bg-indigo-400 text-white dark:text-black shadow-sm"
-                : "text-gray-600 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white"
+                ? "text-gray-900 dark:text-white"
+                : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
             }`}
           >
-            <SvgIcon svg={icon} size={16} />
-            {label}
+            {isActive && (
+              <motion.div
+                layoutId="settings-active"
+                className="absolute inset-0 rounded-lg bg-black/[0.05] dark:bg-white/[0.08]"
+                transition={SPRING_SNAPPY}
+              />
+            )}
+            <span className="relative flex items-center gap-2.5">
+              <SvgIcon svg={icon} size={16} />
+              {label}
+            </span>
           </button>
         );
       })}
@@ -120,10 +131,10 @@ function SettingsPanelInner(): React.JSX.Element {
       aria-label="Settings"
       aria-modal={true}
     >
-      <div className="flex h-full">
-            <div className="w-[180px] flex-shrink-0 bg-gray-50/80 dark:bg-neutral-800/80 backdrop-blur-md border-r border-gray-200 dark:border-neutral-700 flex flex-col">
+      <div className="flex h-full overflow-hidden">
+            <div className="w-[180px] flex-shrink-0 glass-subtle flex flex-col" style={{ borderRight: '1px solid var(--border-subtle)' }}>
               <div className="px-4 pt-5 pb-3">
-                <h2 className="text-[13px] font-medium text-gray-900 dark:text-white tracking-relaxed flex items-center gap-2">
+                <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
                   Settings
                 </h2>
               </div>
@@ -135,21 +146,43 @@ function SettingsPanelInner(): React.JSX.Element {
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
-              <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-200 dark:border-neutral-800">
-                <h3 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-relaxed">
-                  {categoryLabel}
-                </h3>
-                <button
+            <div className="flex-1 flex flex-col min-w-0">
+              <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <AnimatePresence mode="wait">
+                  <motion.h3
+                    key={activeCategory}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={SPRING_CONTENT}
+                    className="text-[15px] font-medium text-gray-900 dark:text-white tracking-relaxed"
+                  >
+                    {categoryLabel}
+                  </motion.h3>
+                </AnimatePresence>
+                <motion.button
                   onClick={closeSettings}
                   aria-label="Close settings"
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={SPRING_SNAPPY}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
                 >
                   <SvgIcon svg={closeSvg} size={13} />
-                </button>
+                </motion.button>
               </div>
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
-                <SettingsContent category={activeCategory} />
+              <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 glass-scroll">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeCategory}
+                    initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+                    transition={SPRING_CONTENT}
+                  >
+                    <SettingsContent category={activeCategory} />
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
       </div>

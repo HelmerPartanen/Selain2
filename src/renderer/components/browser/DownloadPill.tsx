@@ -11,7 +11,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { formatBytes } from '@/utils/formatUtils'
 
-import { SPRING_EXPAND, SPRING_POPUP } from '@/utils/springs'
+import { SPRING_EXPAND, SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
 
 const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }): React.JSX.Element {
   const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
@@ -19,12 +19,12 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
   const isActive = item.state === 'progressing' || item.state === 'paused'
 
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800/60 transition-colors duration-75 group">
+    <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors duration-75 group">
       <div className="w-7 h-7 rounded-md bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
         {item.state === 'completed' ? (
           <SvgIcon svg={checkSvg} size={12} className="text-green-500" />
         ) : (
-          <SvgIcon svg={downloadSvg} size={12} className="text-blue-500" />
+          <SvgIcon svg={downloadSvg} size={12} className="text-indigo-500" />
         )}
       </div>
 
@@ -36,7 +36,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
           <div className="flex items-center gap-1.5 mt-0.5">
             <div className="flex-1 h-[3px] rounded-full bg-gray-200 dark:bg-neutral-700 overflow-hidden">
               <div
-                className="h-full bg-blue-500 rounded-full transition-[width] duration-300"
+                className="h-full bg-indigo-500 rounded-full transition-[width] duration-300"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
@@ -59,7 +59,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
         {item.state === 'progressing' && (
           <button
             onClick={() => pauseDownload(item.id)}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
           >
             <SvgIcon svg={PAUSE_SVG} size={11} />
           </button>
@@ -67,7 +67,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
         {item.state === 'paused' && (
           <button
             onClick={() => resumeDownload(item.id)}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
           >
             <SvgIcon svg={playSvg} size={11} />
           </button>
@@ -84,13 +84,13 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
           <>
             <button
               onClick={() => openDownload(item.id)}
-              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
             >
               <SvgIcon svg={downloadSvg} size={11} />
             </button>
             <button
               onClick={() => showInFolder(item.id)}
-              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-75"
+              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
             >
               <SvgIcon svg={folderSvg} size={11} />
             </button>
@@ -181,10 +181,10 @@ function DownloadPillInner(): React.JSX.Element {
             style={{ overflow: 'hidden', flexShrink: 0 }}
             onClick={() => setIsOpen((v) => !v)}
             aria-label="Downloads"
-            className="h-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg px-3 gap-1.5 select-none hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-95 transition-colors duration-100"
+            className="h-10 rounded-full flex items-center justify-center glass px-3 gap-1.5 select-none hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-95 transition-colors duration-100"
           >
             <div className="relative">
-              <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
+              <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-indigo-500' : 'text-gray-600 dark:text-neutral-400'} />
               {hasActive && (
                 <svg
                   className="absolute -inset-[5px]"
@@ -203,13 +203,13 @@ function DownloadPillInner(): React.JSX.Element {
                     strokeLinecap="round"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
-                    className="text-blue-500 transition-[stroke-dashoffset] duration-300"
+                    className="text-indigo-500 transition-[stroke-dashoffset] duration-300"
                   />
                 </svg>
               )}
             </div>
             {activeCount > 0 && (
-              <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
+              <span className="text-xs font-semibold text-indigo-500 tabular-nums">{activeCount}</span>
             )}
           </motion.button>
         )}
@@ -221,7 +221,7 @@ function DownloadPillInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={() => setIsOpen(false)} />
             <motion.div
-              className="absolute bottom-full mb-2 right-0 z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700"
+              className="absolute bottom-full mb-2 right-0 z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden glass-heavy"
               style={{ originY: 1, originX: 1 }}
               initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: 8 }}
               animate={{ scaleY: 1, scaleX: 1, opacity: 1, y: 0 }}
@@ -234,12 +234,12 @@ function DownloadPillInner(): React.JSX.Element {
                 </span>
                 <button
                   onClick={handleOpenPage}
-                  className="text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors duration-75"
+                  className="text-[11px] text-indigo-500 hover:text-indigo-600 font-medium transition-colors duration-75"
                 >
                   See all
                 </button>
               </div>
-              <div className="overflow-y-auto max-h-[270px] px-1 pb-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-neutral-700 scrollbar-track-transparent">
+              <div className="overflow-y-auto max-h-[270px] px-1 pb-1 glass-scroll">
                 {items.slice(0, 10).map((item) => (
                   <DownloadRow key={item.id} item={item} />
                 ))}

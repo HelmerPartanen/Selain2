@@ -5,6 +5,7 @@ import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { SPRING } from '@/utils/springs'
 
 // ─── Favourites (Bookmarks) ──────────────────────────────────────────────────
 
@@ -138,7 +139,7 @@ function FavouriteTile({
       }}
       initial={{ opacity: 0, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 28, delay: index * 0.04 }}
+      transition={{ ...SPRING, delay: index * 0.04 }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

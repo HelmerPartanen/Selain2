@@ -1,4 +1,5 @@
 import { memo, useCallback, useState } from 'react'
+import { motion } from 'motion/react'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
@@ -11,21 +12,27 @@ import { useBookmarkStore, type BookmarkEntry } from '@/store/bookmarkStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
+import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
 
 
 const BookmarkRow = memo(function BookmarkRow({
   entry,
   onNavigate,
-  onRemove
+  onRemove,
+  index
 }: {
   entry: BookmarkEntry
   onNavigate: (url: string) => void
   onRemove: (url: string) => void
+  index: number
 }): React.JSX.Element {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...SPRING_LIST, delay: index * 0.03 }}
       onClick={() => onNavigate(entry.url)}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-neutral-800/60 transition-colors duration-100"
+      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors duration-100"
     >
       <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
         {entry.favicon ? (
@@ -52,7 +59,7 @@ const BookmarkRow = memo(function BookmarkRow({
       >
         <SvgIcon svg={trashSvg} size={14} />
       </button>
-    </div>
+    </motion.div>
   )
 })
 
@@ -82,20 +89,23 @@ function BookmarksPanelInner(): React.JSX.Element {
       onClose={closeBookmarks}
       width="480px"
       height="440px"
-      className="bg-white dark:bg-neutral-900 flex flex-col"
+      className="flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
+      <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
             <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <SvgIcon svg={bookmarkSvg} size={16} />
               Bookmarks
             </h2>
-            <button
+            <motion.button
               onClick={closeBookmarks}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
+              transition={SPRING_SNAPPY}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
             >
               <SvgIcon svg={closeSvg} size={13} />
-            </button>
+            </motion.button>
           </div>
 
           {/* Search */}
@@ -109,14 +119,14 @@ function BookmarksPanelInner(): React.JSX.Element {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search bookmarks..."
                   autoFocus
-                  className="w-full h-9 pl-9 pr-3 rounded-lg bg-gray-100 dark:bg-neutral-800 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-colors duration-150"
+                  className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-indigo-500/30 transition-colors duration-150"
                 />
               </div>
             </div>
           )}
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-2 glass-scroll">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-neutral-600">
                 <SvgIcon svg={starSvg} size={36} className="mb-3 opacity-50" />
@@ -125,12 +135,13 @@ function BookmarksPanelInner(): React.JSX.Element {
               </div>
             ) : (
               <div className="space-y-0.5">
-                {filtered.map((entry) => (
+                {filtered.map((entry, i) => (
                   <BookmarkRow
                     key={entry.id}
                     entry={entry}
                     onNavigate={handleNavigate}
                     onRemove={handleRemove}
+                    index={i}
                   />
                 ))}
               </div>

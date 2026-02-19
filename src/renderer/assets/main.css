@@ -18,8 +18,6 @@
   --font-sans: "SF Pro", "Segoe UI Variable", system-ui, sans-serif;
 
   /* ─── Lighter font-weight scale ─────────────────────────────────────────── */
-  /* Shift entire scale down: normal→light, medium→normal, semibold→medium,   */
-  /* bold→semibold. Keeps SF Pro feeling airy and refined.                     */
   --font-weight-thin: 100;
   --font-weight-extralight: 200;
   --font-weight-light: 300;
@@ -29,6 +27,78 @@
   --font-weight-bold: 600;
   --font-weight-extrabold: 600;
   --font-weight-black: 700;
+}
+
+/* ─── Design Tokens ───────────────────────────────────────────────────────── */
+/* Layered glass material system — surfaces, shadows, borders, radii          */
+
+:root {
+  /* Glass materials — white base with varying opacity + blur levels */
+  --glass-bg:          rgba(255, 255, 255, 0.72);
+  --glass-bg-heavy:    rgba(255, 255, 255, 0.82);
+  --glass-bg-subtle:   rgba(255, 255, 255, 0.50);
+  --glass-blur:        40px;
+  --glass-blur-heavy:  60px;
+  --glass-blur-subtle: 20px;
+  --glass-saturate:    1.5;
+
+  /* Multi-layer shadow system — depth through stacking, not opacity */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-md:  0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.06);
+  --shadow-lg:  0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 8px rgba(0, 0, 0, 0.03), 0 12px 28px rgba(0, 0, 0, 0.06), 0 28px 64px rgba(0, 0, 0, 0.06);
+
+  /* Border system — subtle edge definition for glass surfaces */
+  --border-subtle:  rgba(0, 0, 0, 0.06);
+  --border-medium:  rgba(0, 0, 0, 0.08);
+  --border-strong:  rgba(0, 0, 0, 0.12);
+  --border-divider: rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  --glass-bg:          rgba(30, 30, 30, 0.72);
+  --glass-bg-heavy:    rgba(30, 30, 30, 0.82);
+  --glass-bg-subtle:   rgba(30, 30, 30, 0.55);
+  --glass-blur:        40px;
+  --glass-blur-heavy:  60px;
+  --glass-blur-subtle: 20px;
+  --glass-saturate:    1.3;
+
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-md:  0 1px 2px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.12), 0 12px 32px rgba(0, 0, 0, 0.16);
+  --shadow-lg:  0 1px 2px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.10), 0 12px 28px rgba(0, 0, 0, 0.14), 0 28px 64px rgba(0, 0, 0, 0.16);
+
+  --border-subtle:  rgba(255, 255, 255, 0.06);
+  --border-medium:  rgba(255, 255, 255, 0.08);
+  --border-strong:  rgba(255, 255, 255, 0.12);
+  --border-divider: rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Glass Material Utility Classes ──────────────────────────────────────── */
+
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-heavy {
+  background: var(--glass-bg-heavy);
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-subtle {
+  background: var(--glass-bg-subtle);
+  -webkit-backdrop-filter: blur(var(--glass-blur-subtle)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur-subtle)) saturate(var(--glass-saturate));
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
 }
 
 /* ─── Base Resets ─────────────────────────────────────────────────────────── */
@@ -51,37 +121,35 @@ body,
 
 /* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 3px;
 }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.15); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+/* Reusable glass-scroll utility — replace duplicated inline scrollbar styling */
+.glass-scroll::-webkit-scrollbar { width: 4px; }
+.glass-scroll::-webkit-scrollbar-track { background: transparent; }
+.glass-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
 }
+.dark .glass-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); }
+.glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.14); }
+.dark .glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.14); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
+/* ─── Animations ──────────────────────────────────────────────────────────── */
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* ─── Menu item stagger animation (replaces per-item JS springs) ──────────── */
+/* Menu item stagger animation — snappy 3D pop */
 @keyframes menu-item-in {
   from {
     opacity: 0;
-    transform: translateY(6px) scale(0.95);
+    transform: translateY(8px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -89,12 +157,30 @@ body,
   }
 }
 
+/* Loading shimmer for progress bars */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Gentle pulse for hint indicators */
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.5; }
+}
+
 /* ─── Performance: CSS containment & GPU promotion ────────────────────────── */
 
+.floating-controls-bar {
+  will-change: transform, opacity, filter;
+  contain: layout style;
+}
+
+.webview-container { contain: strict; }
+.split-panel { contain: strict; }
+
 /* ── Reduce Transparency mode ─────────────────────────────────────────────── */
-/* When .reduce-transparency is on <html>, strip all backdrop-filter effects   */
-/* and promote translucent backgrounds to opaque. This avoids expensive GPU    */
-/* compositing while keeping the layout visually intact.                       */
+/* Strip all backdrop-filter and promote glass surfaces to opaque             */
 .reduce-transparency *,
 .reduce-transparency *::before,
 .reduce-transparency *::after {
@@ -102,50 +188,53 @@ body,
   backdrop-filter: none !important;
 }
 
-/* Translucent UI surfaces → opaque equivalents                                */
-/* Light and dark overrides are scoped separately because elements carry both  */
-/* classes (e.g. bg-gray-50/80 dark:bg-neutral-800/80) simultaneously.        */
-.reduce-transparency:not(.dark) {
-  /* Settings sidebar */
-  & .bg-gray-50\/80   { background-color: rgb(249 250 251) !important; }
-  /* Settings content */
-  & .bg-white\/95     { background-color: rgb(255 255 255) !important; }
+/* Glass surfaces → opaque fallbacks */
+.reduce-transparency .glass,
+.reduce-transparency .glass-heavy,
+.reduce-transparency .glass-subtle {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
+.reduce-transparency:not(.dark) .glass,
+.reduce-transparency:not(.dark) .glass-heavy {
+  background-color: rgb(255, 255, 255) !important;
+}
+.reduce-transparency:not(.dark) .glass-subtle {
+  background-color: rgb(245, 245, 245) !important;
+}
+
+.reduce-transparency.dark .glass,
+.reduce-transparency.dark .glass-heavy {
+  background-color: rgb(30, 30, 30) !important;
+}
+.reduce-transparency.dark .glass-subtle {
+  background-color: rgb(38, 38, 38) !important;
+}
+
+/* Legacy overrides for components not yet migrated to glass classes */
+.reduce-transparency:not(.dark) {
+  & .bg-gray-50\/80   { background-color: rgb(249 250 251) !important; }
+  & .bg-white\/95     { background-color: rgb(255 255 255) !important; }
+}
 .reduce-transparency.dark {
-  /* Settings sidebar */
   & .dark\:bg-neutral-800\/80 { background-color: rgb(38 38 38) !important; }
-  /* Settings content */
   & .dark\:bg-neutral-900\/95 { background-color: rgb(23 23 23) !important; }
 }
 
 /* Modal overlays — slightly more opaque to compensate for no blur */
 .reduce-transparency {
+  & .bg-black\/20     { background-color: rgba(0, 0, 0, 0.40) !important; }
   & .bg-black\/30     { background-color: rgba(0, 0, 0, 0.45) !important; }
   & .bg-black\/50     { background-color: rgba(0, 0, 0, 0.65) !important; }
   & .bg-black\/60     { background-color: rgba(0, 0, 0, 0.75) !important; }
-}
-
-.floating-controls-bar {
-  will-change: transform, opacity;
-  contain: layout style;
-}
-
-/* Webview container: isolate layout thrashing from controls */
-.webview-container {
-  contain: strict;
-}
-
-/* Split panel: prevent overflow and isolate layout */
-.split-panel {
-  contain: strict;
 }
 
 /* Tab overview card entry — GPU-accelerated CSS stagger animation */
 @keyframes tab-overview-card-in {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.92);
+    transform: translateY(16px) scale(0.94);
   }
   to {
     opacity: 1;
@@ -154,6 +243,6 @@ body,
 }
 
 .tab-overview-card {
-  animation: tab-overview-card-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tab-overview-card-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: transform, opacity;
 }

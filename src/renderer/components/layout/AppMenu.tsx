@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import homeSvg from "@/assets/icons/Interface/Home_2.svg?raw";
@@ -14,7 +14,7 @@ import filtrSvg from "@/assets/icons/Interface/Filtr.svg?raw";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import { useTabStore } from "@/store/tabStore";
 import { useUIStore } from "@/store/uiStore";
-import { SPRING_POPUP } from '@/utils/springs';
+import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs';
 
 const menuItems = [
   { id: "new-tab", label: "New Tab", icon: plusSvg, shortcut: "Ctrl+T" },
@@ -56,12 +56,16 @@ function AppMenuInner(): React.JSX.Element {
     isDownloadsOpen ||
     isHotkeysOpen;
   const containerRef = useRef<HTMLDivElement>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const handleToggle = useCallback(() => {
     setMenuOpen(!isOpen);
   }, [isOpen, setMenuOpen]);
 
-  const handleClose = useCallback(() => setMenuOpen(false), [setMenuOpen]);
+  const handleClose = useCallback(() => {
+    setMenuOpen(false);
+    setHoveredIdx(null);
+  }, [setMenuOpen]);
 
   const handleMenuItemClick = useCallback(
     (action: string) => {
@@ -89,6 +93,9 @@ function AppMenuInner(): React.JSX.Element {
     [handleClose],
   );
 
+  // Count actionable (non-divider) items for hover index tracking
+  let actionableIdx = -1;
+
   return (
     <div ref={containerRef} className="relative">
       <motion.button
@@ -97,8 +104,8 @@ function AppMenuInner(): React.JSX.Element {
         aria-expanded={isOpen}
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
-        transition={{ type: "spring", stiffness: 500, damping: 22 }}
-        className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-gray-700 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800 select-none"
+        transition={SPRING_SNAPPY}
+        className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
           <motion.span
@@ -107,7 +114,7 @@ function AppMenuInner(): React.JSX.Element {
               rotate: isOpen ? 90 : 0,
               opacity: isOpen ? 0 : 1,
             }}
-            transition={{ type: "spring", stiffness: 600, damping: 26 }}
+            transition={SPRING_SNAPPY}
             className="absolute inset-0 flex items-center justify-center"
           >
             <SvgIcon svg={menuPointsSvg} size={18} />
@@ -118,7 +125,7 @@ function AppMenuInner(): React.JSX.Element {
               rotate: isOpen ? 0 : -90,
               opacity: isOpen ? 1 : 0,
             }}
-            transition={{ type: "spring", stiffness: 600, damping: 26 }}
+            transition={SPRING_SNAPPY}
             className="absolute inset-0 flex items-center justify-center"
           >
             <SvgIcon svg={closeSvg} size={18} />
@@ -151,43 +158,57 @@ function AppMenuInner(): React.JSX.Element {
               }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
-              <div className="rounded-2xl bg-white dark:bg-neutral-900 shadow-xl border border-gray-100 dark:border-neutral-700">
-                <div className="p-1">
+              <div className="rounded-2xl glass-heavy overflow-hidden">
+                <div className="p-1 relative">
                   {menuItems.map((item, idx) => {
                     if (item.id.startsWith("divider")) {
                       return (
                         <div
                           key={item.id}
-                          className="border-t border-gray-100 dark:border-neutral-700 my-1"
+                          className="border-t border-[var(--border-divider)] my-1"
                         />
                       );
                     }
 
+                    actionableIdx++;
+                    const thisIdx = actionableIdx;
                     const Icon = item.icon!;
 
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
-                        className="w-full rounded-xl flex items-center gap-3 px-3.5 h-9 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-100 [app-region:no-drag]"
+                        onMouseEnter={() => setHoveredIdx(thisIdx)}
+                        onMouseLeave={() => setHoveredIdx(null)}
+                        className="w-full rounded-xl flex items-center gap-3 px-3.5 h-9 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-colors duration-75 relative [app-region:no-drag]"
                         style={{
                           opacity: 0,
-                          animation: `menu-item-in 180ms ease-out ${60 + idx * 25}ms forwards`,
+                          animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
                         }}
                       >
-                        <SvgIcon svg={Icon} size={16} />
-                        <span className="flex-1 text-left">{item.label}</span>
-                        {item.shortcut && (
-                          <span className="text-[11px] text-gray-400 dark:text-neutral-600 font-light ml-2">
-                            {item.shortcut}
-                          </span>
+                        {/* Sliding hover highlight */}
+                        {hoveredIdx === thisIdx && (
+                          <motion.div
+                            layoutId="menu-highlight"
+                            className="absolute inset-0 rounded-xl bg-black/[0.04] dark:bg-white/[0.06]"
+                            transition={SPRING_SNAPPY}
+                          />
                         )}
+                        <span className="relative flex items-center gap-3 w-full">
+                          <SvgIcon svg={Icon} size={16} />
+                          <span className="flex-1 text-left">{item.label}</span>
+                          {item.shortcut && (
+                            <span className="text-[10px] text-gray-400 dark:text-neutral-500 font-mono bg-black/[0.04] dark:bg-white/[0.06] rounded px-1.5 py-0.5 ml-2">
+                              {item.shortcut}
+                            </span>
+                          )}
+                        </span>
                       </button>
                     );
                   })}
-                </div>{" "}
+                </div>
               </div>
-              {/* Arrow pointer — overlaps bottom border to form a single connected shape */}
+              {/* Glass arrow pointer */}
               <div className="flex justify-center -mt-[1px] relative z-10">
                 <svg
                   width="18"
@@ -195,12 +216,10 @@ function AppMenuInner(): React.JSX.Element {
                   viewBox="0 0 18 9"
                   className="drop-shadow-sm"
                 >
-                  {/* Border stroke */}
-                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0" fill="none" className="stroke-gray-100 dark:stroke-neutral-700" strokeWidth="1" />
-                  {/* Fill covers border junction */}
-                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z" className="fill-white dark:fill-neutral-900" />
+                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0" fill="none" className="stroke-[var(--border-subtle)]" strokeWidth="1" />
+                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z" style={{ fill: 'var(--glass-bg-heavy)' }} />
                 </svg>
-              </div>{" "}
+              </div>
             </motion.div>
           </>
         )}

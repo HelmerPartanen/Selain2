@@ -18,7 +18,7 @@ import { useUIStore } from "@/store/uiStore";
 import { useShallow } from 'zustand/react/shallow';
 import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
-import { SPRING, SPRING_GENTLE, SPRING_EXPAND } from '@/utils/springs';
+import { SPRING, SPRING_GENTLE, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs';
 
 const THROTTLE_MS = 100;
 
@@ -169,19 +169,23 @@ function FloatingControlsInner(): React.JSX.Element {
       <motion.div
         className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
         style={{ pointerEvents: isIdle ? "none" : "auto" }}
-        initial={{ x: "-50%", y: 40, scale: 0.85, opacity: 0 }}
+        initial={{ x: "-50%", y: 40, scale: 0.85, opacity: 0, filter: "blur(6px)" }}
         animate={
           isIdle
-            ? { x: "-50%", y: 12, scale: 0.94, opacity: 0 }
-            : { x: "-50%", y: 0, scale: 1, opacity: 1 }
+            ? { x: "-50%", y: 20, scale: 0.92, opacity: 0, filter: "blur(6px)" }
+            : { x: "-50%", y: 0, scale: 1, opacity: 1, filter: "blur(0px)" }
         }
         transition={isIdle ? SPRING_GENTLE : SPRING}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="flex items-center gap-1.5">
-          {/* Menu Pod */}
+        {/* Unified glass bar — single frosted surface with internal dividers */}
+        <div className="flex items-center glass rounded-full p-1 gap-0.5">
+          {/* Menu */}
           <AppMenu />
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0" />
 
           {/* Nav Pod */}
           <AnimatePresence initial={false}>
@@ -192,21 +196,16 @@ function FloatingControlsInner(): React.JSX.Element {
                 animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ ...SPRING_EXPAND, opacity: { duration: 0.15 } }}
-                className="flex-shrink-0"
+                className="flex-shrink-0 overflow-hidden"
               >
-                <div className="flex items-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg rounded-full">
+                <div className="flex items-center">
                   <motion.button
                     onClick={handleGoBack}
                     disabled={!canGoBack}
                     aria-label="Go back"
-                    whileTap={{ scale: 0.82, x: -2 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 500,
-                      damping: 15,
-                      mass: 0.6,
-                    }}
-                    className={`h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-[background-color,opacity] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none ${canGoForward ? "rounded-l-full" : "rounded-full"}`}
+                    whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
+                    transition={SPRING_SNAPPY}
+                    className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
                   >
                     <SvgIcon svg={chevronLeftSvg} size={16} />
                   </motion.button>
@@ -225,18 +224,12 @@ function FloatingControlsInner(): React.JSX.Element {
                         className="flex items-center overflow-hidden"
                         style={{ flexShrink: 0 }}
                       >
-                        <div className="w-px h-5 bg-gray-200 dark:bg-neutral-700 flex-shrink-0" />
                         <motion.button
                           onClick={handleGoForward}
                           aria-label="Go forward"
-                          whileTap={{ scale: 0.82, x: 2 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 15,
-                            mass: 0.6,
-                          }}
-                          className="h-10 w-10 rounded-r-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-[background-color] duration-150 select-none flex-shrink-0"
+                          whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
+                          transition={SPRING_SNAPPY}
+                          className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
                         >
                           <SvgIcon svg={chevronRightSvg} size={16} />
                         </motion.button>
@@ -248,23 +241,35 @@ function FloatingControlsInner(): React.JSX.Element {
             )}
           </AnimatePresence>
 
+          {/* Divider — only when nav is visible */}
+          <AnimatePresence initial={false}>
+            {(canGoBack || canGoForward) && (
+              <motion.div
+                key="nav-divider"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0"
+              />
+            )}
+          </AnimatePresence>
+
           {/* URL Pod */}
           <URLBar onFocusChange={handleFocusChange} />
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-[var(--border-divider)] flex-shrink-0" />
 
           {/* Split indicator */}
           <AnimatePresence initial={false}>
             {isSplit && (
               <motion.div
                 key="unsplit-slot"
-                initial={{ width: 0, marginLeft: 0 }}
-                animate={{ width: 40, marginLeft: 0 }}
-                exit={{ width: 0, marginLeft: -6 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 320,
-                  damping: 28,
-                  mass: 0.8,
-                }}
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 40, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={SPRING_EXPAND}
                 style={{
                   flexShrink: 0,
                   clipPath: "inset(-12px -12px -12px -12px)",
@@ -276,14 +281,9 @@ function FloatingControlsInner(): React.JSX.Element {
                   initial={{ scale: 0.4, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.4, opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 22,
-                    mass: 0.6,
-                    opacity: { duration: 0.15 },
-                  }}
-                  className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-neutral-900 dark:border dark:border-neutral-700 shadow-lg text-indigo-500 hover:bg-gray-50 dark:hover:bg-neutral-800 active:scale-90 transition-[background-color] duration-100 select-none"
+                  whileTap={{ scale: 0.85 }}
+                  transition={SPRING_SNAPPY}
+                  className="h-10 w-10 rounded-full flex items-center justify-center text-indigo-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
                 >
                   <SvgIcon svg={unsplitSvg} size={15} />
                 </motion.button>
@@ -302,10 +302,10 @@ function FloatingControlsInner(): React.JSX.Element {
         <AnimatePresence>
           {isSplit && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, delay: isSplit ? 0.12 : 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={SPRING_SNAPPY}
               className="absolute left-1/2 -translate-x-1/2 flex gap-2"
               style={{ top: "100%", marginTop: 6 }}
             >

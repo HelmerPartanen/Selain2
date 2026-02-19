@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react'
+import { motion } from 'motion/react'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
@@ -10,25 +11,31 @@ import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useUIStore } from '@/store/uiStore'
 import { formatBytes } from '@/utils/formatUtils'
+import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
 
 function formatSpeed(bytesPerSec: number): string {
   return `${formatBytes(bytesPerSec)}/s`
 }
 
-const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }): React.JSX.Element {
+const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadItem; index: number }): React.JSX.Element {
   const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
   const progress = item.totalBytes > 0 ? item.receivedBytes / item.totalBytes : 0
   const isActive = item.state === 'progressing' || item.state === 'paused'
 
   return (
-    <div className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-neutral-800/60 transition-colors duration-100">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...SPRING_LIST, delay: index * 0.03 }}
+      className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors duration-100"
+    >
       <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
         {item.state === 'completed' ? (
           <SvgIcon svg={checkSvg} size={16} className="text-green-500" />
         ) : item.state === 'failed' ? (
           <SvgIcon svg={warnSvg} size={16} className="text-red-500" />
         ) : (
-          <SvgIcon svg={downloadSvg} size={16} className="text-blue-500" />
+          <SvgIcon svg={downloadSvg} size={16} className="text-indigo-500" />
         )}
       </div>
 
@@ -41,7 +48,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
             <>
               <div className="flex-1 h-1 rounded-full bg-gray-200 dark:bg-neutral-700 overflow-hidden max-w-[200px]">
                 <div
-                  className="h-full bg-blue-500 rounded-full transition-[width] duration-300"
+                  className="h-full bg-indigo-500 rounded-full transition-[width] duration-300"
                   style={{ width: `${progress * 100}%` }}
                 />
               </div>
@@ -76,7 +83,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
         {item.state === 'progressing' && (
           <button
             onClick={() => pauseDownload(item.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
             aria-label="Pause"
           >
             <SvgIcon svg={PAUSE_SVG} size={13} />
@@ -85,7 +92,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
         {item.state === 'paused' && (
           <button
             onClick={() => resumeDownload(item.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
             aria-label="Resume"
           >
             <SvgIcon svg={playSvg} size={13} />
@@ -104,14 +111,14 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
           <>
             <button
               onClick={() => openDownload(item.id)}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
               aria-label="Open"
             >
               <SvgIcon svg={downloadSvg} size={13} />
             </button>
             <button
               onClick={() => showInFolder(item.id)}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
               aria-label="Show in folder"
             >
               <SvgIcon svg={folderSvg} size={13} />
@@ -128,7 +135,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 })
 
@@ -142,22 +149,25 @@ function DownloadsPanelInner(): React.JSX.Element {
       onClose={closeDownloads}
       width="520px"
       height="440px"
-      className="bg-white dark:bg-neutral-900 flex flex-col"
+      className="flex flex-col"
     >
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-neutral-800 flex-shrink-0">
+      <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
             <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <SvgIcon svg={downloadSvg} size={16} />
               Downloads
             </h2>
-            <button
+            <motion.button
               onClick={closeDownloads}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-150"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
+              transition={SPRING_SNAPPY}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
             >
               <SvgIcon svg={closeSvg} size={13} />
-            </button>
+            </motion.button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-3 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-700">
+          <div className="flex-1 overflow-y-auto px-4 py-3 glass-scroll">
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
                 <SvgIcon svg={downloadSvg} size={40} className="mb-3 opacity-50" />
@@ -166,8 +176,8 @@ function DownloadsPanelInner(): React.JSX.Element {
               </div>
             ) : (
               <div className="space-y-0.5">
-                {items.map((item) => (
-                  <DownloadRow key={item.id} item={item} />
+                {items.map((item, i) => (
+                  <DownloadRow key={item.id} item={item} index={i} />
                 ))}
               </div>
             )}

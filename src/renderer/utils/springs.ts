@@ -2,13 +2,18 @@
 // Canonical spring configurations used throughout the browser UI.
 // Import from here instead of defining local constants in each component.
 //
+// Never define inline spring configs in components — always use these tokens.
+//
 // Hierarchy:
-//   SPRING        — panels, modals, large surface entries (400/28/0.8)
-//   SPRING_POPUP  — dropdowns, menus, small popovers     (420/26/0.7)
-//   SPRING_FAST   — tight micro-interactions, icon swaps (500/26/0.6)
-//   SPRING_GENTLE — ambient reveals, bar show/hide       (220/26/1.0)
-//   SPRING_EXPAND — pill/bar width expansion             (340/32/0.9)
-//   SPRING_ORB    — slow ambient background orbs         (30/20/2.5)
+//   SPRING         — panels, modals, large surface entries   (400/28/0.8)
+//   SPRING_POPUP   — dropdowns, menus, small popovers       (420/26/0.7)
+//   SPRING_FAST    — tight micro-interactions, icon swaps    (500/26/0.6)
+//   SPRING_SNAPPY  — toggles, selection indicators, buttons  (600/35/0.5)
+//   SPRING_GENTLE  — ambient reveals, bar show/hide          (220/26/1.0)
+//   SPRING_EXPAND  — pill/bar width expansion                (340/32/0.9)
+//   SPRING_CONTENT — pane crossfades, content transitions    (300/30/1.0)
+//   SPRING_LIST    — list item enter/exit with stagger       (380/30/0.7)
+//   SPRING_ORB     — slow ambient background orbs            (30/20/2.5)
 
 export type SpringConfig = {
   type: 'spring'
@@ -26,11 +31,20 @@ export const SPRING_POPUP: SpringConfig = { type: 'spring', stiffness: 420, damp
 /** Micro-interactions — icon crossfades, badge pops, small quick transitions */
 export const SPRING_FAST: SpringConfig = { type: 'spring', stiffness: 500, damping: 26, mass: 0.6 }
 
+/** Toggles, selection indicators, button press — crisp, precise response */
+export const SPRING_SNAPPY: SpringConfig = { type: 'spring', stiffness: 600, damping: 35, mass: 0.5 }
+
 /** Ambient reveals — floating bar show/hide, soft slide-ins */
 export const SPRING_GENTLE: SpringConfig = { type: 'spring', stiffness: 220, damping: 26, mass: 1.0 }
 
 /** Pill/bar width expansion — smooth but not too fast */
 export const SPRING_EXPAND: SpringConfig = { type: 'spring', stiffness: 340, damping: 32, mass: 0.9 }
+
+/** Pane crossfades, content transitions — slightly slower, smoother */
+export const SPRING_CONTENT: SpringConfig = { type: 'spring', stiffness: 300, damping: 30, mass: 1.0 }
+
+/** List item enter/exit animations — good stagger characteristics */
+export const SPRING_LIST: SpringConfig = { type: 'spring', stiffness: 380, damping: 30, mass: 0.7 }
 
 /** Ambient orb drift — intentionally slow and heavy */
 export const SPRING_ORB: SpringConfig = { type: 'spring', stiffness: 30, damping: 20, mass: 2.5 }
