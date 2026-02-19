@@ -88,7 +88,7 @@ function Sidebar({
             key={id}
             onClick={() => onSelect(id)}
             aria-current={isActive ? "page" : undefined}
-            className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-normal transition-colors duration-100 ${
+            className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-normal transition-colors duration-100 ${
               isActive
                 ? "text-gray-900 dark:text-white"
                 : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
@@ -97,7 +97,7 @@ function Sidebar({
             {isActive && (
               <motion.div
                 layoutId="settings-active"
-                className="absolute inset-0 rounded-lg bg-black/[0.05] dark:bg-white/[0.08]"
+                className="absolute inset-0 rounded-xl bg-black/[0.05] dark:bg-white/[0.08]"
                 transition={SPRING_SNAPPY}
               />
             )}

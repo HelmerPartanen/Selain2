@@ -53,7 +53,7 @@ function GeneralPaneInner(): React.JSX.Element {
         <SectionHeader>New Tab</SectionHeader>
         <Desc>Choose what appears when you open a new tab.</Desc>
         <div
-          className="flex gap-1.5 p-1 rounded-xl bg-black/[0.03] dark:bg-white/[0.04]"
+          className="flex gap-1.5 p-1 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04]"
           role="radiogroup"
           aria-label="New tab page mode"
         >
@@ -66,7 +66,7 @@ function GeneralPaneInner(): React.JSX.Element {
                 role="radio"
                 aria-checked={isActive}
                 onClick={() => setNewTabMode(mode)}
-                className={`relative flex-1 px-4 py-2 rounded-lg text-[12px] font-medium transition-colors duration-150 ${
+                className={`relative flex-1 px-4 py-2 rounded-xl text-[12px] font-medium transition-colors duration-150 ${
                   isActive
                     ? "text-gray-900 dark:text-white"
                     : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
@@ -75,7 +75,7 @@ function GeneralPaneInner(): React.JSX.Element {
                 {isActive && (
                   <motion.div
                     layoutId="newtab-mode"
-                    className="absolute inset-0 rounded-lg bg-white dark:bg-white/[0.1] shadow-sm"
+                    className="absolute inset-0 rounded-xl bg-white dark:bg-white/[0.1] shadow-sm"
                     transition={SPRING_SNAPPY}
                   />
                 )}
