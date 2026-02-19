@@ -194,12 +194,40 @@ function TabPillInner(): React.JSX.Element {
           <>
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
-              style={{ originX: 0.5, originY: 1, perspective: 600 }}
-              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
-              animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
-              transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
+              className="absolute bottom-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
+              style={{ originX: 0.5, originY: 1 }}
+              initial={{
+                scaleX: 0.15,
+                scaleY: 0.04,
+                opacity: 0,
+                y: 10,
+                borderRadius: 40,
+                filter: 'blur(6px)',
+              }}
+              animate={{
+                scaleX: 1,
+                scaleY: 1,
+                opacity: 1,
+                y: 0,
+                borderRadius: 16,
+                filter: 'blur(0px)',
+              }}
+              exit={{
+                scaleX: 0.15,
+                scaleY: 0.04,
+                opacity: 0,
+                y: 10,
+                borderRadius: 40,
+                filter: 'blur(6px)',
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 380,
+                damping: 28,
+                mass: 0.6,
+                opacity: { duration: 0.12 },
+                filter: { duration: 0.2 },
+              }}
             >
               <div className="rounded-2xl glass-heavy overflow-hidden">
                 <div className="p-1 max-h-[320px] overflow-y-auto overflow-x-hidden glass-scroll space-y-0.5">
@@ -228,12 +256,6 @@ function TabPillInner(): React.JSX.Element {
                     </button>
                   </>
                 )}
-              </div>
-              <div className="flex justify-center -mt-[1px] relative z-10">
-                <svg width="18" height="9" viewBox="0 0 18 9" className="drop-shadow-sm">
-                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0" fill="none" className="stroke-[var(--border-subtle)]" strokeWidth="1" />
-                  <path d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z" style={{ fill: 'var(--glass-bg-heavy)' }} />
-                </svg>
               </div>
             </motion.div>
           </>
