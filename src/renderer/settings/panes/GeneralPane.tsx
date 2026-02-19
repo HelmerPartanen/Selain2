@@ -19,10 +19,6 @@ function GeneralPaneInner(): React.JSX.Element {
   const setNewTabMode = useSettingsStore((s) => s.setNewTabMode);
   const homepageUrl = useSettingsStore((s) => s.homepageUrl);
   const setHomepageUrl = useSettingsStore((s) => s.setHomepageUrl);
-  const reduceTransparency = useSettingsStore((s) => s.reduceTransparency);
-  const setReduceTransparency = useSettingsStore(
-    (s) => s.setReduceTransparency,
-  );
   const [urlDraft, setUrlDraft] = useState(homepageUrl);
 
   const handleUrlBlur = useCallback(() => {
@@ -108,24 +104,6 @@ function GeneralPaneInner(): React.JSX.Element {
         />
       </div>
 
-      <div>
-        <SectionHeader>Performance</SectionHeader>
-        <Desc>
-          Options that may improve responsiveness on lower-end hardware.
-        </Desc>
-        <SettingGroup>
-          <SettingRow
-            label="Reduce transparency"
-            desc="Disable backdrop blur and translucent surfaces"
-          >
-            <Toggle
-              checked={reduceTransparency}
-              onChange={setReduceTransparency}
-              label="Reduce transparency"
-            />
-          </SettingRow>
-        </SettingGroup>
-      </div>
     </div>
   );
 }

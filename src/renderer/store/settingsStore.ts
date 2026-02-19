@@ -22,8 +22,6 @@ export interface SettingsState {
   autoHideDelay: number
   /** Clear browsing data on exit */
   clearOnExit: boolean
-  /** Disable backdrop-blur and translucent backgrounds for performance */
-  reduceTransparency: boolean
   /** Whether the user has completed the onboarding flow */
   onboardingCompleted: boolean
 }
@@ -35,7 +33,6 @@ export interface SettingsActions {
   setUiZoom: (zoom: number) => void
   setAutoHideDelay: (ms: number) => void
   setClearOnExit: (v: boolean) => void
-  setReduceTransparency: (v: boolean) => void
   setOnboardingCompleted: (v: boolean) => void
 }
 
@@ -53,7 +50,6 @@ export const useSettingsStore = create<SettingsStore>()(
       uiZoom: 100,
       autoHideDelay: 2500,
       clearOnExit: false,
-      reduceTransparency: false,
       onboardingCompleted: false,
 
       // ── Actions ──
@@ -63,7 +59,6 @@ export const useSettingsStore = create<SettingsStore>()(
       setUiZoom: (zoom) => set({ uiZoom: zoom }),
       setAutoHideDelay: (ms) => set({ autoHideDelay: Math.max(1000, Math.min(5000, ms)) }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
-      setReduceTransparency: (v) => set({ reduceTransparency: v }),
       setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }

@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { useThemeStore } from '@/store/themeStore'
-import { useSettingsStore } from '@/store/settingsStore'
 
 function useThemeMode(): void {
   const themeMode = useThemeStore((s) => s.themeMode)
@@ -27,15 +26,7 @@ function useThemeMode(): void {
   }, [themeMode])
 }
 
-function useReduceTransparency(): void {
-  const reduceTransparency = useSettingsStore((s) => s.reduceTransparency)
-  useEffect(() => {
-    document.documentElement.classList.toggle('reduce-transparency', reduceTransparency)
-  }, [reduceTransparency])
-}
-
 export default function App(): React.JSX.Element {
   useThemeMode()
-  useReduceTransparency()
   return <BrowserLayout />
 }

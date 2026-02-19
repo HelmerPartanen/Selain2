@@ -221,10 +221,10 @@ function TabOverviewInner(): React.JSX.Element {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop — solid overlay instead of backdrop-blur to avoid GPU pressure */}
+          {/* Backdrop — solid overlay */}
           <motion.div
             key="tab-overview-backdrop"
-            className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[90] bg-black/70"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

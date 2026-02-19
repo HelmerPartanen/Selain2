@@ -69,7 +69,7 @@ export function SettingRow({
   children: React.ReactNode
 }): React.JSX.Element {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 px-3.5 -mx-3.5 rounded-xl hover:bg-black/[0.025] dark:hover:bg-white/[0.025] transition-colors duration-150">
+    <div className="flex items-center justify-between gap-4 py-3 px-3.5 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-150">
       <div className="min-w-0">
         <div className="text-[13px] font-normal text-gray-700 dark:text-neutral-200">{label}</div>
         {desc && <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5 leading-relaxed">{desc}</div>}
@@ -88,7 +88,7 @@ export function SettingGroup({
   className?: string
 }): React.JSX.Element {
   return (
-    <div className={`rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] p-1 ${className}`}>
+    <div className={`rounded-2xl ${className}`}>
       {children}
     </div>
   )
