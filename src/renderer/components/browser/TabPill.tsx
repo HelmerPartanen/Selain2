@@ -172,7 +172,7 @@ function TabPillInner(): React.JSX.Element {
           transition={SPRING_SNAPPY}
           className={`h-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none flex-shrink-0 ${tabCount > 1 ? 'rounded-l-full px-4' : 'rounded-full w-10'}`}
         >
-          <SvgIcon svg={plusSvg} size={18} />
+          <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
 
         <AnimatePresence initial={false}>
