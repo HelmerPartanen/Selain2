@@ -40,6 +40,13 @@ function WebViewManagerInner(): React.JSX.Element {
   const getSnapshot = useCallback((): WebViewEntry[] => {
     const { tabOrder, tabs } = useTabStore.getState()
 
+    const activeIds = new Set(tabOrder)
+    for (const key of Object.keys(mountedUrlsRef.current)) {
+      if (!activeIds.has(key)) {
+        delete mountedUrlsRef.current[key]
+      }
+    }
+
     // Fast-path: count eligible tabs; if count hasn't changed and
     // all previous entries still exist as non-suspended/non-special,
     // skip the full scan.

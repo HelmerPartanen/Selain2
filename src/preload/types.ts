@@ -1,4 +1,22 @@
 export interface ElectronAPI {
+  /** Runtime performance snapshot shape from the main process */
+  getPerfSnapshot(): Promise<{
+    timestamp: number
+    uptimeSec: number
+    processCounts: { total: number; renderer: number; browser: number; gpu: number; utility: number; other: number }
+    memoryMb: { rss: number; heapUsed: number; heapTotal: number; external: number; arrayBuffers: number }
+  }>
+  /** Returns recent performance snapshots (newest last) */
+  getPerfSnapshots(limit?: number): Promise<Array<{
+    timestamp: number
+    uptimeSec: number
+    processCounts: { total: number; renderer: number; browser: number; gpu: number; utility: number; other: number }
+    memoryMb: { rss: number; heapUsed: number; heapTotal: number; external: number; arrayBuffers: number }
+  }>>
+  /** Starts periodic perf sampling in the main process */
+  startPerfMonitor(intervalMs?: number): Promise<{ started: boolean; intervalMs: number }>
+  /** Stops periodic perf sampling in the main process */
+  stopPerfMonitor(): Promise<{ stopped: boolean; samples: number }>
   minimizeWindow(): void
   maximizeWindow(): void
   closeWindow(): void

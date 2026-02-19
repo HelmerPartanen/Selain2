@@ -27,6 +27,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   // Batch pending store updates to reduce Zustand set() calls
   const pendingUpdateRef = useRef<Record<string, unknown> | null>(null)
   const rafIdRef = useRef<number>(0)
+  const progressResetTimerRef = useRef<number | null>(null)
 
   const flushUpdate = useCallback(() => {
     const patch = pendingUpdateRef.current
@@ -67,7 +68,13 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       canGoForward: webview?.canGoForward() ?? false
     })
     // Reset progress after animation
-    setTimeout(() => batchUpdate({ loadProgress: 0 }), 400)
+    if (progressResetTimerRef.current !== null) {
+      window.clearTimeout(progressResetTimerRef.current)
+    }
+    progressResetTimerRef.current = window.setTimeout(() => {
+      batchUpdate({ loadProgress: 0 })
+      progressResetTimerRef.current = null
+    }, 400)
   }, [batchUpdate])
 
   const handlePageTitleUpdated = useCallback(
@@ -164,6 +171,9 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webviewRegistry.unregister(tabId)
       // Cancel any pending batched updates on unmount
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+      if (progressResetTimerRef.current !== null) {
+        window.clearTimeout(progressResetTimerRef.current)
+      }
     }
   }, [tabId])
 

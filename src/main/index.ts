@@ -8,6 +8,7 @@ import './flags'                                     // side-effect: Chromium CL
 import { createWindow } from './window'
 import { setupIPC } from './ipc'
 import { setupPermissions, setupCSP } from './permissions'
+import { initBenchmarkPerfMonitor, writeBenchmarkPerfReport } from './perfMonitor'
 
 app.whenReady().then(async () => {
   // Start CDM init in background — don't block window creation
@@ -20,10 +21,14 @@ app.whenReady().then(async () => {
   setupIPC()
   setupPermissions()
   setupCSP()
+  initBenchmarkPerfMonitor()
+
+  createWindow()
 
   // ── Load bundled extensions into the webview session ────────────────────
   // Pass --no-extensions CLI flag to skip loading extensions for benchmarking
-  const skipExtensions = process.argv.includes('--no-extensions')
+  const skipExtensions =
+    process.argv.includes('--no-extensions') || process.env['BROWSER_SKIP_EXTENSIONS'] === '1'
 
   if (!skipExtensions) {
     const extensionsDir = app.isPackaged
@@ -31,22 +36,21 @@ app.whenReady().then(async () => {
       : join(__dirname, '../../uBlock0.chromium')
 
     if (existsSync(extensionsDir)) {
-      try {
-        const ext = await session.fromPartition('persist:default').loadExtension(extensionsDir, {
-          allowFileAccess: true
+      session
+        .fromPartition('persist:default')
+        .loadExtension(extensionsDir, { allowFileAccess: true })
+        .then((ext) => {
+          console.log(`[Extension] Loaded: ${ext.name} v${ext.version}`)
         })
-        console.log(`[Extension] Loaded: ${ext.name} v${ext.version}`)
-      } catch (err) {
-        console.warn('[Extension] Failed to load uBlock Origin:', err)
-      }
+        .catch((err) => {
+          console.warn('[Extension] Failed to load uBlock Origin:', err)
+        })
     } else {
       console.warn('[Extension] uBlock0.chromium directory not found at', extensionsDir)
     }
   } else {
     console.log('[Extension] Skipped loading extensions (--no-extensions flag)')
   }
-
-  createWindow()
 
   // Ensure CDM is ready before any DRM playback is attempted
   await cdmReady
@@ -61,5 +65,12 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+  }
+})
+
+app.on('will-quit', () => {
+  const report = writeBenchmarkPerfReport()
+  if (report) {
+    console.log('[perf] Benchmark report written:', report)
   }
 })

@@ -92,8 +92,8 @@ function WindowControlsInner(): React.JSX.Element {
             <ControlButton
               onClick={handleMinimize}
               label="Minimize"
-              hoverBg="hover:bg-amber-500/10 dark:hover:bg-amber-400/10"
-              hoverText="hover:text-amber-600 dark:hover:text-amber-400"
+              hoverBg="hover:bg-gray-200 dark:hover:bg-neutral-700"
+              hoverText="hover:text-gray-600 dark:hover:text-gray-300"
             >
               <SvgIcon svg={minusSvg} size={12} />
             </ControlButton>
@@ -101,8 +101,8 @@ function WindowControlsInner(): React.JSX.Element {
             <ControlButton
               onClick={handleToggleMaximize}
               label={isMaximized ? "Restore" : "Maximize"}
-              hoverBg="hover:bg-green-500/10 dark:hover:bg-green-400/10"
-              hoverText="hover:text-green-600 dark:hover:text-green-400"
+              hoverBg="hover:bg-gray-200 dark:hover:bg-neutral-700"
+              hoverText="hover:text-gray-600 dark:hover:text-gray-300"
             >
               {isMaximized ? (
                 <SvgIcon svg={CARDS_SVG} size={12} />

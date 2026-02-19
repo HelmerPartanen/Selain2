@@ -2,6 +2,10 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { ElectronAPI } from './types'
 
 const api: ElectronAPI = {
+  getPerfSnapshot: () => ipcRenderer.invoke('perf-get-snapshot'),
+  getPerfSnapshots: (limit?: number) => ipcRenderer.invoke('perf-get-snapshots', limit),
+  startPerfMonitor: (intervalMs?: number) => ipcRenderer.invoke('perf-start-monitor', intervalMs),
+  stopPerfMonitor: () => ipcRenderer.invoke('perf-stop-monitor'),
   minimizeWindow: () => ipcRenderer.send('window-minimize'),
   maximizeWindow: () => ipcRenderer.send('window-maximize'),
   closeWindow: () => ipcRenderer.send('window-close'),

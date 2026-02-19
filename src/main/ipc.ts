@@ -7,8 +7,41 @@ import { readFile, writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { getMainWindow } from './state'
+import { getLatestPerfSnapshot, getPerfSnapshots, startPerfMonitor, stopPerfMonitor } from './perfMonitor'
+
+const PERF_LOGS = process.env['BROWSER_PERF_LOG'] === '1'
+
+const storePerf = {
+  saveRequests: 0,
+  written: 0,
+  skippedNoChange: 0,
+  loadHits: 0,
+  loadMisses: 0,
+  saveErrors: 0
+}
+
+const savedStoreCache = new Map<string, string>()
+
+function startPerfLogging(): void {
+  if (!PERF_LOGS) return
+  setInterval(() => {
+    console.log('[perf][main][store]', {
+      ...storePerf,
+      cachedStores: savedStoreCache.size
+    })
+  }, 10000)
+}
+
+function sendToMainWindow(channel: string, payload: unknown): void {
+  const win = getMainWindow()
+  if (!win || win.isDestroyed()) return
+  if (win.webContents.isDestroyed()) return
+  win.webContents.send(channel, payload)
+}
 
 export function setupIPC(): void {
+  startPerfLogging()
+
   // ── Download management ──────────────────────────────────────────────────
   const activeDownloads = new Map<string, Electron.DownloadItem>()
   let downloadCounter = 0
@@ -18,7 +51,7 @@ export function setupIPC(): void {
       const id = `dl-${++downloadCounter}-${Date.now()}`
       activeDownloads.set(id, item)
 
-      getMainWindow()?.webContents.send('download-started', {
+      sendToMainWindow('download-started', {
         id,
         filename: item.getFilename(),
         url: item.getURL(),
@@ -35,14 +68,14 @@ export function setupIPC(): void {
         lastUpdate = now
 
         if (state === 'progressing') {
-          getMainWindow()?.webContents.send('download-progress', {
+          sendToMainWindow('download-progress', {
             id,
             receivedBytes: item.getReceivedBytes(),
             totalBytes: item.getTotalBytes(),
             speed: item.getCurrentBytesPerSecond?.() ?? 0
           })
         } else if (state === 'interrupted') {
-          getMainWindow()?.webContents.send('download-progress', {
+          sendToMainWindow('download-progress', {
             id,
             receivedBytes: item.getReceivedBytes(),
             totalBytes: item.getTotalBytes(),
@@ -52,7 +85,7 @@ export function setupIPC(): void {
       })
 
       item.once('done', (_event, state) => {
-        getMainWindow()?.webContents.send('download-done', {
+        sendToMainWindow('download-done', {
           id,
           state: state === 'completed' ? 'completed' : state === 'cancelled' ? 'cancelled' : 'failed'
         })
@@ -177,8 +210,14 @@ export function setupIPC(): void {
     if (typeof name !== 'string' || !ALLOWED_STORES.has(name)) return null
     const filePath = join(storeDir, `${name}.json`)
     try {
-      if (!existsSync(filePath)) return null
-      return await readFile(filePath, 'utf-8')
+      if (!existsSync(filePath)) {
+        storePerf.loadMisses += 1
+        return null
+      }
+      const data = await readFile(filePath, 'utf-8')
+      savedStoreCache.set(name, data)
+      storePerf.loadHits += 1
+      return data
     } catch (err) {
       console.warn(`Failed to load store "${name}":`, err)
       return null
@@ -188,13 +227,43 @@ export function setupIPC(): void {
   ipcMain.handle('save-store', async (_event, name: string, data: string) => {
     if (typeof name !== 'string' || !ALLOWED_STORES.has(name)) return false
     if (typeof data !== 'string') return false
+    storePerf.saveRequests += 1
+
+    const cached = savedStoreCache.get(name)
+    if (cached === data) {
+      storePerf.skippedNoChange += 1
+      return true
+    }
+
     const filePath = join(storeDir, `${name}.json`)
     try {
       await writeFile(filePath, data, 'utf-8')
+      savedStoreCache.set(name, data)
+      storePerf.written += 1
       return true
     } catch (err) {
+      storePerf.saveErrors += 1
       console.warn(`Failed to save store "${name}":`, err)
       return false
     }
+  })
+
+  // ── Performance diagnostics ─────────────────────────────────────────────
+  ipcMain.handle('perf-get-snapshot', () => {
+    return getLatestPerfSnapshot()
+  })
+
+  ipcMain.handle('perf-get-snapshots', (_event, limit?: number) => {
+    const safeLimit = typeof limit === 'number' ? limit : 120
+    return getPerfSnapshots(safeLimit)
+  })
+
+  ipcMain.handle('perf-start-monitor', (_event, intervalMs?: number) => {
+    const safeInterval = typeof intervalMs === 'number' ? intervalMs : 10000
+    return startPerfMonitor(safeInterval)
+  })
+
+  ipcMain.handle('perf-stop-monitor', () => {
+    return stopPerfMonitor()
   })
 }

@@ -40,11 +40,19 @@ export function createWindow(): void {
   }
 
   win.on('maximize', () => {
-    win.webContents.send('maximize-change', true)
+    if (!win.webContents.isDestroyed()) {
+      win.webContents.send('maximize-change', true)
+    }
   })
 
   win.on('unmaximize', () => {
-    win.webContents.send('maximize-change', false)
+    if (!win.webContents.isDestroyed()) {
+      win.webContents.send('maximize-change', false)
+    }
+  })
+
+  win.on('closed', () => {
+    setMainWindow(null)
   })
 
   // Block renderer-initiated window.open()

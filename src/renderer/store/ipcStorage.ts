@@ -6,13 +6,112 @@
 import { createJSONStorage } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
 
+const WRITE_DEBOUNCE_MS = 350
+const PERF_LOGS = import.meta.env.DEV && localStorage.getItem('perf.ipcStorage') === '1'
+
+type PendingWrite = {
+  value: string
+  timerId: number | null
+  flushPromise: Promise<void> | null
+}
+
+const pendingWrites = new Map<string, PendingWrite>()
+const lastSavedByStore = new Map<string, string>()
+const inFlightByStore = new Set<string>()
+
+const perf = {
+  queued: 0,
+  flushed: 0,
+  skippedNoChange: 0,
+  ipcFailures: 0,
+  fallbackWrites: 0
+}
+
+let perfTimerStarted = false
+
+function startPerfTimer(): void {
+  if (!PERF_LOGS || perfTimerStarted) return
+  perfTimerStarted = true
+  window.setInterval(() => {
+    console.log('[perf][ipcStorage]', {
+      ...perf,
+      pendingStores: pendingWrites.size,
+      inFlightStores: inFlightByStore.size
+    })
+  }, 10000)
+}
+
+async function flushStoreWrite(name: string): Promise<void> {
+  const pending = pendingWrites.get(name)
+  if (!pending) return
+  if (inFlightByStore.has(name)) return
+
+  const nextValue = pending.value
+  const lastSaved = lastSavedByStore.get(name)
+  if (lastSaved === nextValue) {
+    perf.skippedNoChange += 1
+    pendingWrites.delete(name)
+    return
+  }
+
+  inFlightByStore.add(name)
+  try {
+    await window.electronAPI.saveStore(name, nextValue)
+    lastSavedByStore.set(name, nextValue)
+    perf.flushed += 1
+  } catch {
+    perf.ipcFailures += 1
+    localStorage.setItem(name, nextValue)
+    perf.fallbackWrites += 1
+  } finally {
+    inFlightByStore.delete(name)
+
+    const latest = pendingWrites.get(name)
+    // If a newer value arrived during in-flight save, flush again immediately.
+    if (latest && latest.value !== nextValue) {
+      latest.flushPromise = flushStoreWrite(name)
+    } else {
+      pendingWrites.delete(name)
+    }
+  }
+}
+
+function scheduleStoreWrite(name: string, value: string): Promise<void> {
+  startPerfTimer()
+  perf.queued += 1
+
+  const existing = pendingWrites.get(name)
+  if (existing && existing.timerId !== null) {
+    window.clearTimeout(existing.timerId)
+  }
+
+  const pending: PendingWrite = {
+    value,
+    timerId: null,
+    flushPromise: null
+  }
+
+  pending.timerId = window.setTimeout(() => {
+    const latest = pendingWrites.get(name)
+    if (!latest) return
+    latest.timerId = null
+    latest.flushPromise = flushStoreWrite(name)
+  }, WRITE_DEBOUNCE_MS)
+
+  pendingWrites.set(name, pending)
+  return Promise.resolve()
+}
+
 function createIPCStateStorage(): StateStorage {
   return {
     getItem: async (name: string): Promise<string | null> => {
       try {
         // Try filesystem (IPC) first
         const data = await window.electronAPI.loadStore(name)
-        if (data !== null) return data
+        if (data !== null) {
+          lastSavedByStore.set(name, data)
+          return data
+        }
 
         // Migration: seed from localStorage if the IPC file doesn't exist yet.
         // Only remove the localStorage entry after confirming the save succeeded
@@ -20,7 +119,10 @@ function createIPCStateStorage(): StateStorage {
         const local = localStorage.getItem(name)
         if (local !== null) {
           const saved = await window.electronAPI.saveStore(name, local)
-          if (saved) localStorage.removeItem(name)
+          if (saved) {
+            lastSavedByStore.set(name, local)
+            localStorage.removeItem(name)
+          }
           return local
         }
 
@@ -32,15 +134,17 @@ function createIPCStateStorage(): StateStorage {
     },
 
     setItem: async (name: string, value: string): Promise<void> => {
-      try {
-        await window.electronAPI.saveStore(name, value)
-      } catch {
-        // Fallback so settings are never silently lost
-        localStorage.setItem(name, value)
-      }
+      await scheduleStoreWrite(name, value)
     },
 
     removeItem: async (name: string): Promise<void> => {
+      const pending = pendingWrites.get(name)
+      if (pending && pending.timerId !== null) {
+        window.clearTimeout(pending.timerId)
+      }
+      pendingWrites.delete(name)
+      lastSavedByStore.set(name, 'null')
+
       try {
         // Write JSON null so that JSON.parse succeeds on next read and
         // Zustand treats the value as "no persisted state" (falls back to defaults).

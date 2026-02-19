@@ -4,6 +4,7 @@
  * Lives outside React to avoid triggering re-renders.
  */
 const registry = new Map<string, Electron.WebviewTag>()
+const THUMBNAIL_JPEG_QUALITY = 62
 
 export const webviewRegistry = {
   register(tabId: string, webview: Electron.WebviewTag): void {
@@ -27,7 +28,8 @@ export const webviewRegistry = {
       const wc = (webview as unknown as { getWebContentsId?(): number }).getWebContentsId?.()
       if (wc === undefined) return null
       const img = await (webview as unknown as { capturePage(): Promise<Electron.NativeImage> }).capturePage()
-      return img.toDataURL()
+      const jpeg = img.toJPEG(THUMBNAIL_JPEG_QUALITY)
+      return `data:image/jpeg;base64,${jpeg.toString('base64')}`
     } catch {
       return null
     }

@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -26,11 +26,12 @@ const BookmarkRow = memo(function BookmarkRow({
   onRemove: (url: string) => void
   index: number
 }): React.JSX.Element {
+  const delay = Math.min(index, 16) * 0.02
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SPRING_LIST, delay: index * 0.03 }}
+      transition={{ ...SPRING_LIST, delay }}
       onClick={() => onNavigate(entry.url)}
       className="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors duration-100"
     >
@@ -67,10 +68,19 @@ function BookmarksPanelInner(): React.JSX.Element {
   const closeBookmarks = useUIStore((s) => s.closeBookmarks)
   const bookmarks = useBookmarkStore((s) => s.bookmarks)
   const removeBookmark = useBookmarkStore((s) => s.removeBookmark)
-  const searchFn = useBookmarkStore((s) => s.search)
   const [query, setQuery] = useState('')
+  const [renderLimit, setRenderLimit] = useState(120)
 
-  const filtered = query ? searchFn(query) : bookmarks
+  const filtered = useMemo(() => {
+    if (!query) return bookmarks
+    const q = query.toLowerCase()
+    return bookmarks.filter(
+      (b) => b.url.toLowerCase().includes(q) || b.title.toLowerCase().includes(q)
+    )
+  }, [bookmarks, query])
+
+  const visible = useMemo(() => filtered.slice(0, renderLimit), [filtered, renderLimit])
+  const hasMore = visible.length < filtered.length
 
   const handleNavigate = useCallback(
     (url: string) => {
@@ -83,6 +93,20 @@ function BookmarksPanelInner(): React.JSX.Element {
   const handleRemove = useCallback((url: string) => {
     removeBookmark(url)
   }, [removeBookmark])
+
+  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const el = event.currentTarget
+    if (el.scrollTop + el.clientHeight < el.scrollHeight - 200) return
+    setRenderLimit((prev) => {
+      if (prev >= filtered.length) return prev
+      return Math.min(filtered.length, prev + 120)
+    })
+  }, [filtered.length])
+
+  // Reset incremental window when query/filter changes
+  useEffect(() => {
+    setRenderLimit(120)
+  }, [query, bookmarks.length])
 
   return (
     <PanelModal
@@ -126,7 +150,7 @@ function BookmarksPanelInner(): React.JSX.Element {
           )}
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-2 glass-scroll">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-2 glass-scroll" onScroll={handleScroll}>
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-neutral-600">
                 <SvgIcon svg={starSvg} size={36} className="mb-3 opacity-50" />
@@ -135,7 +159,7 @@ function BookmarksPanelInner(): React.JSX.Element {
               </div>
             ) : (
               <div className="space-y-0.5">
-                {filtered.map((entry, i) => (
+                {visible.map((entry, i) => (
                   <BookmarkRow
                     key={entry.id}
                     entry={entry}
@@ -144,6 +168,11 @@ function BookmarksPanelInner(): React.JSX.Element {
                     index={i}
                   />
                 ))}
+                {hasMore && (
+                  <div className="px-3 py-2 text-xs text-gray-500 dark:text-neutral-500">
+                    Loading more… ({visible.length}/{filtered.length})
+                  </div>
+                )}
               </div>
             )}
       </div>

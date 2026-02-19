@@ -22,6 +22,13 @@ interface TabPreview {
   thumbnail: string | null
 }
 
+const MAX_THUMBNAIL_CAPTURES = 16
+const CAPTURE_GAP_MS = 30
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms))
+}
+
 // ─── New Tab Placeholder ─────────────────────────────────────────────────────
 
 const NEWTAB_GRADIENT =
@@ -162,23 +169,31 @@ function TabOverviewInner(): React.JSX.Element {
       .filter(Boolean) as TabPreview[]
     setPreviews(snapshots)
 
-    // Capture thumbnails sequentially to avoid GPU pressure spikes
+    // Capture thumbnails sequentially (capped) to avoid GPU/memory pressure spikes
     const captureSequential = async (): Promise<void> => {
-      for (let i = 0; i < snapshots.length; i++) {
+      const nonSpecial = snapshots.filter((s) => s.url !== 'browser://newtab')
+      const prioritized = [
+        ...nonSpecial.filter((s) => s.id === activeTabId),
+        ...nonSpecial.filter((s) => s.id !== activeTabId)
+      ].slice(0, MAX_THUMBNAIL_CAPTURES)
+
+      for (let i = 0; i < prioritized.length; i++) {
         if (cancelledRef.current) return
-        const snap = snapshots[i]!
-        if (snap.url === 'browser://newtab') continue
+        const snap = prioritized[i]!
         const thumbnail = await webviewRegistry.capturePage(snap.id)
         if (cancelledRef.current) return
         setPreviews((prev) =>
           prev.map((p) => (p.id === snap.id ? { ...p, thumbnail } : p))
         )
+        if (i < prioritized.length - 1) {
+          await sleep(CAPTURE_GAP_MS)
+        }
       }
     }
     captureSequential()
 
     return () => { cancelledRef.current = true }
-  }, [isOpen])
+  }, [isOpen, activeTabId])
 
   const handleSelect = useCallback(
     (tabId: string) => {
