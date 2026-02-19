@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
@@ -21,25 +21,42 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
   const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
   const progress = item.totalBytes > 0 ? item.receivedBytes / item.totalBytes : 0
   const isActive = item.state === 'progressing' || item.state === 'paused'
+  const [hovered, setHovered] = useState(false)
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay: index * 0.03 }}
-      className="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors duration-100"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      onClick={() => { /* clicking row opens handled by parent if needed */ }}
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer hover:scale-105 transition-all duration-150"
     >
-      <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
+      {hovered && (
+        <motion.div
+          layoutId="history-hover"
+          className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, filter: 'blur(2px)' }}
+          transition={SPRING_SNAPPY}
+        />
+      )}
+
+      <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {item.state === 'completed' ? (
-          <SvgIcon svg={checkSvg} size={16} className="text-green-500" />
+          <SvgIcon svg={checkSvg} size={28} className="text-green-500" />
         ) : item.state === 'failed' ? (
-          <SvgIcon svg={warnSvg} size={16} className="text-red-500" />
+          <SvgIcon svg={warnSvg} size={28} className="text-red-500" />
         ) : (
-          <SvgIcon svg={downloadSvg} size={16} className="text-indigo-500" />
+          <SvgIcon svg={downloadSvg} size={28} className="text-indigo-500" />
         )}
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 z-10">
         <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
           {item.filename}
         </div>
@@ -79,7 +96,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
         </div>
       </div>
 
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-1 flex-shrink-0 z-10">
         {item.state === 'progressing' && (
           <button
             onClick={() => pauseDownload(item.id)}
@@ -167,7 +184,7 @@ function DownloadsPanelInner(): React.JSX.Element {
             </motion.button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-3 glass-scroll">
+          <div className="flex-1 overflow-y-auto px-5 py-3 glass-scroll">
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
                 <SvgIcon svg={downloadSvg} size={40} className="mb-3 opacity-50" />
