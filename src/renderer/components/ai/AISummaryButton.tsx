@@ -183,9 +183,6 @@ function AISummaryButtonInner(): React.JSX.Element {
                         filter: { duration: 0.2 },
                       }}
                     >
-                      {/* Rotating aurora border — only during loading */}
-                      <AuroraGlow active={isLoading} />
-
                       <div className="rounded-3xl glass-heavy overflow-hidden relative">
                         {/* Content — setup flow or summary */}
                         <div className="px-5 py-4">

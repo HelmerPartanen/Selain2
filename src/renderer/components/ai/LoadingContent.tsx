@@ -16,19 +16,31 @@ const STEPS = [
   'Pretending to be smart…',
   'Doing brain things…',
   'Summarizing furiously…',
+  'Googling the answer…',
+  'Panic mode activated…',
+  'Bribing the neurons…',
+  'Downloading more RAM…',
+  'Questioning life choices…',
+  'Sending thoughts and prayers…',
+  'Reticulating splines…',
+  'Warming up the hamster wheel…',
+  'Just one more minute, promise…',
+  'Making stuff up… I mean summarizing…',
 ]
 
-export function LoadingContent({ duration }: { duration: number }): React.JSX.Element {
+const STEP_INTERVAL = 2500 // ms per step
+
+export function LoadingContent({ duration: _duration }: { duration: number }): React.JSX.Element {
   const [step, setStep] = useState(0)
   const auroraRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const interval = setInterval(
       () => setStep((s) => (s + 1) % STEPS.length),
-      duration / STEPS.length,
+      STEP_INTERVAL,
     )
     return () => clearInterval(interval)
-  }, [duration])
+  }, [])
 
   // ~7 seconds per revolution — Apple's pace, not a disco light
   useRotatingAngle(auroraRef, true, 0.085)
@@ -60,6 +72,7 @@ export function LoadingContent({ duration }: { duration: number }): React.JSX.El
           transition={{ duration: 3.8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
           style={{
             color: 'white',
+            opacity: 0.5,
             filter: 'drop-shadow(0 0 7px rgba(255,255,255,0.4))',
           }}
         >
