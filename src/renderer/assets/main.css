@@ -135,6 +135,22 @@ body,
 
 /* ─── Animations ──────────────────────────────────────────────────────────── */
 
+/* Aurora border rotation for AI panel — Apple Intelligence style */
+@property --aurora-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: true;
+}
+
+@keyframes aurora-rotate {
+  to { --aurora-angle: 360deg; }
+}
+
+/* Apply globally so all elements using --aurora-angle animate */
+:root {
+  animation: aurora-rotate 4s linear infinite;
+}
+
 /* Menu item stagger animation — snappy 3D pop */
 @keyframes menu-item-in {
   from {

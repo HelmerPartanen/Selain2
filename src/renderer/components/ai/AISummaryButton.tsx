@@ -1,109 +1,203 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import starSvg from '@/assets/icons/Interface/Star.svg?raw'
+import sparkleSvg from '@/assets/icons/Weather/Sparkle.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useUIStore } from '@/store/uiStore'
-import { SPRING, SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
+import { SPRING_SNAPPY } from '@/utils/springs'
 
-// ── Shimmer lines for loading skeleton ───────────────────────────────────────
+// ── Fixed dimensions ────────────────────────────────────────────────────────
+const PANEL_WIDTH = 400
+const CONTENT_HEIGHT = 340
 
-function ShimmerLine({ width, delay }: { width: string; delay: number }): React.JSX.Element {
+// ── Apple Intelligence–style aurora glow ─────────────────────────────────────
+// Animated conic gradient border that flows around the panel edge — the
+// signature rainbow aurora that Apple uses across their AI features.
+
+function AuroraGlow(): React.JSX.Element {
   return (
     <motion.div
-      className="h-2.5 rounded-full relative overflow-hidden"
-      style={{ width, background: 'var(--glass-bg-subtle)' }}
-      initial={{ opacity: 0, x: -8 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ ...SPRING_LIST, delay }}
+      className="absolute -inset-[1.5px] rounded-[25px] pointer-events-none"
+      style={{
+        background: 'conic-gradient(from var(--aurora-angle, 0deg) at 50% 50%, #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6, #6366f1)',
+        opacity: 0.55,
+      }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 0.55, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+    />
+  )
+}
+
+// ── Loading content ─────────────────────────────────────────────────────────
+
+function LoadingContent(): React.JSX.Element {
+  return (
+    <div
+      className="flex flex-col items-center justify-center gap-5"
+      style={{ height: CONTENT_HEIGHT }}
     >
+      {/* Aurora orb */}
+      <div className="relative">
+        {/* Outer glow ring */}
+        <motion.div
+          className="absolute -inset-3 rounded-full"
+          style={{
+            background: 'conic-gradient(from var(--aurora-angle, 0deg), #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6, #6366f1)',
+          }}
+          animate={{ scale: [1, 1.15, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        {/* Inner orb */}
+        <motion.div
+          className="relative w-14 h-14 rounded-full flex items-center justify-center overflow-hidden"
+          style={{
+            background: 'conic-gradient(from var(--aurora-angle, 0deg), #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6, #6366f1)',
+          }}
+        >
+          {/* White/dark center cutout */}
+          <div
+            className="absolute inset-[2px] rounded-full flex items-center justify-center"
+            style={{ background: 'var(--glass-bg-heavy)' }}
+          >
+            <motion.div
+              className="flex items-center justify-center text-gray-500 dark:text-neutral-400"
+              style={{ width: 20, height: 20 }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+            >
+              <SvgIcon svg={sparkleSvg} size={20} />
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Status text */}
+      <div className="flex flex-col items-center gap-2">
+        <motion.span
+          className="text-[13px] font-medium text-gray-700 dark:text-neutral-300 tracking-tight"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          Summarizing
+        </motion.span>
+        <motion.span
+          className="text-[11px] text-gray-400 dark:text-neutral-500 font-light"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.6, 1] }}
+          transition={{ duration: 0.6, delay: 0.4, ease: 'easeOut' }}
+        >
+          Reading page content…
+        </motion.span>
+      </div>
+
+      {/* Minimal progress indicator — three softly pulsing dots */}
       <motion.div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: 'linear-gradient(90deg, transparent 0%, rgba(120,120,120,0.12) 50%, transparent 100%)',
-        }}
-        animate={{ x: ['-100%', '200%'] }}
-        transition={{ duration: 1.6, repeat: Infinity, ease: 'linear', delay: delay + 0.3 }}
-      />
-    </motion.div>
+        className="flex items-center gap-[6px]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
+      >
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="w-[5px] h-[5px] rounded-full"
+            style={{
+              background: ['#8b5cf6', '#ec4899', '#3b82f6'][i],
+            }}
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [0.35, 1, 0.35],
+            }}
+            transition={{
+              duration: 1.2,
+              repeat: Infinity,
+              delay: i * 0.2,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+      </motion.div>
+    </div>
+  )
+}
+
+// ── Streaming text line (words appearing one by one) ────────────────────────
+
+function StreamingTextLine({
+  text,
+  delayBase,
+}: {
+  text: string
+  delayBase: number
+}): React.JSX.Element {
+  const words = text.split(' ')
+  return (
+    <p className="text-[13px] leading-relaxed text-gray-600 dark:text-neutral-400 font-light">
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          className="inline-block mr-[0.3em]"
+          initial={{ opacity: 0, y: 4, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{
+            duration: 0.25,
+            delay: delayBase + i * 0.045,
+            ease: 'easeOut',
+          }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </p>
   )
 }
 
 // ── Fake summary content (UI-only) ──────────────────────────────────────────
 
 const FAKE_SUMMARY = [
-  'This page covers the main concepts and features of the current website.',
-  'Key topics include navigation structure, content hierarchy, and interactive elements.',
-  'The site uses a responsive layout with multiple sections organized by category.',
+  'This page presents a comprehensive overview of the website\'s core architecture, covering both structural layout and interactive functionality.',
+  'The navigation system uses a hierarchical structure with primary categories, subcategories, and contextual filtering. Key interactive elements include dropdown menus, search overlays, and tab-based content organization.',
+  'Content is organized across multiple sections with responsive breakpoints, adapting from a multi-column grid on desktop to a single-column stack on mobile devices.',
+  'Notable features include lazy-loaded media assets, client-side form validation, real-time search suggestions, and animated page transitions between sections.',
+  'The overall design language follows a minimal, glass-morphic aesthetic with layered depth cues, subtle shadows, and consistent spacing tokens throughout.',
 ]
 
 function SummaryContent({ isLoading }: { isLoading: boolean }): React.JSX.Element {
   return (
-    <div className="space-y-3 px-1">
+    <div className="relative" style={{ height: CONTENT_HEIGHT }}>
       <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
             key="loading"
-            className="space-y-3"
+            className="absolute inset-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, filter: 'blur(4px)' }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, scale: 0.97, filter: 'blur(8px)' }}
+            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <ShimmerLine width="92%" delay={0.05} />
-            <ShimmerLine width="78%" delay={0.1} />
-            <ShimmerLine width="85%" delay={0.15} />
-            <ShimmerLine width="60%" delay={0.2} />
-            <div className="h-3" />
-            <ShimmerLine width="88%" delay={0.28} />
-            <ShimmerLine width="72%" delay={0.33} />
-            <ShimmerLine width="80%" delay={0.38} />
+            <LoadingContent />
           </motion.div>
         ) : (
           <motion.div
             key="content"
-            className="space-y-3"
+            className="absolute inset-0 overflow-y-auto glass-scroll"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.05 }}
+            transition={{ duration: 0.35, delay: 0.05, ease: 'easeOut' }}
           >
-            {FAKE_SUMMARY.map((line, i) => (
-              <motion.p
-                key={i}
-                className="text-[13px] leading-relaxed text-gray-600 dark:text-neutral-400 font-light"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...SPRING_LIST, delay: i * 0.06 }}
-              >
-                {line}
-              </motion.p>
-            ))}
+            <div className="space-y-4 pr-1">
+              {FAKE_SUMMARY.map((line, i) => (
+                <StreamingTextLine key={i} text={line} delayBase={i * 0.35} />
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
-}
-
-// ── Pulsing star icon for loading state ─────────────────────────────────────
-
-function PulsingStarIcon(): React.JSX.Element {
-  return (
-    <motion.span
-      className="inline-flex"
-      animate={{
-        scale: [1, 1.18, 1],
-        rotate: [0, 8, -8, 0],
-        filter: ['brightness(1)', 'brightness(1.3)', 'brightness(1)'],
-      }}
-      transition={{
-        duration: 2,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
-    >
-      <SvgIcon svg={starSvg} size={14} />
-    </motion.span>
   )
 }
 
@@ -117,11 +211,11 @@ function AISummaryButtonInner(): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Simulate loading when opening
+  // Simulate loading
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true)
-      timerRef.current = setTimeout(() => setIsLoading(false), 2400)
+      timerRef.current = setTimeout(() => setIsLoading(false), 3000)
     } else {
       setIsLoading(false)
       if (timerRef.current) clearTimeout(timerRef.current)
@@ -193,7 +287,7 @@ function AISummaryButtonInner(): React.JSX.Element {
                     transition={SPRING_SNAPPY}
                     className="absolute inset-0 flex items-center justify-center"
                   >
-                    <SvgIcon svg={starSvg} size={18} />
+                    <SvgIcon svg={sparkleSvg} size={18} />
                   </motion.span>
                   <motion.span
                     animate={{
@@ -216,8 +310,8 @@ function AISummaryButtonInner(): React.JSX.Element {
                     {/* Click-away */}
                     <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
                     <motion.div
-                      className="absolute bottom-full right-0 z-[100] w-[320px] mb-2"
-                      style={{ originX: 1, originY: 1 }}
+                      className="absolute bottom-full right-0 z-[100] mb-2"
+                      style={{ originX: 1, originY: 1, width: PANEL_WIDTH }}
                       initial={{
                         scaleX: 0.15,
                         scaleY: 0.04,
@@ -251,14 +345,19 @@ function AISummaryButtonInner(): React.JSX.Element {
                         filter: { duration: 0.2 },
                       }}
                     >
-                      <div className="rounded-3xl glass-heavy overflow-hidden">
+                      {/* Aurora border glow — only visible during loading */}
+                      <AnimatePresence>
+                        {isLoading && <AuroraGlow />}
+                      </AnimatePresence>
+
+                      <div className="rounded-3xl glass-heavy overflow-hidden relative">
                         {/* Header */}
                         <div
                           className="flex items-center justify-between px-5 pt-4 pb-3 flex-shrink-0"
                           style={{ borderBottom: '1px solid var(--border-subtle)' }}
                         >
                           <h2 className="text-[13px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-                            {isLoading ? <PulsingStarIcon /> : <SvgIcon svg={starSvg} size={14} />}
+                            <SvgIcon svg={sparkleSvg} size={14} />
                             AI Summary
                           </h2>
                           <button
@@ -269,8 +368,8 @@ function AISummaryButtonInner(): React.JSX.Element {
                           </button>
                         </div>
 
-                        {/* Content */}
-                        <div className="px-4 py-4 max-h-[320px] overflow-y-auto glass-scroll">
+                        {/* Content — fixed height, no layout shift */}
+                        <div className="px-5 py-4">
                           <SummaryContent isLoading={isLoading} />
                         </div>
 
@@ -279,31 +378,18 @@ function AISummaryButtonInner(): React.JSX.Element {
                           className="px-5 py-3 flex items-center justify-between"
                           style={{ borderTop: '1px solid var(--border-subtle)' }}
                         >
-                          <span className="text-[11px] text-gray-400 dark:text-neutral-500 font-light">
-                            {isLoading ? 'Analyzing page…' : 'Powered by AI'}
-                          </span>
-                          {isLoading && (
-                            <motion.div
-                              className="flex items-center gap-1"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
+                          <AnimatePresence mode="wait">
+                            <motion.span
+                              className="text-[11px] text-gray-400 dark:text-neutral-500 font-light"
+                              key={isLoading ? 'loading' : 'done'}
+                              initial={{ opacity: 0, y: 2 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -2 }}
+                              transition={{ duration: 0.2 }}
                             >
-                              {[0, 1, 2].map((i) => (
-                                <motion.div
-                                  key={i}
-                                  className="w-1 h-1 rounded-full bg-gray-400 dark:bg-neutral-500"
-                                  animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }}
-                                  transition={{
-                                    duration: 0.8,
-                                    repeat: Infinity,
-                                    delay: i * 0.15,
-                                    ease: 'easeInOut',
-                                  }}
-                                />
-                              ))}
-                            </motion.div>
-                          )}
+                              {isLoading ? 'Analyzing…' : 'Powered by AI'}
+                            </motion.span>
+                          </AnimatePresence>
                         </div>
                       </div>
                     </motion.div>
