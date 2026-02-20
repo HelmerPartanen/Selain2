@@ -241,8 +241,8 @@ export function SummaryContent({
     })
   }, [summary])
 
-  // Show aurora loading while we haven't received any text yet
-  const showLoading = isLoading || (isSummarizing && !summary)
+  // Show aurora loading only until the first token arrives
+  const showLoading = isSummarizing && !summary
   // Show error if done and failed with no text
   const showError = !showLoading && !!summaryError && !summary
 

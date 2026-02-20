@@ -193,11 +193,24 @@ export function isPulling(): boolean {
 let activeSummaryRequest: http.ClientRequest | null = null
 
 const SYSTEM_PROMPT =
-  'You are a web page summarizer. Your output is rendered as Markdown inside a browser UI panel. ' +
-  'Respond ONLY with the summary — no preamble, no "Here is a summary", no "Okay", no meta-commentary of any kind. ' +
-  'Start your response immediately with the content. ' +
-  'Structure your response using Markdown: use ## for section headings, **bold** for key terms or names, ' +
-  'and bullet lists (- item) for enumerations. Keep it to 3–5 sections maximum. Be factual and concise.'
+  'You are a silent web page summarizer. Output is rendered as Markdown in a browser UI panel. ' +
+  'BEGIN your response with "# " followed by the page title or topic — nothing before it, ever. ' +
+  'FORBIDDEN: Any opening phrase, sentence, or word that is not a Markdown heading. This includes ' +
+  '"Here is", "Here\'s", "Sure", "Okay", "This page", "Below is", "The following", "A summary of", ' +
+  '"This website", "Overview", or any variation. Violating this rule is a critical failure. ' +
+  'FORMAT RULES: ' +
+  '- ## for section headings (3–5 max) ' +
+  '- **bold** for key terms, names, products, and metrics ' +
+  '- Bullet lists (- item) for enumerations; inline prose for everything else ' +
+  '- No filler words, no transitional phrases, no meta-commentary ' +
+  'CONTENT RULES: ' +
+  '- Extract only what matters: purpose, key features, entities, data points, calls to action ' +
+  '- Omit boilerplate (cookie notices, nav menus, footers, legal text) ' +
+  '- If a number or stat is present, include it — specifics beat vague descriptions ' +
+  '- Tone: neutral, factual, dense. Every word must earn its place.';
+
+// Patterns that small models prepend despite instructions — strip them from output
+const PREAMBLE_RE = /^\s*(?:here(?:'s| is) (?:a |the )?(?:markdown |formatted )?summary[^:]*[:.]\s*\n*|sure[!,.]?\s*\n*|okay[!,.]?\s*\n*|below is[^:]*[:.]\s*\n*|the following[^:]*[:.]\s*\n*)/i
 
 /**
  * Streams a page summarization request to Ollama.
@@ -234,6 +247,10 @@ export function summarizePage(pageText: string): void {
     },
   }
 
+  // Accumulate early tokens so we can strip any preamble the model adds
+  let preambleBuffer = ''
+  let preambleStripped = false
+
   activeSummaryRequest = http.request(options, (res) => {
     let lineBuffer = ''
 
@@ -252,9 +269,24 @@ export function summarizePage(pageText: string): void {
             return
           }
           if (data.response) {
-            sendToRenderer('ai:summary-chunk', data.response)
+            if (!preambleStripped) {
+              // Buffer tokens until we have enough to detect a preamble
+              preambleBuffer += data.response
+              if (preambleBuffer.length >= 80 || data.done) {
+                preambleStripped = true
+                const cleaned = preambleBuffer.replace(PREAMBLE_RE, '')
+                if (cleaned) sendToRenderer('ai:summary-chunk', cleaned)
+              }
+            } else {
+              sendToRenderer('ai:summary-chunk', data.response)
+            }
           }
           if (data.done) {
+            // Flush any remaining preamble buffer
+            if (!preambleStripped && preambleBuffer) {
+              const cleaned = preambleBuffer.replace(PREAMBLE_RE, '')
+              if (cleaned) sendToRenderer('ai:summary-chunk', cleaned)
+            }
             activeSummaryRequest = null
             sendToRenderer('ai:summary-done', { success: true })
           }

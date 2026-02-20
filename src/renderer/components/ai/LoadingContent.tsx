@@ -5,7 +5,18 @@ import sparkleSvg from '@/assets/icons/Weather/Sparkle.svg?raw'
 import { useRotatingAngle } from './useRotatingAngle'
 import { CONTENT_HEIGHT } from './constants'
 
-const STEPS = ['Reading page content…', 'Extracting key ideas…', 'Composing summary…']
+const STEPS = [
+  'Thinking…',
+  'Reading stuff…',
+  'Crying a little…',
+  'Having an existential crisis…',
+  'Consulting the stars…',
+  'Asking my therapist…',
+  'Almost there, probably…',
+  'Pretending to be smart…',
+  'Doing brain things…',
+  'Summarizing furiously…',
+]
 
 export function LoadingContent({ duration }: { duration: number }): React.JSX.Element {
   const [step, setStep] = useState(0)
@@ -13,8 +24,8 @@ export function LoadingContent({ duration }: { duration: number }): React.JSX.El
 
   useEffect(() => {
     const interval = setInterval(
-      () => setStep((s) => Math.min(s + 1, STEPS.length - 1)),
-      duration / (STEPS.length + 0.5),
+      () => setStep((s) => (s + 1) % STEPS.length),
+      duration / STEPS.length,
     )
     return () => clearInterval(interval)
   }, [duration])
