@@ -23,6 +23,7 @@ function AISummaryButtonInner(): React.JSX.Element {
   const checkAIStatus = useAIStore((s) => s.checkStatus)
   const isSummarizing = useAIStore((s) => s.isSummarizing)
   const startSummary = useAIStore((s) => s.startSummary)
+  const cancelSummary = useAIStore((s) => s.cancelSummary)
   const resetSummary = useAIStore((s) => s.resetSummary)
   const isAIReady = aiStatus === 'ready'
   // Drive the aurora/badge "loading" appearance from live summarization state
@@ -48,7 +49,7 @@ function AISummaryButtonInner(): React.JSX.Element {
     startSummary(pageText)
   }, [startSummary])
 
-  // Trigger AI status check on open; start summarization when ready
+  // Trigger AI status check on open; cancel & reset on close
   useEffect(() => {
     if (isOpen) {
       if (aiStatus === 'idle') {
@@ -58,9 +59,18 @@ function AISummaryButtonInner(): React.JSX.Element {
         triggerSummarization()
       }
     } else {
+      // Cancel any in-flight request so the model stops generating
+      cancelSummary()
       resetSummary()
     }
-  }, [isOpen, aiStatus, isAIReady, triggerSummarization, checkAIStatus, resetSummary])
+  }, [isOpen, aiStatus, isAIReady, triggerSummarization, checkAIStatus, cancelSummary, resetSummary])
+
+  // Safety net: cancel on unmount so nothing leaks if component is removed
+  useEffect(() => {
+    return () => {
+      cancelSummary()
+    }
+  }, [cancelSummary])
 
   // Start summarization once AI becomes ready while panel is already open
   useEffect(() => {
