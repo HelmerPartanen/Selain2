@@ -45,6 +45,25 @@ export interface ElectronAPI {
   saveStore(name: string, data: string): Promise<boolean>
   /** Request Picture-in-Picture for a specific webContents */
   requestPiP(webContentsId: number): void
+  // ── AI / Ollama ──────────────────────────────────────────────────────────
+  /** Check whether Ollama is installed, running, and the model is available */
+  checkAIStatus(): Promise<{ installed: boolean; running: boolean; modelReady: boolean }>
+  /** Start pulling the AI model in the main process; progress comes via onAIPullProgress */
+  pullAIModel(): Promise<{ started: boolean }>
+  /** Cancel an in-progress model pull */
+  cancelAIPull(): void
+  /** Subscribe to streaming pull progress updates */
+  onAIPullProgress(callback: (data: { status: string; progress: number; total: number; completed: number }) => void): () => void
+  /** Subscribe to pull completion (success or error) */
+  onAIPullDone(callback: (data: { success: boolean; error?: string }) => void): () => void
+  /** Send extracted page text to main process to summarize via Ollama */
+  summarizePage(text: string): void
+  /** Cancel an in-progress summarization */
+  cancelSummarize(): void
+  /** Receive a streamed token chunk from Ollama */
+  onAISummaryChunk(callback: (token: string) => void): () => void
+  /** Receive summarization completion signal */
+  onAISummaryDone(callback: (data: { success: boolean; error?: string }) => void): () => void
 }
 
 declare global {

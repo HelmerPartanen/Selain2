@@ -63,7 +63,41 @@ const api: ElectronAPI = {
   setZoomFactor: (factor: number) => ipcRenderer.send('set-zoom-factor', factor),
   loadStore: (name: string) => ipcRenderer.invoke('load-store', name),
   saveStore: (name: string, data: string) => ipcRenderer.invoke('save-store', name, data),
-  requestPiP: (webContentsId: number) => ipcRenderer.send('request-pip', webContentsId)
+  requestPiP: (webContentsId: number) => ipcRenderer.send('request-pip', webContentsId),
+  // ── AI / Ollama ──────────────────────────────────────────────────────────
+  checkAIStatus: () => ipcRenderer.invoke('ai:check-status'),
+  pullAIModel: () => ipcRenderer.invoke('ai:pull-model'),
+  cancelAIPull: () => ipcRenderer.send('ai:cancel-pull'),
+  onAIPullProgress: (callback: (data: { status: string; progress: number; total: number; completed: number }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: { status: string; progress: number; total: number; completed: number }): void => {
+      callback(data)
+    }
+    ipcRenderer.on('ai:pull-progress', handler)
+    return () => { ipcRenderer.removeListener('ai:pull-progress', handler) }
+  },
+  onAIPullDone: (callback: (data: { success: boolean; error?: string }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: { success: boolean; error?: string }): void => {
+      callback(data)
+    }
+    ipcRenderer.on('ai:pull-done', handler)
+    return () => { ipcRenderer.removeListener('ai:pull-done', handler) }
+  },
+  summarizePage: (text: string) => ipcRenderer.send('ai:summarize', text),
+  cancelSummarize: () => ipcRenderer.send('ai:cancel-summarize'),
+  onAISummaryChunk: (callback: (token: string) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, token: string): void => {
+      callback(token)
+    }
+    ipcRenderer.on('ai:summary-chunk', handler)
+    return () => { ipcRenderer.removeListener('ai:summary-chunk', handler) }
+  },
+  onAISummaryDone: (callback: (data: { success: boolean; error?: string }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: { success: boolean; error?: string }): void => {
+      callback(data)
+    }
+    ipcRenderer.on('ai:summary-done', handler)
+    return () => { ipcRenderer.removeListener('ai:summary-done', handler) }
+  },
 }
 
 // Freeze the API object so renderer code cannot mutate or extend it

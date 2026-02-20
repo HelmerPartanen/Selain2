@@ -1,7 +1,12 @@
+// ── SummaryContent ────────────────────────────────────────────────────────────
+// Renders real streaming AI output from Ollama. Tokens are received via IPC
+// and stored in aiStore. No fake data — this is the actual model response.
+
 import { useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { LoadingContent } from './LoadingContent'
-import { CONTENT_HEIGHT, FAKE_SUMMARY, WORD_COUNT } from './constants'
+import { useAIStore } from '@/store/aiStore'
+import { CONTENT_HEIGHT } from './constants'
 
 // ── Inline micro-icons ────────────────────────────────────────────────────────
 
@@ -25,35 +30,49 @@ const RefreshIcon = (): React.JSX.Element => (
   </svg>
 )
 
-// ── Streaming text line ───────────────────────────────────────────────────────
+// ── Streaming cursor ──────────────────────────────────────────────────────────
 
-function StreamingTextLine({ text, delayBase }: { text: string; delayBase: number }): React.JSX.Element {
-  const words = text.split(' ')
+function BlinkingCursor(): React.JSX.Element {
   return (
-    <p
-      className="text-[13px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light"
-      aria-label={text}
-    >
-      {words.map((word, i) => {
-        const t = i / words.length
-        const stagger = 0.028 + t * 0.04
-        return (
-          <motion.span
-            key={i}
-            className="inline-block mr-[0.3em]"
-            initial={{ opacity: 0, y: 5, filter: 'blur(3px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 0.22, delay: delayBase + i * stagger, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {word}
-          </motion.span>
-        )
-      })}
-    </p>
+    <motion.span
+      className="inline-block w-[2px] h-[12px] ml-[2px] rounded-full"
+      style={{ background: 'currentColor', verticalAlign: 'text-bottom' }}
+      animate={{ opacity: [1, 0, 1] }}
+      transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
+    />
   )
 }
 
-// ── Summary content ───────────────────────────────────────────────────────────
+// ── Error screen ──────────────────────────────────────────────────────────────
+
+function ErrorContent({ onRetry }: { onRetry: () => void }): React.JSX.Element {
+  const summaryError = useAIStore((s) => s.summaryError)
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 h-full text-center px-4">
+      <div
+        className="w-9 h-9 rounded-xl flex items-center justify-center text-base"
+        style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}
+      >
+        ⚠️
+      </div>
+      <div className="space-y-1">
+        <p className="text-[12px] font-medium text-gray-700 dark:text-neutral-300">Summarization failed</p>
+        {summaryError && (
+          <p className="text-[11px] font-mono text-gray-400 dark:text-neutral-600 break-all max-w-[300px]">{summaryError}</p>
+        )}
+      </div>
+      <button
+        onClick={onRetry}
+        className="px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors duration-100"
+        style={{ background: 'rgba(99,102,241,0.12)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.25)' }}
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function SummaryContent({
   isLoading,
@@ -64,19 +83,30 @@ export function SummaryContent({
   loadingDuration: number
   onRegenerate: () => void
 }): React.JSX.Element {
+  const summary = useAIStore((s) => s.summary)
+  const isSummarizing = useAIStore((s) => s.isSummarizing)
+  const summaryError = useAIStore((s) => s.summaryError)
   const [copied, setCopied] = useState(false)
 
+  const wordCount = summary ? summary.trim().split(/\s+/).length : 0
+
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(FAKE_SUMMARY.join('\n\n')).then(() => {
+    if (!summary) return
+    navigator.clipboard.writeText(summary).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
-  }, [])
+  }, [summary])
+
+  // Show aurora loading while we haven't received any text yet
+  const showLoading = isLoading || (isSummarizing && !summary)
+  // Show error if done and failed with no text
+  const showError = !showLoading && !!summaryError && !summary
 
   return (
     <div className="relative" style={{ height: CONTENT_HEIGHT }}>
       <AnimatePresence mode="wait">
-        {isLoading ? (
+        {showLoading ? (
           <motion.div
             key="loading"
             className="absolute inset-0"
@@ -87,80 +117,82 @@ export function SummaryContent({
           >
             <LoadingContent duration={loadingDuration} />
           </motion.div>
+        ) : showError ? (
+          <motion.div
+            key="error"
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <ErrorContent onRetry={onRegenerate} />
+          </motion.div>
         ) : (
           <motion.div
             key="content"
             className="absolute inset-0 flex flex-col"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.05, ease: 'easeOut' }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
           >
-            {/* Scrollable text */}
+            {/* Scrollable streaming text */}
             <div
-              className="flex-1 overflow-y-auto glass-scroll space-y-[14px] pr-1 pb-2"
+              className="flex-1 overflow-y-auto glass-scroll pr-1 pb-2"
               role="region"
               aria-label="AI Summary"
               aria-live="polite"
             >
-              {FAKE_SUMMARY.map((line, i) => (
-                <StreamingTextLine key={i} text={line} delayBase={i * 0.32} />
-              ))}
+              <p className="text-[13px] leading-[1.75] text-gray-600 dark:text-neutral-400 font-light whitespace-pre-wrap">
+                {summary}
+                {isSummarizing && <BlinkingCursor />}
+              </p>
             </div>
 
-            {/* Action row */}
-            <motion.div
-              className="flex items-center gap-2 pt-3 mt-1 flex-shrink-0"
-              style={{ borderTop: '1px solid var(--border-subtle)' }}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.5 }}
-            >
-              <span className="text-[11px] text-gray-400 dark:text-neutral-600 tabular-nums">
-                {WORD_COUNT} words
-              </span>
-              <div className="flex-1" />
-              <button
-                onClick={onRegenerate}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
-                aria-label="Regenerate summary"
+            {/* Action row — only after streaming is done */}
+            {!isSummarizing && summary && (
+              <motion.div
+                className="flex items-center gap-2 pt-3 mt-1 flex-shrink-0"
+                style={{ borderTop: '1px solid var(--border-subtle)' }}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
               >
-                <RefreshIcon />
-                Regenerate
-              </button>
-              <button
-                onClick={handleCopy}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
-                aria-label="Copy summary to clipboard"
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  {copied ? (
-                    <motion.span
-                      key="check"
-                      className="flex items-center gap-1.5 text-emerald-500"
-                      initial={{ scale: 0.7, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.7, opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      <CheckIcon />
-                      Copied
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="copy"
-                      className="flex items-center gap-1.5"
-                      initial={{ scale: 0.7, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.7, opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      <CopyIcon />
-                      Copy
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </button>
-            </motion.div>
+                <span className="text-[11px] text-gray-400 dark:text-neutral-600 tabular-nums">
+                  {wordCount} words
+                </span>
+                <div className="flex-1" />
+                <button
+                  onClick={onRegenerate}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+                  aria-label="Regenerate"
+                >
+                  <RefreshIcon />
+                  Regenerate
+                </button>
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+                  aria-label="Copy summary"
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {copied ? (
+                      <motion.span key="check" className="flex items-center gap-1.5 text-emerald-500"
+                        initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
+                        <CheckIcon />Copied
+                      </motion.span>
+                    ) : (
+                      <motion.span key="copy" className="flex items-center gap-1.5"
+                        initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
+                        <CopyIcon />Copy
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

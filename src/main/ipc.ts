@@ -8,6 +8,7 @@ import { join } from 'path'
 import { existsSync } from 'fs'
 import { getMainWindow } from './state'
 import { getLatestPerfSnapshot, getPerfSnapshots, startPerfMonitor, stopPerfMonitor } from './perfMonitor'
+import { setupAIIPC } from './ai/ipcAI'
 
 const PERF_LOGS = process.env['BROWSER_PERF_LOG'] === '1'
 
@@ -41,6 +42,7 @@ function sendToMainWindow(channel: string, payload: unknown): void {
 
 export function setupIPC(): void {
   startPerfLogging()
+  setupAIIPC()
 
   // ── Download management ──────────────────────────────────────────────────
   const activeDownloads = new Map<string, Electron.DownloadItem>()

@@ -4,9 +4,13 @@ import { SvgIcon } from '@/components/ui/SvgIcon'
 import sparkleSvg from '@/assets/icons/Weather/Sparkle.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useUIStore } from '@/store/uiStore'
+import { useTabStore } from '@/store/tabStore'
 import { SPRING_SNAPPY } from '@/utils/springs'
 import { AuroraGlow } from './AuroraGlow'
 import { SummaryContent } from './SummaryContent'
+import { OllamaSetupContent } from './OllamaSetupContent'
+import { useAIStore } from '@/store/aiStore'
+import { webviewRegistry } from '@/webview/webviewRegistry'
 import { PANEL_WIDTH, LOADING_DURATION } from './constants'
 
 // ── Main component ──────────────────────────────────────────────────────────
@@ -15,31 +19,56 @@ function AISummaryButtonInner(): React.JSX.Element {
   const isOpen = useUIStore((s) => s.isAISummaryOpen)
   const toggleAISummary = useUIStore((s) => s.toggleAISummary)
   const closeAISummary = useUIStore((s) => s.closeAISummary)
-  const [isLoading, setIsLoading] = useState(false)
+  const aiStatus = useAIStore((s) => s.status)
+  const checkAIStatus = useAIStore((s) => s.checkStatus)
+  const isSummarizing = useAIStore((s) => s.isSummarizing)
+  const startSummary = useAIStore((s) => s.startSummary)
+  const resetSummary = useAIStore((s) => s.resetSummary)
+  const isAIReady = aiStatus === 'ready'
+  // Drive the aurora/badge "loading" appearance from live summarization state
+  const isLoading = isSummarizing
   const [isHovered, setIsHovered] = useState(false)
   // Key used to force-remount summary content on regenerate
   const [summaryKey, setSummaryKey] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
-  const startLoading = useCallback(() => {
-    setIsLoading(true)
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => setIsLoading(false), LOADING_DURATION)
-  }, [])
+  const triggerSummarization = useCallback(async () => {
+    const tabId = useTabStore.getState().activeTabId
+    let pageText = ''
+    if (tabId) {
+      const webview = webviewRegistry.get(tabId)
+      if (webview) {
+        try {
+          pageText = (await webview.executeJavaScript('document.body.innerText')) as string
+        } catch {
+          // page text extraction failed — proceed with empty text
+        }
+      }
+    }
+    startSummary(pageText)
+  }, [startSummary])
 
-  // Start loading when panel opens
+  // Trigger AI status check on open; start summarization when ready
   useEffect(() => {
     if (isOpen) {
-      startLoading()
+      if (aiStatus === 'idle') {
+        checkAIStatus()
+      }
+      if (isAIReady) {
+        triggerSummarization()
+      }
     } else {
-      setIsLoading(false)
-      if (timerRef.current) clearTimeout(timerRef.current)
+      resetSummary()
     }
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
+  }, [isOpen, aiStatus, isAIReady, triggerSummarization, checkAIStatus, resetSummary])
+
+  // Start summarization once AI becomes ready while panel is already open
+  useEffect(() => {
+    if (isOpen && isAIReady) {
+      triggerSummarization()
     }
-  }, [isOpen, startLoading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAIReady])
 
   // Escape to close
   useEffect(() => {
@@ -59,8 +88,9 @@ function AISummaryButtonInner(): React.JSX.Element {
 
   const handleRegenerate = useCallback(() => {
     setSummaryKey((k) => k + 1)
-    startLoading()
-  }, [startLoading])
+    resetSummary()
+    triggerSummarization()
+  }, [resetSummary, triggerSummarization])
 
   return (
     <>
@@ -229,14 +259,18 @@ function AISummaryButtonInner(): React.JSX.Element {
                           </div>
                         </div>
 
-                        {/* Content */}
+                        {/* Content — setup flow or summary */}
                         <div className="px-5 py-4">
-                          <SummaryContent
-                            key={summaryKey}
-                            isLoading={isLoading}
-                            loadingDuration={LOADING_DURATION}
-                            onRegenerate={handleRegenerate}
-                          />
+                          {isAIReady ? (
+                            <SummaryContent
+                              key={summaryKey}
+                              isLoading={isLoading}
+                              loadingDuration={LOADING_DURATION}
+                              onRegenerate={handleRegenerate}
+                            />
+                          ) : (
+                            <OllamaSetupContent />
+                          )}
                         </div>
 
                         {/* Footer */}

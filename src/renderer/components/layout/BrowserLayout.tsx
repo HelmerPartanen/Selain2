@@ -15,6 +15,7 @@ import { WebViewManager } from "@/webview/WebViewManager";
 import { useLRUTabManager } from "@/webview/useLRUTabManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useDownloadListener } from "@/hooks/useDownloadListener";
+import { useAISetup } from "@/hooks/useAISetup";
 import { useTrackpadTabSwipe } from "@/hooks/useTrackpadTabSwipe";
 import { useIsDark } from "@/hooks/useIsDark";
 import { useTabStore } from "@/store/tabStore";
@@ -68,6 +69,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   useKeyboardShortcuts();
   useDownloadListener();
   useTrackpadTabSwipe();
+  useAISetup();
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const uiZoom = useSettingsStore((s) => s.uiZoom);
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);
