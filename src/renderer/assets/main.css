@@ -72,7 +72,7 @@
 
 .glass {
   background: var(--glass-bg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-xs);
   border: 1px solid var(--border-subtle);
   transition: background 0.35s ease, border-color 0.35s ease;
 }

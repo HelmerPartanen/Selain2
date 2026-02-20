@@ -121,12 +121,12 @@ function PrivacyPaneInner(): React.JSX.Element {
                 }}
                 whileTap={{ scale: 0.97 }}
                 transition={SPRING_SNAPPY}
-                className={`px-4 py-2.5 rounded-xl text-[12px] font-medium transition-all duration-200 ${
+                className={`px-4 py-2.5 rounded-full text-[12px] font-medium transition-all duration-200 ${
                   isConfirming
                     ? "bg-red-500 text-white shadow-sm"
                     : action.destructive
-                      ? "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14]"
-                      : "text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.07]"
+                      ? "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] border border-red-500/20 dark:border-red-400/20 hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14]"
+                      : "text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.07]"
                 }`}
               >
                 <AnimatePresence mode="wait">

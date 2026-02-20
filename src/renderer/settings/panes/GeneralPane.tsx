@@ -53,7 +53,7 @@ function GeneralPaneInner(): React.JSX.Element {
         <SectionHeader>New Tab</SectionHeader>
         <Desc>Choose what appears when you open a new tab.</Desc>
         <div
-          className="flex gap-1.5 p-1 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04]"
+          className="flex gap-1 p-1 rounded-full glass-subtle bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
           role="radiogroup"
           aria-label="New tab page mode"
         >
@@ -66,7 +66,7 @@ function GeneralPaneInner(): React.JSX.Element {
                 role="radio"
                 aria-checked={isActive}
                 onClick={() => setNewTabMode(mode)}
-                className={`relative flex-1 px-4 py-2 rounded-xl text-[12px] font-medium transition-colors duration-150 ${
+                className={`relative flex-1 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 ${
                   isActive
                     ? "text-gray-900 dark:text-white"
                     : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
@@ -75,7 +75,7 @@ function GeneralPaneInner(): React.JSX.Element {
                 {isActive && (
                   <motion.div
                     layoutId="newtab-mode"
-                    className="absolute inset-0 rounded-xl bg-white dark:bg-white/[0.1] shadow-sm"
+                    className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
                     transition={SPRING_SNAPPY}
                   />
                 )}
@@ -100,7 +100,7 @@ function GeneralPaneInner(): React.JSX.Element {
           placeholder="https://example.com"
           aria-label="Homepage URL"
           spellCheck={false}
-          className="w-full px-3.5 py-2.5 rounded-xl text-[12px] bg-black/[0.03] dark:bg-white/[0.04] text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none border border-transparent focus:border-indigo-500/30 dark:focus:border-indigo-400/30 transition-all duration-200"
+          className="w-full px-3.5 py-2.5 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10 text-[13px] font-normal text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none border border-transparent focus:border-indigo-500/30 dark:focus:border-indigo-400/30 transition-all duration-200"
         />
       </div>
 

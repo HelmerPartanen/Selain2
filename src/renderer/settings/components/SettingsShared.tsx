@@ -44,15 +44,15 @@ export function Toggle({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative w-[38px] h-[22px] rounded-full flex-shrink-0 transition-colors duration-200 ${
+      className={`relative w-[42px] h-[22px] rounded-full flex-shrink-0 transition-colors duration-200 ${
         checked
-          ? 'bg-indigo-500 dark:bg-indigo-400'
+          ? 'bg-indigo-500/70 dark:bg-indigo-400/70'
           : 'bg-gray-300 dark:bg-neutral-600'
       }`}
     >
       <motion.span
-        className="absolute top-[2px] left-[2px] w-[18px] h-[18px] rounded-full bg-white shadow-md"
-        animate={{ x: checked ? 16 : 0 }}
+        className="absolute top-[2px] left-[2px] w-[24px] h-[18px] rounded-full bg-gradient-to-b from-white/90 to-white/80 border border-white shadow-sm"
+        animate={{ x: checked ? 14 : 0 }}
         transition={SPRING_SNAPPY}
       />
     </button>

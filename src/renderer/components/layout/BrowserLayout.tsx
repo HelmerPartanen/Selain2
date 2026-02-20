@@ -25,6 +25,7 @@ import { resolveWallpaperUrl } from "@/theme/bundledWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ToastContainer } from "@/components/ui/Toast";
+import { AISummaryButton } from "@/components/ai/AISummaryButton";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useHistoryStore } from "@/store/historyStore";
 import { useDownloadStore } from "@/store/downloadStore";
@@ -235,6 +236,9 @@ function BrowserLayoutInner(): React.JSX.Element {
 
       {/* Floating controls overlay */}
       <FloatingControls />
+
+      {/* AI Summary floating button (bottom-right) */}
+      <AISummaryButton />
 
       {/* Find bar */}
       <AnimatePresence>{isFindBarOpen && <FindBar />}</AnimatePresence>

@@ -1,6 +1,6 @@
 // ─── Search Engine Settings Pane ─────────────────────────────────────────────
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { motion } from "motion/react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Desc, SectionHeader, SettingGroup } from "@/settings/components/SettingsShared";
@@ -27,6 +27,7 @@ const ENGINE_ICONS: Record<string, string> = {
 };
 
 function SearchEnginePaneInner(): React.JSX.Element {
+  const [hoveredEngineId, setHoveredEngineId] = useState<string | null>(null)
   const engineId = useSearchEngineStore((s) => s.engineId);
   const setEngine = useSearchEngineStore((s) => s.setEngine);
 
@@ -52,20 +53,27 @@ function SearchEnginePaneInner(): React.JSX.Element {
                   aria-checked={isActive}
                   aria-label={`${engine.name} search engine`}
                   onClick={() => setEngine(engine.id)}
-                  className={`relative w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition-colors duration-150 ${
+                  onMouseEnter={() => setHoveredEngineId(engine.id)}
+                  onMouseLeave={() => setHoveredEngineId(null)}
+                  onFocus={() => setHoveredEngineId(engine.id)}
+                  onBlur={() => setHoveredEngineId(null)}
+                  className={`relative w-full flex items-center gap-3 px-3.5 py-3 rounded-full transition-all duration-150 hover:scale-105 ${
                     isActive
                       ? "text-gray-900 dark:text-white"
-                      : "text-gray-600 dark:text-neutral-400 hover:bg-black/[0.025] dark:hover:bg-white/[0.025]"
+                      : "text-gray-600 dark:text-neutral-400"
                   }`}
                 >
-                  {isActive && (
-                    <motion.div
-                      layoutId="search-engine"
-                      className="absolute inset-0 rounded-xl bg-black/[0.04] dark:bg-white/[0.06]"
-                      transition={SPRING_SNAPPY}
-                    />
+                    {(isActive || hoveredEngineId === engine.id) && (
+                <motion.div
+                    layoutId="history-hover"
+                  className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                    initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+                  animate={{ opacity: 1, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, filter: 'blur(2px)' }}
+                  transition={SPRING_SNAPPY}
+                />
                   )}
-                  <div className="relative w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 bg-white dark:bg-white/[0.08] shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
+                  <div className="relative w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-white dark:bg-white/[0.08] shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
                     {ENGINE_ICONS[engine.id] ? (
                       <img src={ENGINE_ICONS[engine.id]} alt={engine.name} className="w-4.5 h-4.5" />
                     ) : (

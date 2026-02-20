@@ -88,7 +88,7 @@ function AppearancePaneInner(): React.JSX.Element {
         <SectionHeader>Interface Scale</SectionHeader>
         <Desc>Scale the browser UI. Does not affect web page content.</Desc>
         <div
-          className="flex gap-1 p-1 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+          className="flex gap-1 p-1 rounded-full glass-subtle bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
           role="radiogroup"
           aria-label="Interface scale"
         >
@@ -110,7 +110,7 @@ function AppearancePaneInner(): React.JSX.Element {
                 {isActive && (
                   <motion.div
                     layoutId="ui-zoom"
-                    className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                    className="absolute inset-0 rounded-full glass-subtle bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
                     transition={SPRING_SNAPPY}
                   />
                 )}
@@ -158,7 +158,7 @@ function AppearancePaneInner(): React.JSX.Element {
             aria-valuemax={5000}
             aria-valuenow={autoHideDelay}
             aria-valuetext={`${(autoHideDelay / 1000).toFixed(1)} seconds`}
-            className="flex-1 h-1 rounded-full appearance-none bg-black/[0.08] dark:bg-white/[0.1] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-1 [&::-webkit-slider-thumb]:ring-black/[0.08] dark:[&::-webkit-slider-thumb]:bg-neutral-200 dark:[&::-webkit-slider-thumb]:ring-white/[0.1]"
+            className="flex-1 h-1 rounded-full appearance-none bg-black/[0.08] dark:bg-white/[0.1] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-1 [&::-webkit-slider-thumb]:ring-black/[0.08] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb:hover]:scale-105 [&::-webkit-slider-thumb:active]:scale-110 dark:[&::-webkit-slider-thumb]:bg-neutral-200 dark:[&::-webkit-slider-thumb]:ring-white/[0.1]"
           />
           <span
             className="text-[12px] font-normal text-gray-400 dark:text-neutral-500 w-10 text-right tabular-nums"
