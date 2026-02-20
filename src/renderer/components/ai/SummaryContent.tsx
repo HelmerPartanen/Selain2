@@ -30,6 +30,149 @@ const RefreshIcon = (): React.JSX.Element => (
   </svg>
 )
 
+// ── Lightweight markdown renderer ───────────────────────────────────────────────
+// Handles: **bold**, *italic*, `code`, # headings, - / * / 1. lists, blank lines.
+// Designed to work gracefully on partial/streaming text.
+
+function parseInline(text: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = []
+  // Match **bold**, *italic*, `code` — in that order of precedence
+  const re = /\*\*(.+?)\*\*|\*(.+?)\*|`([^`]+)`/g
+  let last = 0
+  let m: RegExpExecArray | null
+  let k = 0
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) nodes.push(text.slice(last, m.index))
+    if (m[1] !== undefined) {
+      nodes.push(
+        <strong key={k++} className="font-semibold text-gray-800 dark:text-neutral-200">
+          {m[1]}
+        </strong>
+      )
+    } else if (m[2] !== undefined) {
+      nodes.push(<em key={k++}>{m[2]}</em>)
+    } else if (m[3] !== undefined) {
+      nodes.push(
+        <code
+          key={k++}
+          className="font-mono text-[11.5px] px-1 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.08] text-gray-700 dark:text-neutral-300"
+        >
+          {m[3]}
+        </code>
+      )
+    }
+    last = m.index + m[0].length
+  }
+  if (last < text.length) nodes.push(text.slice(last))
+  return nodes
+}
+
+type Block =
+  | { kind: 'h1' | 'h2' | 'h3'; text: string }
+  | { kind: 'ul' | 'ol'; items: string[] }
+  | { kind: 'p'; text: string }
+  | { kind: 'gap' }
+
+function parseBlocks(raw: string): Block[] {
+  const blocks: Block[] = []
+  let listKind: 'ul' | 'ol' | null = null
+  let listItems: string[] = []
+
+  const flushList = () => {
+    if (listItems.length && listKind) {
+      blocks.push({ kind: listKind, items: [...listItems] })
+      listItems = []
+      listKind = null
+    }
+  }
+
+  for (const rawLine of raw.split('\n')) {
+    const line = rawLine
+    const mH3 = line.match(/^###\s+(.*)/)
+    const mH2 = line.match(/^##\s+(.*)/)
+    const mH1 = line.match(/^#\s+(.*)/)
+    const mUL = line.match(/^[\t ]*[-*]\s+(.*)/)
+    const mOL = line.match(/^[\t ]*\d+\.\s+(.*)/)
+
+    if (mH1 || mH2 || mH3) {
+      flushList()
+      const t = mH3?.[1] ?? mH2?.[1] ?? mH1?.[1] ?? ''
+      blocks.push({ kind: mH3 ? 'h3' : mH2 ? 'h2' : 'h1', text: t as string })
+    } else if (mUL) {
+      if (listKind !== 'ul') { flushList(); listKind = 'ul' }
+      listItems.push(mUL[1]!)
+    } else if (mOL) {
+      if (listKind !== 'ol') { flushList(); listKind = 'ol' }
+      listItems.push(mOL[1]!)
+    } else if (line.trim() === '') {
+      flushList()
+      if (blocks.length > 0) {
+        const last = blocks[blocks.length - 1]
+        if (last && last.kind !== 'gap') blocks.push({ kind: 'gap' })
+      }
+    } else {
+      flushList()
+      blocks.push({ kind: 'p', text: line })
+    }
+  }
+  flushList()
+  return blocks
+}
+
+function MarkdownBody({ text }: { text: string }): React.JSX.Element {
+  const blocks = parseBlocks(text)
+  return (
+    <div className="space-y-[6px]">
+      {blocks.map((block, i) => {
+        if (block.kind === 'gap') return <div key={i} className="h-1" />
+        if (block.kind === 'h1') return (
+          <h1 key={i} className="text-[14px] font-semibold text-gray-900 dark:text-white leading-snug mt-2">
+            {parseInline(block.text)}
+          </h1>
+        )
+        if (block.kind === 'h2') return (
+          <h2 key={i} className="text-[13px] font-semibold text-gray-800 dark:text-neutral-200 leading-snug mt-1.5">
+            {parseInline(block.text)}
+          </h2>
+        )
+        if (block.kind === 'h3') return (
+          <h3 key={i} className="text-[12px] font-semibold text-gray-700 dark:text-neutral-300 leading-snug mt-1">
+            {parseInline(block.text)}
+          </h3>
+        )
+        if (block.kind === 'ul') return (
+          <ul key={i} className="space-y-[3px] pl-3">
+            {block.items.map((item, j) => (
+              <li key={j} className="flex gap-2 text-[13px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
+                <span className="mt-[6px] w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: 'currentColor', opacity: 0.45 }} />
+                <span>{parseInline(item)}</span>
+              </li>
+            ))}
+          </ul>
+        )
+        if (block.kind === 'ol') return (
+          <ol key={i} className="space-y-[3px] pl-3">
+            {block.items.map((item, j) => (
+              <li key={j} className="flex gap-2 text-[13px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
+                <span className="flex-shrink-0 text-[11px] font-medium text-gray-400 dark:text-neutral-600 tabular-nums mt-[2px]">
+                  {j + 1}.
+                </span>
+                <span>{parseInline(item)}</span>
+              </li>
+            ))}
+          </ol>
+        )
+        // paragraph
+        return (
+          <p key={i} className="text-[13px] leading-[1.75] text-gray-600 dark:text-neutral-400 font-light">
+            {parseInline((block as { kind: 'p'; text: string }).text)}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Streaming cursor ──────────────────────────────────────────────────────────
 
 function BlinkingCursor(): React.JSX.Element {
@@ -143,10 +286,12 @@ export function SummaryContent({
               aria-label="AI Summary"
               aria-live="polite"
             >
-              <p className="text-[13px] leading-[1.75] text-gray-600 dark:text-neutral-400 font-light whitespace-pre-wrap">
-                {summary}
-                {isSummarizing && <BlinkingCursor />}
-              </p>
+              <MarkdownBody text={summary} />
+              {isSummarizing && (
+                <span className="inline-flex items-center mt-0.5 ml-0.5">
+                  <BlinkingCursor />
+                </span>
+              )}
             </div>
 
             {/* Action row — only after streaming is done */}

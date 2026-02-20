@@ -193,7 +193,11 @@ export function isPulling(): boolean {
 let activeSummaryRequest: http.ClientRequest | null = null
 
 const SYSTEM_PROMPT =
-  'You are a concise web page summarizer. Summarize the key points of the provided page content in clear, plain English. Use short paragraphs. Be factual and brief — 3 to 5 paragraphs maximum. Do not add introductory phrases like "Here is a summary". Just give the summary directly.'
+  'You are a web page summarizer. Your output is rendered as Markdown inside a browser UI panel. ' +
+  'Respond ONLY with the summary — no preamble, no "Here is a summary", no "Okay", no meta-commentary of any kind. ' +
+  'Start your response immediately with the content. ' +
+  'Structure your response using Markdown: use ## for section headings, **bold** for key terms or names, ' +
+  'and bullet lists (- item) for enumerations. Keep it to 3–5 sections maximum. Be factual and concise.'
 
 /**
  * Streams a page summarization request to Ollama.
