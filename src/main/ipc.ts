@@ -5,7 +5,7 @@
 import { app, dialog, ipcMain, nativeImage, session, shell, webContents } from 'electron'
 import { readFile, writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
-import { existsSync } from 'fs'
+import { existsSync, writeFileSync } from 'fs'
 import { getMainWindow } from './state'
 import { getLatestPerfSnapshot, getPerfSnapshots, startPerfMonitor, stopPerfMonitor } from './perfMonitor'
 import { setupAIIPC } from './ai/ipcAI'
@@ -46,12 +46,15 @@ export function setupIPC(): void {
 
   // ── Download management ──────────────────────────────────────────────────
   const activeDownloads = new Map<string, Electron.DownloadItem>()
+  const knownDownloadPaths = new Map<string, string>()
   let downloadCounter = 0
 
   function setupDownloadHandling(ses: Electron.Session): void {
     ses.on('will-download', (_event, item) => {
       const id = `dl-${++downloadCounter}-${Date.now()}`
       activeDownloads.set(id, item)
+      const initialPath = item.getSavePath()
+      if (initialPath) knownDownloadPaths.set(id, initialPath)
 
       sendToMainWindow('download-started', {
         id,
@@ -68,6 +71,8 @@ export function setupIPC(): void {
         const now = Date.now()
         if (now - lastUpdate < 250 && state === 'progressing') return
         lastUpdate = now
+        const currentPath = item.getSavePath()
+        if (currentPath) knownDownloadPaths.set(id, currentPath)
 
         if (state === 'progressing') {
           sendToMainWindow('download-progress', {
@@ -87,6 +92,8 @@ export function setupIPC(): void {
       })
 
       item.once('done', (_event, state) => {
+        const finalPath = item.getSavePath()
+        if (finalPath) knownDownloadPaths.set(id, finalPath)
         sendToMainWindow('download-done', {
           id,
           state: state === 'completed' ? 'completed' : state === 'cancelled' ? 'cancelled' : 'failed'
@@ -101,21 +108,29 @@ export function setupIPC(): void {
 
   const VALID_DOWNLOAD_ACTIONS = new Set(['pause', 'resume', 'cancel', 'open', 'show-in-folder'])
 
-  ipcMain.on('download-action', (_event, action: string, id: string, savePath?: string) => {
+  ipcMain.on('download-action', (_event, action: string, id: string, _savePath?: string) => {
     if (!VALID_DOWNLOAD_ACTIONS.has(action)) return
     if (typeof id !== 'string' || !id) return
     const item = activeDownloads.get(id)
+    const trackedPath = knownDownloadPaths.get(id) ?? item?.getSavePath()
+    if (trackedPath) knownDownloadPaths.set(id, trackedPath)
 
-    if (action === 'open' && savePath) { shell.openPath(savePath); return }
-    if (action === 'show-in-folder' && savePath) { shell.showItemInFolder(savePath); return }
+    // Never trust renderer-supplied file paths for shell actions.
+    if (action === 'open' || action === 'show-in-folder') {
+      if (!trackedPath) return
+      if (action === 'open') {
+        shell.openPath(trackedPath)
+      } else {
+        shell.showItemInFolder(trackedPath)
+      }
+      return
+    }
     if (!item) return
 
     switch (action) {
       case 'pause': item.pause(); break
       case 'resume': item.resume(); break
       case 'cancel': item.cancel(); break
-      case 'open': shell.openPath(item.getSavePath()); break
-      case 'show-in-folder': shell.showItemInFolder(item.getSavePath()); break
     }
   })
 
@@ -207,6 +222,22 @@ export function setupIPC(): void {
     'download-history'
   ])
   const storeDir = app.getPath('userData')
+
+  ipcMain.on('clear-stores-sync', (event, names: unknown) => {
+    const list = Array.isArray(names) ? names : []
+    try {
+      for (const name of list) {
+        if (typeof name !== 'string') continue
+        if (!ALLOWED_STORES.has(name)) continue
+        const filePath = join(storeDir, `${name}.json`)
+        writeFileSync(filePath, 'null', 'utf-8')
+        savedStoreCache.set(name, 'null')
+      }
+      event.returnValue = true
+    } catch {
+      event.returnValue = false
+    }
+  })
 
   ipcMain.handle('load-store', async (_event, name: string) => {
     if (typeof name !== 'string' || !ALLOWED_STORES.has(name)) return null

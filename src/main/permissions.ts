@@ -13,6 +13,31 @@ const ALLOWED_PERMISSIONS = new Set([
   'protected-media-identifier'
 ])
 
+function isSecureTrustedOrigin(urlString: string | undefined): boolean {
+  if (!urlString) return false
+  try {
+    const url = new URL(urlString)
+    if (url.protocol === 'https:') return true
+    if (url.protocol === 'file:') return true
+    if (url.protocol === 'http:') {
+      return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]'
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+function shouldAllowPermission(permission: string, requestingUrl: string | undefined): boolean {
+  if (!ALLOWED_PERMISSIONS.has(permission)) return false
+
+  // Fullscreen itself is a low-risk UI permission and expected on many sites.
+  if (permission === 'fullscreen') return true
+
+  // Sensitive capabilities are restricted to secure/trusted origins.
+  return isSecureTrustedOrigin(requestingUrl)
+}
+
 export function setupPermissions(): void {
   const CHROME_UA = session.defaultSession.getUserAgent()
     .replace(/Electron\/\S+\s?/g, '')
@@ -23,12 +48,14 @@ export function setupPermissions(): void {
     ses.setUserAgent(CHROME_UA)
     ses.setSpellCheckerEnabled(false)
 
-    ses.setPermissionRequestHandler((_webContents, permission, callback) => {
-      callback(ALLOWED_PERMISSIONS.has(permission))
+    ses.setPermissionRequestHandler((webContents, permission, callback, details) => {
+      const requestingUrl = details?.requestingUrl ?? webContents.getURL()
+      callback(shouldAllowPermission(permission, requestingUrl))
     })
 
-    ses.setPermissionCheckHandler((_webContents, permission) => {
-      return ALLOWED_PERMISSIONS.has(permission)
+    ses.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+      const requestingUrl = details?.requestingUrl ?? requestingOrigin ?? webContents?.getURL()
+      return shouldAllowPermission(permission, requestingUrl)
     })
   }
 

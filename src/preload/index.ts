@@ -63,6 +63,7 @@ const api: ElectronAPI = {
   setZoomFactor: (factor: number) => ipcRenderer.send('set-zoom-factor', factor),
   loadStore: (name: string) => ipcRenderer.invoke('load-store', name),
   saveStore: (name: string, data: string) => ipcRenderer.invoke('save-store', name, data),
+  clearStoresSync: (names: string[]) => ipcRenderer.sendSync('clear-stores-sync', names) as boolean,
   requestPiP: (webContentsId: number) => ipcRenderer.send('request-pip', webContentsId),
   // ── AI / Ollama ──────────────────────────────────────────────────────────
   checkAIStatus: () => ipcRenderer.invoke('ai:check-status'),

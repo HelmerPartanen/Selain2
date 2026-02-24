@@ -8,6 +8,27 @@ import { setMainWindow } from './state'
 import { buildContextMenu } from './contextMenu'
 import { handleShortcutInput } from './shortcuts'
 
+function isAllowedPopupUrl(rawUrl: string): boolean {
+  try {
+    const url = new URL(rawUrl)
+    if (url.protocol === 'https:') return true
+    if (url.protocol === 'http:') {
+      return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]'
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+function isPopupWindowRequest(features: string): boolean {
+  const width = Number(features.match(/\bwidth\s*=\s*(\d+)/i)?.[1] ?? NaN)
+  const height = Number(features.match(/\bheight\s*=\s*(\d+)/i)?.[1] ?? NaN)
+  if (!Number.isFinite(width) || !Number.isFinite(height)) return false
+  // Guard rails to avoid allowing extremely tiny or huge spoofable popups.
+  return width >= 280 && width <= 1400 && height >= 280 && height <= 1400
+}
+
 export function createWindow(): void {
   const win = new BrowserWindow({
     width: 1280,
@@ -65,14 +86,15 @@ export function createWindow(): void {
     // in the features string and rely on window.opener for postMessage — allow
     // those as real native windows using the same session so cookies are shared.
     webViewContents.setWindowOpenHandler(({ url, features }) => {
-      const isPopup = /\bwidth\s*=/.test(features) && /\bheight\s*=/.test(features)
-      if (isPopup) {
+      const isPopup = isPopupWindowRequest(features)
+      if (isPopup && isAllowedPopupUrl(url)) {
         return {
           action: 'allow',
           overrideBrowserWindowOptions: {
             width: 520,
             height: 720,
             frame: true,
+            show: true,
             webPreferences: {
               partition: 'persist:default',
               contextIsolation: true,
@@ -82,7 +104,7 @@ export function createWindow(): void {
           }
         }
       }
-      win.webContents.send('open-url-in-new-tab', url)
+      if (url) win.webContents.send('open-url-in-new-tab', url)
       return { action: 'deny' }
     })
 

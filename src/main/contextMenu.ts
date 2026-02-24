@@ -2,8 +2,41 @@
 // Builds a native right-click context menu for webview content.
 // Handles links, images, media, editable fields, selections, and page actions.
 
-import { clipboard, dialog, Menu } from 'electron'
+import { app, clipboard, dialog, Menu } from 'electron'
+import { existsSync, readFileSync } from 'fs'
+import { join } from 'path'
 import { getMainWindow } from './state'
+
+const SEARCH_ENGINE_URLS: Record<string, string> = {
+  google: 'https://www.google.com/search?q={query}',
+  duckduckgo: 'https://duckduckgo.com/?q={query}',
+  bing: 'https://www.bing.com/search?q={query}',
+  yahoo: 'https://search.yahoo.com/search?p={query}',
+  brave: 'https://search.brave.com/search?q={query}',
+  startpage: 'https://www.startpage.com/do/dsearch?query={query}'
+}
+
+function getSelectionSearchUrl(query: string): string {
+  const defaultTemplate = SEARCH_ENGINE_URLS.google!
+  try {
+    const filePath = join(app.getPath('userData'), 'search-engine.json')
+    if (!existsSync(filePath)) {
+      return defaultTemplate.replace('{query}', encodeURIComponent(query))
+    }
+
+    const raw = readFileSync(filePath, 'utf-8')
+    if (!raw || raw === 'null') {
+      return defaultTemplate.replace('{query}', encodeURIComponent(query))
+    }
+
+    const parsed = JSON.parse(raw) as { state?: { engineId?: string } }
+    const engineId = parsed.state?.engineId
+    const template = (engineId && SEARCH_ENGINE_URLS[engineId]) ? SEARCH_ENGINE_URLS[engineId] : defaultTemplate
+    return template.replace('{query}', encodeURIComponent(query))
+  } catch {
+    return defaultTemplate.replace('{query}', encodeURIComponent(query))
+  }
+}
 
 export function buildContextMenu(
   webContents: Electron.WebContents,
@@ -122,10 +155,9 @@ export function buildContextMenu(
     if (trimmed.length > 0) {
       const display = trimmed.length > 30 ? trimmed.slice(0, 30) + '\u2026' : trimmed
       template.push({
-        label: `Search Google for \u201C${display}\u201D`,
+        label: `Search for \u201C${display}\u201D`,
         click: () => {
-          const query = encodeURIComponent(trimmed)
-          getMainWindow()?.webContents.send('open-url-in-new-tab', `https://www.google.com/search?q=${query}`)
+          getMainWindow()?.webContents.send('open-url-in-new-tab', getSelectionSearchUrl(trimmed))
         }
       })
     }

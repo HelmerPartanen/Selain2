@@ -64,6 +64,12 @@ const OnboardingFlow = lazy(() =>
   })),
 );
 
+const CLEAR_ON_EXIT_STORES = [
+  "browser-history",
+  "download-history",
+  "bookmark-store",
+] as const;
+
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager();
   useKeyboardShortcuts();
@@ -153,6 +159,10 @@ function BrowserLayoutInner(): React.JSX.Element {
       );
       const bmStore = useBookmarkStore.getState();
       bmStore.bookmarks.forEach((b) => bmStore.removeBookmark(b.url));
+
+      // Ensure persisted data is cleared immediately instead of waiting for
+      // debounced async store writes that may not finish during shutdown.
+      window.electronAPI.clearStoresSync([...CLEAR_ON_EXIT_STORES]);
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);

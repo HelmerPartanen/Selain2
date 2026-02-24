@@ -55,6 +55,8 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const suggestionRequestIdRef = useRef(0)
+  const suggestionAbortRef = useRef<AbortController | null>(null)
 
   const [isSiteInfoOpen, setIsSiteInfoOpen] = useState(false)
 
@@ -78,17 +80,29 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   // Debounced autocomplete search
   useEffect(() => {
     if (!isFocused || deferredInputValue.length < 2) {
+      suggestionRequestIdRef.current += 1
+      suggestionAbortRef.current?.abort()
+      suggestionAbortRef.current = null
       setSuggestions([])
       setSelectedIndex(-1)
       return
     }
+
+    const requestId = ++suggestionRequestIdRef.current
+    let controller: AbortController | null = null
+
+    suggestionAbortRef.current?.abort()
     if (debounceRef.current) clearTimeout(debounceRef.current)
+
     debounceRef.current = setTimeout(async () => {
+      controller = new AbortController()
+      suggestionAbortRef.current = controller
+
       const historyResults = useHistoryStore.getState().search(deferredInputValue).map(r => ({ ...r, type: 'history' as const }))
       
       let searchResults: (HistoryEntry & { type: 'search' })[] = []
       try {
-        const liveSuggestions = await fetchSearchSuggestions(deferredInputValue)
+        const liveSuggestions = await fetchSearchSuggestions(deferredInputValue, controller.signal)
         searchResults = liveSuggestions.map(phrase => ({
           id: `search-${phrase}`,
           url: normalizeURL(phrase),
@@ -100,8 +114,13 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           type: 'search' as const
         }))
       } catch (e) {
-        console.error('Failed to fetch live suggestions', e)
+        if (!(e instanceof DOMException && e.name === 'AbortError')) {
+          console.error('Failed to fetch live suggestions', e)
+        }
       }
+
+      // Ignore stale responses from older input values.
+      if (suggestionRequestIdRef.current !== requestId || controller.signal.aborted) return
 
       // Combine and deduplicate by URL
       const combined = [...historyResults, ...searchResults]
@@ -112,6 +131,10 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     }, 150)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
+      if (controller) controller.abort()
+      if (suggestionAbortRef.current === controller) {
+        suggestionAbortRef.current = null
+      }
     }
   }, [deferredInputValue, isFocused])
 
@@ -170,6 +193,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const handleBlur = useCallback(() => {
     setIsFocused(false)
     onFocusChange?.(false)
+    suggestionRequestIdRef.current += 1
+    suggestionAbortRef.current?.abort()
+    suggestionAbortRef.current = null
     setSuggestions([])
     setSelectedIndex(-1)
   }, [onFocusChange])
