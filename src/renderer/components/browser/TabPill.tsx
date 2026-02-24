@@ -175,7 +175,7 @@ function TabPillInner(): React.JSX.Element {
     reopenLastClosed()
   }, [reopenLastClosed])
 
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+  const [hoveredRow, setHoveredRow] = useState<number | 'reopen' | null>(null)
 
   return (
     <div className="relative">
@@ -258,7 +258,7 @@ function TabPillInner(): React.JSX.Element {
               }}
             >
               <div className="rounded-3xl glass-heavy overflow-hidden">
-                <div className="px-3 py-2 max-h-[320px] overflow-y-auto overflow-x-hidden glass-scroll">
+                <div className="px-3 py-2 max-h-[320px] glass-scroll overflow-hidden">
                   {tabOrder.map((id, index) => (
                     <TabRow
                       key={id}
@@ -268,9 +268,9 @@ function TabPillInner(): React.JSX.Element {
                       isSplit={isSplit}
                       index={index}
                       onSelect={handleClose}
-                      hovered={hoveredIdx === index}
-                      onHover={() => setHoveredIdx(index)}
-                      onLeave={() => setHoveredIdx(null)}
+                      hovered={hoveredRow === index}
+                      onHover={() => setHoveredRow(index)}
+                      onLeave={() => setHoveredRow(null)}
                     />
                   ))}
                 </div>
@@ -278,13 +278,28 @@ function TabPillInner(): React.JSX.Element {
                 {recentlyClosed.length > 0 && (
                   <>
                     <div className="mx-2 my-1 h-px bg-[var(--border-divider)]" />
-                    <button
-                      onClick={handleReopen}
-                      className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-full text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
-                    >
-                      <SvgIcon svg={counterclockwiseSvg} size={13} />
-                      <span className="text-xs">Reopen closed tab</span>
-                    </button>
+                    <div className="px-3 py-2">
+                      <button
+                        onClick={handleReopen}
+                        onMouseEnter={() => setHoveredRow('reopen')}
+                        onMouseLeave={() => setHoveredRow(null)}
+                        className="relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:scale-105"
+                      >
+                        {hoveredRow === 'reopen' && (
+                          <motion.div
+                            layoutId="tab-row-highlight"
+                            className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/6 dark:ring-white/8"
+                            transition={SPRING_SNAPPY}
+                            style={{ zIndex: 1 }}
+                          />
+                        )}
+
+                        <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
+                          <SvgIcon svg={counterclockwiseSvg} size={14} className="text-gray-400" />
+                        </div>
+                        <span className="flex-1 text-[13px] truncate z-10">Reopen closed tab</span>
+                      </button>
+                    </div>
                   </>
                 )}
               </div>

@@ -149,7 +149,7 @@ function ControlButton({
       transition={SPRING_SNAPPY}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`relative w-7 h-7 rounded-full flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100 ${hoverBg} ${hoverText}`}
+      className={`relative w-7 h-7 rounded-full flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100${hoverBg} ${hoverText}`}
     >
       {hovered && (
         <motion.div
