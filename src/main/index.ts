@@ -30,18 +30,21 @@ app.whenReady().then(async () => {
   // Pass --no-extensions CLI flag to skip loading extensions for benchmarking
   const skipExtensions =
     process.argv.includes('--no-extensions') || process.env['BROWSER_SKIP_EXTENSIONS'] === '1'
+  const enableDomLevelBlocking =
+    !process.argv.includes('--adblock-network-only') && process.env['BROWSER_ADBLOCK_DOM'] !== '0'
 
   if (!skipExtensions) {
     ElectronBlocker.fromLists(fetch, adsAndTrackingLists, {
       loadNetworkFilters: true,
-      loadCosmeticFilters: false,
-      loadGenericCosmeticsFilters: false,
-      loadExtendedSelectors: false,
-      enableMutationObserver: false,
+      loadCosmeticFilters: enableDomLevelBlocking,
+      loadGenericCosmeticsFilters: enableDomLevelBlocking,
+      loadExtendedSelectors: enableDomLevelBlocking,
+      enableMutationObserver: enableDomLevelBlocking,
     }).then((blocker) => {
       const ses = session.fromPartition('persist:default')
       blocker.enableBlockingInSession(ses)
-      console.log('[Adblocker] Loaded Ghostery adblocker (network filters only)')
+      const mode = enableDomLevelBlocking ? 'network + DOM filters' : 'network filters only'
+      console.log(`[Adblocker] Loaded Ghostery adblocker (${mode})`)
     }).catch((err) => {
       console.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
     })
