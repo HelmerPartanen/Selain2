@@ -171,6 +171,27 @@ function FloatingControlsInner(): React.JSX.Element {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
+
+      {/* Home-indicator hint pill — visible when toolbar is idle */}
+      <AnimatePresence>
+        {isIdle && (
+          <motion.div
+            className="fixed bottom-2 left-1/2 z-[49] [app-region:no-drag]"
+            style={{ x: "-50%", pointerEvents: "auto" }}
+            initial={{ opacity: 0, scaleX: 0.5 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            exit={{ opacity: 0, scaleX: 0.5 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div
+              className="w-32 h-[5px] rounded-full bg-gray-500/80 dark:bg-neutral-300/70"
+              style={{ animation: "hint-pulse 3s ease-in-out infinite" }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       <motion.div
         className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
         style={{ pointerEvents: isIdle ? "none" : "auto" }}
