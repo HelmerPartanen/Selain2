@@ -10,6 +10,7 @@ interface ButtonProps {
   className?: string
   children?: React.ReactNode
   onClick?: MouseEventHandler<HTMLButtonElement>
+  onMouseDown?: MouseEventHandler<HTMLButtonElement>
   disabled?: boolean
   type?: 'button' | 'submit' | 'reset'
   'aria-label'?: string
@@ -42,13 +43,14 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'ghost', className = '', rounded = 'rounded-full', children, onClick, disabled, type, title, tabIndex, id, ...ariaProps }, ref) => (
+  ({ variant = 'ghost', className = '', rounded = 'rounded-full', children, onClick, onMouseDown, disabled, type, title, tabIndex, id, ...ariaProps }, ref) => (
     <motion.button
       ref={ref}
       whileHover={disabled ? undefined : { scale: 1.04 }}
       whileTap={disabled ? undefined : { scale: 0.92 }}
       transition={SPRING_SNAPPY}
       onClick={onClick}
+      onMouseDown={onMouseDown}
       disabled={disabled}
       type={type}
       title={title}

@@ -270,14 +270,15 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         </Button>
 
         <div className="relative flex-1 min-w-0 flex items-center h-full">
-          <div className="absolute left-2 z-10 flex items-center justify-center">
-            <button
+          <div className="absolute left-1.5 z-10 flex items-center justify-center">
+            <Button
+              variant="icon"
               onClick={() => {
                 if (iconKey !== 'search') {
                   setIsSiteInfoOpen(true)
                 }
               }}
-              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${iconKey !== 'search' ? 'hover:bg-gray-200 dark:hover:bg-neutral-700 cursor-pointer' : 'pointer-events-none'}`}
+              className={iconKey === 'search' ? 'pointer-events-none opacity-80' : ''}
               aria-label="Site information"
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -285,7 +286,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   key={iconKey}
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.5, opacity: 0 }}
+                  exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
                   transition={SPRING_FAST}
                   className="flex items-center justify-center text-gray-500 dark:text-neutral-400"
                 >
@@ -294,7 +295,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   {iconKey === 'search' && <SvgIcon svg={searchSvg} size={14} />}
                 </motion.span>
               </AnimatePresence>
-            </button>
+            </Button>
           </div>
 
           <input
@@ -308,9 +309,10 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
             placeholder="Search or enter URL"
             spellCheck={false}
             autoComplete="off"
-            className="w-full h-full pl-8 pr-8 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
+            className="w-full h-full pl-[36px] pr-[36px] text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
           />
 
+          {/* Clear input button */}
           <AnimatePresence>
             {isFocused && inputValue.length > 0 && (
               <motion.div
@@ -318,26 +320,27 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={SPRING_FAST}
-                className="absolute right-2 z-10 flex items-center justify-center"
+                className="absolute right-1.5 z-10 flex items-center justify-center"
               >
-                <button
-                  onMouseDown={(e) => {
+                <Button
+                  variant="icon"
+                  onMouseDown={(e: any) => {
                     e.preventDefault()
                     e.stopPropagation()
                     setInputValue('')
                     inputRef.current?.focus()
                   }}
-                  onClick={(e) => {
+                  onClick={(e: any) => {
                     e.preventDefault()
                     e.stopPropagation()
                     setInputValue('')
                     inputRef.current?.focus()
                   }}
-                  className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-500 dark:text-neutral-400 transition-colors"
+                  className="text-gray-500 dark:text-neutral-400 flex-shrink-0"
                   aria-label="Clear input"
                 >
                   <SvgIcon svg={closeSvg} size={14} />
-                </button>
+                </Button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -347,13 +350,14 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         <AnimatePresence>
           {hasUrl && !isFocused && (
             <motion.div
-              initial={{ scale: 0, opacity: 0, rotate: -15 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0, opacity: 0, rotate: 15 }}
+              initial={{ scale: 0, opacity: 0, rotate: -15, width: 0 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0, width: 28 }}
+              exit={{ scale: 0, opacity: 0, rotate: 15, width: 0 }}
               transition={SPRING_SNAPPY}
-              className="flex-shrink-0"
+              className="flex-shrink-0 flex items-center justify-center overflow-hidden ml-1"
+              style={{ originX: 0 }}
             >
-              <Button variant="icon" onClick={handleToggleBookmark} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
+              <Button variant="icon" onClick={handleToggleBookmark} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} className="flex-shrink-0">
                 <div className="relative flex items-center justify-center w-[15px] h-[15px]">
                   <AnimatePresence mode="popLayout" initial={false}>
                     <motion.span
@@ -382,18 +386,19 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           {isPlayingMedia && !isFocused && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 32, opacity: 1 }}
+              animate={{ width: 28, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={SPRING_FAST}
-              className="flex-shrink-0 overflow-hidden mr-0.5"
+              className="flex-shrink-0 flex items-center justify-center overflow-hidden ml-1"
             >
-              <button
+              <Button
+                variant="icon"
                 onClick={handlePiP}
                 aria-label="Picture in Picture"
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-90"
+                className="flex-shrink-0 text-gray-400 dark:text-neutral-500"
               >
-                <SvgIcon svg={PIP_SVG} size={15} className="text-gray-400 dark:text-neutral-500" />
-              </button>
+                <SvgIcon svg={PIP_SVG} size={15} />
+              </Button>
             </motion.div>
           )}
         </AnimatePresence>

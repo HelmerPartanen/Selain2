@@ -255,6 +255,18 @@ function TabOverviewInner(): React.JSX.Element {
     return () => window.removeEventListener('keydown', handler, true)
   }, [isOpen, closeOverview])
 
+  // Close on trackpad pinch out
+  useEffect(() => {
+    if (!isOpen) return
+    const handlePinchOut = (e: WheelEvent) => {
+      if (e.ctrlKey && e.deltaY < -20) {
+        closeOverview()
+      }
+    }
+    window.addEventListener('wheel', handlePinchOut, { passive: true })
+    return () => window.removeEventListener('wheel', handlePinchOut)
+  }, [isOpen, closeOverview])
+
   // Determine if close button should be shown per card
   // Only a single tab on newtab should be un-closable
   const isOnlyTabOnNewTab =

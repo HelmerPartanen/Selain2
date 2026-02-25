@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { useHistoryStore } from '@/store/historyStore'
 import { webviewRegistry } from './webviewRegistry'
+import { handleTabSwipeDelta } from '@/hooks/useTrackpadTabSwipe'
 
 /** Scrollbar CSS injected into every webview (module-level constant to avoid re-allocation) */
 const SCROLLBAR_CSS = `
@@ -48,6 +49,20 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     const webview = webviewRef.current
     if (!webview) return
       ; (webview as unknown as { insertCSS(css: string): Promise<string> }).insertCSS(SCROLLBAR_CSS)
+
+    // Inject horizontal trackpad scroll capture
+    const interceptScript = `
+      (function() {
+        const debug = console.debug;
+        window.addEventListener('wheel', (e) => {
+          if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            debug('BROWSER_ACTION:swipe:' + e.deltaX + ':' + e.deltaY + ':' + JSON.stringify(e.ctrlKey));
+          }
+        }, { passive: true });
+      })();
+    `;
+    (webview as unknown as { executeJavaScript(code: string): Promise<void> }).executeJavaScript(interceptScript)
+
     batchUpdate({
       loadProgress: 0.7,
       canGoBack: webview.canGoBack(),
@@ -161,6 +176,16 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     }
   }, [tabId])
 
+  const handleConsoleMessage = useCallback((event: any) => {
+    if (event.level === 0 && event.message.startsWith('BROWSER_ACTION:swipe:')) {
+      const parts = event.message.split(':')
+      const deltaX = parseFloat(parts[2] || '0')
+      const deltaY = parseFloat(parts[3] || '0')
+      const ctrlKey = parts[4] === 'true'
+      handleTabSwipeDelta(deltaX, deltaY, ctrlKey)
+    }
+  }, [])
+
   // Register/unregister in the global webview registry
   useEffect(() => {
     const webview = webviewRef.current
@@ -193,6 +218,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     webview.addEventListener('media-started-playing', handleMediaStartedPlaying)
     webview.addEventListener('media-paused', handleMediaPaused)
     webview.addEventListener('focus', handleWebviewFocus)
+    webview.addEventListener('console-message', handleConsoleMessage as EventListener)
 
     return () => {
       webview.removeEventListener('dom-ready', handleDomReady)
@@ -206,6 +232,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webview.removeEventListener('media-started-playing', handleMediaStartedPlaying)
       webview.removeEventListener('media-paused', handleMediaPaused)
       webview.removeEventListener('focus', handleWebviewFocus)
+      webview.removeEventListener('console-message', handleConsoleMessage as EventListener)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabId])

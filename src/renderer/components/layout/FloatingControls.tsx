@@ -194,7 +194,7 @@ function FloatingControlsInner(): React.JSX.Element {
       </AnimatePresence>
       <motion.div
         className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
-        style={{ pointerEvents: isIdle ? "none" : "auto" }}
+        style={{ pointerEvents: isIdle ? "none" : "auto", willChange: "transform, opacity" }}
         initial={{ x: "-50%", y: 40, scale: 0.85, opacity: 0 }}
         animate={
           isIdle
