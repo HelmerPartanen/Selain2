@@ -14,6 +14,7 @@ import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
+import gestureSvg from "@/assets/icons/Keyboard/TrackPad.svg?raw";
 import { useUIStore } from "@/store/uiStore";
 import { GeneralPane } from "@/settings/panes/GeneralPane";
 import { AppearancePane } from "@/settings/panes/AppearancePane";
@@ -21,6 +22,7 @@ import { WallpaperPane } from "@/settings/panes/WallpaperPane";
 import { PrivacyPane } from "@/settings/panes/PrivacyPane";
 import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
 import { HotkeysPane } from "@/settings/panes/HotkeysPane";
+import { GesturesPane } from "@/settings/panes/GesturesPane";
 import { AboutPane } from "@/settings/panes/AboutPane";
 import { SPRING_CONTENT, SPRING_SNAPPY } from "@/utils/springs";
 
@@ -33,6 +35,7 @@ type SettingsCategory =
   | "privacy"
   | "search"
   | "hotkeys"
+  | "gestures"
   | "about";
 
 interface CategoryItem {
@@ -48,6 +51,7 @@ const CATEGORIES: CategoryItem[] = [
   { id: "privacy", label: "Privacy", icon: shieldSvg },
   { id: "search", label: "Search Engine", icon: searchSvg },
   { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg },
+  { id: "gestures", label: "Gestures", icon: gestureSvg },
   { id: "about", label: "About", icon: infoSvg },
 ];
 
@@ -71,6 +75,8 @@ function SettingsContent({
       return <SearchEnginePane />;
     case "hotkeys":
       return <HotkeysPane />;
+    case "gestures":
+      return <GesturesPane />;
     case "about":
       return <AboutPane />;
   }
