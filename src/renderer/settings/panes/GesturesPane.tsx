@@ -15,7 +15,7 @@ function GestureVisualization({
 }): React.JSX.Element {
 
     // Removed the 'absolute' from the base class so we can use it in flex containers safely
-    const baseFinger = "w-3 h-3 rounded-full bg-white dark:bg-black ring-[1.5px] ring-white dark:ring-white/20 shadow-md backdrop-blur-sm";
+    const baseFinger = "w-3 h-3 rounded-full bg-white dark:bg-neutral-900 ring-[1.5px] ring-white dark:ring-white/5 shadow-md backdrop-blur-sm";
 
     // Standardized keyframe transition: 
     // 1. Fade in & press down (0 -> 15%)

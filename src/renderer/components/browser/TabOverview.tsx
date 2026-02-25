@@ -68,7 +68,7 @@ const TabCard = memo(function TabCard({
       <button
         onClick={onSelect}
         className={`
-          relative w-full rounded-2xl overflow-hidden text-left transition-shadow duration-200
+          relative w-full rounded-lg overflow-hidden text-left transition-shadow duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50
           ${isActive
             ? 'ring-2 ring-indigo-500 shadow-xl'
@@ -77,7 +77,7 @@ const TabCard = memo(function TabCard({
         `}
       >
         {/* Thumbnail area */}
-        <div className="relative aspect-[16/10] bg-gray-100 dark:bg-neutral-800 overflow-hidden rounded-t-2xl">
+        <div className="relative aspect-[16/10] bg-gray-100 dark:bg-neutral-800 overflow-hidden">
           {thumbnail ? (
             <img
               src={thumbnail}
