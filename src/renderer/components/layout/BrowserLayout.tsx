@@ -50,9 +50,6 @@ const DownloadsPanel = lazy(() =>
     default: m.DownloadsPanel,
   })),
 );
-const HotkeysPanel = lazy(() =>
-  import("@/hotkeys/HotkeysPanel").then((m) => ({ default: m.HotkeysPanel })),
-);
 const TabOverview = lazy(() =>
   import("@/components/browser/TabOverview").then((m) => ({
     default: m.TabOverview,
@@ -86,7 +83,6 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isFindBarOpen = useUIStore((s) => s.isFindBarOpen);
   const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
   const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen);
-  const isHotkeysOpen = useUIStore((s) => s.isHotkeysOpen);
   const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen);
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const closeDropdown = useUIStore((s) => s.setDropdownOpen);
@@ -126,8 +122,8 @@ function BrowserLayoutInner(): React.JSX.Element {
     // Track the current blob URL for future cleanup
     prevBlobRef.current =
       wallpaperUrl &&
-      wallpaperUrl.startsWith("blob:") &&
-      !wallpaper?.startsWith("blob:")
+        wallpaperUrl.startsWith("blob:") &&
+        !wallpaper?.startsWith("blob:")
         ? wallpaperUrl
         : null;
 
@@ -167,62 +163,6 @@ function BrowserLayoutInner(): React.JSX.Element {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [clearOnExit]);
-
-  // Gate initial tab creation on hydration to avoid a spurious blank tab
-  // being added before the persisted session has been restored.
-  useEffect(() => {
-    function ensureTab(): void {
-      if (useTabStore.getState().tabOrder.length === 0) {
-        useTabStore.getState().addTab()
-      }
-    }
-
-    if (useTabStore.persist.hasHydrated()) {
-      // Already hydrated synchronously (e.g. localStorage fallback)
-      ensureTab()
-    } else {
-      // Wait for async IPC hydration to complete before deciding whether to
-      // create a starter tab — prevents a spurious tab when restoring a session.
-      const unsub = useTabStore.persist.onFinishHydration(() => {
-        ensureTab()
-        unsub()
-      })
-    }
-  }, []);
-
-  // ── Open links from webviews in new tabs ──
-  useEffect(() => {
-    return window.electronAPI.onOpenUrlInNewTab((url: string) => {
-      useTabStore.getState().addTab(url);
-    });
-  }, []);
-
-  // ── Preload heavy modal chunks after first paint (reduces first-open lag) ──
-  useEffect(() => {
-    const preload = (): void => {
-      void import("@/settings/SettingsPanel");
-      void import("@/bookmarks/BookmarksPage");
-      void import("@/history/HistoryPage");
-      void import("@/downloads/DownloadsPage");
-      void import("@/hotkeys/HotkeysPanel");
-      void import("@/components/browser/TabOverview");
-    };
-
-    const ric = window as Window & {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-
-    if (ric.requestIdleCallback) {
-      const id = ric.requestIdleCallback(preload, { timeout: 1200 });
-      return () => {
-        if (ric.cancelIdleCallback) ric.cancelIdleCallback(id);
-      };
-    }
-
-    const timer = window.setTimeout(preload, 450);
-    return () => window.clearTimeout(timer);
-  }, []);
 
   return (
     <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
@@ -315,17 +255,6 @@ function BrowserLayoutInner(): React.JSX.Element {
           <ErrorBoundary>
             <Suspense fallback={null}>
               <DownloadsPanel />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </AnimatePresence>
-
-      {/* Hotkeys panel */}
-      <AnimatePresence>
-        {isHotkeysOpen && (
-          <ErrorBoundary>
-            <Suspense fallback={null}>
-              <HotkeysPanel />
             </Suspense>
           </ErrorBoundary>
         )}

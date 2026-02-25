@@ -1,0 +1,6 @@
+﻿
+> chromium-browser@0.1.0 typecheck:web
+> tsc --noEmit -p tsconfig.web.json
+
+src/renderer/components/layout/BrowserLayout.tsx(175,5): error TS1128: Declaration or statement expected.
+src/renderer/components/layout/BrowserLayout.tsx(176,3): error TS1109: Expression expected.
