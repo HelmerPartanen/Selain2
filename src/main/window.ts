@@ -56,9 +56,7 @@ export function createWindow(): void {
   })
 
   // Open DevTools automatically in dev mode
-  if (process.env['ELECTRON_RENDERER_URL'] && process.env['BROWSER_AUTO_DEVTOOLS'] === '1') {
-    win.webContents.openDevTools({ mode: 'detach' })
-  }
+  win.webContents.openDevTools({ mode: 'detach' })
 
   win.on('maximize', () => {
     if (!win.webContents.isDestroyed()) {
@@ -79,45 +77,45 @@ export function createWindow(): void {
   // Block renderer-initiated window.open()
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
 
-  // Intercept new-window requests and keyboard shortcuts from all webviews
-  ;(win.webContents as NodeJS.EventEmitter).on('did-attach-webview', (_event: unknown, webViewContents: Electron.WebContents) => {
-    // Redirect target="_blank" links to new tabs instead of new windows.
-    // Exception: popup windows (OAuth / login flows) specify explicit width+height
-    // in the features string and rely on window.opener for postMessage — allow
-    // those as real native windows using the same session so cookies are shared.
-    webViewContents.setWindowOpenHandler(({ url, features }) => {
-      const isPopup = isPopupWindowRequest(features)
-      if (isPopup && isAllowedPopupUrl(url)) {
-        return {
-          action: 'allow',
-          overrideBrowserWindowOptions: {
-            width: 520,
-            height: 720,
-            frame: true,
-            show: true,
-            webPreferences: {
-              partition: 'persist:default',
-              contextIsolation: true,
-              sandbox: true,
-              nodeIntegration: false,
+    // Intercept new-window requests and keyboard shortcuts from all webviews
+    ; (win.webContents as NodeJS.EventEmitter).on('did-attach-webview', (_event: unknown, webViewContents: Electron.WebContents) => {
+      // Redirect target="_blank" links to new tabs instead of new windows.
+      // Exception: popup windows (OAuth / login flows) specify explicit width+height
+      // in the features string and rely on window.opener for postMessage — allow
+      // those as real native windows using the same session so cookies are shared.
+      webViewContents.setWindowOpenHandler(({ url, features }) => {
+        const isPopup = isPopupWindowRequest(features)
+        if (isPopup && isAllowedPopupUrl(url)) {
+          return {
+            action: 'allow',
+            overrideBrowserWindowOptions: {
+              width: 520,
+              height: 720,
+              frame: true,
+              show: true,
+              webPreferences: {
+                partition: 'persist:default',
+                contextIsolation: true,
+                sandbox: true,
+                nodeIntegration: false,
+              }
             }
           }
         }
-      }
-      if (url) win.webContents.send('open-url-in-new-tab', url)
-      return { action: 'deny' }
-    })
+        if (url) win.webContents.send('open-url-in-new-tab', url)
+        return { action: 'deny' }
+      })
 
-    // Right-click context menu for webview content
-    webViewContents.on('context-menu', (_event, params) => {
-      buildContextMenu(webViewContents, params).popup()
-    })
+      // Right-click context menu for webview content
+      webViewContents.on('context-menu', (_event, params) => {
+        buildContextMenu(webViewContents, params).popup()
+      })
 
-    // Forward keyboard shortcuts to the renderer (webview focus absorbs keydown)
-    webViewContents.on('before-input-event', (event, input) => {
-      handleShortcutInput(event, input)
+      // Forward keyboard shortcuts to the renderer (webview focus absorbs keydown)
+      webViewContents.on('before-input-event', (event, input) => {
+        handleShortcutInput(event, input)
+      })
     })
-  })
 
   // Also forward shortcuts when the host webContents itself has focus
   win.webContents.on('before-input-event', (event, input) => {
