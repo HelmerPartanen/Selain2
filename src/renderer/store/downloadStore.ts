@@ -37,66 +37,66 @@ export const useDownloadStore = create<DownloadState>()(
     (set, get) => ({
       downloads: {},
 
-  addDownload: (item) => {
-    set((state) => ({
-      downloads: { ...state.downloads, [item.id]: item }
-    }))
-  },
+      addDownload: (item) => {
+        set((state) => ({
+          downloads: { ...state.downloads, [item.id]: item }
+        }))
+      },
 
-  updateProgress: (id, receivedBytes, totalBytes, speed) => {
-    set((state) => {
-      const dl = state.downloads[id]
-      if (!dl) return state
-      return {
-        downloads: {
-          ...state.downloads,
-          [id]: { ...dl, receivedBytes, totalBytes, speed }
-        }
+      updateProgress: (id, receivedBytes, totalBytes, speed) => {
+        set((state) => {
+          const dl = state.downloads[id]
+          if (!dl) return state
+          return {
+            downloads: {
+              ...state.downloads,
+              [id]: { ...dl, receivedBytes, totalBytes, speed }
+            }
+          }
+        })
+      },
+
+      updateState: (id, newState) => {
+        set((state) => {
+          const dl = state.downloads[id]
+          if (!dl) return state
+          return {
+            downloads: {
+              ...state.downloads,
+              [id]: { ...dl, state: newState, speed: 0 }
+            }
+          }
+        })
+      },
+
+      removeDownload: (id) => {
+        set((state) => {
+          const { [id]: _, ...rest } = state.downloads
+          return { downloads: rest }
+        })
+      },
+
+      pauseDownload: (id) => {
+        window.electronAPI.downloadAction('pause', id)
+      },
+
+      resumeDownload: (id) => {
+        window.electronAPI.downloadAction('resume', id)
+      },
+
+      cancelDownload: (id) => {
+        window.electronAPI.downloadAction('cancel', id)
+      },
+
+      openDownload: (id) => {
+        const dl = get().downloads[id]
+        if (dl) window.electronAPI.downloadAction('open', id, dl.savePath)
+      },
+
+      showInFolder: (id) => {
+        const dl = get().downloads[id]
+        if (dl) window.electronAPI.downloadAction('show-in-folder', id, dl.savePath)
       }
-    })
-  },
-
-  updateState: (id, newState) => {
-    set((state) => {
-      const dl = state.downloads[id]
-      if (!dl) return state
-      return {
-        downloads: {
-          ...state.downloads,
-          [id]: { ...dl, state: newState, speed: 0 }
-        }
-      }
-    })
-  },
-
-  removeDownload: (id) => {
-    set((state) => {
-      const { [id]: _, ...rest } = state.downloads
-      return { downloads: rest }
-    })
-  },
-
-  pauseDownload: (id) => {
-    window.electronAPI.downloadAction('pause', id)
-  },
-
-  resumeDownload: (id) => {
-    window.electronAPI.downloadAction('resume', id)
-  },
-
-  cancelDownload: (id) => {
-    window.electronAPI.downloadAction('cancel', id)
-  },
-
-  openDownload: (id) => {
-    const dl = get().downloads[id]
-    if (dl) window.electronAPI.downloadAction('open', id, dl.savePath)
-  },
-
-  showInFolder: (id) => {
-    const dl = get().downloads[id]
-    if (dl) window.electronAPI.downloadAction('show-in-folder', id, dl.savePath)
-  }
     }),
     {
       name: 'download-history',

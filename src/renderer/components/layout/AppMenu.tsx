@@ -10,9 +10,7 @@ import menuPointsSvg from "@/assets/icons/Interface/Menu_burger.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
-import filtrSvg from "@/assets/icons/Interface/Filtr.svg?raw";
 import { CARDS_SVG } from "@/components/ui/SvgIcon";
-import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import { useTabStore } from "@/store/tabStore";
 import { useUIStore } from "@/store/uiStore";
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs';
@@ -84,8 +82,8 @@ function AppMenuInner(): React.JSX.Element {
     [handleClose],
   );
 
-  // Count actionable (non-divider) items for hover index tracking
-  let actionableIdx = -1;
+  // Filter dividers so hover index tracking is safe across re-renders
+  const actionableItems = menuItems.filter((item) => !item.id.startsWith("divider"));
 
   return (
     <div ref={containerRef} className="relative">
@@ -167,20 +165,14 @@ function AppMenuInner(): React.JSX.Element {
             >
               <div className="rounded-3xl glass-heavy overflow-hidden">
                 <div className="p-1.5 relative">
-                  {menuItems.map((item, idx) => {
-                    if (item.id.startsWith("divider")) {
-                      return null;
-                    }
-
-                    actionableIdx++;
-                    const thisIdx = actionableIdx;
+                  {actionableItems.map((item, idx) => {
                     const Icon = item.icon!;
 
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
-                        onMouseEnter={() => setHoveredIdx(thisIdx)}
+                        onMouseEnter={() => setHoveredIdx(idx)}
                         onMouseLeave={() => setHoveredIdx(null)}
                         className="w-full rounded-full flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white transition-all duration-150 relative [app-region:no-drag]"
                         style={{
@@ -189,7 +181,7 @@ function AppMenuInner(): React.JSX.Element {
                         }}
                       >
                         {/* Sliding hover highlight */}
-                        {hoveredIdx === thisIdx && (
+                        {hoveredIdx === idx && (
                           <motion.div
                             layoutId="menu-highlight"
                             className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"

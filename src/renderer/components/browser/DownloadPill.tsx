@@ -7,7 +7,6 @@ import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
-import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { formatBytes } from '@/utils/formatUtils'
 

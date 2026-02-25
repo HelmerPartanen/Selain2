@@ -219,7 +219,8 @@ export function setupIPC(): void {
     'tab-session',
     'bookmark-store',
     'browser-history',
-    'download-history'
+    'download-history',
+    'space-store'
   ])
   const storeDir = app.getPath('userData')
 

@@ -96,45 +96,39 @@ function Sidebar({
 
   return (
     <nav aria-label="Settings categories" className="flex flex-col">
-      {(() => {
-        let actionable = -1
-        return CATEGORIES.map(({ id, label, icon, colorClass }) => {
-          if (id.startsWith("divider")) return null
-          actionable++
-          const thisIdx = actionable
-          const isActive = activeCategory === id
-          return (
-            <button
-              key={id}
-              onClick={() => onSelect(id)}
-              onMouseEnter={() => setHoveredIdx(thisIdx)}
-              onMouseLeave={() => setHoveredIdx(null)}
-              aria-current={isActive ? "page" : undefined}
-              className={`relative flex items-center gap-2.5 p-2 rounded-full text-[13px] font-normal transition-all duration-150 ${isActive
-                ? "text-gray-900 dark:text-white"
-                : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-                }`}
-            >
-              {(isActive || hoveredIdx === thisIdx) && (
-                <motion.div
-                  layoutId="settings-active"
-                  className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
-                  initial={{ opacity: 0.6, filter: 'blur(2px)' }}
-                  animate={{ opacity: 1, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, filter: 'blur(2px)' }}
-                  transition={SPRING_SNAPPY}
-                />
-              )}
-              <span className="relative flex items-center gap-3 z-10 w-full">
-                <div className={`w-7 h-7 flex items-center justify-center rounded-full shrink-0 ${colorClass}`}>
-                  <SvgIcon svg={icon} size={16} />
-                </div>
-                {label}
-              </span>
-            </button>
-          )
-        })
-      })()}
+      {CATEGORIES.map(({ id, label, icon, colorClass }, idx) => {
+        const isActive = activeCategory === id
+        return (
+          <button
+            key={id}
+            onClick={() => onSelect(id)}
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            aria-current={isActive ? "page" : undefined}
+            className={`relative flex items-center gap-2.5 p-2 rounded-full text-[13px] font-normal transition-all duration-150 ${isActive
+              ? "text-gray-900 dark:text-white"
+              : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
+              }`}
+          >
+            {(isActive || hoveredIdx === idx) && (
+              <motion.div
+                layoutId="settings-active"
+                className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                initial={{ opacity: 0.6, filter: 'blur(2px)' }}
+                animate={{ opacity: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, filter: 'blur(2px)' }}
+                transition={SPRING_SNAPPY}
+              />
+            )}
+            <span className="relative flex items-center gap-3 z-10 w-full">
+              <div className={`w-7 h-7 flex items-center justify-center rounded-full shrink-0 ${colorClass}`}>
+                <SvgIcon svg={icon} size={16} />
+              </div>
+              {label}
+            </span>
+          </button>
+        )
+      })}
     </nav>
   )
 }
