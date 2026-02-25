@@ -6,7 +6,6 @@ interface UIState {
   isHistoryOpen: boolean
   isDownloadsOpen: boolean
   isTabOverviewOpen: boolean
-  isHotkeysOpen: boolean
   isDropdownOpen: boolean
   isMenuOpen: boolean
   isSpaceSwitcherOpen: boolean
@@ -26,8 +25,6 @@ interface UIState {
   closeDownloads: () => void
   toggleTabOverview: () => void
   closeTabOverview: () => void
-  toggleHotkeys: () => void
-  closeHotkeys: () => void
   setDropdownOpen: (open: boolean) => void
   setMenuOpen: (open: boolean) => void
   setSpaceSwitcherOpen: (open: boolean) => void
@@ -48,7 +45,6 @@ const PANELS_CLOSED = {
   isHistoryOpen: false,
   isDownloadsOpen: false,
   isTabOverviewOpen: false,
-  isHotkeysOpen: false,
   isAISummaryOpen: false,
 } as const
 
@@ -58,7 +54,6 @@ export const useUIStore = create<UIState>((set) => ({
   isHistoryOpen: false,
   isDownloadsOpen: false,
   isTabOverviewOpen: false,
-  isHotkeysOpen: false,
   isDropdownOpen: false,
   isMenuOpen: false,
   isSpaceSwitcherOpen: false,
@@ -80,8 +75,6 @@ export const useUIStore = create<UIState>((set) => ({
   closeDownloads: () => set({ isDownloadsOpen: false }),
   toggleTabOverview: () => set((s) => ({ ...PANELS_CLOSED, isTabOverviewOpen: !s.isTabOverviewOpen })),
   closeTabOverview: () => set({ isTabOverviewOpen: false }),
-  toggleHotkeys: () => set((s) => ({ ...PANELS_CLOSED, isHotkeysOpen: !s.isHotkeysOpen })),
-  closeHotkeys: () => set({ isHotkeysOpen: false }),
 
   setDropdownOpen: (open) => set({ isDropdownOpen: open }),
   setMenuOpen: (open) => set({ isMenuOpen: open }),

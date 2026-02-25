@@ -76,7 +76,6 @@ function FloatingControlsInner(): React.JSX.Element {
     isDropdownOpen,
     isMenuOpen,
     isSpaceSwitcherOpen,
-    isHotkeysOpen,
   } = useUIStore(
     useShallow((s) => ({
       isSettingsOpen: s.isSettingsOpen,
@@ -87,7 +86,6 @@ function FloatingControlsInner(): React.JSX.Element {
       isDropdownOpen: s.isDropdownOpen,
       isMenuOpen: s.isMenuOpen,
       isSpaceSwitcherOpen: s.isSpaceSwitcherOpen,
-      isHotkeysOpen: s.isHotkeysOpen,
     }))
   );
 
@@ -106,8 +104,7 @@ function FloatingControlsInner(): React.JSX.Element {
     isTabOverviewOpen ||
     isDropdownOpen ||
     isMenuOpen ||
-    isSpaceSwitcherOpen ||
-    isHotkeysOpen;
+    isSpaceSwitcherOpen;
   const isIdle = useIdleVisibility(isActive);
 
   // Close transient popups when UI goes idle (but NOT full panels like settings/bookmarks/history/downloads)

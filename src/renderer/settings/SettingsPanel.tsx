@@ -13,12 +13,14 @@ import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
 import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
+import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import { useUIStore } from "@/store/uiStore";
 import { GeneralPane } from "@/settings/panes/GeneralPane";
 import { AppearancePane } from "@/settings/panes/AppearancePane";
 import { WallpaperPane } from "@/settings/panes/WallpaperPane";
 import { PrivacyPane } from "@/settings/panes/PrivacyPane";
 import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
+import { HotkeysPane } from "@/settings/panes/HotkeysPane";
 import { AboutPane } from "@/settings/panes/AboutPane";
 import { SPRING_CONTENT, SPRING_SNAPPY } from "@/utils/springs";
 
@@ -30,6 +32,7 @@ type SettingsCategory =
   | "wallpaper"
   | "privacy"
   | "search"
+  | "hotkeys"
   | "about";
 
 interface CategoryItem {
@@ -44,6 +47,7 @@ const CATEGORIES: CategoryItem[] = [
   { id: "wallpaper", label: "Wallpaper", icon: cameraSvg },
   { id: "privacy", label: "Privacy", icon: shieldSvg },
   { id: "search", label: "Search Engine", icon: searchSvg },
+  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg },
   { id: "about", label: "About", icon: infoSvg },
 ];
 
@@ -65,6 +69,8 @@ function SettingsContent({
       return <PrivacyPane />;
     case "search":
       return <SearchEnginePane />;
+    case "hotkeys":
+      return <HotkeysPane />;
     case "about":
       return <AboutPane />;
   }
@@ -97,11 +103,10 @@ function Sidebar({
               onMouseEnter={() => setHoveredIdx(thisIdx)}
               onMouseLeave={() => setHoveredIdx(null)}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 hover:scale-105 ${
-                isActive
-                  ? "text-gray-900 dark:text-white"
-                  : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-              }`}
+              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 hover:scale-105 ${isActive
+                ? "text-gray-900 dark:text-white"
+                : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
+                }`}
             >
               {(isActive || hoveredIdx === thisIdx) && (
                 <motion.div
@@ -162,45 +167,45 @@ function SettingsPanelInner(): React.JSX.Element {
           </div>
         </div>
 
-            <div className="flex-1 flex flex-col min-w-0">
-              <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <AnimatePresence mode="wait">
-                  <motion.h3
-                    key={activeCategory}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={SPRING_CONTENT}
-                    className="text-[15px] font-medium text-gray-900 dark:text-white tracking-relaxed"
-                  >
-                    {categoryLabel}
-                  </motion.h3>
-                </AnimatePresence>
-                <motion.button
-                  onClick={closeSettings}
-                  aria-label="Close settings"
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.9 }}
-                  transition={SPRING_SNAPPY}
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
-                >
-                  <SvgIcon svg={closeSvg} size={13} />
-                </motion.button>
-              </div>
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 glass-scroll">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeCategory}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={SPRING_CONTENT}
-                  >
-                    <SettingsContent category={activeCategory} />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <AnimatePresence mode="wait">
+              <motion.h3
+                key={activeCategory}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={SPRING_CONTENT}
+                className="text-[15px] font-medium text-gray-900 dark:text-white tracking-relaxed"
+              >
+                {categoryLabel}
+              </motion.h3>
+            </AnimatePresence>
+            <motion.button
+              onClick={closeSettings}
+              aria-label="Close settings"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
+              transition={SPRING_SNAPPY}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+            >
+              <SvgIcon svg={closeSvg} size={13} />
+            </motion.button>
+          </div>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 glass-scroll">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeCategory}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={SPRING_CONTENT}
+              >
+                <SettingsContent category={activeCategory} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </PanelModal>
   );

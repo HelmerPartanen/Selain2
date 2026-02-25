@@ -33,12 +33,6 @@ const menuItems = [
   { id: "history", label: "History", icon: counterclockwiseSvg, shortcut: "" },
   { id: "downloads", label: "Downloads", icon: downloadSvg, shortcut: "" },
   { id: "divider3", label: "", icon: null, shortcut: "" },
-  {
-    id: "hotkeys",
-    label: "Keyboard Shortcuts",
-    icon: keyboardSvg,
-    shortcut: "",
-  },
   { id: "settings", label: "Settings", icon: settingsSvg, shortcut: "" },
 ] as const;
 
@@ -49,13 +43,11 @@ function AppMenuInner(): React.JSX.Element {
   const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen);
   const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
   const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen);
-  const isHotkeysOpen = useUIStore((s) => s.isHotkeysOpen);
   const isPanelOpen =
     isSettingsOpen ||
     isBookmarksOpen ||
     isHistoryOpen ||
-    isDownloadsOpen ||
-    isHotkeysOpen;
+    isDownloadsOpen;
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
@@ -86,8 +78,6 @@ function AppMenuInner(): React.JSX.Element {
         useUIStore.getState().toggleFindBar();
       } else if (action === "tab-overview") {
         useUIStore.getState().toggleTabOverview();
-      } else if (action === "hotkeys") {
-        useUIStore.getState().toggleHotkeys();
       }
       handleClose();
     },
