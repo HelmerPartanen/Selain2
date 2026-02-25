@@ -47,7 +47,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     domReadyRef.current = true
     const webview = webviewRef.current
     if (!webview) return
-    ;(webview as unknown as { insertCSS(css: string): Promise<string> }).insertCSS(SCROLLBAR_CSS)
+      ; (webview as unknown as { insertCSS(css: string): Promise<string> }).insertCSS(SCROLLBAR_CSS)
     batchUpdate({
       loadProgress: 0.7,
       canGoBack: webview.canGoBack(),
@@ -207,7 +207,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webview.removeEventListener('media-paused', handleMediaPaused)
       webview.removeEventListener('focus', handleWebviewFocus)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabId])
 
   // Subscribe to store URL changes and navigate imperatively.
@@ -231,15 +231,36 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
 
   // Keep the outgoing tab visible during exit animation, then truly hide it
   const [shouldRender, setShouldRender] = useState(isActive)
+  const prevIsActiveRef = useRef(isActive)
 
   useEffect(() => {
+    // If we transition from active to inactive, capture it right now
+    if (prevIsActiveRef.current && !isActive) {
+      const takeSnapshot = async () => {
+        const webview = webviewRef.current
+        if (!webview) return
+        const tabIdStr = String(tabId)
+
+        try {
+          const thumbnail = await webviewRegistry.capturePage(tabIdStr)
+          if (thumbnail) {
+            useTabStore.getState().updateTab(tabIdStr, { thumbnail })
+          }
+        } catch (e) {
+          console.warn("Could not capture tab thumbnail before hiding", e)
+        }
+      }
+      takeSnapshot()
+    }
+    prevIsActiveRef.current = isActive
+
     if (isActive) {
       setShouldRender(true)
     } else {
       const timer = setTimeout(() => setShouldRender(false), TAB_TRANSITION_MS + 20)
       return () => clearTimeout(timer)
     }
-  }, [isActive])
+  }, [isActive, tabId])
 
   const isVisible = isActive || shouldRender
 

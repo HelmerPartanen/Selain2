@@ -180,37 +180,32 @@ function TabOverviewInner(): React.JSX.Element {
           favicon: tab.favicon,
           isLoading: tab.isLoading,
           isPlayingMedia: tab.isPlayingMedia,
-          thumbnail: null
+          thumbnail: tab.thumbnail
         } as TabPreview
       })
       .filter(Boolean) as TabPreview[]
     setPreviews(snapshots)
 
-    // Capture thumbnails sequentially (capped) to avoid GPU/memory pressure spikes
-    const captureSequential = async (): Promise<void> => {
+    // We already pulled cached thumbnails for background tabs.
+    // Let's only do a live capture for the currently active tab (since it's currently visible and accurate).
+    const captureActiveTab = async (): Promise<void> => {
       const currentActiveTabId = useTabStore.getState().activeTabId
-      const nonSpecial = snapshots.filter((s) => s.url !== 'browser://newtab')
-      const prioritized = [
-        ...nonSpecial.filter((s) => s.id === currentActiveTabId),
-        ...nonSpecial.filter((s) => s.id !== currentActiveTabId)
-      ].slice(0, MAX_THUMBNAIL_CAPTURES)
+      if (!currentActiveTabId) return
 
-      for (let i = 0; i < prioritized.length; i++) {
-        if (cancelledRef.current) return
-        const snap = prioritized[i]!
-        const thumbnail = await webviewRegistry.capturePage(snap.id)
-        if (cancelledRef.current) return
-        if (thumbnail) {
-          setPreviews((prev) =>
-            prev.map((p) => (p.id === snap.id ? { ...p, thumbnail } : p))
-          )
-        }
-        if (i < prioritized.length - 1) {
-          await sleep(CAPTURE_GAP_MS)
-        }
+      const activeSnapshot = snapshots.find(s => s.id === currentActiveTabId)
+      if (!activeSnapshot || activeSnapshot.url === 'browser://newtab') return
+
+      if (cancelledRef.current) return
+      const thumbnail = await webviewRegistry.capturePage(currentActiveTabId)
+      if (cancelledRef.current) return
+
+      if (thumbnail) {
+        setPreviews((prev) =>
+          prev.map((p) => (p.id === currentActiveTabId ? { ...p, thumbnail } : p))
+        )
       }
     }
-    captureSequential()
+    captureActiveTab()
 
     return () => { cancelledRef.current = true }
   }, [isOpen, activeTabId])
@@ -272,7 +267,7 @@ function TabOverviewInner(): React.JSX.Element {
           {/* Backdrop — solid overlay */}
           <motion.div
             key="tab-overview-backdrop"
-            className="fixed inset-0 z-[90] bg-black/70"
+            className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

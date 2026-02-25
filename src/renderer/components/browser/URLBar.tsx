@@ -99,7 +99,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       suggestionAbortRef.current = controller
 
       const historyResults = useHistoryStore.getState().search(deferredInputValue).map(r => ({ ...r, type: 'history' as const }))
-      
+
       let searchResults: (HistoryEntry & { type: 'search' })[] = []
       try {
         const liveSuggestions = await fetchSearchSuggestions(deferredInputValue, controller.signal)
@@ -125,7 +125,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       // Combine and deduplicate by URL
       const combined = [...historyResults, ...searchResults]
       const unique = Array.from(new Map(combined.map(item => [item.url, item])).values())
-      
+
       setSuggestions(unique.slice(0, 8))
       setSelectedIndex(-1)
     }, 150)
@@ -336,7 +336,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-500 dark:text-neutral-400 transition-colors"
                   aria-label="Clear input"
                 >
-                  <SvgIcon svg={closeSvg} size={12} />
+                  <SvgIcon svg={closeSvg} size={14} />
                 </button>
               </motion.div>
             )}
@@ -366,7 +366,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                     >
                       <SvgIcon
                         svg={isBookmarked ? bookmarkFillSvg : bookmarkSvg}
-                        size={15}
+                        size={14}
                         className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
                       />
                     </motion.span>

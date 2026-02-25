@@ -18,6 +18,8 @@ export interface Tab {
   virtualBackUrl: string | null
   /** URL to navigate forward to when on a special page */
   virtualForwardUrl: string | null
+  /** Cached base64 thumbnail generated just before the tab went to the background */
+  thumbnail: string | null
 }
 
 export type FocusedPanel = 'primary' | 'split'
@@ -59,7 +61,7 @@ export interface TabStore {
 
 /** Shape persisted to disk — a subset of TabStore without action methods */
 type PersistedTabState = Pick<TabStore, 'tabOrder' | 'activeTabId' | 'splitTabId' | 'focusedPanel'> & {
-  tabs: Record<string, Omit<Tab, 'isPlayingMedia' | 'virtualBackUrl' | 'virtualForwardUrl'>>
+  tabs: Record<string, Omit<Tab, 'isPlayingMedia' | 'virtualBackUrl' | 'virtualForwardUrl' | 'thumbnail'>>
 }
 
 function isSpecialPage(url: string): boolean {
@@ -79,7 +81,8 @@ function createTab(url: string): Tab {
     isSuspended: false,
     loadProgress: 0,
     virtualBackUrl: null,
-    virtualForwardUrl: null
+    virtualForwardUrl: null,
+    thumbnail: null
   }
 }
 
@@ -145,7 +148,8 @@ export const useTabStore = create<TabStore>()(
                       canGoForward: false,
                       loadProgress: 0,
                       virtualBackUrl: null,
-                      virtualForwardUrl: null
+                      virtualForwardUrl: null,
+                      thumbnail: null
                     }
                   },
                   recentlyClosed: newRecentlyClosed
