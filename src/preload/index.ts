@@ -65,6 +65,8 @@ const api: ElectronAPI = {
   saveStore: (name: string, data: string) => ipcRenderer.invoke('save-store', name, data),
   clearStoresSync: (names: string[]) => ipcRenderer.sendSync('clear-stores-sync', names) as boolean,
   requestPiP: (webContentsId: number) => ipcRenderer.send('request-pip', webContentsId),
+  fetchSearchSuggestions: (query: string) => ipcRenderer.invoke('fetch-search-suggestions', query),
+  captureTab: (webContentsId: number) => ipcRenderer.invoke('capture-tab', webContentsId),
   // ── AI / Ollama ──────────────────────────────────────────────────────────
   checkAIStatus: () => ipcRenderer.invoke('ai:check-status'),
   pullAIModel: () => ipcRenderer.invoke('ai:pull-model'),

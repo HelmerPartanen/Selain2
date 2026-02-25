@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
-import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
+import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
@@ -108,11 +108,6 @@ const TabCard = memo(function TabCard({
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 dark:group-hover:bg-white/5 transition-colors duration-150" />
         </div>
-
-        {/* Active indicator dot */}
-        {isActive && (
-          <div className="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/40" />
-        )}
       </button>
 
       {/* Close button — only shown when the tab can be closed */}
@@ -238,7 +233,7 @@ function TabOverviewInner(): React.JSX.Element {
         const next = prev.filter((p) => p.id !== tabId)
         // If no tabs remain after closing, close the overview
         if (next.length === 0) {
-          closeOverview()
+          setTimeout(closeOverview, 0)
         }
         return next
       })

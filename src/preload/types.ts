@@ -47,6 +47,10 @@ export interface ElectronAPI {
   clearStoresSync(names: string[]): boolean
   /** Request Picture-in-Picture for a specific webContents */
   requestPiP(webContentsId: number): void
+  /** Fetch search suggestions (bypasses CORS) */
+  fetchSearchSuggestions(query: string): Promise<any>
+  /** Capture webview thumbnail safely without crashing the context bridge */
+  captureTab(webContentsId: number): Promise<string | null>
   // ── AI / Ollama ──────────────────────────────────────────────────────────
   /** Check whether Ollama is installed, running, and the model is available */
   checkAIStatus(): Promise<{ installed: boolean; running: boolean; modelReady: boolean }>

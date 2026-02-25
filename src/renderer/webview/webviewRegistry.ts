@@ -24,12 +24,12 @@ export const webviewRegistry = {
     const webview = registry.get(tabId)
     if (!webview) return null
     try {
-      // Guard: if the webview's webContents is destroyed, capturePage will crash
+      // Guard: if the webview's webContents is destroyed, native capturePage object leak crashes renderer
       const wc = (webview as unknown as { getWebContentsId?(): number }).getWebContentsId?.()
       if (wc === undefined) return null
-      const img = await (webview as unknown as { capturePage(): Promise<Electron.NativeImage> }).capturePage()
-      const jpeg = img.toJPEG(THUMBNAIL_JPEG_QUALITY)
-      return `data:image/jpeg;base64,${jpeg.toString('base64')}`
+
+      // Use IPC to run capturePage in the main process
+      return await window.electronAPI.captureTab(wc)
     } catch {
       return null
     }

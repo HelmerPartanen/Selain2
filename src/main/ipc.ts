@@ -2,7 +2,7 @@
 // All ipcMain handlers: downloads, window controls, zoom, image picker,
 // wallpaper persistence, and settings store persistence.
 
-import { app, dialog, ipcMain, nativeImage, session, shell, webContents } from 'electron'
+import { app, dialog, ipcMain, nativeImage, session, shell, webContents, net } from 'electron'
 import { readFile, writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync, writeFileSync } from 'fs'
@@ -297,6 +297,33 @@ export function setupIPC(): void {
         if (videos.length > 0) videos[0].requestPictureInPicture().catch(() => {});
       })()
     `)
+  })
+
+  // ── Renderer Fixes (Main Process side) ──────────────────────────────────
+  ipcMain.handle('fetch-search-suggestions', async (_event, query: string) => {
+    if (!query) return []
+    try {
+      const response = await net.fetch(`https://duckduckgo.com/ac/?q=${encodeURIComponent(query)}&type=list`)
+      if (!response.ok) return []
+      return await response.json()
+    } catch (err) {
+      console.error('Failed to fetch search suggestions:', err)
+      return []
+    }
+  })
+
+  ipcMain.handle('capture-tab', async (_event, webContentsId: number) => {
+    try {
+      if (typeof webContentsId !== 'number') return null
+      const wc = webContents.fromId(webContentsId)
+      if (!wc || wc.isDestroyed()) return null
+
+      const img = await wc.capturePage()
+      const jpeg = img.toJPEG(62)
+      return `data:image/jpeg;base64,${jpeg.toString('base64')}`
+    } catch (err) {
+      return null
+    }
   })
 
   // ── Performance diagnostics ─────────────────────────────────────────────

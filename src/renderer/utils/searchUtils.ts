@@ -4,13 +4,14 @@ export interface SearchSuggestion {
 
 export async function fetchSearchSuggestions(query: string, signal?: AbortSignal): Promise<string[]> {
   if (!query || query.trim().length === 0) return []
-  
+
   try {
-    // DuckDuckGo autocomplete API
-    const response = await fetch(`https://duckduckgo.com/ac/?q=${encodeURIComponent(query)}&type=list`, { signal })
-    if (!response.ok) return []
-    
-    const data = await response.json()
+    // DuckDuckGo autocomplete API via IPC to avert CORS
+    const data = await window.electronAPI.fetchSearchSuggestions(query)
+    if (signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError')
+    }
+
     // DuckDuckGo can return either [{ phrase: string }] or [query, string[]].
     if (Array.isArray(data) && data.length > 1 && Array.isArray(data[1])) {
       return data[1].filter((item): item is string => typeof item === 'string')
