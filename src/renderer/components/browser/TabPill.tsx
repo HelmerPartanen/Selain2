@@ -4,6 +4,7 @@ import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_fill.svg?raw'
+import tabsSvg from '@/assets/icons/Interface/Tabs.svg?raw'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_3_Fill.svg?raw'
 import splitSvg from '@/assets/icons/Arrows/Triangle_Branch.svg?raw'
 import unsplitSvg from '@/assets/icons/Arrows/Triangle_Merge.svg?raw'
@@ -93,9 +94,8 @@ const TabRow = memo(function TabRow({
       onClick={handleClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      className={`relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:scale-105 ${
-        isHighlighted ? 'text-gray-900 dark:text-white' : ''
-      }`}
+      className={`relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:scale-105 ${isHighlighted ? 'text-gray-900 dark:text-white' : ''
+        }`}
       style={{
         opacity: 0,
         animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`
@@ -190,30 +190,15 @@ function TabPillInner(): React.JSX.Element {
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
 
-        <AnimatePresence initial={false}>
-          {tabCount > 1 && (
-            <motion.div
-              key="tab-count"
-              initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-              animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
-              exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-              transition={SPRING_EXPAND}
-              style={{ display: 'flex', alignItems: 'center', overflow: 'hidden' }}
-            >
-              <motion.button
-                onClick={handleToggle}
-                whileTap={{ scale: 0.82 }}
-                transition={SPRING_SNAPPY}
-                className="flex items-center gap-1.5 h-10 px-3 rounded-full text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 whitespace-nowrap flex-shrink-0"
-              >
-                <ActiveFavicon />
-                <span className="text-xs font-medium tabular-nums">
-                  {tabCount}
-                </span>
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <motion.button
+          onClick={() => useUIStore.getState().toggleTabOverview()}
+          aria-label="Tab overview"
+          whileTap={{ scale: 0.82 }}
+          transition={SPRING_SNAPPY}
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
+        >
+          <SvgIcon svg={tabsSvg} size={16} />
+        </motion.button>
       </div>
 
       {/* Dropdown */}
