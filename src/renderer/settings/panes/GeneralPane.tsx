@@ -19,6 +19,16 @@ function GeneralPaneInner(): React.JSX.Element {
   const setNewTabMode = useSettingsStore((s) => s.setNewTabMode);
   const homepageUrl = useSettingsStore((s) => s.homepageUrl);
   const setHomepageUrl = useSettingsStore((s) => s.setHomepageUrl);
+  const autoGroupTabsByDomain = useSettingsStore((s) => s.autoGroupTabsByDomain);
+  const setAutoGroupTabsByDomain = useSettingsStore((s) => s.setAutoGroupTabsByDomain);
+  const showTabCleanupSuggestions = useSettingsStore((s) => s.showTabCleanupSuggestions);
+  const setShowTabCleanupSuggestions = useSettingsStore((s) => s.setShowTabCleanupSuggestions);
+  const smartUrlBarFocus = useSettingsStore((s) => s.smartUrlBarFocus);
+  const setSmartUrlBarFocus = useSettingsStore((s) => s.setSmartUrlBarFocus);
+  const showNewTabContinueSection = useSettingsStore((s) => s.showNewTabContinueSection);
+  const setShowNewTabContinueSection = useSettingsStore((s) => s.setShowNewTabContinueSection);
+  const showNewTabFrequentSection = useSettingsStore((s) => s.showNewTabFrequentSection);
+  const setShowNewTabFrequentSection = useSettingsStore((s) => s.setShowNewTabFrequentSection);
   const [urlDraft, setUrlDraft] = useState(homepageUrl);
 
   const handleUrlBlur = useCallback(() => {
@@ -44,6 +54,16 @@ function GeneralPaneInner(): React.JSX.Element {
               checked={restoreTabs}
               onChange={setRestoreTabs}
               label="Restore previous tabs"
+            />
+          </SettingRow>
+          <SettingRow
+            label="Smart URL focus"
+            desc="Automatically focus the address bar on new and blank tabs so you can start typing immediately."
+          >
+            <Toggle
+              checked={smartUrlBarFocus}
+              onChange={setSmartUrlBarFocus}
+              label="Smart URL focus"
             />
           </SettingRow>
         </SettingGroup>
@@ -83,6 +103,55 @@ function GeneralPaneInner(): React.JSX.Element {
             );
           })}
         </div>
+        <SettingGroup className="mt-4">
+          <SettingRow
+            label="Continue where you left off"
+            desc="Show a list of recently visited pages at the bottom of the new tab page."
+          >
+            <Toggle
+              checked={showNewTabContinueSection}
+              onChange={setShowNewTabContinueSection}
+              label="Show continue section"
+            />
+          </SettingRow>
+          <SettingRow
+            label="Frequent sites"
+            desc="Show shortcuts for the sites you visit most often."
+          >
+            <Toggle
+              checked={showNewTabFrequentSection}
+              onChange={setShowNewTabFrequentSection}
+              label="Show frequent sites"
+            />
+          </SettingRow>
+        </SettingGroup>
+      </div>
+
+      <div>
+        <SectionHeader>Tab behavior</SectionHeader>
+        <Desc>Let the browser help keep your tabs organized, without losing control.</Desc>
+        <SettingGroup>
+          <SettingRow
+            label="Group similar sites"
+            desc="Keep tabs from the same site clustered together automatically."
+          >
+            <Toggle
+              checked={autoGroupTabsByDomain}
+              onChange={setAutoGroupTabsByDomain}
+              label="Group by site"
+            />
+          </SettingRow>
+          <SettingRow
+            label="Tab cleanup suggestions"
+            desc="Gently suggest reviewing long-lived background tabs when many are open."
+          >
+            <Toggle
+              checked={showTabCleanupSuggestions}
+              onChange={setShowTabCleanupSuggestions}
+              label="Suggest tab cleanup"
+            />
+          </SettingRow>
+        </SettingGroup>
       </div>
 
       <div>

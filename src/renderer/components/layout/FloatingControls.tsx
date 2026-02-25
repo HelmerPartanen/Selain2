@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   useFocusedTabId,
   useFocusedTabCanNavigate,
+  useFocusedTabUrl,
   useIsSplitView,
 } from "@/hooks/useTabSelector";
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -67,6 +68,8 @@ function useIdleVisibility(isActive: boolean): boolean {
 function FloatingControlsInner(): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const focusedTabId = useFocusedTabId();
+  const focusedTabUrl = useFocusedTabUrl();
   const {
     isSettingsOpen,
     isBookmarksOpen,
@@ -89,10 +92,10 @@ function FloatingControlsInner(): React.JSX.Element {
     }))
   );
 
-  const tabId = useFocusedTabId();
   const { canGoBack, canGoForward } = useFocusedTabCanNavigate();
   const isSplit = useIsSplitView();
   const focusedPanel = useTabStore((s) => s.focusedPanel);
+  const tabId = focusedTabId;
 
   const isActive =
     isHovered ||
@@ -120,6 +123,24 @@ function FloatingControlsInner(): React.JSX.Element {
   const handleFocusChange = useCallback((focused: boolean) => {
     setIsInputFocused(focused);
   }, []);
+
+  // When the focused tab becomes an entry point (new tab / blank),
+  // optionally auto-focus the URL bar so the user can immediately type.
+  useEffect(() => {
+    if (!focusedTabId || !focusedTabUrl) return;
+
+    const isEntryPoint =
+      focusedTabUrl === "browser://newtab" ||
+      focusedTabUrl === "about:blank";
+
+    if (!isEntryPoint) return;
+
+    if (!useSettingsStore.getState().smartUrlBarFocus) return;
+
+    requestAnimationFrame(() => {
+      useUIStore.getState().requestUrlBarFocus();
+    });
+  }, [focusedTabId, focusedTabUrl]);
 
   const handleGoBack = useCallback(() => {
     if (!tabId) return;

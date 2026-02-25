@@ -51,7 +51,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const [isFocused, setIsFocused] = useState(false)
 
   // Autocomplete state
-  const [suggestions, setSuggestions] = useState<(HistoryEntry & { type?: 'history' | 'search' })[]>([])
+  const [suggestions, setSuggestions] = useState<(HistoryEntry & { type?: 'history' | 'search' | 'bookmark' })[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -88,8 +88,38 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       return
     }
 
+    const query = deferredInputValue
     const requestId = ++suggestionRequestIdRef.current
     let controller: AbortController | null = null
+
+    // Always compute local results immediately so the list feels instant.
+    const historyResults = useHistoryStore
+      .getState()
+      .search(query)
+      .map(r => ({ ...r, type: 'history' as const }))
+
+    const bookmarkResults = useBookmarkStore
+      .getState()
+      .search(query)
+      .slice(0, 6)
+      .map(b => ({
+        id: `bookmark-${b.id}`,
+        url: b.url,
+        title: b.title,
+        favicon: b.favicon ?? '',
+        visitCount: 0,
+        lastVisit: 0,
+        timestamp: b.createdAt,
+        type: 'bookmark' as const
+      }))
+
+    const seedMap = new Map<string, (HistoryEntry & { type?: 'history' | 'search' | 'bookmark' })>()
+    for (const item of [...historyResults, ...bookmarkResults]) {
+      seedMap.set(item.url, item)
+    }
+    const initial = Array.from(seedMap.values())
+    setSuggestions(initial.slice(0, 8))
+    setSelectedIndex(-1)
 
     suggestionAbortRef.current?.abort()
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -98,11 +128,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       controller = new AbortController()
       suggestionAbortRef.current = controller
 
-      const historyResults = useHistoryStore.getState().search(deferredInputValue).map(r => ({ ...r, type: 'history' as const }))
-
       let searchResults: (HistoryEntry & { type: 'search' })[] = []
       try {
-        const liveSuggestions = await fetchSearchSuggestions(deferredInputValue, controller.signal)
+        const liveSuggestions = await fetchSearchSuggestions(query, controller.signal)
         searchResults = liveSuggestions.map(phrase => ({
           id: `search-${phrase}`,
           url: normalizeURL(phrase),
@@ -122,9 +150,20 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       // Ignore stale responses from older input values.
       if (suggestionRequestIdRef.current !== requestId || controller.signal.aborted) return
 
-      // Combine and deduplicate by URL
-      const combined = [...historyResults, ...searchResults]
-      const unique = Array.from(new Map(combined.map(item => [item.url, item])).values())
+      // Combine and deduplicate by URL, preferring history/bookmarks over search
+      const combined = [...initial, ...searchResults]
+      const byUrl = new Map<string, (HistoryEntry & { type?: 'history' | 'search' | 'bookmark' })>()
+      for (const item of combined) {
+        const existing = byUrl.get(item.url)
+        if (!existing) {
+          byUrl.set(item.url, item)
+          continue
+        }
+        if (item.type === 'history' || item.type === 'bookmark') {
+          byUrl.set(item.url, item)
+        }
+      }
+      const unique = Array.from(byUrl.values())
 
       setSuggestions(unique.slice(0, 8))
       setSelectedIndex(-1)
@@ -456,6 +495,15 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                     {entry.type !== 'search' && (
                       <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">
                         {simplifyUrl(entry.url)}
+                      </span>
+                    )}
+                    {entry.type && (
+                      <span className="flex-shrink-0 text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-600 ml-1">
+                        {entry.type === 'history'
+                          ? 'History'
+                          : entry.type === 'bookmark'
+                          ? 'Bookmark'
+                          : 'Suggestion'}
                       </span>
                     )}
                   </span>

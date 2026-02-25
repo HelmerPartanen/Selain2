@@ -13,6 +13,7 @@ import { FindBar } from "@/components/browser/FindBar";
 import { SplitDivider } from "@/components/layout/SplitDivider";
 import { WebViewManager } from "@/webview/WebViewManager";
 import { useLRUTabManager } from "@/webview/useLRUTabManager";
+import { useTabCleanupSuggestions } from "@/hooks/useTabCleanupSuggestions";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useDownloadListener } from "@/hooks/useDownloadListener";
 import { useAISetup } from "@/hooks/useAISetup";
@@ -69,6 +70,7 @@ const CLEAR_ON_EXIT_STORES = [
 
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager();
+  useTabCleanupSuggestions();
   useKeyboardShortcuts();
   useDownloadListener();
   useTrackpadTabSwipe();

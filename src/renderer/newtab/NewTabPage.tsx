@@ -5,7 +5,9 @@ import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useHistoryStore } from '@/store/historyStore'
 import { SPRING } from '@/utils/springs'
+import { simplifyUrl } from '@/utils/urlUtils'
 
 // ─── Favourites (Bookmarks) ──────────────────────────────────────────────────
 
@@ -231,10 +233,113 @@ function Favourites(): React.JSX.Element | null {
   )
 }
 
+function ContinueSection(): React.JSX.Element | null {
+  const entries = useHistoryStore((s) => s.entries)
+  const items = useMemo(
+    () => entries.slice(0, 5),
+    [entries]
+  )
+
+  const handleNavigate = useCallback((url: string) => {
+    const store = useTabStore.getState()
+    const activeId = store.activeTabId
+    if (activeId) {
+      store.updateTab(activeId, { url })
+    }
+  }, [])
+
+  if (items.length === 0) return null
+
+  return (
+    <div className="mt-6 space-y-2">
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white [text-shadow:0_0px_2px_rgba(0,0,0,1)]">
+        Continue where you left off
+      </div>
+      <div className="space-y-1.5">
+        {items.map((entry) => (
+          <button
+            key={`${entry.url}-${entry.timestamp}`}
+            onClick={() => handleNavigate(entry.url)}
+            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-full glass bg-black/10 hover:bg-black/18 text-left transition-colors duration-120"
+          >
+            <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
+              {entry.favicon ? (
+                <img src={entry.favicon} alt="" className="w-4 h-4 rounded-sm" />
+              ) : (
+                <SvgIcon svg={globeSvg} size={14} className="text-white/60" />
+              )}
+            </span>
+            <span className="flex-1 min-w-0 text-[12px] text-white/90 truncate">
+              {entry.title || simplifyUrl(entry.url)}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function FrequentSection(): React.JSX.Element | null {
+  const entries = useHistoryStore((s) => s.entries)
+  const items = useMemo(() => {
+    if (entries.length === 0) return []
+    const byHost = new Map<string, { url: string; visits: number; last: number }>()
+    for (const e of entries) {
+      let host: string
+      try {
+        host = new URL(e.url).hostname.replace(/^www\./, '')
+      } catch {
+        host = e.url
+      }
+      const existing = byHost.get(host)
+      if (!existing) {
+        byHost.set(host, { url: e.url, visits: e.visitCount, last: e.timestamp })
+      } else {
+        existing.visits += e.visitCount
+        existing.last = Math.max(existing.last, e.timestamp)
+      }
+    }
+    return Array.from(byHost.entries())
+      .sort((a, b) => b[1]!.visits - a[1]!.visits || b[1]!.last - a[1]!.last)
+      .slice(0, 6)
+  }, [entries])
+
+  const handleNavigate = useCallback((url: string) => {
+    const store = useTabStore.getState()
+    const activeId = store.activeTabId
+    if (activeId) {
+      store.updateTab(activeId, { url })
+    }
+  }, [])
+
+  if (items.length === 0) return null
+
+  return (
+    <div className="mt-6 space-y-2">
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white [text-shadow:0_0px_2px_rgba(0,0,0,1)]">
+        Frequent sites
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {items.map(([host, data]) => (
+          <button
+            key={host}
+            onClick={() => handleNavigate(data.url)}
+            className="px-3 py-1.5 rounded-full glass bg-black/10 hover:bg-black/18 text-[11px] text-white/80 transition-colors duration-120"
+          >
+            {host}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 function NewTabPageInner(): React.JSX.Element {
   const newTabMode = useSettingsStore((s) => s.newTabMode)
+  const showNewTabContinueSection = useSettingsStore((s) => s.showNewTabContinueSection)
+  const showNewTabFrequentSection = useSettingsStore((s) => s.showNewTabFrequentSection)
 
   if (newTabMode === 'blank') {
     return (
@@ -254,7 +359,17 @@ function NewTabPageInner(): React.JSX.Element {
 
   return (
     <div className="absolute inset-0 select-none">
-      {newTabMode === 'bookmarks' && <Favourites />}
+      {newTabMode === 'bookmarks' && (
+        <>
+          <Favourites />
+          <div className="absolute inset-x-0 bottom-0 p-6 pointer-events-none">
+            <div className="max-w-md pointer-events-auto">
+              {showNewTabContinueSection && <ContinueSection />}
+              {showNewTabFrequentSection && <FrequentSection />}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

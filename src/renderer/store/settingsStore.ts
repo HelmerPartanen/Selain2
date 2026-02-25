@@ -26,6 +26,16 @@ export interface SettingsState {
   onboardingCompleted: boolean
   /** Adaptive UI color — tint glass surfaces based on wallpaper average color */
   adaptiveColor: boolean
+  /** Group tabs by domain automatically when navigating */
+  autoGroupTabsByDomain: boolean
+  /** Show gentle suggestions to clean up long-lived/background tabs */
+  showTabCleanupSuggestions: boolean
+  /** Automatically focus the URL bar on new/blank tabs */
+  smartUrlBarFocus: boolean
+  /** Show "Continue where you left off" section on the new tab page */
+  showNewTabContinueSection: boolean
+  /** Show "Frequent sites" section on the new tab page */
+  showNewTabFrequentSection: boolean
 }
 
 export interface SettingsActions {
@@ -37,6 +47,11 @@ export interface SettingsActions {
   setClearOnExit: (v: boolean) => void
   setOnboardingCompleted: (v: boolean) => void
   setAdaptiveColor: (v: boolean) => void
+  setAutoGroupTabsByDomain: (v: boolean) => void
+  setShowTabCleanupSuggestions: (v: boolean) => void
+  setSmartUrlBarFocus: (v: boolean) => void
+  setShowNewTabContinueSection: (v: boolean) => void
+  setShowNewTabFrequentSection: (v: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -55,6 +70,11 @@ export const useSettingsStore = create<SettingsStore>()(
       clearOnExit: false,
       onboardingCompleted: false,
       adaptiveColor: false,
+      autoGroupTabsByDomain: true,
+      showTabCleanupSuggestions: true,
+      smartUrlBarFocus: true,
+      showNewTabContinueSection: true,
+      showNewTabFrequentSection: true,
 
       // ── Actions ──
       setRestoreTabs: (v) => set({ restoreTabs: v }),
@@ -65,6 +85,11 @@ export const useSettingsStore = create<SettingsStore>()(
       setClearOnExit: (v) => set({ clearOnExit: v }),
       setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
       setAdaptiveColor: (v) => set({ adaptiveColor: v }),
+      setAutoGroupTabsByDomain: (v) => set({ autoGroupTabsByDomain: v }),
+      setShowTabCleanupSuggestions: (v) => set({ showTabCleanupSuggestions: v }),
+      setSmartUrlBarFocus: (v) => set({ smartUrlBarFocus: v }),
+      setShowNewTabContinueSection: (v) => set({ showNewTabContinueSection: v }),
+      setShowNewTabFrequentSection: (v) => set({ showNewTabFrequentSection: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }
   )

@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -95,7 +95,7 @@ function HistoryPanelInner(): React.JSX.Element {
   const [query, setQuery] = useState('')
   const [confirmingClear, setConfirmingClear] = useState(false)
 
-  const grouped = getGrouped()
+  const grouped = useMemo(() => getGrouped(), [getGrouped, entries])
   const searchResults = query.length >= 2 ? searchFn(query) : null
 
   const handleNavigate = useCallback(

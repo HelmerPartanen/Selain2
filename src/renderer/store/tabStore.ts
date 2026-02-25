@@ -88,6 +88,15 @@ function createTab(url: string): Tab {
 
 const MAX_RECENTLY_CLOSED = 10
 
+function getDomainKey(url: string): string | null {
+  try {
+    const { hostname } = new URL(url)
+    return hostname.replace(/^www\./, '')
+  } catch {
+    return null
+  }
+}
+
 export const useTabStore = create<TabStore>()(
   devtools(
     persist(
@@ -102,11 +111,17 @@ export const useTabStore = create<TabStore>()(
         addTab: (url = 'browser://newtab') => {
           const tab = createTab(url)
           set(
-            (state) => ({
-              tabs: { ...state.tabs, [tab.id]: tab },
-              tabOrder: [...state.tabOrder, tab.id],
-              activeTabId: tab.id
-            }),
+            (state) => {
+              const nextOrder = [...state.tabOrder]
+              const activeIndex = state.activeTabId ? nextOrder.indexOf(state.activeTabId) : -1
+              const insertIndex = activeIndex >= 0 ? activeIndex + 1 : nextOrder.length
+              nextOrder.splice(insertIndex, 0, tab.id)
+              return {
+                tabs: { ...state.tabs, [tab.id]: tab },
+                tabOrder: nextOrder,
+                activeTabId: tab.id
+              }
+            },
             undefined,
             'addTab'
           )
@@ -271,8 +286,40 @@ export const useTabStore = create<TabStore>()(
               const existingAny = existing as unknown as Record<string, unknown>
               const changed = keys.some((k) => existingAny[k] !== merged[k])
               if (!changed) return state
+
+              let nextOrder = state.tabOrder
+
+              // Optional domain-based grouping for real pages
+              if (patch.url && !isSpecialPage(patch.url) && useSettingsStore.getState().autoGroupTabsByDomain) {
+                const domain = getDomainKey(patch.url)
+                if (domain) {
+                  const currentIndex = nextOrder.indexOf(id)
+                  if (currentIndex !== -1) {
+                    let targetIndex = -1
+                    for (let i = 0; i < nextOrder.length; i++) {
+                      const otherId = nextOrder[i]!
+                      if (otherId === id) continue
+                      const other = state.tabs[otherId]
+                      if (!other || isSpecialPage(other.url)) continue
+                      if (getDomainKey(other.url) === domain) {
+                        targetIndex = i
+                        break
+                      }
+                    }
+                    if (targetIndex !== -1 && targetIndex !== currentIndex) {
+                      const reordered = [...nextOrder]
+                      reordered.splice(currentIndex, 1)
+                      const insertAt = targetIndex < currentIndex ? targetIndex + 1 : targetIndex
+                      reordered.splice(insertAt, 0, id)
+                      nextOrder = reordered
+                    }
+                  }
+                }
+              }
+
               return {
-                tabs: { ...state.tabs, [id]: merged }
+                tabs: { ...state.tabs, [id]: merged },
+                tabOrder: nextOrder
               }
             },
             undefined,
