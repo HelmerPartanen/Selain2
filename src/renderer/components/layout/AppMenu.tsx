@@ -166,15 +166,10 @@ function AppMenuInner(): React.JSX.Element {
               }}
             >
               <div className="rounded-3xl glass-heavy overflow-hidden">
-                <div className="px-3 py-2 relative">
+                <div className="p-1.5 relative">
                   {menuItems.map((item, idx) => {
                     if (item.id.startsWith("divider")) {
-                      return (
-                        <div
-                          key={item.id}
-                          className="border-t border-[var(--border-divider)] my-1"
-                        />
-                      );
+                      return null;
                     }
 
                     actionableIdx++;
@@ -187,7 +182,7 @@ function AppMenuInner(): React.JSX.Element {
                         onClick={() => handleMenuItemClick(item.id)}
                         onMouseEnter={() => setHoveredIdx(thisIdx)}
                         onMouseLeave={() => setHoveredIdx(null)}
-                        className="w-full rounded-full flex items-center gap-3 px-3.5 h-9 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:scale-105 transition-all duration-150 relative [app-region:no-drag]"
+                        className="w-full rounded-full flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white transition-all duration-150 relative [app-region:no-drag]"
                         style={{
                           opacity: 0,
                           animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
@@ -209,7 +204,7 @@ function AppMenuInner(): React.JSX.Element {
                           <SvgIcon svg={Icon} size={16} />
                           <span className="flex-1 text-left">{item.label}</span>
                           {item.shortcut && (
-                            <span className="text-[11px] text-gray-400 dark:text-neutral-500 bg-black/[0.04] dark:bg-white/[0.06] rounded px-1.5 py-0.5 ml-2">
+                            <span className="text-[11px] text-gray-400 dark:text-neutral-500">
                               {item.shortcut}
                             </span>
                           )}

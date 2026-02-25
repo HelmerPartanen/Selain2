@@ -42,17 +42,18 @@ interface CategoryItem {
   id: SettingsCategory;
   label: string;
   icon: string;
+  colorClass: string;
 }
 
 const CATEGORIES: CategoryItem[] = [
-  { id: "general", label: "General", icon: settingsSvg },
-  { id: "appearance", label: "Appearance", icon: brushSvg },
-  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg },
-  { id: "privacy", label: "Privacy", icon: shieldSvg },
-  { id: "search", label: "Search Engine", icon: searchSvg },
-  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg },
-  { id: "gestures", label: "Gestures", icon: gestureSvg },
-  { id: "about", label: "About", icon: infoSvg },
+  { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
+  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-black text-white dark:bg-white dark:text-black" },
+  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-500 text-white dark:bg-purple-600 dark:text-white" },
+  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-500 text-white dark:bg-emerald-600 dark:text-white" },
+  { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-500 text-white dark:bg-blue-600 dark:text-white" },
+  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
+  { id: "gestures", label: "Gestures", icon: gestureSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
+  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
 ];
 
 // --- Content Pane Router ------------------------------------------------------
@@ -94,10 +95,10 @@ function Sidebar({
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   return (
-    <nav aria-label="Settings categories" className="flex flex-col gap-0.5">
+    <nav aria-label="Settings categories" className="flex flex-col">
       {(() => {
         let actionable = -1
-        return CATEGORIES.map(({ id, label, icon }) => {
+        return CATEGORIES.map(({ id, label, icon, colorClass }) => {
           if (id.startsWith("divider")) return null
           actionable++
           const thisIdx = actionable
@@ -109,7 +110,7 @@ function Sidebar({
               onMouseEnter={() => setHoveredIdx(thisIdx)}
               onMouseLeave={() => setHoveredIdx(null)}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 hover:scale-105 ${isActive
+              className={`relative flex items-center gap-2.5 p-2 rounded-full text-[13px] font-normal transition-all duration-150 ${isActive
                 ? "text-gray-900 dark:text-white"
                 : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                 }`}
@@ -124,8 +125,10 @@ function Sidebar({
                   transition={SPRING_SNAPPY}
                 />
               )}
-              <span className="relative flex items-center gap-2.5 z-10">
-                <SvgIcon svg={icon} size={16} />
+              <span className="relative flex items-center gap-3 z-10 w-full">
+                <div className={`w-7 h-7 flex items-center justify-center rounded-full shrink-0 ${colorClass}`}>
+                  <SvgIcon svg={icon} size={16} />
+                </div>
                 {label}
               </span>
             </button>
@@ -164,7 +167,7 @@ function SettingsPanelInner(): React.JSX.Element {
                 Settings
               </h2>
             </div>
-            <div className="flex-1 px-2.5 pb-4">
+            <div className="flex-1 px-1.5 pb-4">
               <Sidebar
                 activeCategory={activeCategory}
                 onSelect={setActiveCategory}

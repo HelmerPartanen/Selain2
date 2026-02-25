@@ -57,21 +57,20 @@ function SearchEnginePaneInner(): React.JSX.Element {
                   onMouseLeave={() => setHoveredEngineId(null)}
                   onFocus={() => setHoveredEngineId(engine.id)}
                   onBlur={() => setHoveredEngineId(null)}
-                  className={`relative w-full flex items-center gap-3 px-3.5 py-3 rounded-full transition-all duration-150 hover:scale-105 ${
-                    isActive
+                  className={`relative w-full flex items-center gap-3 px-3.5 py-3 rounded-full transition-all duration-150 ${isActive
                       ? "text-gray-900 dark:text-white"
                       : "text-gray-600 dark:text-neutral-400"
-                  }`}
+                    }`}
                 >
-                    {(isActive || hoveredEngineId === engine.id) && (
-                <motion.div
-                    layoutId="history-hover"
-                  className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
-                    initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-                  animate={{ opacity: 1, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, filter: 'blur(2px)' }}
-                  transition={SPRING_SNAPPY}
-                />
+                  {(isActive || hoveredEngineId === engine.id) && (
+                    <motion.div
+                      layoutId="history-hover"
+                      className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                      initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+                      animate={{ opacity: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, filter: 'blur(2px)' }}
+                      transition={SPRING_SNAPPY}
+                    />
                   )}
                   <div className="relative w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-white dark:bg-white/[0.08] shadow-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
                     {ENGINE_ICONS[engine.id] ? (

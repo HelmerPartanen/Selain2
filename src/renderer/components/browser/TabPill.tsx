@@ -94,7 +94,7 @@ const TabRow = memo(function TabRow({
       onClick={handleClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      className={`relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:scale-105 ${isHighlighted ? 'text-gray-900 dark:text-white' : ''
+      className={`relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white ${isHighlighted ? 'text-gray-900 dark:text-white' : ''
         }`}
       style={{
         opacity: 0,
@@ -268,7 +268,7 @@ function TabPillInner(): React.JSX.Element {
                         onClick={handleReopen}
                         onMouseEnter={() => setHoveredRow('reopen')}
                         onMouseLeave={() => setHoveredRow(null)}
-                        className="relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:scale-105"
+                        className="relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white"
                       >
                         {hoveredRow === 'reopen' && (
                           <motion.div

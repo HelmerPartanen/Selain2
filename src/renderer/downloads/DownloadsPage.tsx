@@ -33,7 +33,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
       onClick={() => { /* clicking row opens handled by parent if needed */ }}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer hover:scale-105 transition-all duration-150"
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-150"
     >
       {hovered && (
         <motion.div
@@ -169,35 +169,35 @@ function DownloadsPanelInner(): React.JSX.Element {
       className="flex flex-col"
     >
       <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-            <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <SvgIcon svg={downloadSvg} size={16} />
-              Downloads
-            </h2>
-            <motion.button
-              onClick={closeDownloads}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.9 }}
-              transition={SPRING_SNAPPY}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
-            >
-              <SvgIcon svg={closeSvg} size={13} />
-            </motion.button>
-          </div>
+        <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+          <SvgIcon svg={downloadSvg} size={16} />
+          Downloads
+        </h2>
+        <motion.button
+          onClick={closeDownloads}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.9 }}
+          transition={SPRING_SNAPPY}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+        >
+          <SvgIcon svg={closeSvg} size={13} />
+        </motion.button>
+      </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-3 glass-scroll">
-            {items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
-                <SvgIcon svg={downloadSvg} size={40} className="mb-3 opacity-50" />
-                <p className="text-sm">No downloads</p>
-                <p className="text-xs mt-1 opacity-70">Downloads from this session will appear here</p>
-              </div>
-            ) : (
-              <div className="space-y-0.5">
-                {items.map((item, i) => (
-                  <DownloadRow key={item.id} item={item} index={i} />
-                ))}
-              </div>
-            )}
+      <div className="flex-1 overflow-y-auto px-5 py-3 glass-scroll">
+        {items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
+            <SvgIcon svg={downloadSvg} size={40} className="mb-3 opacity-50" />
+            <p className="text-sm">No downloads</p>
+            <p className="text-xs mt-1 opacity-70">Downloads from this session will appear here</p>
+          </div>
+        ) : (
+          <div className="space-y-0.5">
+            {items.map((item, i) => (
+              <DownloadRow key={item.id} item={item} index={i} />
+            ))}
+          </div>
+        )}
       </div>
     </PanelModal>
   )

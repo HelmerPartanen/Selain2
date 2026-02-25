@@ -23,7 +23,7 @@ const ShortcutRow = memo(function ShortcutRow({
             onMouseLeave={() => setHovered(false)}
             onFocus={() => setHovered(true)}
             onBlur={() => setHovered(false)}
-            className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-full hover:scale-105 transition-all duration-150"
+            className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-full transition-all duration-150"
         >
             {hovered && (
                 <motion.div
