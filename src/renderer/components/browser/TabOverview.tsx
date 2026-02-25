@@ -9,6 +9,7 @@ import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSpaceStore } from '@/store/spaceStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
+import { NewTabPage } from '@/newtab/NewTabPage'
 import { SPRING } from '@/utils/springs'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -41,12 +42,14 @@ const TabCard = memo(function TabCard({
   preview,
   isActive,
   index,
+  canClose,
   onSelect,
   onClose
 }: {
   preview: TabPreview
   isActive: boolean
   index: number
+  canClose: boolean
   onSelect: () => void
   onClose: (e: React.MouseEvent) => void
 }): React.JSX.Element {
@@ -55,7 +58,13 @@ const TabCard = memo(function TabCard({
   const title = preview.title || 'New Tab'
 
   return (
-    <div className="group relative tab-overview-card" style={{ animationDelay: `${index * 40}ms` }}>
+    <motion.div
+      layout
+      className="group relative tab-overview-card"
+      style={{ animationDelay: `${index * 40}ms` }}
+      exit={{ scale: 0.8, opacity: 0 }}
+      transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+    >
       <button
         onClick={onSelect}
         className={`
@@ -68,7 +77,7 @@ const TabCard = memo(function TabCard({
         `}
       >
         {/* Thumbnail area */}
-        <div className="relative aspect-[16/10] bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+        <div className="relative aspect-[16/10] bg-gray-100 dark:bg-neutral-800 overflow-hidden rounded-t-2xl">
           {thumbnail ? (
             <img
               src={thumbnail}
@@ -77,14 +86,21 @@ const TabCard = memo(function TabCard({
               draggable={false}
             />
           ) : isNewTab ? (
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ background: NEWTAB_GRADIENT }}
-            >
-              <span className="text-[13px] font-medium text-indigo-400/80">New Tab</span>
+            <div className="absolute inset-0 overflow-hidden">
+              <div
+                className="pointer-events-none select-none"
+                style={{
+                  width: '1280px',
+                  height: '800px',
+                  transform: 'scale(0.203125)',
+                  transformOrigin: 'top left',
+                }}
+              >
+                <NewTabPage />
+              </div>
             </div>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-neutral-850">
               <SvgIcon svg={globeSvg} size={28} className="text-gray-300 dark:text-neutral-600" />
             </div>
           )}
@@ -99,19 +115,21 @@ const TabCard = memo(function TabCard({
         )}
       </button>
 
-      {/* Close button */}
-      <div className="absolute -top-1.5 -right-1.5 z-10">
-        <button
-          onClick={onClose}
-          className="w-6 h-6 rounded-full bg-gray-800/80 dark:bg-neutral-600/90
-            flex items-center justify-center text-white
-            opacity-0 group-hover:opacity-100 transition-opacity duration-150
-            hover:bg-red-500 dark:hover:bg-red-500 active:scale-90"
-          aria-label={`Close ${title}`}
-        >
-          <SvgIcon svg={closeSvg} size={11} />
-        </button>
-      </div>
+      {/* Close button — only shown when the tab can be closed */}
+      {canClose && (
+        <div className="absolute -top-1.5 -right-1.5 z-10">
+          <button
+            onClick={onClose}
+            className="w-6 h-6 rounded-full bg-gray-800/80 dark:bg-neutral-600/90
+              flex items-center justify-center text-white
+              opacity-0 group-hover:opacity-100 transition-opacity duration-150
+              hover:bg-red-500 dark:hover:bg-red-500 active:scale-90"
+            aria-label={`Close ${title}`}
+          >
+            <SvgIcon svg={closeSvg} size={11} />
+          </button>
+        </div>
+      )}
 
       {/* Title below card */}
       <div className="flex items-center gap-1.5 mt-2 px-1">
@@ -129,7 +147,7 @@ const TabCard = memo(function TabCard({
           <SvgIcon svg={soundFillSvg} size={11} className="flex-shrink-0 text-blue-400" />
         )}
       </div>
-    </div>
+    </motion.div>
   )
 })
 
@@ -175,10 +193,11 @@ function TabOverviewInner(): React.JSX.Element {
 
     // Capture thumbnails sequentially (capped) to avoid GPU/memory pressure spikes
     const captureSequential = async (): Promise<void> => {
+      const currentActiveTabId = useTabStore.getState().activeTabId
       const nonSpecial = snapshots.filter((s) => s.url !== 'browser://newtab')
       const prioritized = [
-        ...nonSpecial.filter((s) => s.id === activeTabId),
-        ...nonSpecial.filter((s) => s.id !== activeTabId)
+        ...nonSpecial.filter((s) => s.id === currentActiveTabId),
+        ...nonSpecial.filter((s) => s.id !== currentActiveTabId)
       ].slice(0, MAX_THUMBNAIL_CAPTURES)
 
       for (let i = 0; i < prioritized.length; i++) {
@@ -186,9 +205,11 @@ function TabOverviewInner(): React.JSX.Element {
         const snap = prioritized[i]!
         const thumbnail = await webviewRegistry.capturePage(snap.id)
         if (cancelledRef.current) return
-        setPreviews((prev) =>
-          prev.map((p) => (p.id === snap.id ? { ...p, thumbnail } : p))
-        )
+        if (thumbnail) {
+          setPreviews((prev) =>
+            prev.map((p) => (p.id === snap.id ? { ...p, thumbnail } : p))
+          )
+        }
         if (i < prioritized.length - 1) {
           await sleep(CAPTURE_GAP_MS)
         }
@@ -211,10 +232,18 @@ function TabOverviewInner(): React.JSX.Element {
     (e: React.MouseEvent, tabId: string) => {
       e.stopPropagation()
       useTabStore.getState().removeTab(tabId)
+
       // Update previews to reflect removal
-      setPreviews((prev) => prev.filter((p) => p.id !== tabId))
+      setPreviews((prev) => {
+        const next = prev.filter((p) => p.id !== tabId)
+        // If no tabs remain after closing, close the overview
+        if (next.length === 0) {
+          closeOverview()
+        }
+        return next
+      })
     },
-    []
+    [closeOverview]
   )
 
   const handleNewTab = useCallback(() => {
@@ -235,6 +264,11 @@ function TabOverviewInner(): React.JSX.Element {
     window.addEventListener('keydown', handler, true)
     return () => window.removeEventListener('keydown', handler, true)
   }, [isOpen, closeOverview])
+
+  // Determine if close button should be shown per card
+  // Only a single tab on newtab should be un-closable
+  const isOnlyTabOnNewTab =
+    previews.length === 1 && previews[0]?.url === 'browser://newtab'
 
   return (
     <AnimatePresence>
@@ -276,16 +310,19 @@ function TabOverviewInner(): React.JSX.Element {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {previews.map((preview, i) => (
-                <TabCard
-                  key={preview.id}
-                  preview={preview}
-                  isActive={preview.id === activeTabId}
-                  index={i}
-                  onSelect={() => handleSelect(preview.id)}
-                  onClose={(e) => handleClose(e, preview.id)}
-                />
-              ))}
+              <AnimatePresence mode="popLayout">
+                {previews.map((preview, i) => (
+                  <TabCard
+                    key={preview.id}
+                    preview={preview}
+                    isActive={preview.id === activeTabId}
+                    index={i}
+                    canClose={!isOnlyTabOnNewTab}
+                    onSelect={() => handleSelect(preview.id)}
+                    onClose={(e) => handleClose(e, preview.id)}
+                  />
+                ))}
+              </AnimatePresence>
 
               {/* New tab card */}
               <div className="tab-overview-card" style={{ animationDelay: `${previews.length * 40}ms` }}>

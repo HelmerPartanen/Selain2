@@ -115,8 +115,49 @@ export const useTabStore = create<TabStore>()(
           const index = state.tabOrder.indexOf(id)
           if (index === -1) return
 
-          // Push to recently closed
           const closedTab = state.tabs[id]
+
+          // If it's the only tab...
+          if (state.tabOrder.length === 1) {
+            // ...and already on newtab, don't allow closing
+            if (closedTab && closedTab.url === 'browser://newtab') return
+            // ...otherwise navigate it to newtab instead of removing
+            if (closedTab) {
+              // Push to recently closed
+              let newRecentlyClosed = state.recentlyClosed
+              if (closedTab.url !== 'browser://newtab') {
+                newRecentlyClosed = [
+                  { url: closedTab.url, title: closedTab.title, favicon: closedTab.favicon },
+                  ...state.recentlyClosed
+                ].slice(0, MAX_RECENTLY_CLOSED)
+              }
+              set(
+                {
+                  tabs: {
+                    ...state.tabs,
+                    [id]: {
+                      ...closedTab,
+                      url: 'browser://newtab',
+                      title: 'New Tab',
+                      favicon: '',
+                      isLoading: false,
+                      canGoBack: false,
+                      canGoForward: false,
+                      loadProgress: 0,
+                      virtualBackUrl: null,
+                      virtualForwardUrl: null
+                    }
+                  },
+                  recentlyClosed: newRecentlyClosed
+                },
+                undefined,
+                'removeTab/navigateToNewTab'
+              )
+            }
+            return
+          }
+
+          // Push to recently closed
           let newRecentlyClosed = state.recentlyClosed
           if (closedTab && closedTab.url !== 'browser://newtab') {
             newRecentlyClosed = [
