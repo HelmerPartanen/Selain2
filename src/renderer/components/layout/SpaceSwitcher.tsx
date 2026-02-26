@@ -152,7 +152,7 @@ function NewSpaceForm({
           if (e.key === 'Escape') onCancel()
         }}
         placeholder="Space name…"
-        className="w-full h-8 px-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-neutral-600"
+        className="w-full h-8 px-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus-visible:ring-1 focus-visible:ring-gray-300 dark:focus-visible:ring-neutral-600"
       />
 
       {/* Color picker */}
@@ -242,7 +242,7 @@ function EditSpaceForm({
           if (e.key === 'Enter') handleSave()
           if (e.key === 'Escape') onDone()
         }}
-        className="w-full h-8 px-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-xs text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-neutral-600"
+        className="w-full h-8 px-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-xs text-gray-900 dark:text-white outline-none focus-visible:ring-1 focus-visible:ring-gray-300 dark:focus-visible:ring-neutral-600"
       />
 
       {/* Color picker — include "None" option */}

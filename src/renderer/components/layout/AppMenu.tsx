@@ -12,7 +12,9 @@ import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
 import { CARDS_SVG } from "@/components/ui/SvgIcon";
 import { useTabStore } from "@/store/tabStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
+import { normalizeURL, isValidHomepageUrl } from "@/utils/urlUtils";
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs';
 
 const menuItems = [
@@ -63,7 +65,19 @@ function AppMenuInner(): React.JSX.Element {
       if (action === "settings") {
         useUIStore.getState().toggleSettings();
       } else if (action === "home") {
-        useTabStore.getState().addTab("browser://newtab");
+        const tabStore = useTabStore.getState();
+        const homepageUrl = useSettingsStore.getState().homepageUrl?.trim() ?? "";
+        if (homepageUrl && isValidHomepageUrl(homepageUrl)) {
+          const url = normalizeURL(homepageUrl);
+          const activeId = tabStore.activeTabId;
+          if (activeId && tabStore.tabs[activeId]) {
+            tabStore.updateTab(activeId, { url });
+          } else {
+            tabStore.addTab(url);
+          }
+        } else {
+          tabStore.addTab("browser://newtab");
+        }
       } else if (action === "new-tab") {
         useTabStore.getState().addTab();
       } else if (action === "bookmarks") {

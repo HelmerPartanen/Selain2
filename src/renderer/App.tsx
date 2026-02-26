@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { MotionConfig } from 'motion/react'
 import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { useThemeStore } from '@/store/themeStore'
 import { useSpaceTint } from '@/hooks/useSpaceTint'
@@ -30,5 +31,9 @@ function useThemeMode(): void {
 export default function App(): React.JSX.Element {
   useThemeMode()
   useSpaceTint()
-  return <BrowserLayout />
+  return (
+    <MotionConfig reducedMotion="user">
+      <BrowserLayout />
+    </MotionConfig>
+  )
 }

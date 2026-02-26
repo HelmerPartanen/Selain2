@@ -102,7 +102,7 @@ function scheduleStoreWrite(name: string, value: string): Promise<void> {
   return Promise.resolve()
 }
 
-function createIPCStateStorage(): StateStorage {
+function createIPCStateStorage(onParseError?: (storeName: string) => void): StateStorage {
   return {
     getItem: async (name: string): Promise<string | null> => {
       try {
@@ -110,12 +110,17 @@ function createIPCStateStorage(): StateStorage {
         const data = await window.electronAPI.loadStore(name)
         if (data !== null) {
           lastSavedByStore.set(name, data)
+          // Validate JSON so corrupt persisted state doesn't crash rehydration
+          try {
+            JSON.parse(data)
+          } catch {
+            onParseError?.(name)
+            return null
+          }
           return data
         }
 
         // Migration: seed from localStorage if the IPC file doesn't exist yet.
-        // Only remove the localStorage entry after confirming the save succeeded
-        // to prevent data loss if the main process rejects the write.
         const local = localStorage.getItem(name)
         if (local !== null) {
           const saved = await window.electronAPI.saveStore(name, local)
@@ -157,7 +162,14 @@ function createIPCStateStorage(): StateStorage {
   }
 }
 
+export interface CreateIPCStorageOptions {
+  /** Called when persisted JSON is corrupt; use to show a toast or log. */
+  onParseError?: (storeName: string) => void
+}
+
 /** Creates zustand-compatible PersistStorage backed by the main process filesystem */
-export function createIPCStorage<S>() {
-  return createJSONStorage<S>(() => createIPCStateStorage())
+export function createIPCStorage<S>(options?: CreateIPCStorageOptions) {
+  return createJSONStorage<S>(() =>
+    createIPCStateStorage(options?.onParseError)
+  )
 }

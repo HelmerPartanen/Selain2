@@ -6,6 +6,7 @@ import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useHistoryStore } from '@/store/historyStore'
+import { useUIStore } from '@/store/uiStore'
 import { SPRING } from '@/utils/springs'
 import { simplifyUrl } from '@/utils/urlUtils'
 
@@ -55,6 +56,7 @@ function FavouriteTile({
   isSelected,
   onSelect,
   onOpen,
+  onOpenInNewTab,
   containerRef
 }: {
   url: string
@@ -65,6 +67,7 @@ function FavouriteTile({
   isSelected: boolean
   onSelect: (url: string) => void
   onOpen: (url: string) => void
+  onOpenInNewTab?: (url: string) => void
   containerRef: React.RefObject<HTMLDivElement | null>
 }): React.JSX.Element {
   const setFavouritePosition = useBookmarkStore((s) => s.setFavouritePosition)
@@ -111,9 +114,27 @@ function FavouriteTile({
     setDragOffset({ x: 0, y: 0 })
   }, [dragOffset, url, setFavouritePosition, getContainerBounds])
 
-  const handleClick = useCallback(() => {
-    if (!hasMoved.current) onSelect(url)
-  }, [url, onSelect])
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        onOpenInNewTab?.(url)
+        return
+      }
+      if (!hasMoved.current) onSelect(url)
+    },
+    [url, onSelect, onOpenInNewTab]
+  )
+
+  const handleAuxClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button === 1) {
+        e.preventDefault()
+        onOpenInNewTab?.(url)
+      }
+    },
+    [url, onOpenInNewTab]
+  )
 
   const handleDoubleClick = useCallback(() => {
     onOpen(url)
@@ -146,6 +167,7 @@ function FavouriteTile({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onClick={handleClick}
+      onAuxClick={handleAuxClick}
       onDoubleClick={handleDoubleClick}
     >
       <div className="flex items-center justify-center overflow-hidden">
@@ -197,6 +219,10 @@ function Favourites(): React.JSX.Element | null {
     }
   }, [])
 
+  const handleOpenInNewTab = useCallback((url: string) => {
+    useTabStore.getState().addTab(url)
+  }, [])
+
   const handleSelect = useCallback((url: string) => {
     setSelectedUrl((prev) => (prev === url ? null : url))
   }, [])
@@ -226,6 +252,7 @@ function Favourites(): React.JSX.Element | null {
           isSelected={selectedUrl === site.url}
           onSelect={handleSelect}
           onOpen={handleNavigate}
+          onOpenInNewTab={handleOpenInNewTab}
           containerRef={containerRef}
         />
       ))}
@@ -248,6 +275,10 @@ function ContinueSection(): React.JSX.Element | null {
     }
   }, [])
 
+  const handleOpenInNewTab = useCallback((url: string) => {
+    useTabStore.getState().addTab(url)
+  }, [])
+
   if (items.length === 0) return null
 
   return (
@@ -259,7 +290,20 @@ function ContinueSection(): React.JSX.Element | null {
         {items.map((entry) => (
           <button
             key={`${entry.url}-${entry.timestamp}`}
-            onClick={() => handleNavigate(entry.url)}
+            onClick={(e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault()
+                handleOpenInNewTab(entry.url)
+                return
+              }
+              handleNavigate(entry.url)
+            }}
+            onAuxClick={(e) => {
+              if (e.button === 1) {
+                e.preventDefault()
+                handleOpenInNewTab(entry.url)
+              }
+            }}
             className="w-full flex items-center gap-2 px-3 py-1.5 rounded-full glass bg-black/10 hover:bg-black/18 text-left transition-colors duration-120"
           >
             <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
@@ -312,6 +356,10 @@ function FrequentSection(): React.JSX.Element | null {
     }
   }, [])
 
+  const handleOpenInNewTab = useCallback((url: string) => {
+    useTabStore.getState().addTab(url)
+  }, [])
+
   if (items.length === 0) return null
 
   return (
@@ -323,7 +371,20 @@ function FrequentSection(): React.JSX.Element | null {
         {items.map(([host, data]) => (
           <button
             key={host}
-            onClick={() => handleNavigate(data.url)}
+            onClick={(e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault()
+                handleOpenInNewTab(data.url)
+                return
+              }
+              handleNavigate(data.url)
+            }}
+            onAuxClick={(e) => {
+              if (e.button === 1) {
+                e.preventDefault()
+                handleOpenInNewTab(data.url)
+              }
+            }}
             className="px-3 py-1.5 rounded-full glass bg-black/10 hover:bg-black/18 text-[11px] text-white/80 transition-colors duration-120"
           >
             {host}
@@ -340,22 +401,6 @@ function NewTabPageInner(): React.JSX.Element {
   const newTabMode = useSettingsStore((s) => s.newTabMode)
   const showNewTabContinueSection = useSettingsStore((s) => s.showNewTabContinueSection)
   const showNewTabFrequentSection = useSettingsStore((s) => s.showNewTabFrequentSection)
-
-  if (newTabMode === 'blank') {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center select-none">
-        <div className="flex flex-col items-center gap-3 opacity-20">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2" />
-            <path d="M16 3C16 3 11 10 11 16C11 22 16 29 16 29" stroke="currentColor" strokeWidth="2" />
-            <path d="M16 3C16 3 21 10 21 16C21 22 16 29 16 29" stroke="currentColor" strokeWidth="2" />
-            <line x1="3" y1="16" x2="29" y2="16" stroke="currentColor" strokeWidth="2" />
-          </svg>
-          <span className="text-xs font-medium text-current tracking-wide">Press Ctrl+L to navigate</span>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="absolute inset-0 select-none">

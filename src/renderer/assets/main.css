@@ -205,3 +205,22 @@ body,
   animation: tab-overview-card-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: transform, opacity;
 }
+
+/* ─── Reduced motion ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .tab-overview-card {
+    animation: none;
+  }
+}

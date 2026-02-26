@@ -60,8 +60,18 @@ export interface TabStore {
 }
 
 /** Shape persisted to disk — a subset of TabStore without action methods */
-type PersistedTabState = Pick<TabStore, 'tabOrder' | 'activeTabId' | 'splitTabId' | 'focusedPanel'> & {
+type PersistedTabState = Pick<TabStore, 'tabOrder' | 'activeTabId' | 'splitTabId' | 'focusedPanel' | 'recentlyClosed'> & {
   tabs: Record<string, Omit<Tab, 'isPlayingMedia' | 'virtualBackUrl' | 'virtualForwardUrl' | 'thumbnail'>>
+}
+
+const SESSION_RESTORE_FAILED_EVENT = 'session-restore-failed'
+export function dispatchSessionRestoreFailed(): void {
+  window.dispatchEvent(new CustomEvent(SESSION_RESTORE_FAILED_EVENT))
+}
+export function onSessionRestoreFailed(handler: () => void): () => void {
+  const fn = () => handler()
+  window.addEventListener(SESSION_RESTORE_FAILED_EVENT, fn)
+  return () => window.removeEventListener(SESSION_RESTORE_FAILED_EVENT, fn)
 }
 
 function isSpecialPage(url: string): boolean {
@@ -426,13 +436,18 @@ export const useTabStore = create<TabStore>()(
       })),
       {
         name: 'tab-session',
-        version: 1,
-        storage: createIPCStorage<PersistedTabState>(),
+        version: 2,
+        storage: createIPCStorage<PersistedTabState>({
+          onParseError(name) {
+            if (name === 'tab-session') dispatchSessionRestoreFailed()
+          }
+        }),
         partialize: (state): PersistedTabState => ({
           tabOrder: state.tabOrder,
           activeTabId: state.activeTabId,
           splitTabId: state.splitTabId,
           focusedPanel: state.focusedPanel,
+          recentlyClosed: state.recentlyClosed.slice(0, MAX_RECENTLY_CLOSED),
           tabs: Object.fromEntries(
             Object.entries(state.tabs).map(([id, tab]) => [
               id,
@@ -453,6 +468,10 @@ export const useTabStore = create<TabStore>()(
         }),
         onRehydrateStorage: () => (state) => {
           if (!state) return
+          // Migrate: recentlyClosed added in v2
+          state.recentlyClosed = Array.isArray(state.recentlyClosed)
+            ? state.recentlyClosed.slice(0, MAX_RECENTLY_CLOSED)
+            : []
           // If user disabled tab restore, clear all rehydrated tabs and start fresh
           const { restoreTabs } = useSettingsStore.getState()
           if (!restoreTabs) {

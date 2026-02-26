@@ -54,6 +54,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const [suggestions, setSuggestions] = useState<(HistoryEntry & { type?: 'history' | 'search' | 'bookmark' })[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+  const [suggestionsUnavailable, setSuggestionsUnavailable] = useState<null | 'offline' | 'error'>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const suggestionRequestIdRef = useRef(0)
   const suggestionAbortRef = useRef<AbortController | null>(null)
@@ -85,12 +86,14 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       suggestionAbortRef.current = null
       setSuggestions([])
       setSelectedIndex(-1)
+      setSuggestionsUnavailable(null)
       return
     }
 
     const query = deferredInputValue
     const requestId = ++suggestionRequestIdRef.current
     let controller: AbortController | null = null
+    setSuggestionsUnavailable(null)
 
     // Always compute local results immediately so the list feels instant.
     const historyResults = useHistoryStore
@@ -128,6 +131,13 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       controller = new AbortController()
       suggestionAbortRef.current = controller
 
+      if (!navigator.onLine) {
+        if (suggestionRequestIdRef.current === requestId && !controller.signal.aborted) {
+          setSuggestionsUnavailable('offline')
+        }
+        return
+      }
+
       let searchResults: (HistoryEntry & { type: 'search' })[] = []
       try {
         const liveSuggestions = await fetchSearchSuggestions(query, controller.signal)
@@ -142,8 +152,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
           type: 'search' as const
         }))
       } catch (e) {
-        if (!(e instanceof DOMException && e.name === 'AbortError')) {
+        if (!(e instanceof DOMException && e.name === 'AbortError') && suggestionRequestIdRef.current === requestId && !controller.signal.aborted) {
           console.error('Failed to fetch live suggestions', e)
+          setSuggestionsUnavailable('error')
         }
       }
 
@@ -237,6 +248,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     suggestionAbortRef.current = null
     setSuggestions([])
     setSelectedIndex(-1)
+    setSuggestionsUnavailable(null)
   }, [onFocusChange])
 
   const handleSuggestionClick = useCallback(
@@ -348,7 +360,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
             placeholder="Search or enter URL"
             spellCheck={false}
             autoComplete="off"
-            className="w-full h-full pl-[36px] pr-[36px] text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-0"
+            className="w-full h-full pl-[36px] pr-[36px] text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-none"
           />
 
           {/* Clear input button */}
@@ -446,9 +458,9 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         <LoadingProgressBar />
       </motion.div>
 
-      {/* Autocomplete dropdown */}
+      {/* Autocomplete dropdown — show when there are suggestions or when inline hint (offline/error) */}
       <AnimatePresence>
-        {suggestions.length > 0 && isFocused && (
+        {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
             className="absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[22px] overflow-hidden z-[100] glass"
             style={{ originY: 1 }}
@@ -510,6 +522,16 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                 </button>
               )
             })}
+            {suggestionsUnavailable && (
+              <div
+                className="px-3 py-2 text-[11px] text-gray-500 dark:text-neutral-400 border-t border-black/5 dark:border-white/5 mt-1"
+                role="status"
+              >
+                {suggestionsUnavailable === 'offline'
+                  ? 'You\'re offline — live suggestions unavailable.'
+                  : 'Suggestions temporarily unavailable.'}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

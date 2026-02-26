@@ -1,10 +1,12 @@
-import {
+import React, {
   lazy,
   memo,
+  useCallback,
   Suspense,
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { AnimatePresence } from "motion/react";
 import { FloatingControls } from "@/components/layout/FloatingControls";
@@ -26,7 +28,8 @@ import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
 import { resolveWallpaperUrl } from "@/theme/bundledWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
-import { ToastContainer } from "@/components/ui/Toast";
+import { showToast, ToastContainer } from "@/components/ui/Toast";
+import { onSessionRestoreFailed } from "@/store/tabStore";
 import { AISummaryButton } from "@/components/ai/AISummaryButton";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useHistoryStore } from "@/store/historyStore";
@@ -68,6 +71,44 @@ const CLEAR_ON_EXIT_STORES = [
   "bookmark-store",
 ] as const;
 
+function MainContentErrorFallback({
+  onRetry,
+  onNewTab,
+}: {
+  onRetry: () => void;
+  onNewTab: () => void;
+}): React.JSX.Element {
+  return (
+    <div className="absolute inset-0 z-[90] flex items-center justify-center bg-black/40">
+      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-700 p-8 max-w-sm text-center">
+        <div className="text-3xl mb-3">⚠️</div>
+        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-2">
+          Something went wrong
+        </h3>
+        <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-5">
+          The tab area had a problem. Try again or open a new tab.
+        </p>
+        <div className="flex gap-2 justify-center">
+          <button
+            type="button"
+            onClick={onRetry}
+            className="px-5 py-2 rounded-xl text-[13px] font-medium text-white bg-indigo-500 hover:bg-indigo-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+          >
+            Try Again
+          </button>
+          <button
+            type="button"
+            onClick={onNewTab}
+            className="px-5 py-2 rounded-xl text-[13px] font-medium text-gray-700 dark:text-neutral-200 bg-gray-200 dark:bg-neutral-700 hover:bg-gray-300 dark:hover:bg-neutral-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+          >
+            New tab
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BrowserLayoutInner(): React.JSX.Element {
   useLRUTabManager();
   useTabCleanupSuggestions();
@@ -92,6 +133,16 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isSpaceSwitcherOpen = useUIStore((s) => s.isSpaceSwitcherOpen);
   const closeSpaceSwitcher = useUIStore((s) => s.setSpaceSwitcherOpen);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
+  const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
+
+  const handleMainContentErrorRetry = useCallback(() => {
+    setMainContentErrorKey((k) => k + 1);
+  }, []);
+
+  const handleMainContentErrorNewTab = useCallback(() => {
+    useTabStore.getState().addTab();
+    setMainContentErrorKey((k) => k + 1);
+  }, []);
 
   // Resolve theme-aware wallpapers — preset gradients adapt to dark/light.
   const isDark = useIsDark();
@@ -192,6 +243,16 @@ function BrowserLayoutInner(): React.JSX.Element {
     });
   }, []);
 
+  // ── Session restore failed (corrupt tab-session JSON) ──
+  useEffect(() => {
+    return onSessionRestoreFailed(() => {
+      showToast({
+        message: "Session could not be restored; starting fresh.",
+        type: "info",
+      });
+    });
+  }, []);
+
   // ── Preload heavy modal chunks after first paint (reduces first-open lag) ──
   useEffect(() => {
     const preload = (): void => {
@@ -235,9 +296,19 @@ function BrowserLayoutInner(): React.JSX.Element {
       {/* Transparent drag region for window movement */}
       <div className="fixed top-0 left-0 right-[138px] h-2.5 z-[60] [app-region:drag]" />
 
-      {/* Web content — fills entire viewport */}
+      {/* Web content — fills entire viewport; ErrorBoundary keeps shell usable on React errors */}
       <div className="relative z-10 h-full">
-        <WebViewManager />
+        <ErrorBoundary
+          key={mainContentErrorKey}
+          fallback={
+            <MainContentErrorFallback
+              onRetry={handleMainContentErrorRetry}
+              onNewTab={handleMainContentErrorNewTab}
+            />
+          }
+        >
+          <WebViewManager />
+        </ErrorBoundary>
       </div>
 
       {/* Floating controls overlay */}

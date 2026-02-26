@@ -7,6 +7,42 @@ export function isSpecialPage(url: string): boolean {
   return url === 'browser://newtab'
 }
 
+// ─── Homepage validation ───────────────────────────────────────────────────
+
+/** Schemes that are not allowed for homepage (security / UX). */
+const FORBIDDEN_HOMEPAGE_SCHEMES = ['javascript:', 'data:', 'vbscript:', 'file:']
+
+/**
+ * Returns true if the input is a safe, navigable URL suitable for homepage.
+ * Rejects empty, forbidden schemes, and invalid URLs. Max length 2048.
+ */
+export function isValidHomepageUrl(input: string): boolean {
+  const trimmed = input.trim()
+  if (!trimmed || trimmed.length > 2048) return false
+  const lower = trimmed.toLowerCase()
+  if (FORBIDDEN_HOMEPAGE_SCHEMES.some((s) => lower.startsWith(s))) return false
+  try {
+    const href = trimmed.includes('://') ? trimmed : `https://${trimmed}`
+    const url = new URL(href)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Normalize and validate homepage input. Returns a valid https URL or empty string.
+ * Use for saving: only call when isValidHomepageUrl(trimmed) is true, or pass through
+ * empty; for invalid input returns '' so caller can reject.
+ */
+export function normalizeHomepageUrl(input: string): string {
+  const trimmed = input.trim()
+  if (!trimmed) return ''
+  if (!isValidHomepageUrl(trimmed)) return ''
+  const normalized = normalizeURL(trimmed)
+  return isValidHomepageUrl(normalized) ? normalized : ''
+}
+
 // ─── URL Normalization ────────────────────────────────────────────────────────
 
 /**

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { normalizeURL, simplifyUrl, isSpecialPage } from './urlUtils'
+import { normalizeURL, simplifyUrl, isSpecialPage, isValidHomepageUrl, normalizeHomepageUrl } from './urlUtils'
 
 // Mock the search engine store
 vi.mock('@/store/searchEngineStore', () => ({
@@ -78,6 +78,38 @@ describe('urlUtils', () => {
 
     it('returns raw string if parsing fails', () => {
       expect(simplifyUrl('not a valid url')).toBe('not a valid url')
+    })
+  })
+
+  describe('isValidHomepageUrl', () => {
+    it('accepts http and https URLs', () => {
+      expect(isValidHomepageUrl('https://example.com')).toBe(true)
+      expect(isValidHomepageUrl('http://example.com')).toBe(true)
+      expect(isValidHomepageUrl('https://sub.example.com/path')).toBe(true)
+    })
+    it('accepts bare domains', () => {
+      expect(isValidHomepageUrl('example.com')).toBe(true)
+    })
+    it('rejects empty or too long', () => {
+      expect(isValidHomepageUrl('')).toBe(false)
+      expect(isValidHomepageUrl('   ')).toBe(false)
+      expect(isValidHomepageUrl('x'.repeat(2049))).toBe(false)
+    })
+    it('rejects forbidden schemes', () => {
+      expect(isValidHomepageUrl('javascript:alert(1)')).toBe(false)
+      expect(isValidHomepageUrl('data:text/html,<h1>')).toBe(false)
+      expect(isValidHomepageUrl('file:///C:/x')).toBe(false)
+    })
+  })
+
+  describe('normalizeHomepageUrl', () => {
+    it('returns empty for empty or invalid', () => {
+      expect(normalizeHomepageUrl('')).toBe('')
+      expect(normalizeHomepageUrl('javascript:x')).toBe('')
+    })
+    it('returns normalized URL for valid input', () => {
+      expect(normalizeHomepageUrl('example.com')).toBe('https://example.com')
+      expect(normalizeHomepageUrl('https://example.com')).toBe('https://example.com')
     })
   })
 })

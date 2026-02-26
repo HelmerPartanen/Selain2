@@ -1,6 +1,6 @@
 // ─── General Settings Pane ───────────────────────────────────────────────────
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   Desc,
@@ -10,7 +10,12 @@ import {
   Toggle,
 } from "@/settings/components/SettingsShared";
 import { useSettingsStore, type NewTabMode } from "@/store/settingsStore";
+import { useTabStore } from "@/store/tabStore";
 import { SPRING_SNAPPY } from "@/utils/springs";
+import {
+  isValidHomepageUrl,
+  normalizeHomepageUrl,
+} from "@/utils/urlUtils";
 
 function GeneralPaneInner(): React.JSX.Element {
   const restoreTabs = useSettingsStore((s) => s.restoreTabs);
@@ -30,15 +35,54 @@ function GeneralPaneInner(): React.JSX.Element {
   const showNewTabFrequentSection = useSettingsStore((s) => s.showNewTabFrequentSection);
   const setShowNewTabFrequentSection = useSettingsStore((s) => s.setShowNewTabFrequentSection);
   const [urlDraft, setUrlDraft] = useState(homepageUrl);
+  const [homepageError, setHomepageError] = useState<string | null>(null);
+
+  // Sync draft when store value changes (e.g. "Use current page" or external update)
+  useEffect(() => {
+    setUrlDraft(homepageUrl);
+    setHomepageError(null);
+  }, [homepageUrl]);
 
   const handleUrlBlur = useCallback(() => {
     const trimmed = urlDraft.trim();
-    setHomepageUrl(trimmed);
+    if (!trimmed) {
+      setHomepageUrl("");
+      setHomepageError(null);
+      return;
+    }
+    if (!isValidHomepageUrl(trimmed)) {
+      setHomepageError("Enter a valid URL (e.g. https://example.com)");
+      return;
+    }
+    const normalized = normalizeHomepageUrl(trimmed);
+    setHomepageUrl(normalized);
+    setUrlDraft(normalized);
+    setHomepageError(null);
   }, [urlDraft, setHomepageUrl]);
 
   const handleUrlKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter") (e.target as HTMLInputElement).blur();
   }, []);
+
+  const activeTabId = useTabStore((s) => s.activeTabId);
+  const tabs = useTabStore((s) => s.tabs);
+  const currentTabUrl =
+    activeTabId && tabs[activeTabId]
+      ? tabs[activeTabId].url
+      : "";
+  const canUseCurrentPage =
+    currentTabUrl &&
+    !currentTabUrl.startsWith("browser://") &&
+    currentTabUrl !== "about:blank" &&
+    isValidHomepageUrl(currentTabUrl);
+
+  const handleUseCurrentPage = useCallback(() => {
+    if (!canUseCurrentPage) return;
+    const normalized = normalizeHomepageUrl(currentTabUrl);
+    setHomepageUrl(normalized);
+    setUrlDraft(normalized);
+    setHomepageError(null);
+  }, [canUseCurrentPage, currentTabUrl, setHomepageUrl]);
 
   return (
     <div className="space-y-7">
@@ -159,17 +203,45 @@ function GeneralPaneInner(): React.JSX.Element {
         <Desc>
           URL to navigate when clicking the home button. Leave empty to disable.
         </Desc>
-        <input
-          type="text"
-          value={urlDraft}
-          onChange={(e) => setUrlDraft(e.target.value)}
-          onBlur={handleUrlBlur}
-          onKeyDown={handleUrlKey}
-          placeholder="https://example.com"
-          aria-label="Homepage URL"
-          spellCheck={false}
-          className="w-full px-3.5 py-2.5 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10 text-[13px] font-normal text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none border border-transparent focus:border-indigo-500/30 dark:focus:border-indigo-400/30 transition-all duration-200"
-        />
+        <div className="space-y-1.5">
+          <input
+            type="text"
+            value={urlDraft}
+            onChange={(e) => {
+              setUrlDraft(e.target.value);
+              if (homepageError) setHomepageError(null);
+            }}
+            onBlur={handleUrlBlur}
+            onKeyDown={handleUrlKey}
+            placeholder="https://example.com"
+            aria-label="Homepage URL"
+            aria-invalid={!!homepageError}
+            aria-describedby={homepageError ? "homepage-error" : undefined}
+            spellCheck={false}
+            className={`w-full px-3.5 py-2.5 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 text-[13px] font-normal text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none border transition-all duration-200 ${
+              homepageError
+                ? "ring-red-500/50 dark:ring-red-400/50 border-red-500/30 dark:border-red-400/30"
+                : "ring-black/5 dark:ring-white/10 border-transparent focus:border-indigo-500/30 dark:focus:border-indigo-400/30 focus-visible:ring-2 focus-visible:ring-indigo-400/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+            }`}
+          />
+          {homepageError && (
+            <p
+              id="homepage-error"
+              className="text-[12px] text-red-600 dark:text-red-400 px-1"
+            >
+              {homepageError}
+            </p>
+          )}
+          {canUseCurrentPage && (
+            <button
+              type="button"
+              onClick={handleUseCurrentPage}
+              className="text-[12px] text-indigo-600 dark:text-indigo-400 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded px-1"
+            >
+              Use current page
+            </button>
+          )}
+        </div>
       </div>
 
     </div>
