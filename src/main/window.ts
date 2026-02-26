@@ -40,7 +40,7 @@ export function createWindow(): void {
     frame: false,
     webPreferences: {
       contextIsolation: true,
-      sandbox: true,
+      sandbox: false, // Required for DRM
       nodeIntegration: false,
       webviewTag: true,
       plugins: true,
@@ -135,6 +135,12 @@ export function createWindow(): void {
     webPreferences.v8CacheOptions = 'bypassHeatCheck'
     delete webPreferences.preload
   })
+
+  win.webContents.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+    "AppleWebKit/537.36 (KHTML, like Gecko) " +
+    "Chrome/120.0.0.0 Safari/537.36"
+  )
 
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(process.env['ELECTRON_RENDERER_URL'])
