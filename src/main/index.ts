@@ -33,25 +33,47 @@ app.whenReady().then(async () => {
   const enableDomLevelBlocking =
     !process.argv.includes('--adblock-network-only') && process.env['BROWSER_ADBLOCK_DOM'] !== '0'
 
+  const skipAdblocker =
+    skipExtensions ||
+    process.argv.includes('--no-adblock') ||
+    process.env['BROWSER_DISABLE_ADBLOCK'] === '1'
+
   const loadAdblocker = (): void => {
-    if (skipExtensions) {
-      logger.log('[Adblocker] Skipped loading adblocker (--no-extensions flag)')
+    if (skipAdblocker) {
+      logger.log(
+        '[Adblocker] Skipped (--no-extensions, --no-adblock, or BROWSER_DISABLE_ADBLOCK=1)'
+      )
       return
     }
-    ElectronBlocker.fromLists(globalThis.fetch, adsAndTrackingLists, {
+    const adblockConfig = {
       loadNetworkFilters: true,
       loadCosmeticFilters: enableDomLevelBlocking,
       loadGenericCosmeticsFilters: enableDomLevelBlocking,
       loadExtendedSelectors: enableDomLevelBlocking,
       enableMutationObserver: enableDomLevelBlocking,
-    }).then((blocker) => {
-      const ses = session.fromPartition('persist:default')
-      blocker.enableBlockingInSession(ses)
-      const mode = enableDomLevelBlocking ? 'network + DOM filters' : 'network filters only'
-      logger.log(`[Adblocker] Loaded Ghostery adblocker (${mode})`)
-    }).catch((err) => {
-      logger.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
-    })
+    }
+    // Exception rules so streaming/DRM sites (e.g. Netflix) are not blocked — avoids M7121-1331.
+    // Use $document to disable all blocking (network + cosmetic) on these pages.
+    const streamingAllowlist = [
+      '@@||netflix.com^$document',
+      '@@||netflix.net^$document',
+      '@@||nflxvideo.net^',
+      '@@||nflxext.com^',
+      '@@||nflxso.net^',
+      '@@||nflxstatic.com^',
+    ].join('\n')
+    ElectronBlocker.fromLists(globalThis.fetch, adsAndTrackingLists, adblockConfig)
+      .then((blocker) => {
+        const allowlistEngine = ElectronBlocker.parse(streamingAllowlist, { loadNetworkFilters: true })
+        const merged = ElectronBlocker.merge([blocker, allowlistEngine]) as ElectronBlocker
+        const ses = session.fromPartition('persist:default')
+        merged.enableBlockingInSession(ses)
+        const mode = enableDomLevelBlocking ? 'network + DOM filters' : 'network filters only'
+        logger.log(`[Adblocker] Loaded Ghostery adblocker (${mode})`)
+      })
+      .catch((err) => {
+        logger.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
+      })
   }
   setImmediate(loadAdblocker)
 

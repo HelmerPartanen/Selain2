@@ -60,7 +60,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "electron": "github:castlabs/electron-releases#v33.4.11+wvcus",
+    "electron": "github:castlabs/electron-releases#v40.1.0+wvcus",
     "electron-vite": "^5.0.0",
     "jsdom": "^28.1.0",
     "tailwindcss": "^4.1.0",

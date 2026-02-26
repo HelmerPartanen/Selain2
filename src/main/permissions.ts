@@ -38,12 +38,10 @@ function shouldAllowPermission(permission: string, requestingUrl: string | undef
   return isSecureTrustedOrigin(requestingUrl)
 }
 
-export function setupPermissions(): void {
-  const CHROME_UA = session.defaultSession.getUserAgent()
-    .replace(/Electron\/\S+\s?/g, '')
-    .replace(/electron-vite\/\S+\s?/g, '')
-    .trim()
+const CHROME_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
+export function setupPermissions(): void {
   const configureSes = (ses: Electron.Session): void => {
     ses.setUserAgent(CHROME_UA)
     ses.setSpellCheckerEnabled(false)
