@@ -311,6 +311,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
         ref={webviewRef}
         src={initialUrl}
         partition="persist:default"
+        useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         {...{ plugins: '', allowpopups: '', allow: 'encrypted-media; autoplay; fullscreen' } as Record<string, string>}
         className="w-full h-full"
         style={{ display: 'inline-flex' }}

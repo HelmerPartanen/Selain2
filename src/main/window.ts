@@ -81,6 +81,13 @@ export function createWindow(): void {
 
     // Intercept new-window requests and keyboard shortcuts from all webviews
     ; (win.webContents as NodeJS.EventEmitter).on('did-attach-webview', (_event: unknown, webViewContents: Electron.WebContents) => {
+      // Spoof User-Agent for Netflix/Spotify
+      webViewContents.setUserAgent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+        "AppleWebKit/537.36 (KHTML, like Gecko) " +
+        "Chrome/120.0.0.0 Safari/537.36"
+      )
+
       // Redirect target="_blank" links to new tabs instead of new windows.
       // Exception: popup windows (OAuth / login flows) specify explicit width+height
       // in the features string and rely on window.opener for postMessage — allow
@@ -128,7 +135,7 @@ export function createWindow(): void {
   win.webContents.on('will-attach-webview', (_event, webPreferences) => {
     webPreferences.nodeIntegration = false
     webPreferences.contextIsolation = true
-    webPreferences.sandbox = true
+    webPreferences.sandbox = false
     webPreferences.webSecurity = true
     webPreferences.allowRunningInsecureContent = false
     webPreferences.plugins = true

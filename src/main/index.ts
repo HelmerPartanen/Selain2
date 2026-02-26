@@ -13,6 +13,9 @@ import { setupIPC } from './ipc'
 import { setupPermissions, setupCSP } from './permissions'
 import { initBenchmarkPerfMonitor, writeBenchmarkPerfReport } from './perfMonitor'
 
+// Castlabs specific: Bypass Widevine VMP signature check since we are not officially signed by Google
+app.commandLine.appendSwitch('no-vmp')
+
 app.whenReady().then(async () => {
   // Start CDM init in background — don't block window creation
   const cdmReady = components.whenReady().then(() => {
@@ -78,6 +81,8 @@ app.whenReady().then(async () => {
       '@@||nflxext.com^',
       '@@||nflxso.net^',
       '@@||nflxstatic.com^',
+      '@@||spotify.com^$document',
+      '@@||scdn.co^',
     ].join('\n')
     ElectronBlocker.fromLists(globalThis.fetch, adsAndTrackingLists, adblockConfig)
       .then((blocker) => {
