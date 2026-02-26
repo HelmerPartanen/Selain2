@@ -2,6 +2,8 @@
 // App lifecycle only. All subsystems live in their own modules.
 
 import { app, BrowserWindow, components, session } from 'electron'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 import { ElectronBlocker } from '@ghostery/adblocker-electron'
 import { adsAndTrackingLists } from '@ghostery/adblocker'
 import './flags'                                     // side-effect: Chromium CLI switches
@@ -33,7 +35,22 @@ app.whenReady().then(async () => {
   const enableDomLevelBlocking =
     !process.argv.includes('--adblock-network-only') && process.env['BROWSER_ADBLOCK_DOM'] !== '0'
 
+  let settingsAdblockerEnabled = true
+  try {
+    const settingsPath = join(app.getPath('userData'), 'browser-settings.json')
+    if (existsSync(settingsPath)) {
+      const data = readFileSync(settingsPath, 'utf-8')
+      const parsed = JSON.parse(data)
+      if (parsed?.state?.enableAdblocker === false) {
+        settingsAdblockerEnabled = false
+      }
+    }
+  } catch (err) {
+    logger.warn('[main] Failed to read browser settings for adblocker init:', err)
+  }
+
   const skipAdblocker =
+    !settingsAdblockerEnabled ||
     skipExtensions ||
     process.argv.includes('--no-adblock') ||
     process.env['BROWSER_DISABLE_ADBLOCK'] === '1'

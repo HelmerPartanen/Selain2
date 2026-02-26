@@ -36,6 +36,8 @@ export interface SettingsState {
   showNewTabContinueSection: boolean
   /** Show "Frequent sites" section on the new tab page */
   showNewTabFrequentSection: boolean
+  /** Enable built-in Adblocker */
+  enableAdblocker: boolean
 }
 
 export interface SettingsActions {
@@ -52,6 +54,7 @@ export interface SettingsActions {
   setSmartUrlBarFocus: (v: boolean) => void
   setShowNewTabContinueSection: (v: boolean) => void
   setShowNewTabFrequentSection: (v: boolean) => void
+  setEnableAdblocker: (v: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -75,6 +78,7 @@ export const useSettingsStore = create<SettingsStore>()(
       smartUrlBarFocus: true,
       showNewTabContinueSection: true,
       showNewTabFrequentSection: true,
+      enableAdblocker: true,
 
       // ── Actions ──
       setRestoreTabs: (v) => set({ restoreTabs: v }),
@@ -90,6 +94,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setSmartUrlBarFocus: (v) => set({ smartUrlBarFocus: v }),
       setShowNewTabContinueSection: (v) => set({ showNewTabContinueSection: v }),
       setShowNewTabFrequentSection: (v) => set({ showNewTabFrequentSection: v }),
+      setEnableAdblocker: (v) => set({ enableAdblocker: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }
   )
