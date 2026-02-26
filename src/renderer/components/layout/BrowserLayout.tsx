@@ -25,7 +25,11 @@ import { useTabStore } from "@/store/tabStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useUIStore } from "@/store/uiStore";
 import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
-import { resolveWallpaperUrl } from "@/theme/bundledWallpapers";
+import {
+  isBundledKey,
+  resolveBundledWallpaperUrl,
+  resolveWallpaperUrl,
+} from "@/theme/bundledWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
@@ -158,6 +162,27 @@ function BrowserLayoutInner(): React.JSX.Element {
   // Resolve theme-aware wallpapers — preset gradients adapt to dark/light.
   const isDark = useIsDark();
 
+  // Bundled wallpapers are lazy-loaded; cache the resolved URL so we don't re-import every frame.
+  const [bundledResolvedUrl, setBundledResolvedUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!wallpaper || !isBundledKey(wallpaper)) {
+      setBundledResolvedUrl(null);
+      return;
+    }
+    let cancelled = false;
+    resolveBundledWallpaperUrl(wallpaper).then(
+      (url) => {
+        if (!cancelled) setBundledResolvedUrl(url);
+      },
+      () => {
+        if (!cancelled) setBundledResolvedUrl(null);
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [wallpaper]);
+
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
   // NOTE: Revocation is deferred to useEffect (after commit) so the DOM
@@ -167,14 +192,15 @@ function BrowserLayoutInner(): React.JSX.Element {
     if (!wallpaper) return null;
     // Resolve preset keys (e.g. "preset:ready_bloom") to theme-appropriate SVG
     if (isPresetKey(wallpaper)) return resolvePresetUrl(wallpaper, isDark);
-    // Resolve bundled keys (e.g. "bundled:image.jpg") to Vite asset URLs
+    // Bundled keys: use async-resolved URL (may be null until loaded)
+    if (isBundledKey(wallpaper)) return bundledResolvedUrl;
     const resolved = resolveWallpaperUrl(wallpaper);
     if (!resolved) return null;
     if (resolved.startsWith("data:image/svg+xml")) return resolved;
     if (resolved.startsWith("blob:")) return resolved;
     if (resolved.startsWith("data:")) return dataUrlToBlobUrl(resolved);
     return resolved;
-  }, [wallpaper, isDark]);
+  }, [wallpaper, isDark, bundledResolvedUrl]);
 
   // Revoke the previous blob URL after React has committed the new one to the DOM
   useEffect(() => {

@@ -4,6 +4,7 @@ import { useHistoryStore } from '@/store/historyStore'
 import { logger } from '@/utils/logger'
 import { webviewRegistry } from './webviewRegistry'
 import { handleTabSwipeDelta } from '@/hooks/useTrackpadTabSwipe'
+import { isSpecialPage } from '@/utils/urlUtils'
 
 /** Scrollbar CSS injected into every webview (module-level constant to avoid re-allocation) */
 const SCROLLBAR_CSS = `
@@ -248,6 +249,8 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
         const webview = webviewRef.current
         if (!webview || !newUrl) return
         if (newUrl === lastNavigatedUrlRef.current) return
+        // Do not load special pages (e.g. browser://newtab) in the webview — they are rendered in-app.
+        if (isSpecialPage(newUrl)) return
         lastNavigatedUrlRef.current = newUrl
         if (domReadyRef.current) {
           webview.loadURL(newUrl)

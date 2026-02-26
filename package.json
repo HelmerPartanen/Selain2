@@ -46,7 +46,6 @@
   "dependencies": {
     "@ghostery/adblocker": "^2.14.1",
     "@ghostery/adblocker-electron": "^2.14.1",
-    "cross-fetch": "^4.1.0",
     "motion": "^12.34.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

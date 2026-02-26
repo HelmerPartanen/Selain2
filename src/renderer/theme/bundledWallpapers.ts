@@ -1,10 +1,10 @@
 // ─── Bundled Wallpaper Registry ──────────────────────────────────────────────
-// Auto-discovers all images in assets/wallpapers/ via import.meta.glob.
+// Auto-discovers all images in assets/wallpapers/ via import.meta.glob (lazy).
 // Provides stable filename-based identifiers for persistence across rebuilds.
+// URLs are resolved on demand to keep initial bundle smaller.
 
-const modules = import.meta.glob<{ default: string }>(
-  '@/assets/wallpapers/*.{jpg,jpeg,png,webp}',
-  { eager: true }
+const lazyModules = import.meta.glob<{ default: string }>(
+  '@/assets/wallpapers/*.{jpg,jpeg,png,webp}'
 )
 
 const BUNDLED_PREFIX = 'bundled:'
@@ -12,37 +12,52 @@ const BUNDLED_PREFIX = 'bundled:'
 export interface BundledWallpaper {
   /** Original filename (stable across rebuilds) */
   filename: string
-  /** Vite-resolved asset URL (may have content hash) */
-  url: string
   /** Stable storage key: `bundled:filename` */
   storageKey: string
 }
 
-export const BUNDLED_WALLPAPERS: BundledWallpaper[] = Object.entries(modules).map(
-  ([path, mod]) => {
+export const BUNDLED_WALLPAPERS: BundledWallpaper[] = Object.keys(lazyModules).map(
+  (path) => {
     const filename = path.split('/').pop()!
     return {
       filename,
-      url: mod.default,
       storageKey: `${BUNDLED_PREFIX}${filename}`
     }
   }
 )
 
-/** Resolve an original filename → current Vite asset URL (for loading) */
-const filenameToUrl = new Map(BUNDLED_WALLPAPERS.map((w) => [w.filename, w.url]))
+const urlCache = new Map<string, string>()
 
 /**
- * Resolve a wallpaper value (from store/disk) to a renderable URL.
- * - `bundled:filename` → Vite asset URL
+ * Resolve a bundled wallpaper storage key to a renderable asset URL (lazy load).
+ * Caches the result so repeated calls for the same key return the same URL.
+ */
+export function resolveBundledWallpaperUrl(storageKey: string): Promise<string> {
+  if (!storageKey.startsWith(BUNDLED_PREFIX)) {
+    return Promise.reject(new Error(`Not a bundled key: ${storageKey}`))
+  }
+  const cached = urlCache.get(storageKey)
+  if (cached) return Promise.resolve(cached)
+  const filename = storageKey.slice(BUNDLED_PREFIX.length)
+  const path = Object.keys(lazyModules).find((p) => p.endsWith(`/${filename}`))
+  if (!path) return Promise.reject(new Error(`Unknown bundled wallpaper: ${filename}`))
+  const loader = lazyModules[path] as () => Promise<{ default: string }>
+  return loader().then((mod) => {
+    const url = mod.default
+    urlCache.set(storageKey, url)
+    return url
+  })
+}
+
+/**
+ * Resolve a wallpaper value (from store/disk) to a renderable URL (sync).
  * - data URLs / blob URLs → pass through
+ * - `bundled:filename` → returns null (use resolveBundledWallpaperUrl for async resolution)
  * - null → null
  */
 export function resolveWallpaperUrl(value: string | null): string | null {
   if (!value) return null
-  if (value.startsWith(BUNDLED_PREFIX)) {
-    return filenameToUrl.get(value.slice(BUNDLED_PREFIX.length)) ?? null
-  }
+  if (value.startsWith(BUNDLED_PREFIX)) return null
   return value
 }
 
@@ -130,8 +145,9 @@ export function generateThumbnail(fullUrl: string): Promise<string> {
 export async function generateAllThumbnails(): Promise<Map<string, string>> {
   const entries = await Promise.all(
     BUNDLED_WALLPAPERS.map(async (wp) => {
-      const thumb = await generateThumbnail(wp.url)
-      return [wp.url, thumb] as const
+      const url = await resolveBundledWallpaperUrl(wp.storageKey)
+      const thumb = await generateThumbnail(url)
+      return [url, thumb] as const
     })
   )
   return new Map(entries)

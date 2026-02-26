@@ -9,7 +9,11 @@ import { useSpaceStore } from '@/store/spaceStore'
 import { useThemeStore } from '@/store/themeStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useIsDark } from '@/hooks/useIsDark'
-import { resolveWallpaperUrl } from '@/theme/bundledWallpapers'
+import {
+  isBundledKey,
+  resolveBundledWallpaperUrl,
+  resolveWallpaperUrl,
+} from '@/theme/bundledWallpapers'
 import { isPresetKey, resolvePresetUrl } from '@/theme/presets'
 import { extractDominantHSL } from '@/utils/extractDominantHue'
 
@@ -52,10 +56,15 @@ function applyHSL(h: number, s: number, l: number, isDark: boolean): void {
 
 /**
  * Resolve the wallpaper store value to a usable URL for color extraction.
+ * Returns a promise for bundled keys (lazy-loaded); null or sync URL otherwise.
  */
-function resolveWallpaperForSampling(wallpaper: string | null, isDark: boolean): string | null {
+function getWallpaperUrlForSampling(
+  wallpaper: string | null,
+  isDark: boolean
+): string | null | Promise<string | null> {
   if (!wallpaper) return null
   if (isPresetKey(wallpaper)) return resolvePresetUrl(wallpaper, isDark)
+  if (isBundledKey(wallpaper)) return resolveBundledWallpaperUrl(wallpaper)
   return resolveWallpaperUrl(wallpaper)
 }
 
@@ -76,16 +85,26 @@ function useAdaptiveHSL(): HSL | null {
       setAdaptive(null)
       return
     }
-    const url = resolveWallpaperForSampling(wallpaper, isDark)
-    if (!url) {
+    const urlOrPromise = getWallpaperUrlForSampling(wallpaper, isDark)
+    if (urlOrPromise == null) {
       setAdaptive(null)
       return
     }
     let cancelled = false
-    extractDominantHSL(url).then((hsl) => {
-      if (!cancelled) setAdaptive(hsl)
-    })
-    return () => { cancelled = true }
+    const run = (url: string | null) => {
+      if (url == null || cancelled) return
+      extractDominantHSL(url).then((hsl) => {
+        if (!cancelled) setAdaptive(hsl)
+      })
+    }
+    if (typeof urlOrPromise === 'string') {
+      run(urlOrPromise)
+    } else {
+      urlOrPromise.then((url) => run(url))
+    }
+    return () => {
+      cancelled = true
+    }
   }, [adaptiveColor, wallpaper, wallpaperLoaded, isDark])
   return adaptive
 }

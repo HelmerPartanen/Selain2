@@ -321,7 +321,17 @@ export function setupIPC(): void {
       if (!wc || wc.isDestroyed()) return null
 
       const img = await wc.capturePage()
-      const jpeg = img.toJPEG(62)
+      const size = img.getSize()
+      const MAX_WIDTH = 400
+      const toEncode =
+        size.width > MAX_WIDTH
+          ? img.resize({
+              width: MAX_WIDTH,
+              height: Math.round((size.height * MAX_WIDTH) / size.width),
+              quality: 'good'
+            })
+          : img
+      const jpeg = toEncode.toJPEG(52)
       return `data:image/jpeg;base64,${jpeg.toString('base64')}`
     } catch (err) {
       return null

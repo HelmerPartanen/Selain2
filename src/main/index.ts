@@ -4,7 +4,6 @@
 import { app, BrowserWindow, components, session } from 'electron'
 import { ElectronBlocker } from '@ghostery/adblocker-electron'
 import { adsAndTrackingLists } from '@ghostery/adblocker'
-import fetch from 'cross-fetch'
 import './flags'                                     // side-effect: Chromium CLI switches
 import { logger } from './logger'
 import { createWindow } from './window'
@@ -27,15 +26,19 @@ app.whenReady().then(async () => {
 
   createWindow()
 
-  // ── Load adblocker into the webview session ────────────────────
+  // ── Load adblocker after first tick so window appears quickly ─────────────────
   // Pass --no-extensions CLI flag to skip loading extensions for benchmarking
   const skipExtensions =
     process.argv.includes('--no-extensions') || process.env['BROWSER_SKIP_EXTENSIONS'] === '1'
   const enableDomLevelBlocking =
     !process.argv.includes('--adblock-network-only') && process.env['BROWSER_ADBLOCK_DOM'] !== '0'
 
-  if (!skipExtensions) {
-    ElectronBlocker.fromLists(fetch, adsAndTrackingLists, {
+  const loadAdblocker = (): void => {
+    if (skipExtensions) {
+      logger.log('[Adblocker] Skipped loading adblocker (--no-extensions flag)')
+      return
+    }
+    ElectronBlocker.fromLists(globalThis.fetch, adsAndTrackingLists, {
       loadNetworkFilters: true,
       loadCosmeticFilters: enableDomLevelBlocking,
       loadGenericCosmeticsFilters: enableDomLevelBlocking,
@@ -49,9 +52,8 @@ app.whenReady().then(async () => {
     }).catch((err) => {
       logger.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
     })
-  } else {
-    logger.log('[Adblocker] Skipped loading adblocker (--no-extensions flag)')
   }
+  setImmediate(loadAdblocker)
 
   // Ensure CDM is ready before any DRM playback is attempted
   await cdmReady

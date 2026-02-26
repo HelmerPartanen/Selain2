@@ -11,7 +11,9 @@ import {
 } from "@/theme/presets";
 import {
   BUNDLED_WALLPAPERS,
+  clearThumbCache,
   generateThumbnail,
+  resolveBundledWallpaperUrl,
 } from "@/theme/bundledWallpapers";
 import { showToast } from "@/components/ui/Toast";
 import { logger } from "@/utils/logger";
@@ -35,12 +37,10 @@ const SOLID_DATA_URL_MAP = new Map<string, string>(
 // --- Lazy Wallpaper Thumbnail ------------------------------------------------
 
 function LazyWallpaperThumb({
-  url,
   storageKey,
   isActive,
   onSelect,
 }: {
-  url: string;
   storageKey: string;
   isActive: boolean;
   onSelect: (key: string) => void;
@@ -78,13 +78,15 @@ function LazyWallpaperThumb({
   useEffect(() => {
     if (!shouldLoad) return;
     let cancelled = false;
-    generateThumbnail(url).then((t) => {
-      if (!cancelled) setThumbUrl(t);
-    });
+    resolveBundledWallpaperUrl(storageKey)
+      .then((url) => generateThumbnail(url))
+      .then((t) => {
+        if (!cancelled) setThumbUrl(t);
+      });
     return () => {
       cancelled = true;
     };
-  }, [url, shouldLoad]);
+  }, [storageKey, shouldLoad]);
 
   return (
     <button
@@ -150,6 +152,10 @@ function WallpaperPaneInner(): React.JSX.Element {
     showToast({ message: "Wallpaper removed", type: "info" });
   }, [setWallpaper]);
 
+  useEffect(() => {
+    return () => clearThumbCache();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div>
@@ -162,7 +168,6 @@ function WallpaperPaneInner(): React.JSX.Element {
           {BUNDLED_WALLPAPERS.map((wp) => (
             <LazyWallpaperThumb
               key={wp.filename}
-              url={wp.url}
               storageKey={wp.storageKey}
               isActive={wallpaper === wp.storageKey}
               onSelect={handleSelectPreset}
