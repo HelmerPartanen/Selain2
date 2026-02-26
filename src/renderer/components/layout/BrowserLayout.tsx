@@ -71,6 +71,17 @@ const CLEAR_ON_EXIT_STORES = [
   "bookmark-store",
 ] as const;
 
+function PanelLoadingFallback(): React.JSX.Element {
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/20">
+      <div
+        className="w-8 h-8 rounded-full border-2 border-indigo-400/60 border-t-indigo-400 animate-spin"
+        aria-hidden
+      />
+    </div>
+  )
+}
+
 function MainContentErrorFallback({
   onRetry,
   onNewTab,
@@ -345,7 +356,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       <AnimatePresence>
         {isSettingsOpen && (
           <ErrorBoundary>
-            <Suspense fallback={null}>
+            <Suspense fallback={<PanelLoadingFallback />}>
               <SettingsPanel />
             </Suspense>
           </ErrorBoundary>
@@ -356,7 +367,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       <AnimatePresence>
         {isBookmarksOpen && (
           <ErrorBoundary>
-            <Suspense fallback={null}>
+            <Suspense fallback={<PanelLoadingFallback />}>
               <BookmarksPanel />
             </Suspense>
           </ErrorBoundary>
@@ -367,7 +378,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       <AnimatePresence>
         {isHistoryOpen && (
           <ErrorBoundary>
-            <Suspense fallback={null}>
+            <Suspense fallback={<PanelLoadingFallback />}>
               <HistoryPanel />
             </Suspense>
           </ErrorBoundary>
@@ -378,7 +389,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       <AnimatePresence>
         {isDownloadsOpen && (
           <ErrorBoundary>
-            <Suspense fallback={null}>
+            <Suspense fallback={<PanelLoadingFallback />}>
               <DownloadsPanel />
             </Suspense>
           </ErrorBoundary>
@@ -387,7 +398,7 @@ function BrowserLayoutInner(): React.JSX.Element {
 
       {/* Tab overview (Ctrl+Shift+A) */}
       <ErrorBoundary>
-        <Suspense fallback={null}>
+        <Suspense fallback={<PanelLoadingFallback />}>
           <TabOverview />
         </Suspense>
       </ErrorBoundary>
@@ -395,7 +406,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       {/* Onboarding — shown once for first-run users */}
       <AnimatePresence>
         {!onboardingCompleted && (
-          <Suspense fallback={null}>
+          <Suspense fallback={<PanelLoadingFallback />}>
             <OnboardingFlow />
           </Suspense>
         )}

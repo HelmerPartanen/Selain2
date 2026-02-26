@@ -1,6 +1,7 @@
 import { app } from 'electron'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import { logger } from './logger'
 
 interface MemoryStatsMb {
   rss: number
@@ -118,7 +119,7 @@ export function startPerfMonitor(intervalMs = DEFAULT_INTERVAL_MS): { started: b
   state.intervalId = setInterval(() => {
     const snapshot = collectPerfSnapshot()
     if (process.env['BROWSER_PERF_LOG'] === '1') {
-      console.log('[perf][snapshot]', {
+      logger.log('[perf][snapshot]', {
         ts: snapshot.timestamp,
         uptimeSec: snapshot.uptimeSec,
         renderer: snapshot.processCounts.renderer,

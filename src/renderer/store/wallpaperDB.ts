@@ -2,12 +2,14 @@
 // Uses the filesystem via IPC for reliable wallpaper storage.
 // This avoids IndexedDB size limits and corruption issues.
 
+import { logger } from '@/utils/logger'
+
 /** Save a wallpaper data URL (or null) to disk via main process */
 export async function saveWallpaper(dataUrl: string | null): Promise<void> {
   try {
     await window.electronAPI.saveWallpaper(dataUrl)
   } catch (err) {
-    console.warn('Failed to save wallpaper:', err)
+    logger.warn('Failed to save wallpaper:', err)
   }
 }
 
@@ -16,7 +18,7 @@ export async function loadWallpaper(): Promise<string | null> {
   try {
     return await window.electronAPI.loadWallpaper()
   } catch (err) {
-    console.warn('Failed to load wallpaper:', err)
+    logger.warn('Failed to load wallpaper:', err)
     return null
   }
 }

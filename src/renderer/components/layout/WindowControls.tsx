@@ -154,7 +154,7 @@ function ControlButton({
       {hovered && (
         <motion.div
           layoutId="window-controls-hover"
-          className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/5 dark:ring-white/10"
+          className="absolute inset-0 rounded-full glass glass-interactive"
           initial={{ opacity: 0.5, filter: 'blur(2px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
           exit={{ opacity: 0, filter: 'blur(2px)' }}

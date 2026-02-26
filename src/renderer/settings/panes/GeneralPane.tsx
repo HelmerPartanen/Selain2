@@ -138,7 +138,7 @@ function GeneralPaneInner(): React.JSX.Element {
                 {isActive && (
                   <motion.div
                     layoutId="newtab-mode"
-                    className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow"
+                    className="absolute inset-0 rounded-full glass glass-interactive"
                     transition={SPRING_SNAPPY}
                   />
                 )}

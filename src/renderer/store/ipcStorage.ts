@@ -5,6 +5,7 @@
 
 import { createJSONStorage } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
+import { logger } from '@/utils/logger'
 
 const WRITE_DEBOUNCE_MS = 350
 const PERF_LOGS = import.meta.env.DEV && localStorage.getItem('perf.ipcStorage') === '1'
@@ -33,7 +34,7 @@ function startPerfTimer(): void {
   if (!PERF_LOGS || perfTimerStarted) return
   perfTimerStarted = true
   window.setInterval(() => {
-    console.log('[perf][ipcStorage]', {
+    logger.log('[perf][ipcStorage]', {
       ...perf,
       pendingStores: pendingWrites.size,
       inFlightStores: inFlightByStore.size

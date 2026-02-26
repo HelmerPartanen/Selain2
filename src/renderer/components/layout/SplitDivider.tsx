@@ -21,6 +21,8 @@ function SplitDividerInner(): React.JSX.Element {
   const [isHovered, setIsHovered] = useState(false);
   const [isSnapped, setIsSnapped] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const pendingRatioRef = useRef<number>(splitRatio);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,14 +37,27 @@ function SplitDividerInner(): React.JSX.Element {
   useEffect(() => {
     if (!isDragging) return;
 
+    const flushToStore = (): void => {
+      setSplitRatio(pendingRatioRef.current);
+      rafIdRef.current = null;
+    };
+
     const handleMouseMove = (e: MouseEvent): void => {
       const raw = e.clientX / window.innerWidth;
       const snapped = snapRatio(raw);
       setIsSnapped(snapped !== Math.max(MIN_RATIO, Math.min(MAX_RATIO, raw)));
-      setSplitRatio(snapped);
+      pendingRatioRef.current = snapped;
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(flushToStore);
+      }
     };
 
     const handleMouseUp = (): void => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      setSplitRatio(pendingRatioRef.current);
       setIsDragging(false);
       setIsSnapped(false);
     };
@@ -57,6 +72,10 @@ function SplitDividerInner(): React.JSX.Element {
       window.removeEventListener("mouseup", handleMouseUp);
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     };
   }, [isDragging, setSplitRatio]);
 

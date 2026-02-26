@@ -6,6 +6,7 @@ import { app, dialog, ipcMain, nativeImage, session, shell, webContents, net } f
 import { readFile, writeFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync, writeFileSync } from 'fs'
+import { logger } from './logger'
 import { getMainWindow } from './state'
 import { getLatestPerfSnapshot, getPerfSnapshots, startPerfMonitor, stopPerfMonitor } from './perfMonitor'
 import { setupAIIPC } from './ai/ipcAI'
@@ -26,7 +27,7 @@ const savedStoreCache = new Map<string, string>()
 function startPerfLogging(): void {
   if (!PERF_LOGS) return
   setInterval(() => {
-    console.log('[perf][main][store]', {
+    logger.log('[perf][main][store]', {
       ...storePerf,
       cachedStores: savedStoreCache.size
     })
@@ -189,14 +190,14 @@ export function setupIPC(): void {
           typeof dataUrl !== 'string' ||
           (!dataUrl.startsWith('data:image/') && !dataUrl.startsWith('bundled:') && dataUrl.length > 0)
         ) {
-          console.warn('Invalid wallpaper data: not a data URL or bundled identifier')
+          logger.warn('Invalid wallpaper data: not a data URL or bundled identifier')
           return false
         }
         await writeFile(wallpaperPath, dataUrl, 'utf-8')
       }
       return true
     } catch (err) {
-      console.warn('Failed to save wallpaper:', err)
+      logger.warn('Failed to save wallpaper:', err)
       return false
     }
   })
@@ -206,7 +207,7 @@ export function setupIPC(): void {
       if (!existsSync(wallpaperPath)) return null
       return await readFile(wallpaperPath, 'utf-8')
     } catch (err) {
-      console.warn('Failed to load wallpaper:', err)
+      logger.warn('Failed to load wallpaper:', err)
       return null
     }
   })
@@ -253,7 +254,7 @@ export function setupIPC(): void {
       storePerf.loadHits += 1
       return data
     } catch (err) {
-      console.warn(`Failed to load store "${name}":`, err)
+      logger.warn(`Failed to load store "${name}":`, err)
       return null
     }
   })
@@ -277,7 +278,7 @@ export function setupIPC(): void {
       return true
     } catch (err) {
       storePerf.saveErrors += 1
-      console.warn(`Failed to save store "${name}":`, err)
+      logger.warn(`Failed to save store "${name}":`, err)
       return false
     }
   })
@@ -308,7 +309,7 @@ export function setupIPC(): void {
       if (!response.ok) return []
       return await response.json()
     } catch (err) {
-      console.error('Failed to fetch search suggestions:', err)
+      logger.error('Failed to fetch search suggestions:', err)
       return []
     }
   })

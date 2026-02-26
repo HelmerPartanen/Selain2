@@ -71,7 +71,7 @@ function AppearancePaneInner(): React.JSX.Element {
                 {isActive && (
                   <motion.div
                     layoutId="theme-mode"
-                    className="absolute inset-0 rounded-3xl glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                    className="absolute inset-0 rounded-3xl glass glass-interactive"
                     transition={SPRING_SNAPPY}
                   />
                 )}

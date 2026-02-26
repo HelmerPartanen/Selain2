@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { logger } from '@/utils/logger'
 
 interface Props {
   children: ReactNode
@@ -21,7 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo): void {
-    console.error('[ErrorBoundary] Caught rendering error:', error, info.componentStack)
+    logger.error('[ErrorBoundary] Caught rendering error:', error, info.componentStack)
   }
 
   handleRetry = (): void => {

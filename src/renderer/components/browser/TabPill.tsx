@@ -104,7 +104,7 @@ const TabRow = memo(function TabRow({
       {(hovered || isHighlighted) && (
         <motion.div
           layoutId="tab-row-highlight"
-          className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/6 dark:ring-white/8"
+          className="absolute inset-0 rounded-full glass glass-interactive"
           transition={SPRING_SNAPPY}
           style={{ zIndex: 1 }}
         />
@@ -273,7 +273,7 @@ function TabPillInner(): React.JSX.Element {
                         {hoveredRow === 'reopen' && (
                           <motion.div
                             layoutId="tab-row-highlight"
-                            className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6 shadow ring-1 ring-black/6 dark:ring-white/8"
+                            className="absolute inset-0 rounded-full glass glass-interactive"
                             transition={SPRING_SNAPPY}
                             style={{ zIndex: 1 }}
                           />

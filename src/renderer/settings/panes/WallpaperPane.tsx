@@ -14,6 +14,7 @@ import {
   generateThumbnail,
 } from "@/theme/bundledWallpapers";
 import { showToast } from "@/components/ui/Toast";
+import { logger } from "@/utils/logger";
 import { useIsDark } from "@/hooks/useIsDark";
 import uploadSvg from "@/assets/icons/Objects/Tray_Arrow_Up.svg?raw";
 import trashSvg from "@/assets/icons/Objects/Trash.svg?raw";
@@ -139,7 +140,7 @@ function WallpaperPaneInner(): React.JSX.Element {
         showToast({ message: "Wallpaper updated", type: "success" });
       }
     } catch (err) {
-      console.error("Failed to open image dialog:", err);
+      logger.error("Failed to open image dialog:", err)
       showToast({ message: "Failed to set wallpaper", type: "error" });
     }
   }, [setWallpaper]);

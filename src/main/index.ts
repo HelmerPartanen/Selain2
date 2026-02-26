@@ -1,4 +1,4 @@
-﻿// ─── App Entry Point ────────────────────────────────────────────────────────
+// ─── App Entry Point ────────────────────────────────────────────────────────
 // App lifecycle only. All subsystems live in their own modules.
 
 import { app, BrowserWindow, components, session } from 'electron'
@@ -6,6 +6,7 @@ import { ElectronBlocker } from '@ghostery/adblocker-electron'
 import { adsAndTrackingLists } from '@ghostery/adblocker'
 import fetch from 'cross-fetch'
 import './flags'                                     // side-effect: Chromium CLI switches
+import { logger } from './logger'
 import { createWindow } from './window'
 import { setupIPC } from './ipc'
 import { setupPermissions, setupCSP } from './permissions'
@@ -14,9 +15,9 @@ import { initBenchmarkPerfMonitor, writeBenchmarkPerfReport } from './perfMonito
 app.whenReady().then(async () => {
   // Start CDM init in background — don't block window creation
   const cdmReady = components.whenReady().then(() => {
-    console.log('Widevine CDM ready:', components.status())
+    logger.log('Widevine CDM ready:', components.status())
   }).catch((err) => {
-    console.warn('Widevine CDM init failed (DRM may be unavailable):', err)
+    logger.warn('Widevine CDM init failed (DRM may be unavailable):', err)
   })
 
   setupIPC()
@@ -44,12 +45,12 @@ app.whenReady().then(async () => {
       const ses = session.fromPartition('persist:default')
       blocker.enableBlockingInSession(ses)
       const mode = enableDomLevelBlocking ? 'network + DOM filters' : 'network filters only'
-      console.log(`[Adblocker] Loaded Ghostery adblocker (${mode})`)
+      logger.log(`[Adblocker] Loaded Ghostery adblocker (${mode})`)
     }).catch((err) => {
-      console.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
+      logger.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
     })
   } else {
-    console.log('[Adblocker] Skipped loading adblocker (--no-extensions flag)')
+    logger.log('[Adblocker] Skipped loading adblocker (--no-extensions flag)')
   }
 
   // Ensure CDM is ready before any DRM playback is attempted
@@ -71,6 +72,15 @@ app.on('window-all-closed', () => {
 app.on('will-quit', () => {
   const report = writeBenchmarkPerfReport()
   if (report) {
-    console.log('[perf] Benchmark report written:', report)
+    logger.log('[perf] Benchmark report written:', report)
   }
+})
+
+// Global error handlers so one failure does not kill the app unexpectedly.
+process.on('uncaughtException', (err) => {
+  logger.error('[main] uncaughtException:', err)
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('[main] unhandledRejection:', reason, promise)
 })

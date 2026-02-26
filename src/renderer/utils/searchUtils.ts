@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger'
+
 export interface SearchSuggestion {
   phrase: string
 }
@@ -26,7 +28,7 @@ export async function fetchSearchSuggestions(query: string, signal?: AbortSignal
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw error
     }
-    console.error('Failed to fetch search suggestions:', error)
+    logger.error('Failed to fetch search suggestions:', error)
     return []
   }
 }

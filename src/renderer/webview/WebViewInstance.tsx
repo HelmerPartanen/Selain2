@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { useHistoryStore } from '@/store/historyStore'
+import { logger } from '@/utils/logger'
 import { webviewRegistry } from './webviewRegistry'
 import { handleTabSwipeDelta } from '@/hooks/useTrackpadTabSwipe'
 
@@ -274,7 +275,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
             useTabStore.getState().updateTab(tabIdStr, { thumbnail })
           }
         } catch (e) {
-          console.warn("Could not capture tab thumbnail before hiding", e)
+          logger.warn("Could not capture tab thumbnail before hiding", e)
         }
       }
       takeSnapshot()

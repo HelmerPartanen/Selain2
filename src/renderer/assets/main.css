@@ -95,6 +95,17 @@
   transition: background 0.35s ease, border-color 0.35s ease;
 }
 
+/* Canonical interactive highlight: list rows, pills, menu items (hover/active). Use with .glass. */
+.glass-interactive {
+  box-shadow: var(--shadow-xs);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.2);
+}
+.dark .glass-interactive {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 /* ─── Base Resets ─────────────────────────────────────────────────────────── */
 
 * {
@@ -126,16 +137,16 @@ body,
 ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.15); }
 .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
 
-/* Reusable glass-scroll utility — replace duplicated inline scrollbar styling */
-.glass-scroll::-webkit-scrollbar { width: 4px; }
+/* Same scrollbar as default (6px, 3px radius) for consistency. */
+.glass-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .glass-scroll::-webkit-scrollbar-track { background: transparent; }
 .glass-scroll::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.08);
-  border-radius: 2px;
+  border-radius: 3px;
 }
 .dark .glass-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); }
-.glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.14); }
-.dark .glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.14); }
+.glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.15); }
+.dark .glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
 
 /* ─── Animations ──────────────────────────────────────────────────────────── */
 

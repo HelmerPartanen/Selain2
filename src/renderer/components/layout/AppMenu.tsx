@@ -198,7 +198,7 @@ function AppMenuInner(): React.JSX.Element {
                         {hoveredIdx === idx && (
                           <motion.div
                             layoutId="menu-highlight"
-                            className="absolute inset-0 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
+                            className="absolute inset-0 rounded-full glass glass-interactive"
                             style={{ zIndex: 1 }}
                             initial={{ opacity: 0.5, filter: 'blur(2px)' }}
                             animate={{ opacity: 1, filter: 'blur(0px)' }}

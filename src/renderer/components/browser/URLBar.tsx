@@ -15,6 +15,7 @@ import { useUIStore } from '@/store/uiStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
+import { logger } from '@/utils/logger'
 import { fetchSearchSuggestions } from '@/utils/searchUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
@@ -153,7 +154,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         }))
       } catch (e) {
         if (!(e instanceof DOMException && e.name === 'AbortError') && suggestionRequestIdRef.current === requestId && !controller.signal.aborted) {
-          console.error('Failed to fetch live suggestions', e)
+          logger.error('Failed to fetch live suggestions', e)
           setSuggestionsUnavailable('error')
         }
       }
@@ -488,7 +489,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   {(isActive || hoveredIdx === i) && (
                     <motion.div
                       layoutId="history-hover"
-                      className="absolute inset-0 rounded-full glass bg-white/20 dark:bg-white/6"
+                      className="absolute inset-0 rounded-full glass glass-interactive"
                       initial={{ opacity: 0.6, filter: 'blur(2px)' }}
                       animate={{ opacity: 1, filter: 'blur(0px)' }}
                       exit={{ opacity: 0, filter: 'blur(2px)' }}
