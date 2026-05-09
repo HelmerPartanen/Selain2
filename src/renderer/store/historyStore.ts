@@ -13,6 +13,7 @@ export interface HistoryEntry {
 interface HistoryState {
   entries: HistoryEntry[]
   recordVisit: (url: string, title: string, favicon?: string) => void
+  patchEntryTitle: (url: string, title: string) => void
   search: (query: string) => HistoryEntry[]
   removeEntry: (url: string) => void
   clearAll: () => void
@@ -48,6 +49,17 @@ export const useHistoryStore = create<HistoryState>()(
           }
           if (updated.length > MAX_ENTRIES) updated.length = MAX_ENTRIES
           return { entries: updated }
+        })
+      },
+
+      patchEntryTitle: (url, title) => {
+        if (!url || !title) return
+        set((state) => {
+          const idx = state.entries.findIndex((e) => e.url === url)
+          if (idx < 0) return state
+          const entries = state.entries.slice()
+          entries[idx] = { ...entries[idx]!, title }
+          return { entries }
         })
       },
 

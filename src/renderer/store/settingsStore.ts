@@ -73,7 +73,7 @@ export const useSettingsStore = create<SettingsStore>()(
       clearOnExit: false,
       onboardingCompleted: false,
       adaptiveColor: false,
-      autoGroupTabsByDomain: true,
+      autoGroupTabsByDomain: false,
       showTabCleanupSuggestions: true,
       smartUrlBarFocus: true,
       showNewTabContinueSection: true,

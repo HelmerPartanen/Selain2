@@ -19,7 +19,7 @@ export function useTabCleanupSuggestions(): void {
         if (!settings.showTabCleanupSuggestions) return
 
         if (tabOrder.length < MIN_TABS_FOR_SUGGESTION) return
-        if (now - lastPromptRef.current < MIN_MS_BETWEEN_SUGESTIONS) return
+        if (now - lastPromptRef.current < MIN_MS_BETWEEN_SUGGESTIONS) return
 
         lastPromptRef.current = now
 

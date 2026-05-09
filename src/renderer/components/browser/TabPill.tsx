@@ -157,7 +157,7 @@ function TabPillInner(): React.JSX.Element {
   const splitTabId = useSplitTabId()
   const isSplit = useIsSplitView()
   const addTab = useTabStore((s) => s.addTab)
-  const reopenLastClosed = useTabStore((s) => s.reopenLastClosed)
+  const reopenClosedAt = useTabStore((s) => s.reopenClosedAt)
   const recentlyClosed = useTabStore((s) => s.recentlyClosed)
   const bgMediaPlaying = useBackgroundMediaPlaying()
   const isExpanded = useUIStore((s) => s.isDropdownOpen)
@@ -171,11 +171,12 @@ function TabPillInner(): React.JSX.Element {
   const handleAddTab = useCallback(() => addTab(), [addTab])
   const handleToggle = useCallback(() => setDropdownOpen(!isExpanded), [isExpanded, setDropdownOpen])
   const handleClose = useCallback(() => setDropdownOpen(false), [setDropdownOpen])
-  const handleReopen = useCallback(() => {
-    reopenLastClosed()
-  }, [reopenLastClosed])
 
-  const [hoveredRow, setHoveredRow] = useState<number | 'reopen' | null>(null)
+  const [hoveredRow, setHoveredRow] = useState<number | string | null>(null)
+
+  const handleReopenAt = useCallback((index: number) => {
+    reopenClosedAt(index)
+  }, [reopenClosedAt])
 
   return (
     <div className="relative">
@@ -263,27 +264,36 @@ function TabPillInner(): React.JSX.Element {
                 {recentlyClosed.length > 0 && (
                   <>
                     <div className="mx-2 my-1 h-px bg-[var(--border-divider)]" />
-                    <div className="px-3 py-2">
-                      <button
-                        onClick={handleReopen}
-                        onMouseEnter={() => setHoveredRow('reopen')}
-                        onMouseLeave={() => setHoveredRow(null)}
-                        className="relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white"
-                      >
-                        {hoveredRow === 'reopen' && (
-                          <motion.div
-                            layoutId="tab-row-highlight"
-                            className="absolute inset-0 rounded-full glass glass-interactive"
-                            transition={SPRING_SNAPPY}
-                            style={{ zIndex: 1 }}
-                          />
-                        )}
-
-                        <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
-                          <SvgIcon svg={counterclockwiseSvg} size={14} className="text-gray-400" />
-                        </div>
-                        <span className="flex-1 text-[13px] truncate z-10">Reopen closed tab</span>
-                      </button>
+                    <div className="px-3 py-2 space-y-0.5">
+                      {recentlyClosed.map((closed, index) => {
+                        const rowKey = `reopen-${index}`
+                        return (
+                          <button
+                            key={`${closed.url}-${index}`}
+                            onClick={() => { handleReopenAt(index); handleClose() }}
+                            onMouseEnter={() => setHoveredRow(rowKey)}
+                            onMouseLeave={() => setHoveredRow(null)}
+                            className="relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white"
+                          >
+                            {hoveredRow === rowKey && (
+                              <motion.div
+                                layoutId="tab-row-highlight"
+                                className="absolute inset-0 rounded-full glass glass-interactive"
+                                transition={SPRING_SNAPPY}
+                                style={{ zIndex: 1 }}
+                              />
+                            )}
+                            <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
+                              {closed.favicon ? (
+                                <img src={closed.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
+                              ) : (
+                                <SvgIcon svg={counterclockwiseSvg} size={14} className="text-gray-400" />
+                              )}
+                            </div>
+                            <span className="flex-1 text-[13px] truncate z-10">{closed.title || closed.url}</span>
+                          </button>
+                        )
+                      })}
                     </div>
                   </>
                 )}

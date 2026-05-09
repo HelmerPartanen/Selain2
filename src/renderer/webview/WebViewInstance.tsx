@@ -97,6 +97,11 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   const handlePageTitleUpdated = useCallback(
     (event: Electron.PageTitleUpdatedEvent) => {
       batchUpdate({ title: event.title })
+      // Patch the history entry for the current URL with the real page title,
+      // since at navigate time the title was still the previous page's value.
+      if (lastNavigatedUrlRef.current) {
+        useHistoryStore.getState().patchEntryTitle(lastNavigatedUrlRef.current, event.title)
+      }
     },
     [batchUpdate]
   )
@@ -121,9 +126,9 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
         canGoBack: webview?.canGoBack() ?? false,
         canGoForward: webview?.canGoForward() ?? false
       })
-      // Record to history
-      const tab = useTabStore.getState().tabs[tabId]
-      if (tab) useHistoryStore.getState().recordVisit(event.url, tab.title, tab.favicon)
+      // Record to history with an empty title — the real title arrives in
+      // handlePageTitleUpdated and is patched via patchEntryTitle.
+      useHistoryStore.getState().recordVisit(event.url, '', undefined)
     },
     [batchUpdate, tabId]
   )

@@ -46,20 +46,11 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({ isOpen, onClose, 
         </div>
 
         <div className="space-y-2">
-          <div className="text-xs font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider mb-2">Permissions</div>
-          {/* Placeholder for actual permissions */}
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-sm text-gray-700 dark:text-neutral-300">Location</span>
-            <span className="text-xs text-gray-400 bg-gray-100 dark:bg-neutral-800 px-2 py-1 rounded-md">Ask (default)</span>
-          </div>
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-sm text-gray-700 dark:text-neutral-300">Camera</span>
-            <span className="text-xs text-gray-400 bg-gray-100 dark:bg-neutral-800 px-2 py-1 rounded-md">Ask (default)</span>
-          </div>
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-sm text-gray-700 dark:text-neutral-300">Microphone</span>
-            <span className="text-xs text-gray-400 bg-gray-100 dark:bg-neutral-800 px-2 py-1 rounded-md">Ask (default)</span>
-          </div>
+          <p className="text-xs text-gray-500 dark:text-neutral-400">
+            {isSecure
+              ? 'Your connection is encrypted. Information you send is private.'
+              : 'Your connection is not private. Avoid entering sensitive information on this site.'}
+          </p>
         </div>
       </motion.div>
     </>

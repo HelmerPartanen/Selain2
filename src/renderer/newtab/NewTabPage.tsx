@@ -121,9 +121,9 @@ function FavouriteTile({
         onOpenInNewTab?.(url)
         return
       }
-      if (!hasMoved.current) onSelect(url)
+      if (!hasMoved.current) onOpen(url)
     },
-    [url, onSelect, onOpenInNewTab]
+    [url, onOpen, onOpenInNewTab]
   )
 
   const handleAuxClick = useCallback(
@@ -135,10 +135,6 @@ function FavouriteTile({
     },
     [url, onOpenInNewTab]
   )
-
-  const handleDoubleClick = useCallback(() => {
-    onOpen(url)
-  }, [url, onOpen])
 
   const { w: cw, h: ch } = getContainerBounds()
   const displayX = dragging ? clamp(pos.x + dragOffset.x, 0, cw - TILE_W) : pos.x
@@ -168,7 +164,6 @@ function FavouriteTile({
       onPointerUp={handlePointerUp}
       onClick={handleClick}
       onAuxClick={handleAuxClick}
-      onDoubleClick={handleDoubleClick}
     >
       <div className="flex items-center justify-center overflow-hidden">
         {faviconUrl ? (

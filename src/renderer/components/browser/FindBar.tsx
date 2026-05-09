@@ -18,11 +18,27 @@ function FindBarInner(): React.JSX.Element {
   const [query, setQuery] = useState('')
   const [activeMatch, setActiveMatch] = useState(0)
   const [totalMatches, setTotalMatches] = useState(0)
+  const prevTabIdRef = useRef<string | null>(null)
 
   // Focus input on mount
   useEffect(() => {
     requestAnimationFrame(() => inputRef.current?.focus())
   }, [])
+
+  // Clear highlights in the previous tab when the user switches tabs while the find bar is open
+  useEffect(() => {
+    const prevId = prevTabIdRef.current
+    prevTabIdRef.current = tabId
+    if (prevId && prevId !== tabId && query) {
+      const prevWebview = webviewRegistry.get(prevId)
+      if (prevWebview) {
+        ;(prevWebview as unknown as { stopFindInPage(action: string): void })
+          .stopFindInPage('clearSelection')
+      }
+      setActiveMatch(0)
+      setTotalMatches(0)
+    }
+  }, [tabId, query])
 
   // Listen for find-in-page results
   useEffect(() => {

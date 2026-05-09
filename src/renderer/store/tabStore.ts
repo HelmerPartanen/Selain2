@@ -57,6 +57,7 @@ export interface TabStore {
 
   // Reopen closed tab
   reopenLastClosed: () => void
+  reopenClosedAt: (index: number) => void
 }
 
 /** Shape persisted to disk — a subset of TabStore without action methods */
@@ -432,6 +433,15 @@ export const useTabStore = create<TabStore>()(
           const [last, ...rest] = state.recentlyClosed
           set({ recentlyClosed: rest }, undefined, 'reopenLastClosed')
           get().addTab(last!.url)
+        },
+
+        reopenClosedAt: (index: number) => {
+          const state = get()
+          const entry = state.recentlyClosed[index]
+          if (!entry) return
+          const newRecentlyClosed = state.recentlyClosed.filter((_, i) => i !== index)
+          set({ recentlyClosed: newRecentlyClosed }, undefined, 'reopenClosedAt')
+          get().addTab(entry.url)
         }
       })),
       {

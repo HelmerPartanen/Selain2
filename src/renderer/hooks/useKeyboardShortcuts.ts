@@ -157,7 +157,6 @@ export function useKeyboardShortcuts(): void {
 
       // Alt+Left — Go back
       if (e.altKey && !ctrl && key === 'arrowleft') {
-        if (isInputField) return
         e.preventDefault()
         const tabId = getFocusedTabId()
         if (tabId) webviewRegistry.get(tabId)?.goBack()
@@ -166,7 +165,6 @@ export function useKeyboardShortcuts(): void {
 
       // Alt+Right — Go forward
       if (e.altKey && !ctrl && key === 'arrowright') {
-        if (isInputField) return
         e.preventDefault()
         const tabId = getFocusedTabId()
         if (tabId) webviewRegistry.get(tabId)?.goForward()
