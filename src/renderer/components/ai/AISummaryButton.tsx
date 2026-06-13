@@ -133,7 +133,7 @@ function AISummaryButtonInner(): React.JSX.Element {
                 animate={{ scale: isOpen ? 0.92 : 1 }}
                 whileTap={{ scale: 0.82 }}
                 transition={SPRING_SNAPPY}
-                className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none glass"
+                className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 bg-black/90 backdrop-blur-sm hover:bg-black/[0.04] dark:hover:bg-black/70 border border-white/10 transition-colors duration-100 select-none"
               >
                 <div className="relative w-[18px] h-[18px] flex items-center justify-center">
                   <motion.span

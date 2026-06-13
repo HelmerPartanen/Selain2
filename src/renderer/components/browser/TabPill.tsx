@@ -208,8 +208,8 @@ function TabPillInner(): React.JSX.Element {
           <>
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
-              style={{ originX: 0.5, originY: 1 }}
+              className="absolute top-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
+              style={{ originX: 0.5, originY: 0 }}
               initial={{
                 scaleX: 0.15,
                 scaleY: 0.04,

@@ -388,11 +388,11 @@ function SpaceSwitcherInner(): React.JSX.Element {
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-[100] min-w-[220px] max-w-[280px]"
-              style={{ originX: 0.5, originY: 1, perspective: 600 }}
-              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
+              className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[100] min-w-[220px] max-w-[280px]"
+              style={{ originX: 0.5, originY: 0, perspective: 600 }}
+              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: -32, rotateX: 16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
+              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: -28, rotateX: 10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
               <div className="rounded-2xl glass-heavy overflow-hidden">

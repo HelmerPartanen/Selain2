@@ -142,13 +142,13 @@ function AppMenuInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full left-1/2 z-[100] min-w-[280px]"
-              style={{ originX: 0.5, originY: 1, x: "-50%" }}
+              className="absolute top-full left-1/2 z-[100] min-w-[280px]"
+              style={{ originX: 0.5, originY: 0, x: "-50%" }}
               initial={{
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: -10,
                 borderRadius: 40,
                 filter: 'blur(6px)',
               }}
@@ -164,7 +164,7 @@ function AppMenuInner(): React.JSX.Element {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: -10,
                 borderRadius: 40,
                 filter: 'blur(6px)',
               }}

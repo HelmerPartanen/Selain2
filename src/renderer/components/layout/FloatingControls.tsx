@@ -183,9 +183,9 @@ function FloatingControlsInner(): React.JSX.Element {
 
   return (
     <>
-      {/* Bottom-edge hover zone to reveal floating UI */}
+      {/* Top-edge hover zone to reveal floating UI */}
       <div
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-5 z-[49] [app-region:no-drag]"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-5 z-[49] [app-region:no-drag]"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
@@ -194,7 +194,7 @@ function FloatingControlsInner(): React.JSX.Element {
       <AnimatePresence>
         {isIdle && (
           <motion.div
-            className="fixed bottom-2 left-1/2 z-[49] [app-region:no-drag]"
+            className="fixed top-2 left-1/2 z-[49] [app-region:no-drag]"
             style={{ x: "-50%", pointerEvents: "auto" }}
             initial={{ opacity: 0, scaleX: 0.5 }}
             animate={{ opacity: 1, scaleX: 1 }}
@@ -211,12 +211,12 @@ function FloatingControlsInner(): React.JSX.Element {
         )}
       </AnimatePresence>
       <motion.div
-        className="fixed bottom-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
+        className="fixed top-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
         style={{ pointerEvents: isIdle ? "none" : "auto", willChange: "transform, opacity" }}
-        initial={{ x: "-50%", y: 40, scale: 0.85, opacity: 0 }}
+        initial={{ x: "-50%", y: -40, scale: 0.85, opacity: 0 }}
         animate={
           isIdle
-            ? { x: "-50%", y: 20, scale: 0.92, opacity: 0 }
+            ? { x: "-50%", y: -20, scale: 0.92, opacity: 0 }
             : { x: "-50%", y: 0, scale: 1, opacity: 1 }
         }
         transition={isIdle ? SPRING_GENTLE : SPRING}
