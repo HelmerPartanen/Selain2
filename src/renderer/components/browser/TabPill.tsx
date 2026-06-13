@@ -186,7 +186,7 @@ function TabPillInner(): React.JSX.Element {
           aria-label="New tab"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-l-full"
         >
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
@@ -196,7 +196,7 @@ function TabPillInner(): React.JSX.Element {
           aria-label="Tab overview"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-r-full"
         >
           <SvgIcon svg={tabsSvg} size={16} />
         </motion.button>
