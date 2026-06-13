@@ -20,6 +20,8 @@ export interface SettingsState {
   uiZoom: number
   /** Auto-hide delay for the floating bar (ms) */
   autoHideDelay: number
+  /** Enable auto-hide UI (hover to reveal floating controls) */
+  enableAutoHide: boolean
   /** Clear browsing data on exit */
   clearOnExit: boolean
   /** Whether the user has completed the onboarding flow */
@@ -46,6 +48,7 @@ export interface SettingsActions {
   setHomepageUrl: (url: string) => void
   setUiZoom: (zoom: number) => void
   setAutoHideDelay: (ms: number) => void
+  setEnableAutoHide: (v: boolean) => void
   setClearOnExit: (v: boolean) => void
   setOnboardingCompleted: (v: boolean) => void
   setAdaptiveColor: (v: boolean) => void
@@ -70,6 +73,7 @@ export const useSettingsStore = create<SettingsStore>()(
       homepageUrl: '',
       uiZoom: 100,
       autoHideDelay: 2500,
+      enableAutoHide: true,
       clearOnExit: false,
       onboardingCompleted: false,
       adaptiveColor: false,
@@ -86,6 +90,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setHomepageUrl: (url) => set({ homepageUrl: url }),
       setUiZoom: (zoom) => set({ uiZoom: zoom }),
       setAutoHideDelay: (ms) => set({ autoHideDelay: Math.max(1000, Math.min(5000, ms)) }),
+      setEnableAutoHide: (v) => set({ enableAutoHide: v }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
       setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
       setAdaptiveColor: (v) => set({ adaptiveColor: v }),

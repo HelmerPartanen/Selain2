@@ -34,6 +34,8 @@ function GeneralPaneInner(): React.JSX.Element {
   const setShowNewTabContinueSection = useSettingsStore((s) => s.setShowNewTabContinueSection);
   const showNewTabFrequentSection = useSettingsStore((s) => s.showNewTabFrequentSection);
   const setShowNewTabFrequentSection = useSettingsStore((s) => s.setShowNewTabFrequentSection);
+  const enableAutoHide = useSettingsStore((s) => s.enableAutoHide);
+  const setEnableAutoHide = useSettingsStore((s) => s.setEnableAutoHide);
   const [urlDraft, setUrlDraft] = useState(homepageUrl);
   const [homepageError, setHomepageError] = useState<string | null>(null);
 
@@ -193,6 +195,23 @@ function GeneralPaneInner(): React.JSX.Element {
               checked={showTabCleanupSuggestions}
               onChange={setShowTabCleanupSuggestions}
               label="Suggest tab cleanup"
+            />
+          </SettingRow>
+        </SettingGroup>
+      </div>
+
+      <div>
+        <SectionHeader>User Interface</SectionHeader>
+        <Desc>Customize the appearance and behavior of the floating controls.</Desc>
+        <SettingGroup>
+          <SettingRow
+            label="Hide UI automatically"
+            desc="The floating control bar will hide when inactive and reappear on hover or keyboard activity."
+          >
+            <Toggle
+              checked={enableAutoHide}
+              onChange={setEnableAutoHide}
+              label="Auto-hide UI"
             />
           </SettingRow>
         </SettingGroup>

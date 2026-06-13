@@ -29,6 +29,7 @@ function useIdleVisibility(isActive: boolean): boolean {
   const timerRef = useRef<number | null>(null);
   const lastActivityRef = useRef<number>(0);
   const autoHideDelay = useSettingsStore((s) => s.autoHideDelay);
+  const enableAutoHide = useSettingsStore((s) => s.enableAutoHide);
 
   const resetTimer = useCallback(() => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
@@ -36,6 +37,13 @@ function useIdleVisibility(isActive: boolean): boolean {
   }, [autoHideDelay]);
 
   useEffect(() => {
+    // If auto-hide is disabled, never set idle
+    if (!enableAutoHide) {
+      setIsIdle(false);
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      return;
+    }
+
     if (isActive) {
       setIsIdle(false);
       if (timerRef.current) window.clearTimeout(timerRef.current);
@@ -60,7 +68,7 @@ function useIdleVisibility(isActive: boolean): boolean {
       window.removeEventListener("keydown", handleKeyActivity);
       if (timerRef.current) window.clearTimeout(timerRef.current);
     };
-  }, [isActive, resetTimer]);
+  }, [isActive, resetTimer, enableAutoHide]);
 
   return isIdle;
 }
@@ -70,6 +78,7 @@ function FloatingControlsInner(): React.JSX.Element {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const focusedTabId = useFocusedTabId();
   const focusedTabUrl = useFocusedTabUrl();
+  const enableAutoHide = useSettingsStore((s) => s.enableAutoHide);
   const {
     isSettingsOpen,
     isBookmarksOpen,
