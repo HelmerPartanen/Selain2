@@ -9,7 +9,7 @@ export const AURORA_GRADIENT =
 
 // ── AI summarization system prompt ───────────────────────────────────────────
 // This runs inside the Electron main process / Ollama via IPC.
-// Keep it tight — gemma3:1b has a small context window.
+// Keep it tight so the local SmolLM3 3B model stays reliable.
 
 export const SUMMARY_SYSTEM_PROMPT = `You are a sharp, perceptive reading assistant embedded in a browser. Your job is to summarize the page the user is currently viewing.
 

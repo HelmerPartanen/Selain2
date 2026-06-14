@@ -214,13 +214,13 @@ function MissingModelScreen({ onDownload }: { onDownload: () => void }): React.J
           AI model not downloaded
         </p>
         <p className="text-[12px] text-gray-400 dark:text-neutral-500 font-light leading-relaxed max-w-[300px]">
-          The <span className="font-mono text-blue-400">gemma3:1b</span> model (~800 MB) needs to be downloaded once. It runs fully offline after that.
+          The <span className="font-mono text-blue-400">smollm3:3b</span> model needs to be downloaded once. It runs fully offline after that.
         </p>
       </div>
 
       <div className="flex flex-col items-center gap-2">
         <PrimaryButton onClick={onDownload}>
-          Download model (~800 MB)
+          Download SmolLM3 3B
         </PrimaryButton>
         <p className="text-[10px] text-gray-400 dark:text-neutral-600 font-light">
           Stored locally · No account required · Runs on-device

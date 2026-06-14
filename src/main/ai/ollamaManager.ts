@@ -12,7 +12,7 @@ const execAsync = promisify(exec)
 
 export const OLLAMA_HOST = 'localhost'
 export const OLLAMA_PORT = 11434
-export const TARGET_MODEL = 'gemma3:1b'
+export const TARGET_MODEL = 'smollm3:3b'
 
 let activePullRequest: http.ClientRequest | null = null
 
@@ -169,7 +169,7 @@ export function isPulling(): boolean {
 let activeSummaryRequest: http.ClientRequest | null = null
 
 // ── System prompt ─────────────────────────────────────────────────────────────
-// Designed for gemma3:1b — a 1B model needs a short, unambiguous brief.
+// Designed for SmolLM3 3B — keep the prompt concise and factual for reliable summaries.
 // Make the summary factual, biography-aware, and resistant to filler.
 const SYSTEM_PROMPT = `You are a browser assistant that summarizes web pages in a floating panel.
 
@@ -225,7 +225,7 @@ function extractPageContext(raw: string): string {
 
   const joined = deduped.join('\n')
 
-  // Budget: ~4 500 chars → well within gemma3:1b's 8 k context minus prompt overhead
+  // Budget: ~4 500 chars → fits comfortably within the model context window used for summaries.
   const BUDGET = 4500
   if (joined.length <= BUDGET) return joined
 
