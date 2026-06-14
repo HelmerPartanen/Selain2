@@ -176,6 +176,7 @@ const SYSTEM_PROMPT = `You are a browser assistant that summarizes web pages in 
 Your output must be short, specific, and immediately useful to someone who hasn't read the page.
 
 Rules:
+- Detect the language of the page text and summarize it in that same language.
 - Start with the main subject by name when it is clear.
 - Use 2–4 short sentences OR 2–4 bullet points if the page naturally lists separate facts or events.
 - For biography or encyclopedia pages, mention the person's full name, birth date/place, nationality, profession, and key role or event.
@@ -198,13 +199,17 @@ const NOISE_RE =
   /^(accept( all)? cookies?|cookie (policy|settings|preferences)|privacy policy|terms( of( service|use))?|copyright ©|all rights reserved|skip to (main )?content|back to top|\d+ min(ute)? read|share (this|on)|follow us|subscribe( to our newsletter)?|sign (in|up)|log (in|out)|menu|navigation|search\.{0,3})/i
 
 function isStructuredLine(line: string): boolean {
-  return /[\t:]/.test(line)
+  return /[\t:|]/.test(line)
+}
+
+function normalizeLine(line: string): string {
+  return line.replace(/^[#>*+\-\s]+/, '').trim()
 }
 
 function extractPageContext(raw: string): string {
   const lines = raw
     .split(/\n+/)
-    .map((l) => l.trim())
+    .map((l) => normalizeLine(l.trim()))
     .filter((l) => (l.length > 25 || isStructuredLine(l)) && !NOISE_RE.test(l))
 
   // Deduplicate repeated lines (nav items often repeat verbatim)
