@@ -7,9 +7,13 @@ interface SvgIconProps {
 }
 
 function processSvg(raw: string, size: number): string {
-  return raw
+  let svg = raw
     // Remove background rect elements (some SVGs have white backgrounds)
     .replace(/<rect[^>]*fill="white"[^>]*\/?>/g, '')
+    // Remove style blocks so icon colors are not hard-coded
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    // Remove class attributes from SVG elements produced by icon files
+    .replace(/ class="[^"]*"/g, '')
     // Replace all non-"none" fills with currentColor
     .replace(/fill="(?!none)[^"]*"/g, 'fill="currentColor"')
     // Remove fill-opacity (currentColor inherits text opacity)
@@ -17,6 +21,12 @@ function processSvg(raw: string, size: number): string {
     // Set dimensions
     .replace(/width="24"/, `width="${size}"`)
     .replace(/height="24"/, `height="${size}"`)
+
+  if (!/\bfill=/.test(svg.match(/<svg[^>]*>/)?.[0] ?? '')) {
+    svg = svg.replace(/<svg([^>]*)>/, '<svg$1 fill="currentColor">')
+  }
+
+  return svg
 }
 
 function SvgIconInner({ svg, size = 24, className }: SvgIconProps): React.JSX.Element {

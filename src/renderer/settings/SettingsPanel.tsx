@@ -15,7 +15,8 @@ import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
-import gestureSvg from "@/assets/icons/Keyboard/TrackPad.svg?raw";
+import gestureSvg from "@/assets/icons/Human/Finger_Tap.svg?raw";
+import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
 import { GeneralPane } from "@/settings/panes/GeneralPane";
 import { AppearancePane } from "@/settings/panes/AppearancePane";
@@ -131,6 +132,7 @@ function Sidebar({
 
 function SettingsPanelInner(): React.JSX.Element {
   const closeSettings = useUIStore((s) => s.closeSettings);
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations);
   const [activeCategory, setActiveCategory] =
     useState<SettingsCategory>("general");
 
@@ -169,10 +171,10 @@ function SettingsPanelInner(): React.JSX.Element {
             <AnimatePresence mode="wait">
               <motion.h3
                 key={activeCategory}
-                initial={{ opacity: 0, y: 4 }}
+                initial={disableAnimations ? undefined : { opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={SPRING_CONTENT}
+                exit={disableAnimations ? undefined : { opacity: 0, y: -4 }}
+                transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
                 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-relaxed"
               >
                 {categoryLabel}
@@ -193,10 +195,10 @@ function SettingsPanelInner(): React.JSX.Element {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeCategory}
-                initial={{ opacity: 0, y: 8 }}
+                initial={disableAnimations ? undefined : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={SPRING_CONTENT}
+                exit={disableAnimations ? undefined : { opacity: 0, y: -6 }}
+                transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
               >
                 <SettingsContent category={activeCategory} />
               </motion.div>

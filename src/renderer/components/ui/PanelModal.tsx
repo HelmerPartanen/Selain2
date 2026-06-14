@@ -64,6 +64,7 @@ export function PanelModal({
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const modalIdRef = useRef(`modal-${Math.random().toString(36).slice(2, 10)}`)
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   useEffect(() => {
     const modalId = modalIdRef.current
@@ -159,10 +160,10 @@ export function PanelModal({
           tabIndex={-1}
           className={`${disableBlurEffects ? 'rounded-xl overflow-hidden drop-shadow-lg bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'rounded-xl overflow-hidden drop-shadow-lg bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xl border border-black/5 dark:border-white/5'} [app-region:no-drag] pointer-events-auto ${className}`}
           style={{ width, height, transformOrigin: '50% 100%', perspective: 800 }}
-          initial={PANEL_INITIAL}
+          initial={disableAnimations ? undefined : PANEL_INITIAL}
           animate={PANEL_ANIMATE}
-          exit={PANEL_EXIT}
-          transition={PANEL_TRANSITION}
+          exit={disableAnimations ? undefined : PANEL_EXIT}
+          transition={disableAnimations ? { duration: 0 } : PANEL_TRANSITION}
         >
           {children}
         </motion.div>
