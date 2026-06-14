@@ -64,10 +64,12 @@ function SpaceRow({
           ? 'bg-black/[0.05] dark:bg-white/[0.08] text-gray-900 dark:text-white'
           : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
       }`}
-      style={{
-        opacity: 0,
-        animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`,
-      }}
+      style={disableAnimations
+        ? { opacity: 1, animation: 'none' }
+        : {
+            opacity: 0,
+            animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`,
+          }}
     >
       <SpaceDot hue={space.hue} />
       <span className="flex-1 text-xs truncate">{space.name}</span>

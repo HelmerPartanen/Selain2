@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useSettingsStore } from "@/store/settingsStore";
 import { SvgIcon, SQUARE_SVG, CARDS_SVG } from "@/components/ui/SvgIcon";
 import minusSvg from "@/assets/icons/Maths/Minus.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
@@ -9,6 +10,8 @@ const HIDE_DELAY = 800;
 
 function WindowControlsInner(): React.JSX.Element {
   const [isVisible, setIsVisible] = useState(false);
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const [isMaximized, setIsMaximized] = useState(false);
   const hideTimerRef = useRef<number>(0);
 
@@ -65,12 +68,12 @@ function WindowControlsInner(): React.JSX.Element {
       <AnimatePresence>
         {!isVisible && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={disableAnimations ? undefined : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            exit={disableAnimations ? undefined : { opacity: 0 }}
+            transition={disableAnimations ? { duration: 0 } : { duration: 0.15 }}
             className="absolute top-2.5 right-5 flex gap-1.5"
-            style={{ pointerEvents: "auto", animation: "hint-pulse 3s ease-in-out infinite" }}
+            style={{ pointerEvents: "auto", animation: disableAnimations ? 'none' : 'hint-pulse 3s ease-in-out infinite' }}
           >
             <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
             <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
@@ -82,12 +85,12 @@ function WindowControlsInner(): React.JSX.Element {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="mt-2.5 mr-2.5 flex items-center rounded-full bg-white/90 dark:bg-[#1D1F23]/95 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5 overflow-hidden"
+            className={`mt-2.5 mr-2.5 flex items-center rounded-full overflow-hidden ${disableBlurEffects ? 'bg-white/95 dark:bg-[#121316]/95 border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/95 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5'}`}
             style={{ pointerEvents: "auto" }}
-            initial={{ opacity: 0, scale: 0.85, y: -6 }}
+            initial={disableAnimations ? undefined : { opacity: 0, scale: 0.85, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: -6 }}
-            transition={SPRING_FAST}
+            exit={disableAnimations ? { opacity: 0, scale: 0.85, y: -6 } : { opacity: 0, scale: 0.85, y: -6 }}
+            transition={disableAnimations ? { duration: 0 } : SPRING_FAST}
           >
             <ControlButton
               onClick={handleMinimize}

@@ -43,6 +43,8 @@ function AppMenuInner(): React.JSX.Element {
   const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen);
   const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
   const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen);
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const isPanelOpen =
     isSettingsOpen ||
     isBookmarksOpen ||
@@ -107,7 +109,7 @@ function AppMenuInner(): React.JSX.Element {
         aria-expanded={isOpen}
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
-        transition={SPRING_SNAPPY}
+        transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
         className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
@@ -144,13 +146,13 @@ function AppMenuInner(): React.JSX.Element {
             <motion.div
               className="absolute bottom-full left-1/2 z-[100] min-w-[280px]"
               style={{ originX: 0.5, originY: 1, x: "-50%" }}
-              initial={{
+              initial={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
                 y: 10,
                 borderRadius: 40,
-                filter: 'blur(6px)',
+                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
               animate={{
                 scaleX: 1,
@@ -158,17 +160,17 @@ function AppMenuInner(): React.JSX.Element {
                 opacity: 1,
                 y: 0,
                 borderRadius: 16,
-                filter: 'blur(0px)',
+                filter: disableBlurEffects ? 'none' : 'blur(0px)',
               }}
-              exit={{
+              exit={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
                 y: 10,
                 borderRadius: 40,
-                filter: 'blur(6px)',
+                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
-              transition={{
+              transition={disableAnimations ? { duration: 0 } : {
                 type: 'spring',
                 stiffness: 380,
                 damping: 28,
@@ -189,10 +191,12 @@ function AppMenuInner(): React.JSX.Element {
                         onMouseEnter={() => setHoveredIdx(idx)}
                         onMouseLeave={() => setHoveredIdx(null)}
                         className="w-full rounded-xl flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150 relative [app-region:no-drag]"
-                        style={{
-                          opacity: 0,
-                          animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
-                        }}
+                        style={disableAnimations
+                          ? { opacity: 1, animation: 'none' }
+                          : {
+                              opacity: 0,
+                              animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
+                            }}
                       >
                         <span className="relative flex items-center gap-3 w-full z-10">
                           <SvgIcon svg={Icon} size={16} />

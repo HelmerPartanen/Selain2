@@ -4,6 +4,7 @@ import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { showToast } from '@/components/ui/Toast'
 import { logger } from '@/utils/logger'
 import { useThemeStore } from '@/store/themeStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
 function useThemeMode(): void {
   const themeMode = useThemeStore((s) => s.themeMode)
@@ -49,11 +50,24 @@ function useGlobalErrorHandlers(): void {
   }, [])
 }
 
+function useGraphicsMode(): void {
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
+
+  useEffect(() => {
+    document.documentElement.dataset.disableMotion = String(disableAnimations)
+    document.documentElement.dataset.disableBlur = String(disableBlurEffects)
+  }, [disableAnimations, disableBlurEffects])
+}
+
 export default function App(): React.JSX.Element {
   useThemeMode()
   useGlobalErrorHandlers()
+  useGraphicsMode()
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+
   return (
-    <MotionConfig reducedMotion="user">
+    <MotionConfig reducedMotion={disableAnimations ? 'always' : 'user'}>
       <BrowserLayout />
     </MotionConfig>
   )

@@ -9,6 +9,7 @@
 
 import { motion } from 'motion/react'
 import { useEffect, useRef } from 'react'
+import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING } from '@/utils/springs'
 
 // Shared genie-motion values \u2014 single source of truth for all panels

@@ -10,6 +10,7 @@ import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
 import brushSvg from "@/assets/icons/News/Camera_Macro.svg?raw";
 import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
+import displaySvg from "@/assets/icons/Devices/Display.svg?raw";
 import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
@@ -23,6 +24,7 @@ import { PrivacyPane } from "@/settings/panes/PrivacyPane";
 import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
 import { HotkeysPane } from "@/settings/panes/HotkeysPane";
 import { GesturesPane } from "@/settings/panes/GesturesPane";
+import { GraphicsPane } from "./panes/GraphicsPane";
 import { AboutPane } from "@/settings/panes/AboutPane";
 import { SPRING_CONTENT, SPRING_SNAPPY } from "@/utils/springs";
 
@@ -32,6 +34,7 @@ type SettingsCategory =
   | "general"
   | "appearance"
   | "wallpaper"
+  | "graphics"
   | "privacy"
   | "search"
   | "hotkeys"
@@ -49,6 +52,7 @@ const CATEGORIES: CategoryItem[] = [
   { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
   { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-black text-white dark:bg-white dark:text-black" },
   { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-500 text-white dark:bg-purple-600 dark:text-white" },
+  { id: "graphics", label: "Graphics", icon: displaySvg, colorClass: "bg-sky-500 text-white dark:bg-sky-600 dark:text-white" },
   { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-500 text-white dark:bg-emerald-600 dark:text-white" },
   { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-500 text-white dark:bg-blue-600 dark:text-white" },
   { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
@@ -70,6 +74,8 @@ function SettingsContent({
       return <AppearancePane />;
     case "wallpaper":
       return <WallpaperPane />;
+    case "graphics":
+      return <GraphicsPane />;
     case "privacy":
       return <PrivacyPane />;
     case "search":

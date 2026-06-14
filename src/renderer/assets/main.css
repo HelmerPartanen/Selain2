@@ -249,3 +249,31 @@ body,
     animation: none;
   }
 }
+
+/* Low graphics mode */
+:root[data-disable-motion='true'],
+:root[data-disable-motion='true'] * {
+  animation: none !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+}
+
+:root[data-disable-blur='true'] .glass-blur,
+:root[data-disable-blur='true'] .floating-controls-flat,
+:root[data-disable-blur='true'] .window-controls-flat,
+:root[data-disable-blur='true'] .panel-modal-flat {
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+:root[data-disable-blur='true'] .glass-blur {
+  background: rgba(255,255,255,0.96) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+:root.dark[data-disable-blur='true'] .glass-blur {
+  background: rgba(18,18,18,0.94) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}

@@ -101,6 +101,8 @@ function FloatingControlsInner(): React.JSX.Element {
     }))
   );
 
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const { canGoBack, canGoForward } = useFocusedTabCanNavigate();
   const isSplit = useIsSplitView();
   const focusedPanel = useTabStore((s) => s.focusedPanel);
@@ -215,16 +217,16 @@ function FloatingControlsInner(): React.JSX.Element {
             {isIdle && (
               <motion.div
                 className="absolute bottom-2 pointer-events-auto [app-region:no-drag]"
-                initial={{ opacity: 0, scaleX: 0.5 }}
+                initial={disableAnimations ? undefined : { opacity: 0, scaleX: 0.5 }}
                 animate={{ opacity: 1, scaleX: 1 }}
-                exit={{ opacity: 0, scaleX: 0.5 }}
-                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                exit={disableAnimations ? undefined : { opacity: 0, scaleX: 0.5 }}
+                transition={disableAnimations ? { duration: 0 } : { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
                 <div
                   className="w-32 h-[5px] rounded-full bg-gray-500/80 dark:bg-neutral-300/70"
-                  style={{ animation: "hint-pulse 3s ease-in-out infinite" }}
+                  style={{ animation: disableAnimations ? 'none' : 'hint-pulse 3s ease-in-out infinite' }}
                 />
               </motion.div>
             )}
@@ -232,14 +234,14 @@ function FloatingControlsInner(): React.JSX.Element {
 
           {/* Floating controls — frosted glass surface with backdrop blur */}
           <motion.div
-            className="absolute bottom-5 mb-0 rounded-full [app-region:no-drag] pointer-events-auto drop-shadow-lg bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5"
-            initial={{ y: 40, scale: 0.85, opacity: 0 }}
+            className={`absolute bottom-5 mb-0 rounded-full [app-region:no-drag] pointer-events-auto drop-shadow-lg ${disableBlurEffects ? 'bg-white/96 dark:bg-[#121316]/96 border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+            initial={disableAnimations ? undefined : { y: 40, scale: 0.85, opacity: 0 }}
             animate={
               isIdle
                 ? { y: 20, scale: 0.92, opacity: 0 }
                 : { y: 0, scale: 1, opacity: 1 }
             }
-            transition={isIdle ? SPRING_GENTLE : SPRING}
+            transition={disableAnimations ? { duration: 0 } : isIdle ? SPRING_GENTLE : SPRING}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{ willChange: "transform, opacity" }}

@@ -39,6 +39,11 @@ export interface SettingsState {
   showNewTabFrequentSection: boolean
   /** Enable built-in Adblocker */
   enableAdblocker: boolean
+
+  /** Disable non-essential UI animations */
+  disableAnimations: boolean
+  /** Disable blur and translucent effects */
+  disableBlurEffects: boolean
 }
 
 export interface SettingsActions {
@@ -57,6 +62,8 @@ export interface SettingsActions {
   setShowNewTabContinueSection: (v: boolean) => void
   setShowNewTabFrequentSection: (v: boolean) => void
   setEnableAdblocker: (v: boolean) => void
+  setDisableAnimations: (v: boolean) => void
+  setDisableBlurEffects: (v: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -81,6 +88,8 @@ export const useSettingsStore = create<SettingsStore>()(
       showNewTabContinueSection: true,
       showNewTabFrequentSection: true,
       enableAdblocker: true,
+      disableAnimations: false,
+      disableBlurEffects: false,
 
       // ── Actions ──
       setRestoreTabs: (v) => set({ restoreTabs: v }),
@@ -97,6 +106,8 @@ export const useSettingsStore = create<SettingsStore>()(
       setShowNewTabContinueSection: (v) => set({ showNewTabContinueSection: v }),
       setShowNewTabFrequentSection: (v) => set({ showNewTabFrequentSection: v }),
       setEnableAdblocker: (v) => set({ enableAdblocker: v }),
+      setDisableAnimations: (v) => set({ disableAnimations: v }),
+      setDisableBlurEffects: (v) => set({ disableBlurEffects: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }
   )
