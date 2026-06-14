@@ -449,7 +449,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
-            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[22px] overflow-hidden z-[100] drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}
             style={{ originY: 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
@@ -467,21 +467,11 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   }}
                   onMouseEnter={() => setHoveredIdx(i)}
                   onMouseLeave={() => setHoveredIdx(null)}
-                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-full text-left transition-colors duration-75 ${isActive
+                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-xl text-left transition-colors duration-75 ${isActive
                     ? 'text-gray-900 dark:text-white'
-                    : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white'
+                    : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.08]'}
                     }`}
                 >
-                  {(isActive || hoveredIdx === i) && (
-                    <motion.div
-                      layoutId="history-hover"
-                      className={`absolute inset-0 rounded-full ${disableBlurEffects ? 'bg-black/[0.04] dark:bg-white/[0.06]' : 'bg-white/40 dark:bg-white/[0.08] backdrop-blur-xs'}`}
-                      initial={{ opacity: 0.6, filter: 'blur(2px)' }}
-                      animate={{ opacity: 1, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, filter: 'blur(2px)' }}
-                      transition={SPRING_SNAPPY}
-                    />
-                  )}
                   <span className="relative z-10 flex items-center gap-2.5 w-full">
                     {entry.type === 'search' ? (
                       <SvgIcon svg={searchSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />

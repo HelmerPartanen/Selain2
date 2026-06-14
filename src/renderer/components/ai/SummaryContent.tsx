@@ -278,7 +278,7 @@ export function SummaryContent({
   const showError = !showLoading && !!summaryError && !summary
 
   return (
-    <div className="relative" style={{ height: CONTENT_HEIGHT }}>
+    <div className="relative w-full h-full">
       <AnimatePresence mode="wait">
         {showLoading ? (
           <motion.div

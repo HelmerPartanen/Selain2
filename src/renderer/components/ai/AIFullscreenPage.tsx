@@ -142,7 +142,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[150] overflow-hidden"
+          className={`fixed inset-0 z-[150] ${isSummaryOverlayVisible ? 'overflow-hidden' : 'overflow-auto pointer-events-none'}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -170,14 +170,14 @@ function AIFullscreenPageInner(): React.JSX.Element {
 
                   {/* Summary content container */}
                   <motion.div
-                    className="relative z-10 w-full h-full overflow-auto"
+                    className="relative z-10 w-full h-full overflow-auto flex flex-col"
                     initial={{ y: '-100%', opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: '-100%', opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.5 }}
                   >
-                    {/* Content padding and sizing */}
-                    <div className="max-w-4xl mx-auto px-6 py-8 md:py-12">
+                    {/* Content padding and sizing - extend to full height with top/bottom padding for fixed bars */}
+                    <div className="flex-1 max-w-4xl mx-auto w-full px-6 pt-20 pb-24">
                       {isAIReady ? (
                         <SummaryContent
                           key={summaryKey}

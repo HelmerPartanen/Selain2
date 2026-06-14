@@ -134,7 +134,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
               inset: 0,
               borderRadius: '50%',
               background: RAINBOW_GRADIENT,
-              opacity: 0.4,
+              opacity: 0.2,
             }}
           />
         </div>
@@ -146,7 +146,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35) 0%, transparent 55%)',
+            'radial-gradient(circle at 30% 30%, rgba(255, 0, 240, 0.35) 0%, transparent 55%)',
         }}
       />
 
@@ -159,8 +159,8 @@ export function RainbowEdgeLoading(): React.JSX.Element {
         style={
           {
             '--shock-r': '0%',
-            backdropFilter: 'blur(14px) saturate(1.15) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(14px) saturate(1.15) brightness(1.04)',
+            backdropFilter: 'blur(36px) saturate(1.15) brightness(1.04)',
+            WebkitBackdropFilter: 'blur(36px) saturate(1.15) brightness(1.04)',
             maskImage: shockwaveMask,
             WebkitMaskImage: shockwaveMask,
             transition: 'opacity 0.25s ease-out',
