@@ -180,9 +180,9 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   >
                     <motion.button
                       onClick={toggleSummaryOverlay}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full text-gray-700 dark:text-neutral-300 text-xs font-medium select-none transition-colors duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                      className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-full text-gray-700 dark:text-neutral-300 text-sm font-medium select-none transition-colors duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] whitespace-nowrap h-9 min-w-[96px]"
                     >
-                      {isSummaryOverlayVisible ? 'Show Original' : 'Show Summary'}
+                      {isSummaryOverlayVisible ? 'Original' : 'Summary'}
                     </motion.button>
                   </motion.div>
                 )}
@@ -201,7 +201,6 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   <motion.button
                     onClick={closeAIFullscreen}
                     className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150 select-none"
-                    whileTap={{ scale: 0.82 }}
                     aria-label="Close AI Summary"
                   >
                     <SvgIcon svg={closeSvg} size={18} />
