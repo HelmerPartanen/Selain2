@@ -12,6 +12,7 @@ import bookmarkFillSvg from '@/assets/icons/Objects/Bookmark_Fill.svg?raw'
 import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState, useFocusedTabMediaPlaying } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
@@ -46,6 +47,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const url = useFocusedTabUrl()
   const { isLoading } = useFocusedTabNavState()
   const updateTab = useTabStore((s) => s.updateTab)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState('')
   const deferredInputValue = useDeferredValue(inputValue)
@@ -447,7 +449,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
-            className="absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[22px] overflow-hidden z-[100] glass"
+            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[22px] overflow-hidden z-[100] drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
             style={{ originY: 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
@@ -473,7 +475,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   {(isActive || hoveredIdx === i) && (
                     <motion.div
                       layoutId="history-hover"
-                      className="absolute inset-0 rounded-full glass glass-interactive"
+                      className={`absolute inset-0 rounded-full ${disableBlurEffects ? 'bg-black/[0.04] dark:bg-white/[0.06]' : 'bg-white/40 dark:bg-white/[0.08] backdrop-blur-xs'}`}
                       initial={{ opacity: 0.6, filter: 'blur(2px)' }}
                       animate={{ opacity: 1, filter: 'blur(0px)' }}
                       exit={{ opacity: 0, filter: 'blur(2px)' }}

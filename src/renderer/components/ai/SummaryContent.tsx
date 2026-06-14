@@ -55,7 +55,7 @@ function parseInline(text: string): React.ReactNode[] {
       nodes.push(
         <code
           key={k++}
-          className="font-mono text-[11.5px] px-1 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.08] text-gray-700 dark:text-neutral-300"
+          className="font-mono text-[16px] px-1 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.08] text-gray-700 dark:text-neutral-300"
         >
           {m[3]}
         </code>
@@ -133,7 +133,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
         if (block.kind === 'h1') return (
           <motion.h1
             key={i}
-            className="text-[14px] font-semibold text-gray-900 dark:text-white leading-snug mt-2"
+            className="text-[36px] font-semibold text-gray-900 dark:text-white leading-snug mt-2"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -144,7 +144,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
         if (block.kind === 'h2') return (
           <motion.h2
             key={i}
-            className="text-[13px] font-semibold text-gray-800 dark:text-neutral-200 leading-snug mt-1.5"
+            className="text-[28px] font-semibold text-gray-800 dark:text-neutral-200 leading-snug mt-1.5"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -155,7 +155,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
         if (block.kind === 'h3') return (
           <motion.h3
             key={i}
-            className="text-[12px] font-semibold text-gray-700 dark:text-neutral-300 leading-snug mt-1"
+            className="text-[21px] font-semibold text-gray-700 dark:text-neutral-300 leading-snug mt-1"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -172,7 +172,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
             transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {block.items.map((item, j) => (
-              <li key={j} className="flex gap-2 text-[13px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
+              <li key={j} className="flex gap-2 text-[18px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
                 <span className="mt-[6px] w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: 'currentColor', opacity: 0.45 }} />
                 <span>{parseInline(item)}</span>
               </li>
@@ -188,8 +188,8 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
             transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {block.items.map((item, j) => (
-              <li key={j} className="flex gap-2 text-[13px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
-                <span className="flex-shrink-0 text-[11px] font-medium text-gray-400 dark:text-neutral-600 tabular-nums mt-[2px]">
+              <li key={j} className="flex gap-2 text-[18px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
+                <span className="flex-shrink-0 text-[16px] font-medium text-gray-400 dark:text-neutral-600 tabular-nums mt-[2px]">
                   {j + 1}.
                 </span>
                 <span>{parseInline(item)}</span>
@@ -200,7 +200,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
         return (
           <motion.p
             key={i}
-            className="text-[13px] leading-[1.75] text-gray-600 dark:text-neutral-400 font-light"
+            className="text-[16px] leading-[1.75] text-gray-600 dark:text-neutral-400 font-light"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -228,7 +228,7 @@ function BlinkingCursor(): React.JSX.Element {
 
 // ── Error screen ──────────────────────────────────────────────────────────────
 
-function ErrorContent({ onRetry }: { onRetry: () => void }): React.JSX.Element {
+function ErrorContent(): React.JSX.Element {
   const summaryError = useAIStore((s) => s.summaryError)
   return (
     <div className="flex flex-col items-center justify-center gap-4 h-full text-center px-4">
@@ -244,13 +244,6 @@ function ErrorContent({ onRetry }: { onRetry: () => void }): React.JSX.Element {
           <p className="text-[11px] font-mono text-gray-400 dark:text-neutral-600 break-all max-w-[300px]">{summaryError}</p>
         )}
       </div>
-      <button
-        onClick={onRetry}
-        className="px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors duration-100"
-        style={{ background: 'rgba(99,102,241,0.12)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.25)' }}
-      >
-        Try again
-      </button>
     </div>
   )
 }
@@ -260,11 +253,9 @@ function ErrorContent({ onRetry }: { onRetry: () => void }): React.JSX.Element {
 export function SummaryContent({
   isLoading,
   loadingDuration,
-  onRegenerate,
 }: {
   isLoading: boolean
   loadingDuration: number
-  onRegenerate: () => void
 }): React.JSX.Element {
   const summary = useAIStore((s) => s.summary)
   const isSummarizing = useAIStore((s) => s.isSummarizing)
@@ -309,7 +300,7 @@ export function SummaryContent({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           >
-            <ErrorContent onRetry={onRegenerate} />
+            <ErrorContent />
           </motion.div>
         ) : (
           <motion.div
@@ -336,51 +327,6 @@ export function SummaryContent({
                 </span>
               )}
             </motion.div>
-
-            {/* Action row — only after streaming is done */}
-            {!isSummarizing && summary && (
-              <motion.div
-                className="flex items-center gap-2 pt-3 mt-1 flex-shrink-0"
-                style={{ borderTop: '1px solid var(--border-subtle)' }}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-              >
-                <span className="text-[11px] text-gray-400 dark:text-neutral-600 tabular-nums">
-                  {wordCount} words
-                </span>
-                <div className="flex-1" />
-                <button
-                  onClick={onRegenerate}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
-                  aria-label="Regenerate"
-                >
-                  <RefreshIcon />
-                  Regenerate
-                </button>
-                <button
-                  onClick={handleCopy}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
-                  aria-label="Copy summary"
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    {copied ? (
-                      <motion.span key="check" className="flex items-center gap-1.5 text-emerald-500"
-                        initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
-                        <CheckIcon />Copied
-                      </motion.span>
-                    ) : (
-                      <motion.span key="copy" className="flex items-center gap-1.5"
-                        initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
-                        <CopyIcon />Copy
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </button>
-              </motion.div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

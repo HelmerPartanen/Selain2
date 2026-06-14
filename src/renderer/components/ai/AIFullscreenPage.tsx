@@ -22,6 +22,28 @@ import { LOADING_DURATION } from './constants'
  * - Toggle button to switch between summary and original view
  */
 
+// ── Inline micro-icons ────────────────────────────────────────────────────────
+
+const CopyIcon = (): React.JSX.Element => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+)
+
+const CheckIcon = (): React.JSX.Element => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+const RefreshIcon = (): React.JSX.Element => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 4 23 10 17 10" />
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+  </svg>
+)
+
 function AIFullscreenPageInner(): React.JSX.Element {
   const isOpen = useUIStore((s) => s.isAIFullscreenOpen)
   const isSummaryOverlayVisible = useUIStore((s) => s.isAISummaryOverlayVisible)
@@ -30,6 +52,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
   const aiStatus = useAIStore((s) => s.status)
   const checkAIStatus = useAIStore((s) => s.checkStatus)
   const isSummarizing = useAIStore((s) => s.isSummarizing)
+  const summary = useAIStore((s) => s.summary)
   const startSummary = useAIStore((s) => s.startSummary)
   const cancelSummary = useAIStore((s) => s.cancelSummary)
   const resetSummary = useAIStore((s) => s.resetSummary)
@@ -37,6 +60,17 @@ function AIFullscreenPageInner(): React.JSX.Element {
   const isAIReady = aiStatus === 'ready'
   const isLoading = isSummarizing
   const [summaryKey, setSummaryKey] = useState(0)
+  const [copied, setCopied] = useState(false)
+
+  const wordCount = summary ? summary.trim().split(/\s+/).length : 0
+
+  const handleCopy = useCallback(() => {
+    if (!summary) return
+    navigator.clipboard.writeText(summary).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }, [summary])
 
   const triggerSummarization = useCallback(async () => {
     const tabId = useTabStore.getState().activeTabId
@@ -132,7 +166,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   transition={{ duration: 0.2 }}
                 >
                   {/* Semi-transparent background for the overlay */}
-                  <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+                  <div className={`absolute inset-0 ${disableBlurEffects ? 'bg-white dark:bg-[#121316]' : 'bg-white dark:bg-[#1D1F23] backdrop-blur-lg'}`} />
 
                   {/* Summary content container */}
                   <motion.div
@@ -149,7 +183,6 @@ function AIFullscreenPageInner(): React.JSX.Element {
                           key={summaryKey}
                           isLoading={false}
                           loadingDuration={LOADING_DURATION}
-                          onRegenerate={handleRegenerate}
                         />
                       ) : (
                         <OllamaSetupContent />
@@ -208,6 +241,53 @@ function AIFullscreenPageInner(): React.JSX.Element {
                     </motion.button>
                   </motion.div>
                 )}
+              </div>
+            </motion.div>
+
+            {/* Bottom action row — fixed at bottom */}
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 z-[152] pointer-events-none"
+              initial={{ opacity: 0, y: 20 }}
+              animate={!isLoading && isSummaryOverlayVisible && !isSummarizing && summary ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <div className="flex items-center justify-between px-6 py-4">
+                <span className="text-[11px] text-gray-400 dark:text-neutral-600 tabular-nums">
+                  {wordCount} words
+                </span>
+                <div className="flex-1" />
+                <div className="flex items-center gap-2 pointer-events-auto">
+                  <button
+                    onClick={handleRegenerate}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+                    aria-label="Regenerate"
+                  >
+                    <RefreshIcon />
+                    Regenerate
+                  </button>
+                  <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+                    aria-label="Copy summary"
+                  >
+                    <AnimatePresence mode="wait" initial={false}>
+                      {copied ? (
+                        <motion.span key="check" className="flex items-center gap-1.5 text-emerald-500"
+                          initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
+                          <CheckIcon />Copied
+                        </motion.span>
+                      ) : (
+                        <motion.span key="copy" className="flex items-center gap-1.5"
+                          initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
+                          <CopyIcon />Copy
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </button>
+                </div>
               </div>
             </motion.div>
 
