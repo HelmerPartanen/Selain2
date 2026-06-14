@@ -188,7 +188,7 @@ function AppMenuInner(): React.JSX.Element {
                         onClick={() => handleMenuItemClick(item.id)}
                         onMouseEnter={() => setHoveredIdx(idx)}
                         onMouseLeave={() => setHoveredIdx(null)}
-                        className="w-full rounded-xl flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-black hover:bg-black/[0.04] dark:hover:bg-neutral-200 transition-all duration-150 relative [app-region:no-drag]"
+                        className="w-full rounded-xl flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150 relative [app-region:no-drag]"
                         style={{
                           opacity: 0,
                           animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
