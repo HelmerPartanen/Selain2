@@ -233,20 +233,31 @@ body,
 
 /* ─── Reduced motion ───────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  :root {
+  :root:not([data-disable-motion='false']) {
     animation: none;
   }
 
-  *,
-  *::before,
-  *::after {
+  :root:not([data-disable-motion='false']) *,
+  :root:not([data-disable-motion='false']) *::before,
+  :root:not([data-disable-motion='false']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 
-  .tab-overview-card {
+  :root:not([data-disable-motion='false']) .tab-overview-card {
     animation: none;
+  }
+
+  :root[data-disable-motion='false'],
+  :root[data-disable-motion='false'] *,
+  :root[data-disable-motion='false'] *::before,
+  :root[data-disable-motion='false'] *::after {
+    animation: initial !important;
+    animation-duration: initial !important;
+    animation-iteration-count: initial !important;
+    transition-duration: initial !important;
+    transition-delay: initial !important;
   }
 }
 

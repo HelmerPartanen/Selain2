@@ -67,7 +67,7 @@ export default function App(): React.JSX.Element {
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   return (
-    <MotionConfig reducedMotion={disableAnimations ? 'always' : 'user'}>
+    <MotionConfig reducedMotion={disableAnimations ? 'always' : 'never'}>
       <BrowserLayout />
     </MotionConfig>
   )
