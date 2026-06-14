@@ -63,6 +63,7 @@ export function PanelModal({
   const panelRef = useRef<HTMLDivElement | null>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const modalIdRef = useRef(`modal-${Math.random().toString(36).slice(2, 10)}`)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
 
   useEffect(() => {
     const modalId = modalIdRef.current
@@ -156,7 +157,7 @@ export function PanelModal({
           aria-modal={aria['aria-modal']}
           aria-label={aria['aria-label']}
           tabIndex={-1}
-          className={`rounded-xl overflow-hidden drop-shadow-lg bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xl [app-region:no-drag] pointer-events-auto ${className}`}
+          className={`${disableBlurEffects ? 'rounded-xl overflow-hidden drop-shadow-lg bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'rounded-xl overflow-hidden drop-shadow-lg bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xl border border-black/5 dark:border-white/5'} [app-region:no-drag] pointer-events-auto ${className}`}
           style={{ width, height, transformOrigin: '50% 100%', perspective: 800 }}
           initial={PANEL_INITIAL}
           animate={PANEL_ANIMATE}

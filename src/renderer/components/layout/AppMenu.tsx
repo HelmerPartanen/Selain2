@@ -179,7 +179,7 @@ function AppMenuInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className="rounded-xl mb-2 drop-shadow-lg bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5 overflow-hidden">
+              <div className={`rounded-xl mb-2 drop-shadow-lg overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
                 <div className="p-1 relative">
                   {actionableItems.map((item, idx) => {
                     const Icon = item.icon!;

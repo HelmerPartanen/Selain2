@@ -13,6 +13,7 @@ import rightSmallSvg from '@/assets/icons/Arrows/Right_Small.svg?raw'
 import { useSpaceStore, SPACE_PRESET_HUES, DEFAULT_SPACE_ID, type Space } from '@/store/spaceStore'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
 
 // ─── Space Dot ───────────────────────────────────────────────────────────────
@@ -303,6 +304,8 @@ function SpaceSwitcherInner(): React.JSX.Element {
 
   const activeSpace = spaces[activeSpaceId]
   const hasMultipleSpaces = spaceOrder.length > 1
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
 
   const handleToggle = useCallback(() => {
     setOpen(!isOpen)
@@ -356,8 +359,8 @@ function SpaceSwitcherInner(): React.JSX.Element {
       <motion.button
         onClick={handleToggle}
         aria-label="Switch space"
-        whileTap={{ scale: 0.88 }}
-        transition={SPRING_SNAPPY}
+        whileTap={disableAnimations ? undefined : { scale: 0.88 }}
+        transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
         className={`h-10 flex items-center justify-center rounded-full text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none ${
           hasMultipleSpaces ? 'gap-1.5 px-2.5' : 'w-10'
         }`}
@@ -394,15 +397,15 @@ function SpaceSwitcherInner(): React.JSX.Element {
               exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
-              <div className="rounded-xl drop-shadow-lg bg-white dark:bg-[#1D1F23] overflow-hidden">
+              <div className={`rounded-xl drop-shadow-lg overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23]'}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   {editingId && spaces[editingId] ? (
-                    <motion.div
+                            <motion.div
                       key={`edit-${editingId}`}
-                      initial={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
-                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
-                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      animate={{ opacity: 1, scale: 1, filter: disableBlurEffects ? 'none' : 'blur(0px)' }}
+                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                       <EditSpaceForm
                         space={spaces[editingId]!}
@@ -412,10 +415,10 @@ function SpaceSwitcherInner(): React.JSX.Element {
                   ) : isCreating ? (
                     <motion.div
                       key="create"
-                      initial={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
-                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
-                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      animate={{ opacity: 1, scale: 1, filter: disableBlurEffects ? 'none' : 'blur(0px)' }}
+                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                       <NewSpaceForm
                         onSubmit={handleCreate}
@@ -425,10 +428,10 @@ function SpaceSwitcherInner(): React.JSX.Element {
                   ) : (
                     <motion.div
                       key="list"
-                      initial={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
-                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
-                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      animate={{ opacity: 1, scale: 1, filter: disableBlurEffects ? 'none' : 'blur(0px)' }}
+                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                     <div className="p-1 space-y-0.5">
                       {/* Header */}

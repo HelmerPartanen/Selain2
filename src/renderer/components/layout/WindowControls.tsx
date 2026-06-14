@@ -85,7 +85,7 @@ function WindowControlsInner(): React.JSX.Element {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className={`mt-2.5 mr-2.5 flex items-center rounded-full overflow-hidden ${disableBlurEffects ? 'bg-white/95 dark:bg-[#121316]/95 border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/95 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5'}`}
+            className={`mt-2.5 mr-2.5 flex items-center rounded-full overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/95 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5'}`}
             style={{ pointerEvents: "auto" }}
             initial={disableAnimations ? undefined : { opacity: 0, scale: 0.85, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
