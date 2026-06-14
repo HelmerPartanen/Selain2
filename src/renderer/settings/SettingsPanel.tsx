@@ -49,15 +49,15 @@ interface CategoryItem {
 }
 
 const CATEGORIES: CategoryItem[] = [
-  { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
-  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-black text-white dark:bg-white dark:text-black" },
-  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-500 text-white dark:bg-purple-600 dark:text-white" },
-  { id: "graphics", label: "Graphics", icon: displaySvg, colorClass: "bg-sky-500 text-white dark:bg-sky-600 dark:text-white" },
-  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-500 text-white dark:bg-emerald-600 dark:text-white" },
-  { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-500 text-white dark:bg-blue-600 dark:text-white" },
-  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
-  { id: "gestures", label: "Gestures", icon: gestureSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
-  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-gray-500 text-white dark:bg-gray-600 dark:text-white" },
+  { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-slate-100 text-slate-700 dark:bg-slate-700/10 dark:text-slate-200" },
+  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-300" },
+  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300" },
+  { id: "graphics", label: "Graphics", icon: displaySvg, colorClass: "bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300" },
+  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" },
+  { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" },
+  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" },
+  { id: "gestures", label: "Gestures", icon: gestureSvg, colorClass: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/10 dark:text-fuchsia-300" },
+  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-slate-100 text-slate-700 dark:bg-slate-700/10 dark:text-slate-200" },
 ];
 
 // --- Content Pane Router ------------------------------------------------------
@@ -111,17 +111,15 @@ function Sidebar({
             onMouseEnter={() => setHoveredIdx(idx)}
             onMouseLeave={() => setHoveredIdx(null)}
             aria-current={isActive ? "page" : undefined}
-            className={`relative flex items-center gap-2.5 p-2 rounded-xl text-[13px] font-normal transition-all duration-150 ${isActive
-              ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
-              : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+            className={`relative flex items-center gap-3 p-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${isActive
+              ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10] shadow-sm"
+              : "text-gray-600 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
               }`}
           >
-            <span className="relative flex items-center gap-3 z-10 w-full">
-              <div className={`w-7 h-7 flex items-center justify-center rounded-full shrink-0 ${colorClass}`}>
-                <SvgIcon svg={icon} size={16} />
-              </div>
-              {label}
+            <span className={`w-9 h-9 flex items-center justify-center rounded-xl shrink-0 transition-all duration-150 ${colorClass}`}>
+              <SvgIcon svg={icon} size={18} />
             </span>
+            <span className="text-left truncate">{label}</span>
           </button>
         )
       })}
@@ -142,8 +140,8 @@ function SettingsPanelInner(): React.JSX.Element {
   return (
     <PanelModal
       onClose={closeSettings}
-      width="720px"
-      height="500px"
+      width="900px"
+      height="600px"
       role="dialog"
       aria-label="Settings"
       aria-modal={true}
@@ -151,13 +149,13 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <div className="flex h-full overflow-hidden">
         <div className="flex-shrink-0 h-full">
-          <div className="w-[180px] h-full bg-white dark:bg-white/5 flex flex-col overflow-hidden" style={{ borderRight: '1px solid var(--border-subtle)' }}>
+          <div className="w-[240px] h-full bg-white dark:bg-white/5 flex flex-col overflow-hidden" style={{ borderRight: '1px solid var(--border-subtle)' }}>
             <div className="px-4 pt-5 pb-3">
               <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
                 Settings
               </h2>
             </div>
-            <div className="flex-1 px-1.5 pb-4">
+            <div className="flex-1 px-1.5 pb-4 overflow-y-auto">
               <Sidebar
                 activeCategory={activeCategory}
                 onSelect={setActiveCategory}

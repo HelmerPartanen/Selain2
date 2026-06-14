@@ -44,6 +44,7 @@ function SpaceRow({
   onEdit,
   onDelete,
   onMoveTab,
+  disableAnimations,
 }: {
   space: Space
   isActive: boolean
@@ -53,6 +54,7 @@ function SpaceRow({
   onEdit: () => void
   onDelete: () => void
   onMoveTab: () => void
+  disableAnimations: boolean
 }): React.JSX.Element {
   const tabCount = space.tabIds.length
   const isGeneral = space.id === DEFAULT_SPACE_ID
@@ -455,6 +457,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
                             onEdit={() => setEditingId(id)}
                             onDelete={() => handleDelete(id)}
                             onMoveTab={() => handleMoveTab(id)}
+                            disableAnimations={disableAnimations}
                           />
                         )
                       })}
