@@ -183,9 +183,9 @@ function SettingsPanelInner(): React.JSX.Element {
             <motion.button
               onClick={closeSettings}
               aria-label="Close settings"
-              whileHover={disableAnimations ? undefined : { scale: 1.08 }}
-              whileTap={disableAnimations ? undefined : { scale: 0.9 }}
-              transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
+              transition={SPRING_SNAPPY}
               className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
             >
               <SvgIcon svg={closeSvg} size={13} />

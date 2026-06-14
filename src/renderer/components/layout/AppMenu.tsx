@@ -108,7 +108,7 @@ function AppMenuInner(): React.JSX.Element {
         aria-label="Menu"
         aria-expanded={isOpen}
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
-        whileTap={disableAnimations ? undefined : { scale: 0.82 }}
+        whileTap={{ scale: 0.82 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
         className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
       >
@@ -119,7 +119,7 @@ function AppMenuInner(): React.JSX.Element {
               rotate: isOpen ? 90 : 0,
               opacity: isOpen ? 0 : 1,
             }}
-            transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
+            transition={SPRING_SNAPPY}
             className="absolute inset-0 flex items-center justify-center"
           >
             <SvgIcon svg={menuPointsSvg} size={18} />
@@ -130,7 +130,7 @@ function AppMenuInner(): React.JSX.Element {
               rotate: isOpen ? 0 : -90,
               opacity: isOpen ? 1 : 0,
             }}
-            transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
+            transition={SPRING_SNAPPY}
             className="absolute inset-0 flex items-center justify-center"
           >
             <SvgIcon svg={closeSvg} size={18} />

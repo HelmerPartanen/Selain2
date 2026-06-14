@@ -5,6 +5,7 @@ import sparkleSvg from '@/assets/icons/Weather/Sparkle.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useUIStore } from '@/store/uiStore'
 import { useTabStore } from '@/store/tabStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING_SNAPPY } from '@/utils/springs'
 import { AuroraGlow } from './AuroraGlow'
 import { SummaryContent } from './SummaryContent'
@@ -25,6 +26,7 @@ function AISummaryButtonInner(): React.JSX.Element {
   const startSummary = useAIStore((s) => s.startSummary)
   const cancelSummary = useAIStore((s) => s.cancelSummary)
   const resetSummary = useAIStore((s) => s.resetSummary)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const isAIReady = aiStatus === 'ready'
   // Drive the aurora/badge "loading" appearance from live summarization state
   const isLoading = isSummarizing
@@ -183,7 +185,7 @@ function AISummaryButtonInner(): React.JSX.Element {
                         filter: { duration: 0.2 },
                       }}
                     >
-                      <div className="rounded-3xl glass-heavy overflow-hidden relative">
+                      <div className={`rounded-3xl overflow-hidden relative ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
                         {/* Content — setup flow or summary */}
                         <div className="px-5 py-4">
                           {isAIReady ? (
