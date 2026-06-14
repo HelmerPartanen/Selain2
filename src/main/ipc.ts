@@ -149,6 +149,18 @@ export function setupIPC(): void {
     getMainWindow()?.webContents.setZoomFactor(factor)
   })
 
+  ipcMain.handle('open-external', async (_event, url: unknown) => {
+    if (typeof url !== 'string') return false
+    try {
+      const parsed = new URL(url)
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false
+      await shell.openExternal(parsed.toString())
+      return true
+    } catch {
+      return false
+    }
+  })
+
   // ── Image picker dialog ──────────────────────────────────────────────────
   ipcMain.handle('open-image-dialog', async () => {
     const win = getMainWindow()

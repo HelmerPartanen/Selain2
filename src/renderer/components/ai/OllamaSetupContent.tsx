@@ -5,6 +5,7 @@
 import { useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAIStore, type AIStatus } from '@/store/aiStore'
+import ollamaIcon from '@/assets/ollama/ollama-icon.svg'
 import { CONTENT_HEIGHT } from './constants'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -55,6 +56,15 @@ function SetupShell({ children }: { children: React.ReactNode }): React.JSX.Elem
   )
 }
 
+async function openExternalUrl(url: string): Promise<void> {
+  if (typeof window.electronAPI?.openExternal === 'function') {
+    await window.electronAPI.openExternal(url)
+    return
+  }
+
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
 function PrimaryButton({
   onClick,
   children,
@@ -72,11 +82,11 @@ function PrimaryButton({
       disabled={disabled}
       whileTap={{ scale: 0.96 }}
       transition={{ duration: 0.1 }}
-      className="px-4 py-2 rounded-xl text-[12px] font-medium transition-colors duration-100 disabled:opacity-40 disabled:cursor-not-allowed"
+      className="px-4 py-2 rounded-xl text-[12px] font-medium transition-colors duration-100 hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
       style={
         variant === 'danger'
           ? { background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }
-          : { background: 'rgba(99,102,241,0.12)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.25)' }
+          : { background: 'rgb(255, 255, 255)', color: '#000000' }
       }
     >
       {children}
@@ -88,7 +98,7 @@ function GhostButton({ onClick, children }: { onClick: () => void; children: Rea
   return (
     <button
       onClick={onClick}
-      className="px-3 py-1.5 rounded-lg text-[11px] text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+      className="px-3 py-1.5 rounded-full text-[11px] text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
     >
       {children}
     </button>
@@ -120,10 +130,9 @@ function MissingOllamaScreen({ onRetry }: { onRetry: () => void }): React.JSX.El
     <SetupShell>
       {/* Icon */}
       <div
-        className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg"
-        style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center bg-white"
       >
-        🤖
+        <img src={ollamaIcon} alt="Ollama" className="w-8 h-8" />
       </div>
 
       <div className="space-y-1.5">
@@ -136,14 +145,13 @@ function MissingOllamaScreen({ onRetry }: { onRetry: () => void }): React.JSX.El
       </div>
 
       <div className="flex flex-col items-center gap-2 w-full">
-        <PrimaryButton onClick={() => window.open(info.url, '_blank')}>
+        <PrimaryButton onClick={() => void openExternalUrl(info.url)}>
           {info.label} ↗
         </PrimaryButton>
 
         {info.command && (
           <div
-            className="flex items-center gap-2 px-3 py-2 rounded-xl w-full max-w-[290px]"
-            style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-subtle)' }}
+            className="mt-2 flex items-center gap-2 px-3 py-2 bg-black/[0.04] dark:bg-white/[0.05] rounded-lg w-full max-w-[290px]"
           >
             <span className="text-[10px] text-gray-400 dark:text-neutral-500 font-mono select-all flex-1 text-left truncate">
               {info.command}

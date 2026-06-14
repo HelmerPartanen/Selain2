@@ -37,6 +37,8 @@ export interface ElectronAPI {
   onDownloadDone(callback: (data: { id: string; state: 'completed' | 'cancelled' | 'failed' }) => void): () => void
   /** Listen for URLs that should open in a new tab (from webview window.open / target="_blank") */
   onOpenUrlInNewTab(callback: (url: string) => void): () => void
+  /** Open a URL in the user's default browser */
+  openExternal(url: string): Promise<boolean>
   /** Set the renderer zoom factor (1.0 = 100%) */
   setZoomFactor(factor: number): void
   /** Load persisted store data from filesystem */

@@ -46,6 +46,7 @@ const api: ElectronAPI = {
     ipcRenderer.on('download-progress', handler)
     return () => { ipcRenderer.removeListener('download-progress', handler) }
   },
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
   onDownloadDone: (callback: (data: { id: string; state: 'completed' | 'cancelled' | 'failed' }) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: { id: string; state: 'completed' | 'cancelled' | 'failed' }): void => {
       callback(data)
