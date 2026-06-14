@@ -82,7 +82,7 @@ function WindowControlsInner(): React.JSX.Element {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="mt-2.5 mr-2.5 flex items-center rounded-full glass p-1"
+            className="mt-2.5 mr-2.5 flex items-center rounded-full bg-white/90 dark:bg-[#1D1F23]/95 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5 overflow-hidden"
             style={{ pointerEvents: "auto" }}
             initial={{ opacity: 0, scale: 0.85, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -149,18 +149,8 @@ function ControlButton({
       transition={SPRING_SNAPPY}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`relative w-7 h-7 rounded-full flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100${hoverBg} ${hoverText}`}
+      className={`relative w-9 h-9 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100${hoverBg} ${hoverText}`}
     >
-      {hovered && (
-        <motion.div
-          layoutId="window-controls-hover"
-          className="absolute inset-0 rounded-full glass glass-interactive"
-          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, filter: 'blur(2px)' }}
-          transition={SPRING_SNAPPY}
-        />
-      )}
       <span className="relative z-10">{children}</span>
     </motion.button>
   );

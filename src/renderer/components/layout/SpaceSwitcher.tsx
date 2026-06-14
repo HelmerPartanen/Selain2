@@ -392,7 +392,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
               exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
-              <div className="rounded-2xl glass-heavy overflow-hidden">
+              <div className="rounded-xl drop-shadow-lg bg-white dark:bg-[#1D1F23] overflow-hidden">
                 <AnimatePresence mode="wait" initial={false}>
                   {editingId && spaces[editingId] ? (
                     <motion.div
@@ -471,22 +471,6 @@ function SpaceSwitcherInner(): React.JSX.Element {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
-
-              {/* Glass arrow pointer */}
-              <div className="flex justify-center -mt-[1px] relative z-10">
-                <svg width="18" height="9" viewBox="0 0 18 9" className="drop-shadow-sm">
-                  <path
-                    d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0"
-                    fill="none"
-                    className="stroke-[var(--border-subtle)]"
-                    strokeWidth="1"
-                  />
-                  <path
-                    d="M0,0 C4.5,0 5.5,7 9,7 C12.5,7 13.5,0 18,0 Z"
-                    style={{ fill: 'var(--glass-bg-heavy)' }}
-                  />
-                </svg>
               </div>
             </motion.div>
           </>

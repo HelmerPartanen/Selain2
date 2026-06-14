@@ -133,17 +133,10 @@ function GeneralPaneInner(): React.JSX.Element {
                 aria-checked={isActive}
                 onClick={() => setNewTabMode(mode)}
                 className={`relative flex-1 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 ${isActive
-                  ? "text-gray-900 dark:text-white"
+                  ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
                   : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                   }`}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="newtab-mode"
-                    className="absolute inset-0 rounded-full glass glass-interactive"
-                    transition={SPRING_SNAPPY}
-                  />
-                )}
                 <span className="relative">{label}</span>
               </button>
             );

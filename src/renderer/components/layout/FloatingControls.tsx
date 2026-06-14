@@ -232,7 +232,7 @@ function FloatingControlsInner(): React.JSX.Element {
 
           {/* Floating controls — frosted glass surface with backdrop blur */}
           <motion.div
-            className="absolute bottom-5 mb-0 rounded-full [app-region:no-drag] pointer-events-auto bg-white/70 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5"
+            className="absolute bottom-5 mb-0 rounded-full [app-region:no-drag] pointer-events-auto drop-shadow-lg bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5"
             initial={{ y: 40, scale: 0.85, opacity: 0 }}
             animate={
               isIdle

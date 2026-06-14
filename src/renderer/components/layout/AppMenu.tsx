@@ -177,8 +177,8 @@ function AppMenuInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className="rounded-3xl bg-white/20 backdrop-blur-sm overflow-hidden">
-                <div className="p-1.5 relative">
+              <div className="rounded-xl mb-2 drop-shadow-lg bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5 overflow-hidden">
+                <div className="p-1 relative">
                   {actionableItems.map((item, idx) => {
                     const Icon = item.icon!;
 
@@ -188,24 +188,12 @@ function AppMenuInner(): React.JSX.Element {
                         onClick={() => handleMenuItemClick(item.id)}
                         onMouseEnter={() => setHoveredIdx(idx)}
                         onMouseLeave={() => setHoveredIdx(null)}
-                        className="w-full rounded-full flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white transition-all duration-150 relative [app-region:no-drag]"
+                        className="w-full rounded-xl flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-black hover:bg-black/[0.04] dark:hover:bg-neutral-200 transition-all duration-150 relative [app-region:no-drag]"
                         style={{
                           opacity: 0,
                           animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
                         }}
                       >
-                        {/* Sliding hover highlight */}
-                        {hoveredIdx === idx && (
-                          <motion.div
-                            layoutId="menu-highlight"
-                            className="absolute inset-0 rounded-full glass glass-interactive"
-                            style={{ zIndex: 1 }}
-                            initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-                            animate={{ opacity: 1, filter: 'blur(0px)' }}
-                            exit={{ opacity: 0, filter: 'blur(2px)' }}
-                            transition={{ type: 'spring', stiffness: 540, damping: 30, mass: 0.45 }}
-                          />
-                        )}
                         <span className="relative flex items-center gap-3 w-full z-10">
                           <SvgIcon svg={Icon} size={16} />
                           <span className="flex-1 text-left">{item.label}</span>

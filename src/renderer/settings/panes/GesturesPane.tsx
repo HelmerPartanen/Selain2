@@ -15,7 +15,7 @@ function GestureVisualization({
 }): React.JSX.Element {
 
     // Removed the 'absolute' from the base class so we can use it in flex containers safely
-    const baseFinger = "w-3 h-3 rounded-full bg-white dark:bg-neutral-900 ring-[1.5px] ring-white dark:ring-white/5 shadow-md backdrop-blur-sm";
+    const baseFinger = "w-4 h-4 rounded-full bg-black/25 dark:bg-white/70";
 
     // Standardized keyframe transition: 
     // 1. Fade in & press down (0 -> 15%)
@@ -33,16 +33,6 @@ function GestureVisualization({
         if (type === "swipe-horizontal") {
             return (
                 <div className="absolute inset-0 flex items-center justify-center">
-                    {/* UI Context: Simulates tabs moving */}
-                    <motion.div
-                        className="absolute flex gap-3"
-                        animate={{ x: [-15, -15, 15, 15, -15], opacity: [0, 0.4, 0.4, 0, 0] }}
-                        transition={gestureTransition}
-                    >
-                        <div className="w-14 h-10 rounded-md bg-gray-400/20 dark:bg-white/10" />
-                        <div className="w-14 h-10 rounded-md bg-blue-500/30 border border-blue-500/40 shadow-sm" />
-                        <div className="w-14 h-10 rounded-md bg-gray-400/20 dark:bg-white/10" />
-                    </motion.div>
 
                     {/* Fingers swiping left to right */}
                     <motion.div
@@ -64,16 +54,6 @@ function GestureVisualization({
         if (type === "pinch-in") {
             return (
                 <div className="absolute inset-0 flex items-center justify-center">
-                    {/* UI Context: Simulates zooming out to an overview */}
-                    <motion.div
-                        className="absolute w-20 h-20 rounded-xl bg-blue-500/20 border border-blue-500/40 shadow-sm"
-                        animate={{
-                            scale: [1, 1, 0.5, 0.5, 1],
-                            opacity: [0, 0.5, 0.5, 0, 0]
-                        }}
-                        transition={gestureTransition}
-                    />
-
                     {/* Finger 1 (Top Left moving to Center) */}
                     <motion.div
                         className={`${baseFinger} absolute`}
@@ -103,15 +83,6 @@ function GestureVisualization({
         if (type === "pinch-out") {
             return (
                 <div className="absolute inset-0 flex items-center justify-center">
-                    {/* UI Context: Simulates expanding a tab to fullscreen */}
-                    <motion.div
-                        className="absolute w-20 h-20 rounded-xl bg-blue-500/20 border border-blue-500/40 shadow-sm"
-                        animate={{
-                            scale: [0.5, 0.5, 1, 1, 0.5],
-                            opacity: [0, 0.5, 0.5, 0, 0]
-                        }}
-                        transition={gestureTransition}
-                    />
 
                     {/* Finger 1 (Center moving to Top Left) */}
                     <motion.div
@@ -143,7 +114,7 @@ function GestureVisualization({
     };
 
     return (
-        <div className="flex flex-col gap-3 p-4 rounded-2xl glass-subtle bg-white/25 dark:bg-white/5 border border-black/5 dark:border-white/5">
+        <div className="flex flex-col gap-3 p-3">
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="font-medium text-[13px] text-gray-900 dark:text-gray-100">{title}</h3>

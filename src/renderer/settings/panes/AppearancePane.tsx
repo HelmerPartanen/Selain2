@@ -62,18 +62,11 @@ function AppearancePaneInner(): React.JSX.Element {
                 aria-checked={isActive}
                 aria-label={`${label} theme`}
                 onClick={() => setThemeMode(mode)}
-                className={`relative flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl transition-all duration-150 ${isActive
-                    ? "text-gray-900 dark:text-white"
+                className={`relative flex-1 flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-150 ${isActive
+                    ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
                     : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                   }`}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="theme-mode"
-                    className="absolute inset-0 rounded-3xl glass glass-interactive"
-                    transition={SPRING_SNAPPY}
-                  />
-                )}
                 <span className="relative"><SvgIcon svg={icon} size={22} /></span>
                 <span className="relative text-[12px] font-medium">{label}</span>
               </button>
@@ -100,17 +93,10 @@ function AppearancePaneInner(): React.JSX.Element {
                 aria-label={`${z}% zoom`}
                 onClick={() => handleUiZoomSelect(z)}
                 className={`relative flex-1 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 ${isActive
-                    ? "text-gray-900 dark:text-white"
+                    ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
                     : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                   }`}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="ui-zoom"
-                    className="absolute inset-0 rounded-full glass-subtle bg-white/25 dark:bg-white/8 shadow ring-1 ring-black/5 dark:ring-white/10"
-                    transition={SPRING_SNAPPY}
-                  />
-                )}
                 <span className="relative">{z}%</span>
               </button>
             );
@@ -136,7 +122,7 @@ function AppearancePaneInner(): React.JSX.Element {
             aria-valuemax={5000}
             aria-valuenow={autoHideDelay}
             aria-valuetext={`${(autoHideDelay / 1000).toFixed(1)} seconds`}
-            className="flex-1 h-1 rounded-full appearance-none bg-black/[0.08] dark:bg-white/[0.1] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-1 [&::-webkit-slider-thumb]:ring-black/[0.08] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb:hover]:scale-105 [&::-webkit-slider-thumb:active]:scale-110 dark:[&::-webkit-slider-thumb]:bg-neutral-200 dark:[&::-webkit-slider-thumb]:ring-white/[0.1]"
+            className="flex-1 h-1 rounded-full appearance-none bg-black/[0.08] dark:bg-white/[0.1] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-1 [&::-webkit-slider-thumb]:ring-black/[0.08] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb:hover]:scale-115 [&::-webkit-slider-thumb:active]:scale-110 dark:[&::-webkit-slider-thumb]:bg-neutral-200 dark:[&::-webkit-slider-thumb]:ring-white/[0.1]"
           />
           <span
             className="text-[12px] font-normal text-gray-400 dark:text-neutral-500 w-10 text-right tabular-nums"

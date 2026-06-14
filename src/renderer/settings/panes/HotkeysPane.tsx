@@ -23,18 +23,8 @@ const ShortcutRow = memo(function ShortcutRow({
             onMouseLeave={() => setHovered(false)}
             onFocus={() => setHovered(true)}
             onBlur={() => setHovered(false)}
-            className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-full transition-all duration-150"
+            className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-xl hover:bg-black/[0.04] hover:dark:bg-white/[0.06] transition-all duration-150"
         >
-            {hovered && (
-                <motion.div
-                    layoutId="hotkey-hover"
-                    className="absolute inset-0 rounded-full glass glass-interactive"
-                    initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-                    animate={{ opacity: 1, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, filter: 'blur(2px)' }}
-                    transition={SPRING_SNAPPY}
-                />
-            )}
             <span className="relative text-[13px] text-gray-700 dark:text-neutral-300 z-10">{description}</span>
             <div className="relative z-10">
                 <KeyCombo keys={keys} />
