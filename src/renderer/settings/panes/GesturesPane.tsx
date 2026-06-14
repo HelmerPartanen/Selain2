@@ -40,7 +40,7 @@ function GestureVisualization({
                         transition={gestureTransition}
                     >
                         <div className="w-14 h-10 rounded-md bg-gray-400/20 dark:bg-white/10" />
-                        <div className="w-14 h-10 rounded-md bg-indigo-500/30 border border-indigo-500/40 shadow-sm" />
+                        <div className="w-14 h-10 rounded-md bg-blue-500/30 border border-blue-500/40 shadow-sm" />
                         <div className="w-14 h-10 rounded-md bg-gray-400/20 dark:bg-white/10" />
                     </motion.div>
 
@@ -66,7 +66,7 @@ function GestureVisualization({
                 <div className="absolute inset-0 flex items-center justify-center">
                     {/* UI Context: Simulates zooming out to an overview */}
                     <motion.div
-                        className="absolute w-20 h-20 rounded-xl bg-indigo-500/20 border border-indigo-500/40 shadow-sm"
+                        className="absolute w-20 h-20 rounded-xl bg-blue-500/20 border border-blue-500/40 shadow-sm"
                         animate={{
                             scale: [1, 1, 0.5, 0.5, 1],
                             opacity: [0, 0.5, 0.5, 0, 0]
@@ -105,7 +105,7 @@ function GestureVisualization({
                 <div className="absolute inset-0 flex items-center justify-center">
                     {/* UI Context: Simulates expanding a tab to fullscreen */}
                     <motion.div
-                        className="absolute w-20 h-20 rounded-xl bg-indigo-500/20 border border-indigo-500/40 shadow-sm"
+                        className="absolute w-20 h-20 rounded-xl bg-blue-500/20 border border-blue-500/40 shadow-sm"
                         animate={{
                             scale: [0.5, 0.5, 1, 1, 0.5],
                             opacity: [0, 0.5, 0.5, 0, 0]

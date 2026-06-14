@@ -44,9 +44,9 @@ export function Toggle({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative w-[42px] h-[22px] rounded-full flex-shrink-0 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 ${
+      className={`relative w-[42px] h-[22px] rounded-full flex-shrink-0 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 ${
         checked
-          ? 'bg-indigo-500/70 dark:bg-indigo-400/70'
+          ? 'bg-blue-500/70 dark:bg-blue-400/70'
           : 'bg-gray-300 dark:bg-neutral-600'
       }`}
     >

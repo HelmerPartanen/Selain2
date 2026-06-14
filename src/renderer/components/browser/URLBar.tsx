@@ -28,7 +28,7 @@ const LoadingProgressBar = memo(function LoadingProgressBar() {
   return (
     <div className="absolute bottom-0 left-4 right-4 h-[3px] rounded-full overflow-hidden">
       <motion.div
-        className="h-full bg-indigo-500 rounded-full"
+        className="h-full bg-blue-500 rounded-full"
         initial={false}
         animate={{
           scaleX: loadProgress > 0 ? loadProgress : 0,

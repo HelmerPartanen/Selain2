@@ -152,7 +152,7 @@ function WebViewManagerInner(): React.JSX.Element {
           )}
           {/* Focus indicator */}
           {focusedPanel === 'primary' && (
-            <div className="absolute inset-0 z-[15] pointer-events-none rounded-sm ring-2 ring-inset ring-indigo-500/25" />
+            <div className="absolute inset-0 z-[15] pointer-events-none rounded-sm ring-2 ring-inset ring-blue-500/25" />
           )}
         </div>
 
@@ -190,7 +190,7 @@ function WebViewManagerInner(): React.JSX.Element {
             </div>
           )}
           {focusedPanel === 'split' && (
-            <div className="absolute inset-0 z-[15] pointer-events-none rounded-sm ring-2 ring-inset ring-indigo-500/25" />
+            <div className="absolute inset-0 z-[15] pointer-events-none rounded-sm ring-2 ring-inset ring-blue-500/25" />
           )}
         </div>
       </div>

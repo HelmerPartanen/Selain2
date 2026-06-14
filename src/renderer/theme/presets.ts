@@ -83,10 +83,10 @@ interface PresetDef {
 const LIGHT_OPACITY_SCALE = 0.55
 
 const PRESET_DEFS: PresetDef[] = [
-  // ─── Welcome — indigo / violet / blue (onboarding step 0) ────────────
+  // ─── Welcome — blue / violet / blue (onboarding step 0) ────────────
   {
-    id: 'welcome_indigo',
-    name: 'Indigo',
+    id: 'welcome_blue',
+    name: 'blue',
     lightBg: '#f0f0ff',
     darkBg: '#0a0a14',
     orbs: [
@@ -107,7 +107,7 @@ const PRESET_DEFS: PresetDef[] = [
       { color: '#ec4899', cx: '44%', cy: '78%', size: 0.35, opacity: 0.40 },
     ]
   },
-  // ─── Privacy — emerald / teal / indigo (onboarding step 2) ───────────
+  // ─── Privacy — emerald / teal / blue (onboarding step 2) ───────────
   {
     id: 'privacy_emerald',
     name: 'Emerald',
@@ -119,7 +119,7 @@ const PRESET_DEFS: PresetDef[] = [
       { color: '#6366f1', cx: '50%', cy: '14%', size: 0.36, opacity: 0.35 },
     ]
   },
-  // ─── Ready — warm indigo bloom (onboarding step 3) ──────────────────
+  // ─── Ready — warm blue bloom (onboarding step 3) ──────────────────
   {
     id: 'ready_bloom',
     name: 'Bloom',
@@ -206,7 +206,7 @@ export function resolvePresetUrl(value: string, isDark: boolean): string | null 
 export const SOLID_COLOR_PRESETS = [
   { name: 'Obsidian',      hex: '#0a0a0f' },
   { name: 'Space Black',   hex: '#1c1c1e' },
-  { name: 'Deep Indigo',   hex: '#08061a' },
+  { name: 'Deep blue',   hex: '#08061a' },
   { name: 'Midnight',      hex: '#050316' },
   { name: 'Deep Emerald',  hex: '#020e08' },
   { name: 'Amethyst',      hex: '#0d0618' },

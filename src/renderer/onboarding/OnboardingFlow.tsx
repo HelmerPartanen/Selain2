@@ -43,7 +43,7 @@ interface OrbDef {
 }
 
 const ORB_STEPS: OrbDef[][] = [
-  // Welcome — indigo / violet (brand)
+  // Welcome — blue / violet (brand)
   [
     { x: '18%', y: '20%', size: 550, hue: '#6366f1' },
     { x: '76%', y: '66%', size: 440, hue: '#8b5cf6' },
@@ -61,7 +61,7 @@ const ORB_STEPS: OrbDef[][] = [
     { x: '74%', y: '62%', size: 400, hue: '#34d399' },
     { x: '50%', y: '14%', size: 340, hue: '#6366f1' },
   ],
-  // Ready — warm indigo, cinematic bloom
+  // Ready — warm blue, cinematic bloom
   [
     { x: '34%', y: '30%', size: 600, hue: '#6366f1' },
     { x: '66%', y: '52%', size: 500, hue: '#8b5cf6' },
@@ -329,7 +329,7 @@ function AppearanceStep(): React.JSX.Element {
               transition={{ ...SPRING_GENTLE, delay: 0.35 + i * 0.08 }}
               className={`
                 relative flex flex-col items-center gap-3 w-[148px] p-3 pb-4 rounded-[16px]
-                outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-neutral-800
+                outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-neutral-800
                 transition-[background-color,box-shadow] duration-200 ease-out
                 ${selected
                   ? /* selected: white card elevated off the tray */
@@ -344,7 +344,7 @@ function AppearanceStep(): React.JSX.Element {
               <AnimatePresence>
                 {selected && (
                   <motion.span
-                    className="pointer-events-none absolute inset-0 rounded-[16px] ring-2 ring-indigo-500 dark:ring-indigo-400"
+                    className="pointer-events-none absolute inset-0 rounded-[16px] ring-2 ring-blue-500 dark:ring-blue-400"
                     initial={{ opacity: 0, scale: 0.94 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.94 }}
@@ -353,11 +353,11 @@ function AppearanceStep(): React.JSX.Element {
                 )}
               </AnimatePresence>
 
-              {/* Subtle indigo tint overlay when selected */}
+              {/* Subtle blue tint overlay when selected */}
               <AnimatePresence>
                 {selected && (
                   <motion.span
-                    className="pointer-events-none absolute inset-0 rounded-[16px] bg-indigo-500/[0.04] dark:bg-indigo-400/[0.06]"
+                    className="pointer-events-none absolute inset-0 rounded-[16px] bg-blue-500/[0.04] dark:bg-blue-400/[0.06]"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -371,7 +371,7 @@ function AppearanceStep(): React.JSX.Element {
               <span className={`
                 text-[13px] font-medium transition-colors duration-150
                 ${selected
-                  ? 'text-indigo-600 dark:text-indigo-400'
+                  ? 'text-blue-600 dark:text-blue-400'
                   : 'text-gray-500 dark:text-neutral-500'
                 }
               `}>
@@ -382,7 +382,7 @@ function AppearanceStep(): React.JSX.Element {
               <AnimatePresence>
                 {selected && (
                   <motion.div
-                    className="absolute -top-2 -right-2 w-[22px] h-[22px] rounded-full bg-indigo-500 dark:bg-indigo-400 flex items-center justify-center shadow-md shadow-indigo-500/40 dark:shadow-indigo-400/30"
+                    className="absolute -top-2 -right-2 w-[22px] h-[22px] rounded-full bg-blue-500 dark:bg-blue-400 flex items-center justify-center shadow-md shadow-blue-500/40 dark:shadow-blue-400/30"
                     initial={{ scale: 0, rotate: -20 }}
                     animate={{ scale: 1, rotate: 0 }}
                     exit={{ scale: 0, rotate: 20 }}
@@ -478,7 +478,7 @@ function ReadyStep(): React.JSX.Element {
     <div className="flex flex-col items-center text-center gap-8">
       {/* Bouncy checkmark reveal */}
       <motion.div
-        className="w-[88px] h-[88px] rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center"
+        className="w-[88px] h-[88px] rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ ...SPRING, stiffness: 280, damping: 18 }}
@@ -488,7 +488,7 @@ function ReadyStep(): React.JSX.Element {
           animate={{ scale: 1, rotate: 0 }}
           transition={{ ...SPRING, delay: 0.15, stiffness: 350, damping: 16 }}
         >
-          <SvgIcon svg={checkSvg} size={40} className="text-indigo-500 dark:text-indigo-400" />
+          <SvgIcon svg={checkSvg} size={40} className="text-blue-500 dark:text-blue-400" />
         </motion.div>
       </motion.div>
 
@@ -740,7 +740,7 @@ function OnboardingFlowInner(): React.JSX.Element {
           absolute top-5 left-6 z-10 text-[12px] text-gray-400 dark:text-neutral-500
           hover:text-gray-600 dark:hover:text-neutral-300 transition-colors duration-150
           px-3 py-1.5 rounded-lg hover:bg-gray-100/50 dark:hover:bg-neutral-800/50
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
         "
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -798,7 +798,7 @@ function OnboardingFlowInner(): React.JSX.Element {
                   hover:text-gray-600 dark:hover:text-neutral-300
                   hover:bg-gray-100/60 dark:hover:bg-neutral-800/60
                   transition-colors duration-150
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
                 "
                 aria-label="Go back"
               >
@@ -819,7 +819,7 @@ function OnboardingFlowInner(): React.JSX.Element {
               shadow-xl shadow-gray-900/12 dark:shadow-black/20
               hover:shadow-2xl hover:shadow-gray-900/18 dark:hover:shadow-black/30
               transition-shadow duration-200
-              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2
             "
           >
             {isFirst ? 'Get Started' : isLast ? 'Start Browsing' : 'Continue'}

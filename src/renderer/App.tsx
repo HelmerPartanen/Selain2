@@ -4,7 +4,6 @@ import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { showToast } from '@/components/ui/Toast'
 import { logger } from '@/utils/logger'
 import { useThemeStore } from '@/store/themeStore'
-import { useSpaceTint } from '@/hooks/useSpaceTint'
 
 function useThemeMode(): void {
   const themeMode = useThemeStore((s) => s.themeMode)
@@ -52,7 +51,6 @@ function useGlobalErrorHandlers(): void {
 
 export default function App(): React.JSX.Element {
   useThemeMode()
-  useSpaceTint()
   useGlobalErrorHandlers()
   return (
     <MotionConfig reducedMotion="user">

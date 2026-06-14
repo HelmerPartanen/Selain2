@@ -122,7 +122,7 @@ function SplitDividerInner(): React.JSX.Element {
         {active && (
           <div className="absolute flex flex-col gap-1 items-center">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="w-1 h-1 rounded-full bg-indigo-400/80" />
+              <div key={i} className="w-1 h-1 rounded-full bg-blue-400/80" />
             ))}
           </div>
         )}

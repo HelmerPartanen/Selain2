@@ -79,7 +79,7 @@ function PanelLoadingFallback(): React.JSX.Element {
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/20">
       <div
-        className="w-8 h-8 rounded-full border-2 border-indigo-400/60 border-t-indigo-400 animate-spin"
+        className="w-8 h-8 rounded-full border-2 border-blue-400/60 border-t-blue-400 animate-spin"
         aria-hidden
       />
     </div>
@@ -107,14 +107,14 @@ function MainContentErrorFallback({
           <button
             type="button"
             onClick={onRetry}
-            className="px-5 py-2 rounded-xl text-[13px] font-medium text-white bg-indigo-500 hover:bg-indigo-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+            className="px-5 py-2 rounded-xl text-[13px] font-medium text-white bg-blue-500 hover:bg-blue-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           >
             Try Again
           </button>
           <button
             type="button"
             onClick={onNewTab}
-            className="px-5 py-2 rounded-xl text-[13px] font-medium text-gray-700 dark:text-neutral-200 bg-gray-200 dark:bg-neutral-700 hover:bg-gray-300 dark:hover:bg-neutral-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+            className="px-5 py-2 rounded-xl text-[13px] font-medium text-gray-700 dark:text-neutral-200 bg-gray-200 dark:bg-neutral-700 hover:bg-gray-300 dark:hover:bg-neutral-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           >
             New tab
           </button>

@@ -169,7 +169,7 @@ function AISummaryButtonInner(): React.JSX.Element {
                       role="dialog"
                       aria-label="AI Summary"
                       aria-modal="true"
-                      className="absolute bottom-full right-0 z-[100] mb-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 rounded-full"
+                      className="absolute bottom-full right-0 z-[100] mb-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 rounded-full"
                       style={{ originX: 1, originY: 1, width: PANEL_WIDTH }}
                       initial={{ scaleX: 0.15, scaleY: 0.04, opacity: 0, y: 10, borderRadius: 40, filter: 'blur(6px)' }}
                       animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, borderRadius: 16, filter: 'blur(0px)' }}

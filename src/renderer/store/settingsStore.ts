@@ -26,8 +26,7 @@ export interface SettingsState {
   clearOnExit: boolean
   /** Whether the user has completed the onboarding flow */
   onboardingCompleted: boolean
-  /** Adaptive UI color — tint glass surfaces based on wallpaper average color */
-  adaptiveColor: boolean
+
   /** Group tabs by domain automatically when navigating */
   autoGroupTabsByDomain: boolean
   /** Show gentle suggestions to clean up long-lived/background tabs */
@@ -51,7 +50,7 @@ export interface SettingsActions {
   setEnableAutoHide: (v: boolean) => void
   setClearOnExit: (v: boolean) => void
   setOnboardingCompleted: (v: boolean) => void
-  setAdaptiveColor: (v: boolean) => void
+
   setAutoGroupTabsByDomain: (v: boolean) => void
   setShowTabCleanupSuggestions: (v: boolean) => void
   setSmartUrlBarFocus: (v: boolean) => void
@@ -76,7 +75,6 @@ export const useSettingsStore = create<SettingsStore>()(
       enableAutoHide: true,
       clearOnExit: false,
       onboardingCompleted: false,
-      adaptiveColor: false,
       autoGroupTabsByDomain: false,
       showTabCleanupSuggestions: true,
       smartUrlBarFocus: true,
@@ -93,7 +91,6 @@ export const useSettingsStore = create<SettingsStore>()(
       setEnableAutoHide: (v) => set({ enableAutoHide: v }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
       setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
-      setAdaptiveColor: (v) => set({ adaptiveColor: v }),
       setAutoGroupTabsByDomain: (v) => set({ autoGroupTabsByDomain: v }),
       setShowTabCleanupSuggestions: (v) => set({ showTabCleanupSuggestions: v }),
       setSmartUrlBarFocus: (v) => set({ smartUrlBarFocus: v }),

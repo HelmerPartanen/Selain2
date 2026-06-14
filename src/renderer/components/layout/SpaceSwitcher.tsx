@@ -81,7 +81,7 @@ function SpaceRow({
       {/* Move active tab here — only on non-active spaces when multiple exist */}
       {!isActive && hasMultipleSpaces && (
         <div
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-all duration-100"
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-all duration-100"
           onClick={(e) => {
             e.stopPropagation()
             onMoveTab()
@@ -388,11 +388,11 @@ function SpaceSwitcherInner(): React.JSX.Element {
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[100] min-w-[220px] max-w-[280px]"
-              style={{ originX: 0.5, originY: 0, perspective: 600 }}
-              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: -32, rotateX: 16 }}
+              className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-[100] min-w-[220px] max-w-[280px]"
+              style={{ originX: 0.5, originY: 1, perspective: 600 }}
+              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: -28, rotateX: 10 }}
+              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
               <div className="rounded-2xl glass-heavy overflow-hidden">

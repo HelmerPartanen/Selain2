@@ -62,7 +62,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
         ${rounded}
         text-sm select-none
         transition-colors duration-100 ease-out
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900
         disabled:opacity-40 disabled:pointer-events-none
         ${variantStyles[variant]}
         ${className}

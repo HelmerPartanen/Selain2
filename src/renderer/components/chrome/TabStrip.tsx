@@ -146,7 +146,7 @@ function TabItem({
 
         {/* Split target indicator */}
         {isSplitTarget && (
-          <SvgIcon svg={splitSvg} size={9} className="flex-shrink-0 text-indigo-500" />
+          <SvgIcon svg={splitSvg} size={9} className="flex-shrink-0 text-blue-500" />
         )}
       </button>
 
@@ -177,7 +177,7 @@ function TabItem({
             transition={SPRING_FAST}
             onClick={handleSplitClick}
             aria-label="Split view"
-            className="relative z-10 flex-shrink-0 h-5 w-[14px] flex items-center justify-center rounded-full text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+            className="relative z-10 flex-shrink-0 h-5 w-[14px] flex items-center justify-center rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950"
           >
             <SvgIcon svg={splitSvg} size={9} />
           </motion.button>
@@ -266,7 +266,7 @@ function TabStripInner({ maxWidth = 460 }: TabStripProps): React.JSX.Element {
             onDragEnd={handleDragEnd}
             animate={{ opacity: draggingIndex === index ? 0.4 : 1 }}
             transition={SPRING_FAST}
-            className={`flex-shrink-0 ${isDragTarget ? 'border-l-2 border-indigo-400/60' : ''}`}
+            className={`flex-shrink-0 ${isDragTarget ? 'border-l-2 border-blue-400/60' : ''}`}
           >
             <TabItem
               tabId={id}

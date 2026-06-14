@@ -23,7 +23,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
         {item.state === 'completed' ? (
           <SvgIcon svg={checkSvg} size={12} className="text-green-500" />
         ) : (
-          <SvgIcon svg={downloadSvg} size={12} className="text-indigo-500" />
+          <SvgIcon svg={downloadSvg} size={12} className="text-blue-500" />
         )}
       </div>
 
@@ -35,7 +35,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
           <div className="flex items-center gap-1.5 mt-0.5">
             <div className="flex-1 h-[3px] rounded-full bg-gray-200 dark:bg-neutral-700 overflow-hidden">
               <div
-                className="h-full bg-indigo-500 rounded-full transition-[width] duration-300"
+                className="h-full bg-blue-500 rounded-full transition-[width] duration-300"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
@@ -183,7 +183,7 @@ function DownloadPillInner(): React.JSX.Element {
             className="h-10 rounded-full flex items-center justify-center glass px-3 gap-1.5 select-none hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-95 transition-colors duration-100"
           >
             <div className="relative">
-              <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-indigo-500' : 'text-gray-600 dark:text-neutral-400'} />
+              <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
               {hasActive && (
                 <svg
                   className="absolute -inset-[5px]"
@@ -202,13 +202,13 @@ function DownloadPillInner(): React.JSX.Element {
                     strokeLinecap="round"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
-                    className="text-indigo-500 transition-[stroke-dashoffset] duration-300"
+                    className="text-blue-500 transition-[stroke-dashoffset] duration-300"
                   />
                 </svg>
               )}
             </div>
             {activeCount > 0 && (
-              <span className="text-xs font-semibold text-indigo-500 tabular-nums">{activeCount}</span>
+              <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
             )}
           </motion.button>
         )}
@@ -233,7 +233,7 @@ function DownloadPillInner(): React.JSX.Element {
                 </span>
                 <button
                   onClick={handleOpenPage}
-                  className="text-[11px] text-indigo-500 hover:text-indigo-600 font-medium transition-colors duration-75"
+                  className="text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors duration-75"
                 >
                   See all
                 </button>

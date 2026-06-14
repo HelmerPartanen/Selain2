@@ -192,167 +192,184 @@ function FloatingControlsInner(): React.JSX.Element {
 
   return (
     <>
-      {/* Top-edge hover zone to reveal floating UI */}
-      <div
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-5 z-[49] [app-region:no-drag]"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      />
+      {/* Full-screen container (pointer-events-none) — matches PanelModal pattern */}
+      <div className="fixed inset-0 z-[85] [app-region:no-drag] pointer-events-none">
+        {/* Bottom positioning wrapper with hover zone */}
+        <div className="absolute inset-0 flex flex-col items-center justify-end pointer-events-none">
+          {/* Interactive hover zone — covers bottom area, receives pointer events */}
+          <AnimatePresence>
+            {!isIdle && (
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-32 pointer-events-auto"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              />
+            )}
+          </AnimatePresence>
 
-      {/* Home-indicator hint pill — visible when toolbar is idle */}
-      <AnimatePresence>
-        {isIdle && (
+          {/* Home-indicator hint pill — visible when toolbar is idle */}
+          <AnimatePresence>
+            {isIdle && (
+              <motion.div
+                className="absolute bottom-2 pointer-events-auto [app-region:no-drag]"
+                initial={{ opacity: 0, scaleX: 0.5 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                exit={{ opacity: 0, scaleX: 0.5 }}
+                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                <div
+                  className="w-32 h-[5px] rounded-full bg-gray-500/80 dark:bg-neutral-300/70"
+                  style={{ animation: "hint-pulse 3s ease-in-out infinite" }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Floating controls — frosted glass surface with backdrop blur */}
           <motion.div
-            className="fixed top-2 left-1/2 z-[49] [app-region:no-drag]"
-            style={{ x: "-50%", pointerEvents: "auto" }}
-            initial={{ opacity: 0, scaleX: 0.5 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            exit={{ opacity: 0, scaleX: 0.5 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            className="absolute bottom-5 mb-0 rounded-full [app-region:no-drag] pointer-events-auto bg-white/70 dark:bg-[#1D1F23]/90 backdrop-blur-lg border border-black/5 dark:border-white/5"
+            initial={{ y: 40, scale: 0.85, opacity: 0 }}
+            animate={
+              isIdle
+                ? { y: 20, scale: 0.92, opacity: 0 }
+                : { y: 0, scale: 1, opacity: 1 }
+            }
+            transition={isIdle ? SPRING_GENTLE : SPRING}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            style={{ willChange: "transform, opacity" }}
           >
-            <div
-              className="w-32 h-[5px] rounded-full bg-gray-500/80 dark:bg-neutral-300/70"
-              style={{ animation: "hint-pulse 3s ease-in-out infinite" }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <motion.div
-        className="fixed top-5 left-1/2 z-50 [app-region:no-drag] floating-controls-bar"
-        style={{ pointerEvents: isIdle ? "none" : "auto", willChange: "transform, opacity" }}
-        initial={{ x: "-50%", y: -40, scale: 0.85, opacity: 0 }}
-        animate={
-          isIdle
-            ? { x: "-50%", y: -20, scale: 0.92, opacity: 0 }
-            : { x: "-50%", y: 0, scale: 1, opacity: 1 }
-        }
-        transition={isIdle ? SPRING_GENTLE : SPRING}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Pod constellation — separate glass pills with liquid morphing */}
-        <div className="flex items-center gap-1.5 max-w-[calc(100vw-40px)]">
+            {/* Glass surface container with blur */}
+            <div className="">
+              {/* Pod constellation — separate glass pills with liquid morphing */}
+              <div className="flex items-center gap-1.5 max-w-[calc(100vw-40px)]">
 
-          {/* ── Menu + Spaces Pod ── */}
-          <div className="flex items-center glass rounded-full gap-0.5">
-            <AppMenu />
-            <SpaceSwitcher />
-          </div>
+                {/* ── Menu + Spaces Pod ── */}
+                <div className="flex items-center rounded-full gap-0.5">
+                  <AppMenu />
+                  <SpaceSwitcher />
+                </div>
 
-          {/* ── Nav Pod ── */}
-          <AnimatePresence initial={false}>
-            {(canGoBack || canGoForward) && (
-              <motion.div
-                key="nav-pod"
-                className="flex items-center glass rounded-full gap-0.5"
-                initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                transition={SPRING_EXPAND}
-                style={{ overflow: 'hidden' }}
-              >
+                {/* ── Nav Pod ── */}
                 <AnimatePresence initial={false}>
-                  {canGoBack && (
-                    <motion.button
-                      key="back"
-                      onClick={handleGoBack}
-                      disabled={!canGoBack}
-                      aria-label="Go back"
-                      whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
-                      initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                      animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                      exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                  {(canGoBack || canGoForward) && (
+                    <motion.div
+                      key="nav-pod"
+                      className="flex items-center rounded-full gap-0.5"
+                      initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                      animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                      exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                       transition={SPRING_EXPAND}
-                      className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
+                      style={{ overflow: 'hidden' }}
                     >
-                      <SvgIcon svg={chevronLeftSvg} size={16} />
-                    </motion.button>
+                      <AnimatePresence initial={false}>
+                        {canGoBack && (
+                          <motion.button
+                            key="back"
+                            onClick={handleGoBack}
+                            disabled={!canGoBack}
+                            aria-label="Go back"
+                            whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
+                            initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                            exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                            transition={SPRING_EXPAND}
+                            className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
+                          >
+                            <SvgIcon svg={chevronLeftSvg} size={16} />
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
+                      <AnimatePresence initial={false}>
+                        {canGoForward && (
+                          <motion.button
+                            key="forward"
+                            onClick={handleGoForward}
+                            aria-label="Go forward"
+                            whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
+                            initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                            exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                            transition={SPRING_EXPAND}
+                            className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
+                          >
+                            <SvgIcon svg={chevronRightSvg} size={16} />
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* ── URL Pod ── */}
+                <div className="flex items-center rounded-full min-w-0 flex-shrink">
+                  <URLBar onFocusChange={handleFocusChange} />
+                </div>
+
+                {/* ── Split Unsplit Button ── */}
                 <AnimatePresence initial={false}>
-                  {canGoForward && (
-                    <motion.button
-                      key="forward"
-                      onClick={handleGoForward}
-                      aria-label="Go forward"
-                      whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
-                      initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                      animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                      exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                  {isSplit && (
+                    <motion.div
+                      key="unsplit-pod"
+                      className="flex items-center rounded-full"
+                      initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                      animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                      exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                       transition={SPRING_EXPAND}
-                      className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
+                      style={{ overflow: 'hidden' }}
                     >
-                      <SvgIcon svg={chevronRightSvg} size={16} />
-                    </motion.button>
+                      <motion.button
+                        onClick={handleUnsplit}
+                        aria-label="Exit split view"
+                        whileTap={{ scale: 0.85 }}
+                        initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                        animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                        exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                        transition={SPRING_EXPAND}
+                        className="h-10 w-10 rounded-full flex items-center justify-center text-blue-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
+                      >
+                        <SvgIcon svg={unsplitSvg} size={15} />
+                      </motion.button>
+                    </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
-          {/* ── URL Pod ── */}
-          <div className="flex items-center glass rounded-full min-w-0 flex-shrink">
-            <URLBar onFocusChange={handleFocusChange} />
-          </div>
+                {/* ── Download Pill (self-contained, already glass-styled) ── */}
+                <DownloadPill />
 
-          {/* ── Split Unsplit Button ── */}
-          <AnimatePresence initial={false}>
-            {isSplit && (
-              <motion.div
-                key="unsplit-pod"
-                className="flex items-center glass rounded-full"
-                initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                transition={SPRING_EXPAND}
-                style={{ overflow: 'hidden' }}
-              >
-                <motion.button
-                  onClick={handleUnsplit}
-                  aria-label="Exit split view"
-                  whileTap={{ scale: 0.85 }}
-                  initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                  animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                  exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                  transition={SPRING_EXPAND}
-                  className="h-10 w-10 rounded-full flex items-center justify-center text-indigo-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
+                {/* ── Tab Pod ── */}
+                <TabPill />
+              </div>
+            </div>
+
+            {/* Split panel indicator dots */}
+            <AnimatePresence>
+              {isSplit && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={SPRING_SNAPPY}
+                  className="absolute left-1/2 -translate-x-1/2 flex gap-2"
+                  style={{ bottom: "100%", marginBottom: 6 }}
                 >
-                  <SvgIcon svg={unsplitSvg} size={15} />
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* ── Download Pill (self-contained, already glass-styled) ── */}
-          <DownloadPill />
-
-          {/* ── Tab Pod ── */}
-          <TabPill />
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "primary" ? "bg-blue-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+                  />
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "split" ? "bg-blue-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
-
-        {/* Split panel indicator dots */}
-        <AnimatePresence>
-          {isSplit && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={SPRING_SNAPPY}
-              className="absolute left-1/2 -translate-x-1/2 flex gap-2"
-              style={{ top: "100%", marginTop: 6 }}
-            >
-              <div
-                className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "primary" ? "bg-indigo-500" : "bg-gray-300 dark:bg-neutral-600"}`}
-              />
-              <div
-                className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "split" ? "bg-indigo-500" : "bg-gray-300 dark:bg-neutral-600"}`}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      </div>
     </>
   );
 }

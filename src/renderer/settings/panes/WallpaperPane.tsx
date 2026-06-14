@@ -96,7 +96,7 @@ function LazyWallpaperThumb({
       aria-pressed={isActive}
       className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
         isActive
-          ? "ring-2 ring-indigo-500/60 dark:ring-indigo-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
+          ? "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
           : "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]"
       }`}
       style={{
@@ -195,7 +195,7 @@ function WallpaperPaneInner(): React.JSX.Element {
                 aria-pressed={isActive}
                 className={`relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150 ${
                   isActive
-                    ? "ring-2 ring-indigo-500/60 dark:ring-indigo-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
+                    ? "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
                     : "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]"
                 }`}
                 style={{
@@ -226,7 +226,7 @@ function WallpaperPaneInner(): React.JSX.Element {
                 aria-pressed={isActive}
                 className={`relative aspect-square rounded-full overflow-hidden transition-all duration-150 ${
                   isActive
-                    ? "ring-2 ring-indigo-500/60 dark:ring-indigo-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
+                    ? "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900"
                     : "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]"
                 }`}
                 style={{ backgroundColor: solidBaseColors[i] }}

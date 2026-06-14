@@ -101,7 +101,7 @@ function CheckingScreen(): React.JSX.Element {
   return (
     <SetupShell>
       <motion.div
-        className="w-8 h-8 rounded-full border-2 border-indigo-400/30 border-t-indigo-400"
+        className="w-8 h-8 rounded-full border-2 border-blue-400/30 border-t-blue-400"
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
       />
@@ -206,7 +206,7 @@ function MissingModelScreen({ onDownload }: { onDownload: () => void }): React.J
           AI model not downloaded
         </p>
         <p className="text-[12px] text-gray-400 dark:text-neutral-500 font-light leading-relaxed max-w-[300px]">
-          The <span className="font-mono text-indigo-400">gemma3:1b</span> model (~800 MB) needs to be downloaded once. It runs fully offline after that.
+          The <span className="font-mono text-blue-400">gemma3:1b</span> model (~800 MB) needs to be downloaded once. It runs fully offline after that.
         </p>
       </div>
 

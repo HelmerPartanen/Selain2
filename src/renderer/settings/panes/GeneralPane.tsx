@@ -240,7 +240,7 @@ function GeneralPaneInner(): React.JSX.Element {
             className={`w-full px-3.5 py-2.5 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 text-[13px] font-normal text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none border transition-all duration-200 ${
               homepageError
                 ? "ring-red-500/50 dark:ring-red-400/50 border-red-500/30 dark:border-red-400/30"
-                : "ring-black/5 dark:ring-white/10 border-transparent focus:border-indigo-500/30 dark:focus:border-indigo-400/30 focus-visible:ring-2 focus-visible:ring-indigo-400/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+                : "ring-black/5 dark:ring-white/10 border-transparent focus:border-blue-500/30 dark:focus:border-blue-400/30 focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
             }`}
           />
           {homepageError && (
@@ -255,7 +255,7 @@ function GeneralPaneInner(): React.JSX.Element {
             <button
               type="button"
               onClick={handleUseCurrentPage}
-              className="text-[12px] text-indigo-600 dark:text-indigo-400 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded px-1"
+              className="text-[12px] text-blue-600 dark:text-blue-400 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded px-1"
             >
               Use current page
             </button>

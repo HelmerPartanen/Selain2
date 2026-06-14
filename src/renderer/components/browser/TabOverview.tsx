@@ -69,10 +69,10 @@ const TabCard = memo(function TabCard({
         onClick={onSelect}
         className={`
           relative w-full rounded-lg overflow-hidden text-left transition-shadow duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50
           ${isActive
-            ? 'ring-2 ring-indigo-500 shadow-xl'
-            : 'ring-1 ring-gray-200 dark:ring-neutral-700 shadow-lg hover:shadow-xl hover:ring-indigo-400/50 dark:hover:ring-indigo-500/40'
+            ? 'ring-2 ring-blue-500 shadow-xl'
+            : 'ring-1 ring-gray-200 dark:ring-neutral-700 shadow-lg hover:shadow-xl hover:ring-blue-400/50 dark:hover:ring-blue-500/40'
           }
         `}
       >
@@ -330,7 +330,7 @@ function TabOverviewInner(): React.JSX.Element {
               <div className="tab-overview-card" style={{ animationDelay: `${previews.length * 40}ms` }}>
                 <button
                   onClick={handleNewTab}
-                  className="w-full rounded-2xl overflow-hidden border-2 border-dashed border-white/20 hover:border-indigo-400/50
+                  className="w-full rounded-2xl overflow-hidden border-2 border-dashed border-white/20 hover:border-blue-400/50
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
                     hover:bg-white/5 active:scale-[0.97]"
                 >

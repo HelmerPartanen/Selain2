@@ -138,7 +138,7 @@ function FindBarInner(): React.JSX.Element {
           placeholder="Find in page"
           spellCheck={false}
           autoComplete="off"
-          className="w-40 h-full text-xs text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus-visible:ring-2 focus-visible:ring-indigo-400/40 focus-visible:ring-inset"
+          className="w-40 h-full text-xs text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-inset"
         />
 
         {query.length > 0 && (

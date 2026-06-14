@@ -154,8 +154,8 @@ function SettingsPanelInner(): React.JSX.Element {
     >
 
       <div className="flex h-full overflow-hidden">
-        <div className="p-3 flex-shrink-0 h-full">
-          <div className="w-[180px] h-full bg-white/25 dark:bg-white/8 flex flex-col rounded-3xl overflow-hidden shadow-sm">
+        <div className="flex-shrink-0 h-full">
+          <div className="w-[180px] h-full bg-white dark:bg-white/5 flex flex-col overflow-hidden" style={{ borderRight: '1px solid var(--border-subtle)' }}>
             <div className="px-4 pt-5 pb-3">
               <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
                 Settings

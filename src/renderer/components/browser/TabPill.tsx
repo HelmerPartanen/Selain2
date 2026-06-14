@@ -104,7 +104,7 @@ const TabRow = memo(function TabRow({
       {(hovered || isHighlighted) && (
         <motion.div
           layoutId="tab-row-highlight"
-          className="absolute inset-0 rounded-full glass glass-interactive"
+          className="absolute inset-0 rounded-full bg-white/20 backdrop-blur-sm"
           transition={SPRING_SNAPPY}
           style={{ zIndex: 1 }}
         />
@@ -123,7 +123,7 @@ const TabRow = memo(function TabRow({
       <span className="flex-1 text-[13px] truncate z-10">{title}</span>
 
       {isSplitTarget && (
-        <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-indigo-500 z-10" />
+        <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-blue-500 z-10" />
       )}
 
       {!isHighlighted && isPlayingMedia && (
@@ -133,7 +133,7 @@ const TabRow = memo(function TabRow({
       {/* Split/unsplit action — shown when not the active tab */}
       {!isActive && (
         <div
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors duration-100 z-10"
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors duration-100 z-10"
           onClick={handleSplit}
           title={isSplitTarget ? 'Unsplit' : (isSplit ? 'Replace split' : 'Split view')}
         >
@@ -180,13 +180,13 @@ function TabPillInner(): React.JSX.Element {
 
   return (
     <div className="relative">
-      <div className="flex items-center glass rounded-full">
+      <div className="flex items-center rounded-full">
         <motion.button
           onClick={handleAddTab}
           aria-label="New tab"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-l-full"
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
         >
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
@@ -196,9 +196,9 @@ function TabPillInner(): React.JSX.Element {
           aria-label="Tab overview"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-r-full"
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
         >
-          <SvgIcon svg={tabsSvg} size={16} />
+          <SvgIcon svg={tabsSvg} size={16}/>
         </motion.button>
       </div>
 
@@ -208,13 +208,13 @@ function TabPillInner(): React.JSX.Element {
           <>
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute top-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
-              style={{ originX: 0.5, originY: 0 }}
+              className="absolute bottom-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
+              style={{ originX: 0.5, originY: 1 }}
               initial={{
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: -10,
                 borderRadius: 40,
                 filter: 'blur(6px)',
               }}
@@ -230,7 +230,7 @@ function TabPillInner(): React.JSX.Element {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: -10,
                 borderRadius: 40,
                 filter: 'blur(6px)',
               }}
@@ -311,7 +311,7 @@ function TabPillInner(): React.JSX.Element {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={SPRING_FAST}
-            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center shadow-md pointer-events-none"
+            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md pointer-events-none"
           >
             <SvgIcon svg={soundFillSvg} size={14} className="text-white" />
           </motion.div>

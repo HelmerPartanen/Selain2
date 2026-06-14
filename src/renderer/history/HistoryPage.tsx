@@ -173,7 +173,7 @@ function HistoryPanelInner(): React.JSX.Element {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search history..."
               autoFocus
-              className="w-full h-9 pl-9 pr-3 rounded-full bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-indigo-500/30 transition-all duration-150"
+              className="w-full h-9 pl-9 pr-3 rounded-full bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-all duration-150"
             />
           </div>
         </div>

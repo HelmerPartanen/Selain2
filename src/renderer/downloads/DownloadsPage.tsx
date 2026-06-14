@@ -52,7 +52,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
         ) : item.state === 'failed' ? (
           <SvgIcon svg={warnSvg} size={28} className="text-red-500" />
         ) : (
-          <SvgIcon svg={downloadSvg} size={28} className="text-indigo-500" />
+          <SvgIcon svg={downloadSvg} size={28} className="text-blue-500" />
         )}
       </div>
 
@@ -65,7 +65,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
             <>
               <div className="flex-1 h-1 rounded-full bg-gray-200 dark:bg-neutral-700 overflow-hidden max-w-[200px]">
                 <div
-                  className="h-full bg-indigo-500 rounded-full transition-[width] duration-300"
+                  className="h-full bg-blue-500 rounded-full transition-[width] duration-300"
                   style={{ width: `${progress * 100}%` }}
                 />
               </div>

@@ -99,7 +99,7 @@ function ToastContainerInner(): React.JSX.Element {
                   toast.action!.onClick()
                   handleDismiss(toast.id)
                 }}
-                className="text-[12px] font-medium text-indigo-500 hover:text-indigo-600 flex-shrink-0 transition-colors"
+                className="text-[12px] font-medium text-blue-500 hover:text-blue-600 flex-shrink-0 transition-colors"
               >
                 {toast.action.label}
               </button>
