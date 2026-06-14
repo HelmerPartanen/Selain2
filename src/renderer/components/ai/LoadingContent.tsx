@@ -126,7 +126,7 @@ export function LoadingContent({ duration: _duration }: { duration: number }): R
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
-      filter: 'url(#orb-warp) blur(12px) saturate(1.5)',
+      filter: 'url(#orb-warp) blur(1px) saturate(1.5)',
     }}
   />
 </div>
