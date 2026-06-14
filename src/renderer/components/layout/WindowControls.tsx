@@ -143,13 +143,14 @@ function ControlButton({
   children: React.ReactNode;
 }): React.JSX.Element {
   const [hovered, setHovered] = useState(false)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   return (
     <motion.button
       onClick={onClick}
       aria-label={label}
-      whileTap={{ scale: 0.78 }}
-      transition={SPRING_SNAPPY}
+      whileTap={disableAnimations ? undefined : { scale: 0.78 }}
+      transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={`relative w-9 h-9 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100${hoverBg} ${hoverText}`}

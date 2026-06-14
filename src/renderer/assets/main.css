@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* Prefer local SF Pro; fall back to a small bundled variable font. */
 @font-face {
   font-family: "SF Pro";
@@ -18,7 +16,8 @@
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-@theme {
+/* ─── Design Tokens ───────────────────────────────────────────────────────── */
+:root {
   --font-sans: "SF Pro", "Segoe UI Variable", system-ui, sans-serif;
 
   /* ─── Lighter font-weight scale ─────────────────────────────────────────── */
@@ -33,7 +32,6 @@
   --font-weight-black: 700;
 }
 
-/* ─── Design Tokens ───────────────────────────────────────────────────────── */
 /* Layered glass material system — surfaces, shadows, borders, radii          */
 
 :root {
@@ -260,12 +258,11 @@ body,
   transition-delay: 0ms !important;
 }
 
-:root[data-disable-blur='true'] .glass-blur,
-:root[data-disable-blur='true'] .floating-controls-flat,
-:root[data-disable-blur='true'] .window-controls-flat,
-:root[data-disable-blur='true'] .panel-modal-flat {
+:root[data-disable-blur='true'] *,
+:root[data-disable-blur='true'] *::before,
+:root[data-disable-blur='true'] *::after {
   backdrop-filter: none !important;
-  filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 :root[data-disable-blur='true'] .glass-blur {
