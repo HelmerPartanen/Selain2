@@ -32,6 +32,7 @@ interface AIState {
   error: string | null
   pullProgress: AIPullProgress | null
   summary: string
+  summaryBuffer: string
   isSummarizing: boolean
   summaryError: string | null
 }
@@ -68,6 +69,7 @@ export const useAIStore = create<AIStore>((set, get) => ({
   error: null,
   pullProgress: null,
   summary: '',
+  summaryBuffer: '',
   isSummarizing: false,
   summaryError: null,
 
@@ -101,7 +103,7 @@ export const useAIStore = create<AIStore>((set, get) => ({
   },
 
   startSummary: (pageText: string) => {
-    set({ summary: '', isSummarizing: true, summaryError: null })
+    set({ summary: '', summaryBuffer: '', isSummarizing: true, summaryError: null })
     window.electronAPI.summarizePage(pageText)
   },
 
@@ -111,7 +113,7 @@ export const useAIStore = create<AIStore>((set, get) => ({
   },
 
   resetSummary: () => {
-    set({ summary: '', isSummarizing: false, summaryError: null })
+    set({ summary: '', summaryBuffer: '', isSummarizing: false, summaryError: null })
   },
 
   _onProgress: (data) => {
@@ -127,18 +129,18 @@ export const useAIStore = create<AIStore>((set, get) => ({
   },
 
   _onChunk: (token: string) => {
-    set((s) => ({ summary: s.summary + token }))
+    set((s) => ({ summaryBuffer: s.summaryBuffer + token }))
   },
 
   _onSummaryDone: ({ success, error }) => {
     if (success) {
-      set({ isSummarizing: false })
+      set((s) => ({ summary: s.summaryBuffer, summaryBuffer: '', isSummarizing: false }))
     } else {
-      set({ isSummarizing: false, summaryError: error ?? 'Summarization failed' })
+      set({ summaryBuffer: '', isSummarizing: false, summaryError: error ?? 'Summarization failed' })
     }
   },
 
   reset: () => {
-    set({ status: 'idle', error: null, pullProgress: null, summary: '', isSummarizing: false, summaryError: null })
+    set({ status: 'idle', error: null, pullProgress: null, summary: '', summaryBuffer: '', isSummarizing: false, summaryError: null })
   },
 }))

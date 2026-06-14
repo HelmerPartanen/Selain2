@@ -27,15 +27,17 @@ const STEPS = [
 
 const STEP_INTERVAL = 2500
 
+// Richer palette: deep indigo · rose · violet · cyan · warm amber accent
 const SIRI_BLOBS = [
-  { color: 'rgba(24, 75, 255, 0.95)',  r: 0.46, sx: 0.8, sy: 0.6, px: 0,   py: 1.5, a: 10 },
-  { color: 'rgba(236, 40, 150, 0.9)',  r: 0.42, sx: 0.5, sy: 0.9, px: 2.1, py: 0.5, a: 12 },
-  { color: 'rgba(145, 50, 240, 0.85)', r: 0.44, sx: 0.7, sy: 0.4, px: 4.2, py: 2.8, a: 10 },
-  { color: 'rgba(0, 210, 255, 0.7)',   r: 0.36, sx: 0.9, sy: 0.8, px: 1.1, py: 3.3, a: 8  },
+  { color: 'rgba(79,70,229,0.95)',  r: 0.48, sx: 0.80, sy: 0.60, px: 0.0, py: 1.5, a: 14 },
+  { color: 'rgba(219,39,119,0.90)', r: 0.44, sx: 0.50, sy: 0.90, px: 2.1, py: 0.5, a: 16 },
+  { color: 'rgba(139,92,246,0.85)', r: 0.46, sx: 0.70, sy: 0.40, px: 4.2, py: 2.8, a: 12 },
+  { color: 'rgba(6,182,212,0.65)',  r: 0.38, sx: 0.90, sy: 0.80, px: 1.1, py: 3.3, a: 10 },
+  { color: 'rgba(245,158,11,0.38)', r: 0.30, sx: 1.20, sy: 0.55, px: 3.3, py: 1.9, a: 7  },
 ]
 
 function useFluidOrb(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
-  const rafRef = useRef<number | null>(null)
+  const rafRef  = useRef<number | null>(null)
   const timeRef = useRef(0)
   const lastRef = useRef(performance.now())
 
@@ -44,14 +46,12 @@ function useFluidOrb(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-
-    const W = canvas.width
-    const H = canvas.height
+    const W = canvas.width, H = canvas.height
 
     const frame = (now: number) => {
       const dt = (now - lastRef.current) * 0.001
-      lastRef.current = now
-      timeRef.current += dt * 0.85
+      lastRef.current  = now
+      timeRef.current += dt * 0.65          // slower → more meditative feel
 
       ctx.clearRect(0, 0, W, H)
       const cx = W / 2, cy = H / 2, t = timeRef.current
@@ -61,9 +61,9 @@ function useFluidOrb(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
         const y = cy + Math.cos(t * b.sy + b.py) * b.a
         const radius = Math.min(W, H) * b.r
         const g = ctx.createRadialGradient(x, y, 0, x, y, radius)
-        g.addColorStop(0, b.color)
-        g.addColorStop(0.4, b.color.replace(/[\d.]+\)$/, '0.4)'))
-        g.addColorStop(1, 'rgba(0,0,0,0)')
+        g.addColorStop(0,    b.color)
+        g.addColorStop(0.45, b.color.replace(/[\d.]+\)$/, '0.35)'))
+        g.addColorStop(1,    'rgba(0,0,0,0)')
         ctx.fillStyle = g
         ctx.beginPath()
         ctx.arc(x, y, radius, 0, Math.PI * 2)
@@ -78,69 +78,74 @@ function useFluidOrb(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   }, [canvasRef])
 }
 
+// Tiny glowing dot positioned at the top of its container so it orbits as the container rotates
+function OrbitDot({ size, color, glow }: { size: number; color: string; glow: string }) {
+  return (
+    <div
+      style={{
+        position: 'absolute', top: 0, left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: size, height: size, borderRadius: '50%',
+        background: color, boxShadow: glow,
+      }}
+    />
+  )
+}
+
 export function LoadingContent({ duration: _duration }: { duration: number }): React.JSX.Element {
   const [step, setStep] = useState(0)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasRef       = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    const interval = setInterval(
-      () => setStep(s => (s + 1) % STEPS.length),
-      STEP_INTERVAL,
-    )
-    return () => clearInterval(interval)
+    const id = setInterval(() => setStep(s => (s + 1) % STEPS.length), STEP_INTERVAL)
+    return () => clearInterval(id)
   }, [])
 
   useFluidOrb(canvasRef)
 
   return (
-    <div className="flex flex-col items-center justify-center gap-5" style={{ height: CONTENT_HEIGHT }}>
+    <div className="flex flex-col items-center justify-center gap-6" style={{ height: CONTENT_HEIGHT }}>
 
-      {/* Orb — no clip, blur creates the soft boundary */}
-<div
-  style={{
-    position: 'relative',
-    width: 64,
-    height: 64,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }}
->
-  <svg width="0" height="0" style={{ position: 'absolute' }}>
-    <defs>
-      <filter id="orb-warp" x="-50%" y="-50%" width="200%" height="200%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="2" result="n" />
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </defs>
-  </svg>
+      {/* ── Orb system ─────────────────────────────────────── */}
+      <div style={{ position: 'relative', width: 76, height: 76 }}>
 
-  <canvas
-    ref={canvasRef}
-    width={120}
-    height={120}
-    style={{
-      position: 'absolute',
-      width: 120,
-      height: 120,
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      filter: 'url(#orb-warp) blur(1px) saturate(1.5)',
-    }}
-  />
-</div>
+        {/* SVG displacement filter */}
+        <svg width="0" height="0" style={{ position: 'absolute' }}>
+          <defs>
+            <filter id="orb-warp" x="-60%" y="-60%" width="220%" height="220%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" seed="5" result="n" />
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </defs>
+        </svg>
 
-      {/* Step label */}
+        {/* Canvas orb (extends beyond container; blur+displacement creates soft edge) */}
+        <canvas
+          ref={canvasRef}
+          width={160}
+          height={160}
+          style={{
+            position: 'absolute', width: 160, height: 160,
+            top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            filter: 'url(#orb-warp) blur(1.5px) saturate(1.7) brightness(1.06)',
+          }}
+        />
+      </div>
+
+      {/* ── Status text ─────────────────────────────────────── */}
       <AnimatePresence mode="wait">
         <motion.span
           key={step}
-          className="text-[12px] text-gray-400 dark:text-neutral-500"
-          style={{ fontWeight: 300 }}
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -5 }}
-          transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{
+            fontSize: 12, fontWeight: 300, letterSpacing: '0.03em',
+            // Gradient: slate → violet → slate
+            background: 'linear-gradient(90deg, #64748b 0%, #c4b5fd 55%, #64748b 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+          }}
+          initial={{ opacity: 0, y:  6, filter: 'blur(5px)' }}
+          animate={{ opacity: 1, y:  0, filter: 'blur(0px)' }}
+          exit   ={{ opacity: 0, y: -6, filter: 'blur(5px)' }}
+          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           {STEPS[step]}
         </motion.span>

@@ -35,6 +35,7 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { onSessionRestoreFailed } from "@/store/tabStore";
 import { AISummaryButton } from "@/components/ai/AISummaryButton";
+import { AIFullscreenPage } from "@/components/ai/AIFullscreenPage";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useHistoryStore } from "@/store/historyStore";
 import { useDownloadStore } from "@/store/downloadStore";
@@ -353,6 +354,9 @@ function BrowserLayoutInner(): React.JSX.Element {
 
       {/* AI Summary floating button (bottom-right) */}
       <AISummaryButton />
+
+      {/* AI Fullscreen page */}
+      <AIFullscreenPage />
 
       {/* Find bar */}
       <AnimatePresence>{isFindBarOpen && <FindBar />}</AnimatePresence>

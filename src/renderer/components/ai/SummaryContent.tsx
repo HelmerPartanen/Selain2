@@ -122,36 +122,71 @@ function parseBlocks(raw: string): Block[] {
 function MarkdownBody({ text }: { text: string }): React.JSX.Element {
   const blocks = parseBlocks(text)
   return (
-    <div className="space-y-[6px]">
+    <motion.div
+      className="space-y-[6px]"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       {blocks.map((block, i) => {
-        if (block.kind === 'gap') return <div key={i} className="h-1" />
+        if (block.kind === 'gap') return <motion.div key={i} className="h-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: i * 0.015 }} />
         if (block.kind === 'h1') return (
-          <h1 key={i} className="text-[14px] font-semibold text-gray-900 dark:text-white leading-snug mt-2">
+          <motion.h1
+            key={i}
+            className="text-[14px] font-semibold text-gray-900 dark:text-white leading-snug mt-2"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             {parseInline(block.text)}
-          </h1>
+          </motion.h1>
         )
         if (block.kind === 'h2') return (
-          <h2 key={i} className="text-[13px] font-semibold text-gray-800 dark:text-neutral-200 leading-snug mt-1.5">
+          <motion.h2
+            key={i}
+            className="text-[13px] font-semibold text-gray-800 dark:text-neutral-200 leading-snug mt-1.5"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             {parseInline(block.text)}
-          </h2>
+          </motion.h2>
         )
         if (block.kind === 'h3') return (
-          <h3 key={i} className="text-[12px] font-semibold text-gray-700 dark:text-neutral-300 leading-snug mt-1">
+          <motion.h3
+            key={i}
+            className="text-[12px] font-semibold text-gray-700 dark:text-neutral-300 leading-snug mt-1"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             {parseInline(block.text)}
-          </h3>
+          </motion.h3>
         )
         if (block.kind === 'ul') return (
-          <ul key={i} className="space-y-[3px] pl-3">
+          <motion.ul
+            key={i}
+            className="space-y-[3px] pl-3"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             {block.items.map((item, j) => (
               <li key={j} className="flex gap-2 text-[13px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
                 <span className="mt-[6px] w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: 'currentColor', opacity: 0.45 }} />
                 <span>{parseInline(item)}</span>
               </li>
             ))}
-          </ul>
+          </motion.ul>
         )
         if (block.kind === 'ol') return (
-          <ol key={i} className="space-y-[3px] pl-3">
+          <motion.ol
+            key={i}
+            className="space-y-[3px] pl-3"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             {block.items.map((item, j) => (
               <li key={j} className="flex gap-2 text-[13px] leading-[1.7] text-gray-600 dark:text-neutral-400 font-light">
                 <span className="flex-shrink-0 text-[11px] font-medium text-gray-400 dark:text-neutral-600 tabular-nums mt-[2px]">
@@ -160,16 +195,21 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
                 <span>{parseInline(item)}</span>
               </li>
             ))}
-          </ol>
+          </motion.ol>
         )
-        // paragraph
         return (
-          <p key={i} className="text-[13px] leading-[1.75] text-gray-600 dark:text-neutral-400 font-light">
+          <motion.p
+            key={i}
+            className="text-[13px] leading-[1.75] text-gray-600 dark:text-neutral-400 font-light"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             {parseInline((block as { kind: 'p'; text: string }).text)}
-          </p>
+          </motion.p>
         )
       })}
-    </div>
+    </motion.div>
   )
 }
 
@@ -280,11 +320,14 @@ export function SummaryContent({
             transition={{ duration: 0.3, ease: 'easeOut' }}
           >
             {/* Scrollable streaming text */}
-            <div
+            <motion.div
               className="flex-1 overflow-y-auto glass-scroll pr-1 pb-2"
               role="region"
               aria-label="AI Summary"
               aria-live="polite"
+              initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <MarkdownBody text={summary} />
               {isSummarizing && (
@@ -292,7 +335,7 @@ export function SummaryContent({
                   <BlinkingCursor />
                 </span>
               )}
-            </div>
+            </motion.div>
 
             {/* Action row — only after streaming is done */}
             {!isSummarizing && summary && (

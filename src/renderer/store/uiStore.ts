@@ -11,6 +11,8 @@ interface UIState {
   isSpaceSwitcherOpen: boolean
   isFindBarOpen: boolean
   isAISummaryOpen: boolean
+  isAIFullscreenOpen: boolean
+  isAISummaryOverlayVisible: boolean
   splitRatio: number
   urlBarFocusRequested: boolean
 
@@ -33,6 +35,9 @@ interface UIState {
   toggleFindBar: () => void
   toggleAISummary: () => void
   closeAISummary: () => void
+  openAIFullscreen: () => void
+  closeAIFullscreen: () => void
+  toggleAISummaryOverlay: () => void
   setSplitRatio: (ratio: number) => void
   requestUrlBarFocus: () => void
   clearUrlBarFocus: () => void
@@ -46,6 +51,7 @@ const PANELS_CLOSED = {
   isDownloadsOpen: false,
   isTabOverviewOpen: false,
   isAISummaryOpen: false,
+  isAIFullscreenOpen: false,
 } as const
 
 export const useUIStore = create<UIState>((set) => ({
@@ -58,6 +64,8 @@ export const useUIStore = create<UIState>((set) => ({
   isMenuOpen: false,
   isSpaceSwitcherOpen: false,
   isAISummaryOpen: false,
+  isAIFullscreenOpen: false,
+  isAISummaryOverlayVisible: false,
   isFindBarOpen: false,
   splitRatio: 0.5,
   urlBarFocusRequested: false,
@@ -84,6 +92,9 @@ export const useUIStore = create<UIState>((set) => ({
   toggleFindBar: () => set((s) => ({ isFindBarOpen: !s.isFindBarOpen })),
   toggleAISummary: () => set((s) => ({ ...PANELS_CLOSED, isAISummaryOpen: !s.isAISummaryOpen })),
   closeAISummary: () => set({ isAISummaryOpen: false }),
+  openAIFullscreen: () => set((s) => ({ ...PANELS_CLOSED, isAIFullscreenOpen: true, isAISummaryOverlayVisible: false })),
+  closeAIFullscreen: () => set({ isAIFullscreenOpen: false, isAISummaryOverlayVisible: false }),
+  toggleAISummaryOverlay: () => set((s) => ({ isAISummaryOverlayVisible: !s.isAISummaryOverlayVisible })),
   setSplitRatio: (ratio) => set({ splitRatio: Math.max(0.25, Math.min(0.75, ratio)) }),
   requestUrlBarFocus: () => set({ urlBarFocusRequested: true }),
   clearUrlBarFocus: () => set({ urlBarFocusRequested: false })
