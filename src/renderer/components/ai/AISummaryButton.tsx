@@ -143,7 +143,7 @@ function AISummaryButtonInner(): React.JSX.Element {
                     transition={SPRING_SNAPPY}
                     className="absolute inset-0 flex items-center justify-center"
                   >
-                    <SvgIcon svg={sparkleSvg} size={18} />
+                    <SvgIcon svg={sparkleSvg} size={18} className="text-blue-400 dark:text-blue-400" />
                   </motion.span>
                   <motion.span
                     animate={{ scale: isOpen ? 1 : 0, rotate: isOpen ? 0 : -90, opacity: isOpen ? 1 : 0 }}

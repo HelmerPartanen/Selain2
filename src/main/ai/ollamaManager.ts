@@ -14,7 +14,6 @@ export const OLLAMA_HOST = 'localhost'
 export const OLLAMA_PORT = 11434
 export const TARGET_MODEL = 'gemma3:1b'
 
-// Reference to the active pull request so we can cancel it
 let activePullRequest: http.ClientRequest | null = null
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -44,10 +43,6 @@ function httpGet(path: string, timeoutMs = 3000): Promise<string> {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
-/**
- * Returns true if the `ollama` binary is available in PATH.
- * Uses `ollama --version` — safe, fast, exits immediately.
- */
 export async function checkOllamaInstalled(): Promise<boolean> {
   try {
     await execAsync('ollama --version')
@@ -57,10 +52,6 @@ export async function checkOllamaInstalled(): Promise<boolean> {
   }
 }
 
-/**
- * Returns true if the Ollama service is reachable on localhost:11434.
- * The service must be running to list or pull models.
- */
 export async function checkOllamaRunning(): Promise<boolean> {
   try {
     await httpGet('/')
@@ -70,9 +61,6 @@ export async function checkOllamaRunning(): Promise<boolean> {
   }
 }
 
-/**
- * Returns true if `gemma3:1b` (or `gemma3:1b:latest`) is in the local model list.
- */
 export async function checkModelAvailable(): Promise<boolean> {
   try {
     const body = await httpGet('/api/tags')
@@ -94,11 +82,6 @@ interface PullChunk {
   error?: string
 }
 
-/**
- * Starts streaming `ollama pull gemma3:1b` via the Ollama REST API.
- * Progress events are forwarded to the renderer via IPC.
- * Does nothing if a pull is already active (prevents duplicates).
- */
 export function pullModel(): void {
   if (activePullRequest) return
 
@@ -119,7 +102,6 @@ export function pullModel(): void {
 
     res.on('data', (chunk: Buffer) => {
       lineBuffer += chunk.toString()
-      // Ollama sends NDJSON — split on newlines and parse each complete line
       const lines = lineBuffer.split('\n')
       lineBuffer = lines.pop() ?? ''
 
@@ -146,7 +128,7 @@ export function pullModel(): void {
             completed: data.completed ?? 0,
           })
         } catch {
-          // Malformed JSON chunk — skip silently
+          // Malformed JSON chunk — skip
         }
       }
     })
@@ -171,9 +153,6 @@ export function pullModel(): void {
   activePullRequest.end()
 }
 
-/**
- * Aborts an in-progress model pull.
- */
 export function cancelPull(): void {
   if (activePullRequest) {
     activePullRequest.destroy()
@@ -181,9 +160,6 @@ export function cancelPull(): void {
   }
 }
 
-/**
- * Returns true if a pull is currently in progress.
- */
 export function isPulling(): boolean {
   return activePullRequest !== null
 }
@@ -192,42 +168,108 @@ export function isPulling(): boolean {
 
 let activeSummaryRequest: http.ClientRequest | null = null
 
-const SYSTEM_PROMPT =
-  'You are a precise web page summarizer. Respond only in Markdown, no explanation or commentary. ' +
-  'Begin with a single H1 heading (# ...) containing the page title or main topic. ' +
-  'Use at most 3 secondary headings (##) and bullet lists only for key features, facts, or comparisons. ' +
-  'Use bold for names, products, key metrics, and important terms. ' +
-  'Do not use phrases like "Here is", "Below is", "This page", "Overview", or any introductory filler. ' +
-  'Do not hallucinate information not present in the provided page content. ' +
-  'Focus on purpose, main claims, key features, important data points, benefits, and calls to action. ' +
-  'Ignore navigation, footer, cookie banner, and unrelated UI text. ' +
-  'If the provided content is too short or not informative, produce a single sentence stating that no useful summary can be generated.';
+// ── System prompt ─────────────────────────────────────────────────────────────
+// Designed for gemma3:1b — a 1B model needs a short, unambiguous brief.
+// Make the summary factual, biography-aware, and resistant to filler.
+const SYSTEM_PROMPT = `You are a browser assistant that summarizes web pages in a floating panel.
 
-// Patterns that small models prepend despite instructions — strip them from output
-const PREAMBLE_RE = /^\s*(?:here(?:'s| is) (?:a |the )?(?:markdown |formatted )?summary[^:]*[:.]\s*\n*|sure[!,.]?\s*\n*|okay[!,.]?\s*\n*|below is[^:]*[:.]\s*\n*|the following[^:]*[:.]\s*\n*)/i
+Your output must be short, specific, and immediately useful to someone who hasn't read the page.
 
-/**
- * Streams a page summarization request to Ollama.
- * Token chunks are forwarded to the renderer via `ai:summary-chunk`.
- * Completion (or error) is signalled via `ai:summary-done`.
- */
+Rules:
+- Start with the main subject by name when it is clear.
+- Use 2–4 short sentences OR 2–4 bullet points if the page naturally lists separate facts or events.
+- For biography or encyclopedia pages, mention the person's full name, birth date/place, nationality, profession, and key role or event.
+- Include concrete details: names, dates, places, occupations, and notable actions.
+- Do not repeat a page title or heading verbatim as the entire summary.
+- Avoid vague language, filler, and invented facts.
+- If the page is thin or mostly navigation, say it has limited readable content.
+- Plain markdown only. No headings, no intro labels, and no extra explanation beyond the summary.
+`
+
+// ── Context extraction ────────────────────────────────────────────────────────
+// A naive .slice(0, 6000) front-loads boilerplate (nav, cookie banners, hero
+// marketing copy) and cuts off the actual content. This extractor prioritises:
+//   1. Title + meta description (highest signal, zero tokens wasted)
+//   2. Body text with nav/footer/cookie noise stripped
+//   3. The opening ~2 000 chars (lede) + the closing ~1 000 chars (CTA/conclusion)
+//      with a middle sample — better coverage than a flat prefix.
+
+const NOISE_RE =
+  /^(accept( all)? cookies?|cookie (policy|settings|preferences)|privacy policy|terms( of( service|use))?|copyright ©|all rights reserved|skip to (main )?content|back to top|\d+ min(ute)? read|share (this|on)|follow us|subscribe( to our newsletter)?|sign (in|up)|log (in|out)|menu|navigation|search\.{0,3})/i
+
+function isStructuredLine(line: string): boolean {
+  return /[\t:]/.test(line)
+}
+
+function extractPageContext(raw: string): string {
+  const lines = raw
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter((l) => (l.length > 25 || isStructuredLine(l)) && !NOISE_RE.test(l))
+
+  // Deduplicate repeated lines (nav items often repeat verbatim)
+  const seen = new Set<string>()
+  const deduped: string[] = []
+  for (const line of lines) {
+    const key = line.toLowerCase()
+    if (!seen.has(key)) {
+      seen.add(key)
+      deduped.push(line)
+    }
+  }
+
+  const joined = deduped.join('\n')
+
+  // Budget: ~4 500 chars → well within gemma3:1b's 8 k context minus prompt overhead
+  const BUDGET = 4500
+  if (joined.length <= BUDGET) return joined
+
+  // Take the opening lede (first 60% of budget) + conclusion (last 25%)
+  // This captures both the main claim and the call-to-action/conclusion.
+  const ledeEnd = Math.floor(BUDGET * 0.6)
+  const tailStart = joined.length - Math.floor(BUDGET * 0.25)
+  const lede = joined.slice(0, ledeEnd)
+  const tail = joined.slice(tailStart)
+
+  return `${lede}\n\n[…]\n\n${tail}`
+}
+
+// Strip preamble phrases that small models emit despite instructions.
+// We buffer the first 120 chars before sending so we can clean the very
+// first token(s) — beyond that we stream immediately for low latency.
+const PREAMBLE_RE =
+  /^\s*(?:(?:here(?:'s| is)|below is|the following)(?:\s+(?:a|the|my|your|an?)\s+)?(?:(?:markdown\s+)?summary|overview|breakdown)[^:\n]*[:.]\s*\n*|(?:sure|okay|of course|absolutely)[!,.]?\s*\n*)/i
+
+// ── Public summarize function ─────────────────────────────────────────────────
+
 export function summarizePage(pageText: string): void {
+  // Cancel any in-flight request before starting a new one
   if (activeSummaryRequest) {
     activeSummaryRequest.destroy()
     activeSummaryRequest = null
   }
 
-  // Truncate to ~6000 chars to stay within the model context window
-  const truncated =
-    pageText.length > 6000
-      ? pageText.slice(0, 6000) + '\n\n[Content truncated]'
-      : pageText
+  const context = extractPageContext(pageText)
+
+  // If the page yielded nothing useful, short-circuit immediately
+  if (!context.trim()) {
+    sendToRenderer('ai:summary-chunk', '*No readable content found on this page.*')
+    sendToRenderer('ai:summary-done', { success: true })
+    return
+  }
 
   const requestBody = JSON.stringify({
     model: TARGET_MODEL,
     system: SYSTEM_PROMPT,
-    prompt: truncated,
+    prompt: `Read the following page text and summarize it clearly and accurately:\n\n${context}`,
     stream: true,
+    // Tighten generation: we want concise, factual output — not creative rambling.
+    // num_predict caps tokens; temperature 0.2 reduces hallucination on 1B models.
+    options: {
+      temperature: 0.2,
+      num_predict: 300,
+      repeat_penalty: 1.1,
+    },
   })
 
   const options: http.RequestOptions = {
@@ -241,9 +283,21 @@ export function summarizePage(pageText: string): void {
     },
   }
 
-  // Accumulate early tokens so we can strip any preamble the model adds
+  // Preamble stripping: buffer the first PREAMBLE_BUFFER_SIZE chars, then stream freely
+  const PREAMBLE_BUFFER_SIZE = 120
   let preambleBuffer = ''
   let preambleStripped = false
+  // Track whether we've sent at least one chunk — for the end-flush guard
+  let sentAnyChunk = false
+
+  function flushPreambleBuffer(): void {
+    preambleStripped = true
+    const cleaned = preambleBuffer.replace(PREAMBLE_RE, '')
+    if (cleaned) {
+      sendToRenderer('ai:summary-chunk', cleaned)
+      sentAnyChunk = true
+    }
+  }
 
   activeSummaryRequest = http.request(options, (res) => {
     let lineBuffer = ''
@@ -256,43 +310,56 @@ export function summarizePage(pageText: string): void {
       for (const line of lines) {
         if (!line.trim()) continue
         try {
-          const data = JSON.parse(line) as { response?: string; done?: boolean; error?: string }
+          const data = JSON.parse(line) as {
+            response?: string
+            done?: boolean
+            error?: string
+          }
+
           if (data.error) {
             activeSummaryRequest = null
             sendToRenderer('ai:summary-done', { success: false, error: data.error })
             return
           }
+
           if (data.response) {
             if (!preambleStripped) {
-              // Buffer tokens until we have enough to detect a preamble
               preambleBuffer += data.response
-              if (preambleBuffer.length >= 80 || data.done) {
-                preambleStripped = true
-                const cleaned = preambleBuffer.replace(PREAMBLE_RE, '')
-                if (cleaned) sendToRenderer('ai:summary-chunk', cleaned)
+              if (preambleBuffer.length >= PREAMBLE_BUFFER_SIZE) {
+                flushPreambleBuffer()
               }
             } else {
               sendToRenderer('ai:summary-chunk', data.response)
+              sentAnyChunk = true
             }
           }
+
           if (data.done) {
-            // Flush any remaining preamble buffer
-            if (!preambleStripped && preambleBuffer) {
-              const cleaned = preambleBuffer.replace(PREAMBLE_RE, '')
-              if (cleaned) sendToRenderer('ai:summary-chunk', cleaned)
+            // Flush remaining preamble buffer if we haven't yet
+            if (!preambleStripped) {
+              flushPreambleBuffer()
+            }
+            // If the model emitted nothing at all, surface a clear message
+            if (!sentAnyChunk) {
+              sendToRenderer('ai:summary-chunk', '*The model returned an empty response. Try regenerating.*')
             }
             activeSummaryRequest = null
             sendToRenderer('ai:summary-done', { success: true })
           }
         } catch {
-          // skip malformed line
+          // Skip malformed NDJSON lines — common with partial flushes
         }
       }
     })
 
     res.on('end', () => {
-      activeSummaryRequest = null
-      sendToRenderer('ai:summary-done', { success: true })
+      // Guard: `done: true` in the NDJSON should have already fired summary-done,
+      // but if the connection closes without a done frame, clean up here.
+      if (activeSummaryRequest !== null) {
+        if (!preambleStripped) flushPreambleBuffer()
+        activeSummaryRequest = null
+        sendToRenderer('ai:summary-done', { success: true })
+      }
     })
 
     res.on('error', (err) => {
@@ -310,9 +377,6 @@ export function summarizePage(pageText: string): void {
   activeSummaryRequest.end()
 }
 
-/**
- * Cancels an in-progress summarization.
- */
 export function cancelSummarization(): void {
   if (activeSummaryRequest) {
     activeSummaryRequest.destroy()
