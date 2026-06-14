@@ -108,7 +108,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[150] bg-black/50 backdrop-blur-sm overflow-hidden"
+          className="fixed inset-0 z-[150] overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -164,7 +164,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
             <motion.div
               className="absolute top-0 left-0 right-0 z-[152] pointer-events-none"
               initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={!isLoading ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
@@ -191,55 +191,26 @@ function AIFullscreenPageInner(): React.JSX.Element {
                 <div className="flex-1" />
 
                 {/* Close button in glass pill */}
-                <motion.div
-                  className={`pointer-events-auto rounded-full drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <motion.button
-                    onClick={closeAIFullscreen}
-                    className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150 select-none"
-                    aria-label="Close AI Summary"
+                {!isLoading && (
+                  <motion.div
+                    className={`pointer-events-auto rounded-full drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <SvgIcon svg={closeSvg} size={18} />
-                  </motion.button>
-                </motion.div>
+                    <motion.button
+                      onClick={closeAIFullscreen}
+                      className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150 select-none"
+                      aria-label="Close AI Summary"
+                    >
+                      <SvgIcon svg={closeSvg} size={18} />
+                    </motion.button>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
 
-            {/* Loading indicator with rotating text */}
-            <AnimatePresence>
-              {isLoading && (
-                <motion.div
-                  className="absolute inset-0 z-[152] flex flex-col items-center justify-center pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="relative">
-                    {/* Animated spinner */}
-                    <motion.div
-                      className="w-16 h-16 border-4 border-white/20 border-t-white/80 rounded-full"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    />
-                    {/* Center text */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <motion.span
-                        className="text-white/60 text-xs font-medium"
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        AI
-                      </motion.span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </motion.div>
       )}
