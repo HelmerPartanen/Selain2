@@ -323,31 +323,15 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
         <div className="relative flex-1 min-w-0 flex items-center h-full">
           <div className="absolute left-1.5 z-10 flex items-center justify-center">
-            <Button
-              variant="icon"
-              onClick={() => {
-                if (iconKey !== 'search') {
-                  setIsSiteInfoOpen(true)
-                }
-              }}
+            <div
               className={iconKey === 'search' ? 'pointer-events-none opacity-80' : ''}
               aria-label="Site information"
             >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={iconKey}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
-                  transition={SPRING_FAST}
-                  className="flex items-center justify-center text-gray-500 dark:text-neutral-400"
-                >
+
                   {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />}
                   {iconKey === 'globe' && <SvgIcon svg={globeSvg} size={14} />}
                   {iconKey === 'search' && <SvgIcon svg={searchSvg} size={14} />}
-                </motion.span>
-              </AnimatePresence>
-            </Button>
+            </div>
           </div>
 
           <input

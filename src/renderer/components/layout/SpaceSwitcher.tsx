@@ -27,9 +27,6 @@ function SpaceDot({ hue, size = 8 }: { hue: number; size?: number }): React.JSX.
         background: hue >= 0
           ? `hsl(${hue} 55% 55%)`
           : 'rgba(128, 128, 128, 0.3)',
-        boxShadow: hue >= 0
-          ? `0 0 6px hsl(${hue} 55% 55% / 0.3)`
-          : 'none',
       }}
     />
   )
