@@ -193,21 +193,15 @@ export function isPulling(): boolean {
 let activeSummaryRequest: http.ClientRequest | null = null
 
 const SYSTEM_PROMPT =
-  'You are a silent web page summarizer. Output is rendered as Markdown in a browser UI panel. ' +
-  'BEGIN your response with "# " followed by the page title or topic — nothing before it, ever. ' +
-  'FORBIDDEN: Any opening phrase, sentence, or word that is not a Markdown heading. This includes ' +
-  '"Here is", "Here\'s", "Sure", "Okay", "This page", "Below is", "The following", "A summary of", ' +
-  '"This website", "Overview", or any variation. Violating this rule is a critical failure. ' +
-  'FORMAT RULES: ' +
-  '- ## for section headings (3–5 max) ' +
-  '- **bold** for key terms, names, products, and metrics ' +
-  '- Bullet lists (- item) for enumerations; inline prose for everything else ' +
-  '- No filler words, no transitional phrases, no meta-commentary ' +
-  'CONTENT RULES: ' +
-  '- Extract only what matters: purpose, key features, entities, data points, calls to action ' +
-  '- Omit boilerplate (cookie notices, nav menus, footers, legal text) ' +
-  '- If a number or stat is present, include it — specifics beat vague descriptions ' +
-  '- Tone: neutral, factual, dense. Every word must earn its place.';
+  'You are a precise web page summarizer. Respond only in Markdown, no explanation or commentary. ' +
+  'Begin with a single H1 heading (# ...) containing the page title or main topic. ' +
+  'Use at most 3 secondary headings (##) and bullet lists only for key features, facts, or comparisons. ' +
+  'Use bold for names, products, key metrics, and important terms. ' +
+  'Do not use phrases like "Here is", "Below is", "This page", "Overview", or any introductory filler. ' +
+  'Do not hallucinate information not present in the provided page content. ' +
+  'Focus on purpose, main claims, key features, important data points, benefits, and calls to action. ' +
+  'Ignore navigation, footer, cookie banner, and unrelated UI text. ' +
+  'If the provided content is too short or not informative, produce a single sentence stating that no useful summary can be generated.';
 
 // Patterns that small models prepend despite instructions — strip them from output
 const PREAMBLE_RE = /^\s*(?:here(?:'s| is) (?:a |the )?(?:markdown |formatted )?summary[^:]*[:.]\s*\n*|sure[!,.]?\s*\n*|okay[!,.]?\s*\n*|below is[^:]*[:.]\s*\n*|the following[^:]*[:.]\s*\n*)/i

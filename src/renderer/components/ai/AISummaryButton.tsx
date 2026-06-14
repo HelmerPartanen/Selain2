@@ -108,7 +108,7 @@ function AISummaryButtonInner(): React.JSX.Element {
     <>
       {/* Bottom-right hover trigger zone */}
       <div
-        className="fixed bottom-0 right-0 w-20 h-20 z-[48] [app-region:no-drag]"
+        className="fixed bottom-0 right-0 w-20 h-20 z-[95] [app-region:no-drag]"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
@@ -117,7 +117,7 @@ function AISummaryButtonInner(): React.JSX.Element {
       <AnimatePresence>
         {(isHovered || isOpen) && (
           <motion.div
-            className="fixed bottom-5 right-5 z-[50] [app-region:no-drag]"
+            className="fixed bottom-5 right-5 z-[95] [app-region:no-drag]"
             initial={{ scale: 0.5, opacity: 0, filter: 'blur(6px)' }}
             animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
             exit={{ scale: 0.5, opacity: 0, filter: 'blur(6px)' }}
@@ -185,7 +185,7 @@ function AISummaryButtonInner(): React.JSX.Element {
                         filter: { duration: 0.2 },
                       }}
                     >
-                      <div className={`rounded-3xl overflow-hidden relative ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+                      <div className={`rounded-3xl overflow-hidden relative ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'glass-heavy'}`}>
                         {/* Content — setup flow or summary */}
                         <div className="px-5 py-4">
                           {isAIReady ? (
