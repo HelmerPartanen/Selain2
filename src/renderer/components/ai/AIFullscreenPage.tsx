@@ -166,7 +166,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   transition={{ duration: 0.2 }}
                 >
                   {/* Semi-transparent background for the overlay */}
-                  <div className={`absolute inset-0 ${disableBlurEffects ? 'bg-white dark:bg-[#121316]' : 'bg-white dark:bg-[#1D1F23] backdrop-blur-lg'}`} />
+                  <div className={`absolute inset-0 ${disableBlurEffects ? 'bg-white dark:bg-[#121316]' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-lg'}`} />
 
                   {/* Summary content container */}
                   <motion.div
