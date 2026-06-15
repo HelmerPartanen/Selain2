@@ -584,7 +584,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
-            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}
+            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[24px] overflow-hidden z-[100] drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}
             style={{ originY: 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
@@ -602,7 +602,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                   }}
                   onMouseEnter={() => setHoveredIdx(i)}
                   onMouseLeave={() => setHoveredIdx(null)}
-                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-xl text-left transition-colors duration-75 ${isActive
+                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-full text-left transition-colors duration-75 ${isActive
                     ? 'text-gray-900 dark:text-white'
                     : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.08]'}
                     }`}

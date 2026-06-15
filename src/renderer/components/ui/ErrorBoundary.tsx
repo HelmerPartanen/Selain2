@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-700 p-8 max-w-sm text-center">
+          <div className="bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10 drop-shadow-lg rounded-xl p-8 max-w-sm text-center">
             <div className="text-3xl mb-3">⚠️</div>
             <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-2">
               Something went wrong
