@@ -373,7 +373,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       />
 
       {/* Transparent drag region for window movement */}
-      <div className="fixed top-0 left-0 right-[138px] h-2.5 z-[60] [app-region:drag]" />
+      <div className="fixed top-0 left-0 right-0 h-2.5 z-[60] [app-region:drag]" />
 
       {/* Web content — fills entire viewport; ErrorBoundary keeps shell usable on React errors */}
       <div className="relative z-10 h-full">

@@ -70,33 +70,18 @@ export const useHistoryStore = create<HistoryState>()(
         const entries = get().entries
         const now = Date.now()
         const DAY_MS = 86400000
-        const ranked: Array<{ entry: HistoryEntry; score: number }> = []
+
+        const scored: Array<{ entry: HistoryEntry; score: number }> = []
 
         for (const entry of entries) {
           if (!entry.url.toLowerCase().includes(q) && !entry.title.toLowerCase().includes(q)) continue
-
           const recency = Math.max(0.1, 1 - (now - entry.timestamp) / (30 * DAY_MS))
           const score = entry.visitCount * recency
-
-          let inserted = false
-          for (let i = 0; i < ranked.length; i++) {
-            if (score > ranked[i]!.score) {
-              ranked.splice(i, 0, { entry, score })
-              inserted = true
-              break
-            }
-          }
-
-          if (!inserted && ranked.length < 6) {
-            ranked.push({ entry, score })
-          }
-
-          if (ranked.length > 6) {
-            ranked.length = 6
-          }
+          scored.push({ entry, score })
         }
 
-        return ranked.map((r) => r.entry)
+        scored.sort((a, b) => b.score - a.score)
+        return scored.slice(0, 6).map((r) => r.entry)
       },
 
       removeEntry: (url) => {

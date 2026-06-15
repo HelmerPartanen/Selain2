@@ -396,7 +396,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     <div className="relative">
       <motion.div
         className="relative flex items-center h-10 will-change-[width] pl-2"
-        animate={{ width: isFocused ? 500 : 320 }}
+        animate={{ width: isFocused ? Math.min(500, typeof window !== 'undefined' ? window.innerWidth - 160 : 500) : 320 }}
         transition={SPRING_EXPAND}
       >
         <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>

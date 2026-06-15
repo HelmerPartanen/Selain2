@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useShallow } from 'zustand/react/shallow';
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -53,16 +53,12 @@ function AppMenuInner(): React.JSX.Element {
     isBookmarksOpen ||
     isHistoryOpen ||
     isDownloadsOpen;
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-
   const handleToggle = useCallback(() => {
     setMenuOpen(!isOpen);
   }, [isOpen, setMenuOpen]);
 
   const handleClose = useCallback(() => {
     setMenuOpen(false);
-    setHoveredIdx(null);
   }, [setMenuOpen]);
 
   const handleMenuItemClick = useCallback(
@@ -105,7 +101,7 @@ function AppMenuInner(): React.JSX.Element {
   const actionableItems = menuItems.filter((item) => !item.id.startsWith("divider"));
 
   return (
-    <div ref={containerRef} className="relative">
+    <div className="relative">
       <motion.button
         onClick={handleToggle}
         aria-label="Menu"
@@ -191,8 +187,6 @@ function AppMenuInner(): React.JSX.Element {
                       <button
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
-                        onMouseEnter={() => setHoveredIdx(idx)}
-                        onMouseLeave={() => setHoveredIdx(null)}
                         className="w-full rounded-xl flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150 relative [app-region:no-drag]"
                         style={disableAnimations
                           ? { opacity: 1, animation: 'none' }

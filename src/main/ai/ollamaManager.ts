@@ -16,6 +16,12 @@ export const TARGET_MODEL = 'qwen2.5:0.5b'
 
 let activePullRequest: http.ClientRequest | null = null
 
+// Per-pull layer tracking for monotonic progress
+let _pullAccumulatedBytes = 0
+let _pullTotalEstimate = 0
+let _pullCurrentDigest = ''
+let _pullCurrentLayerTotal = 0
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function sendToRenderer(channel: string, payload: unknown): void {
@@ -89,6 +95,12 @@ interface PullChunk {
 export function pullModel(): void {
   if (activePullRequest) return
 
+  // Reset layer tracking
+  _pullAccumulatedBytes = 0
+  _pullTotalEstimate = 0
+  _pullCurrentDigest = ''
+  _pullCurrentLayerTotal = 0
+
   const requestBody = JSON.stringify({ name: TARGET_MODEL, stream: true })
   const options: http.RequestOptions = {
     host: OLLAMA_HOST,
@@ -120,17 +132,36 @@ export function pullModel(): void {
             return
           }
 
-          const progress =
-            data.total && data.completed
-              ? Math.round((data.completed / data.total) * 100)
+          if (data.total !== undefined && data.completed !== undefined && data.digest) {
+            // New layer started?
+            if (data.digest !== _pullCurrentDigest) {
+              if (_pullCurrentDigest !== '') {
+                _pullAccumulatedBytes += _pullCurrentLayerTotal
+              }
+              _pullCurrentDigest = data.digest
+              _pullCurrentLayerTotal = data.total
+            } else {
+              _pullCurrentLayerTotal = data.total
+            }
+            _pullTotalEstimate = _pullAccumulatedBytes + _pullCurrentLayerTotal
+            const currentCompleted = _pullAccumulatedBytes + data.completed
+            const progress = _pullTotalEstimate > 0
+              ? Math.min(99, Math.round((currentCompleted / _pullTotalEstimate) * 100))
               : 0
-
-          sendToRenderer('ai:pull-progress', {
-            status: data.status,
-            progress,
-            total: data.total ?? 0,
-            completed: data.completed ?? 0,
-          })
+            sendToRenderer('ai:pull-progress', {
+              status: data.status,
+              progress,
+              total: _pullTotalEstimate,
+              completed: currentCompleted,
+            })
+          } else {
+            sendToRenderer('ai:pull-progress', {
+              status: data.status,
+              progress: _pullTotalEstimate > 0 ? 99 : 0,
+              total: _pullTotalEstimate,
+              completed: _pullTotalEstimate,
+            })
+          }
         } catch {
           // Malformed JSON chunk — skip
         }

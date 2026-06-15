@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useSettingsStore } from '@/store/settingsStore'
 
 /**
  * RainbowEdgeLoading
@@ -27,6 +28,8 @@ export function RainbowEdgeLoading(): React.JSX.Element {
   // starting at mount time gets skipped by the browser).
   const [exploded, setExploded] = useState(false)
   const shockRef = useRef<HTMLDivElement>(null)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setExploded(true))
@@ -129,12 +132,12 @@ export function RainbowEdgeLoading(): React.JSX.Element {
           shows a hard edge at the screen boundary. */}
       <div
         className="absolute -inset-[20%]"
-        style={{ filter: 'blur(86px)' }}
+        style={{ filter: disableBlurEffects ? 'none' : 'blur(86px)' }}
       >
         {/* Burst layer: scales up from a point at the bottom-right
             corner with a slight overshoot, then holds. */}
         <div
-          className={exploded ? 'rainbow-burst-layer' : ''}
+          className={exploded && !disableAnimations ? 'rainbow-burst-layer' : ''}
           style={{
             position: 'absolute',
             right: 0,
@@ -148,7 +151,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
           }}
         >
           <div
-            className={exploded ? 'rainbow-pulse-layer' : ''}
+            className={exploded && !disableAnimations ? 'rainbow-pulse-layer' : ''}
             style={{
               position: 'absolute',
               inset: '-8%',
@@ -161,7 +164,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
           {/* Drift layer: once settled, slowly rotates/breathes so the
               glow feels alive without being distracting. */}
           <div
-            className={exploded ? 'rainbow-drift-layer' : ''}
+            className={exploded && !disableAnimations ? 'rainbow-drift-layer' : ''}
             style={{
               position: 'absolute',
               inset: 0,
@@ -186,20 +189,22 @@ export function RainbowEdgeLoading(): React.JSX.Element {
       {/* Shockwave: a ring-shaped blur that travels from the
           bottom-right corner outward across the screen, briefly
           softening everything underneath it as it passes. */}
-      <div
-        ref={shockRef}
-        className="absolute inset-0"
-        style={
-          {
-            '--shock-r': '0%',
-            backdropFilter: 'blur(2px) saturate(1.5) brightness(1.05)',
-            WebkitBackdropFilter: 'blur(2px) saturate(1.2) brightness(1.05)',
-            maskImage: shockwaveMask,
-            WebkitMaskImage: shockwaveMask,
-            transition: 'opacity 0.25s ease-out',
-          } as React.CSSProperties
-        }
-      />
+      {!disableAnimations && (
+        <div
+          ref={shockRef}
+          className="absolute inset-0"
+          style={
+            {
+              '--shock-r': '0%',
+              backdropFilter: 'blur(2px) saturate(1.5) brightness(1.05)',
+              WebkitBackdropFilter: 'blur(2px) saturate(1.2) brightness(1.05)',
+              maskImage: shockwaveMask,
+              WebkitMaskImage: shockwaveMask,
+              transition: 'opacity 0.25s ease-out',
+            } as React.CSSProperties
+          }
+        />
+      )}
     </div>
   )
 }

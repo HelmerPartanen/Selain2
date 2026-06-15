@@ -110,6 +110,8 @@ export function setupIPC(): void {
           state: state === 'completed' ? 'completed' : state === 'cancelled' ? 'cancelled' : 'failed'
         })
         activeDownloads.delete(id)
+        // Prune path after a delay so open/show-in-folder still works briefly after done
+        setTimeout(() => knownDownloadPaths.delete(id), 60000)
       })
     })
   }
@@ -156,7 +158,9 @@ export function setupIPC(): void {
   })
 
   ipcMain.on('set-zoom-factor', (_event, factor: number) => {
-    getMainWindow()?.webContents.setZoomFactor(factor)
+    if (typeof factor !== 'number' || !Number.isFinite(factor)) return
+    const clamped = Math.max(0.25, Math.min(5, factor))
+    getMainWindow()?.webContents.setZoomFactor(clamped)
   })
 
   ipcMain.handle('open-external', async (_event, url: unknown) => {
@@ -194,10 +198,8 @@ export function setupIPC(): void {
     }
   })
 
-  ipcMain.handle('clear-site-data', async (_event, origin: unknown) => {
-    if (typeof origin !== 'string') return false
-    const safeOrigin = originFromUrl(origin)
-    if (!safeOrigin) return false
+  // Shared helper: wipes all storage + cookies for a given origin.
+  async function clearSiteData(safeOrigin: string): Promise<boolean> {
     const ses = session.fromPartition('persist:default')
     try {
       await ses.clearStorageData({ origin: safeOrigin })
@@ -208,22 +210,21 @@ export function setupIPC(): void {
       logger.warn('Failed to clear site data:', err)
       return false
     }
+  }
+
+  ipcMain.handle('clear-site-data', async (_event, origin: unknown) => {
+    if (typeof origin !== 'string') return false
+    const safeOrigin = originFromUrl(origin)
+    if (!safeOrigin) return false
+    return clearSiteData(safeOrigin)
   })
 
+  // forget-site performs a full site data wipe (same semantics as clear-site-data).
   ipcMain.handle('forget-site', async (_event, origin: unknown) => {
     if (typeof origin !== 'string') return false
     const safeOrigin = originFromUrl(origin)
     if (!safeOrigin) return false
-    const ses = session.fromPartition('persist:default')
-    try {
-      await ses.clearStorageData({ origin: safeOrigin })
-      const cookies = await ses.cookies.get({ url: safeOrigin })
-      await Promise.all(cookies.map((cookie) => ses.cookies.remove(safeOrigin, cookie.name)))
-      return true
-    } catch (err) {
-      logger.warn('Failed to forget site:', err)
-      return false
-    }
+    return clearSiteData(safeOrigin)
   })
 
   // ── Image picker dialog ──────────────────────────────────────────────────

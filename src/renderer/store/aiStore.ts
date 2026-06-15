@@ -67,6 +67,8 @@ interface AIActions {
 
 type AIStore = AIState & AIActions
 
+let _pullTimeoutId: ReturnType<typeof setTimeout> | null = null
+
 export const useAIStore = create<AIStore>((set, get) => ({
   status: 'idle',
   error: null,
@@ -106,31 +108,26 @@ export const useAIStore = create<AIStore>((set, get) => ({
   startDownload: async () => {
     if (get().status === 'downloading') return
     set({ status: 'downloading', pullProgress: null, error: null })
-    try {
-      await Promise.race([
-        window.electronAPI.pullAIModel(),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Model pull timeout')), 30 * 60 * 1000) // 30 min timeout
-        )
-      ])
-      // Don't set success here — wait for _onDone callback from IPC
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Download failed'
-      logger.error('[AI] Model pull failed:', errorMsg)
-      set({
-        status: 'error',
-        error: errorMsg,
-        pullProgress: null
-      })
-    }
+    window.electronAPI.pullAIModel()
+    // Real timeout: if still downloading after 30 min, cancel and surface error
+    if (_pullTimeoutId) clearTimeout(_pullTimeoutId)
+    _pullTimeoutId = setTimeout(() => {
+      _pullTimeoutId = null
+      if (get().status === 'downloading') {
+        window.electronAPI.cancelAIPull()
+        set({ status: 'error', error: 'Model download timed out after 30 minutes.', pullProgress: null })
+      }
+    }, 30 * 60 * 1000)
   },
 
   cancelDownload: () => {
+    if (_pullTimeoutId) { clearTimeout(_pullTimeoutId); _pullTimeoutId = null }
     window.electronAPI.cancelAIPull()
     set({ status: 'missing-model', pullProgress: null })
   },
 
   startSummary: (pageText: string) => {
+    window.electronAPI.cancelSummarize()
     set({ summary: '', summaryBuffer: '', isSummarizing: true, summaryError: null })
     window.electronAPI.summarizePage(pageText)
   },
@@ -149,6 +146,7 @@ export const useAIStore = create<AIStore>((set, get) => ({
   },
 
   _onDone: ({ success, error }) => {
+    if (_pullTimeoutId) { clearTimeout(_pullTimeoutId); _pullTimeoutId = null }
     if (success) {
       set({ status: 'ready', pullProgress: null })
     } else {

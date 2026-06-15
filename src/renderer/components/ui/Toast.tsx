@@ -66,7 +66,7 @@ function ToastContainerInner(): React.JSX.Element {
             animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
             exit={{ opacity: 0, x: 60, scale: 0.9, filter: 'blur(6px)' }}
             transition={SPRING}
-            className="pointer-events-auto relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl glass-heavy min-w-[280px] max-w-[380px]"
+            className="pointer-events-auto relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl glass-heavy min-w-[280px] max-w-[400px]"
           >
             {/* Auto-dismiss progress strip */}
             <motion.div
@@ -90,7 +90,7 @@ function ToastContainerInner(): React.JSX.Element {
                 }
               />
             </div>
-            <span className="flex-1 text-[13px] font-normal text-gray-800 dark:text-neutral-200 truncate">
+            <span className="flex-1 text-[13px] font-normal text-gray-800 dark:text-neutral-200 break-words line-clamp-3">
               {toast.message}
             </span>
             {toast.action && (

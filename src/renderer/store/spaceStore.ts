@@ -41,7 +41,6 @@ export interface SpaceStore {
   moveTabToSpace: (tabId: string, targetSpaceId: string) => void
   setSpaceRestoreMode: (id: string, mode: Space['restoreMode']) => void
   setSpacePrivacyProfile: (id: string, profile: PrivacyProfile) => void
-  saveCurrentTabsAsSpace: (name: string, hue: number) => string
 
   /** @internal — called by tab-sync subscriber */
   _syncNewTab: (tabId: string) => void
@@ -160,6 +159,7 @@ export const useSpaceStore = create<SpaceStore>()(
           const newGeneral: Space = {
             ...general,
             tabIds: [...general.tabIds, ...space.tabIds],
+            pinnedUrls: [...new Set([...general.pinnedUrls, ...space.pinnedUrls])],
           }
 
           const newSpaces: Record<string, Space> = { ...state.spaces, [DEFAULT_SPACE_ID]: newGeneral }
@@ -315,39 +315,6 @@ export const useSpaceStore = create<SpaceStore>()(
           )
         },
 
-        saveCurrentTabsAsSpace: (name, hue) => {
-          const tabStore = useTabStore.getState()
-          const tabIds = [...tabStore.tabOrder]
-          const pinnedUrls = tabIds
-            .map((id) => tabStore.tabs[id])
-            .filter((tab) => tab?.pinned)
-            .map((tab) => tab!.url)
-          const id = crypto.randomUUID()
-          const now = Date.now()
-          const space: Space = {
-            id,
-            name,
-            hue,
-            tabIds,
-            activeTabId: tabStore.activeTabId,
-            pinnedUrls,
-            restoreMode: 'restore',
-            privacyProfile: 'standard',
-            createdAt: now,
-            updatedAt: now,
-          }
-          set(
-            (s) => ({
-              spaces: { ...s.spaces, [id]: space },
-              spaceOrder: [...s.spaceOrder, id],
-              activeSpaceId: id,
-            }),
-            undefined,
-            'saveCurrentTabsAsSpace'
-          )
-          return id
-        },
-
         _syncNewTab: (tabId) => {
           const state = get()
           // Already assigned?
@@ -476,16 +443,23 @@ function initialSync(): void {
 if (useTabStore.persist.hasHydrated() && useSpaceStore.persist.hasHydrated()) {
   initialSync()
 } else {
-  const unsub1 = useTabStore.persist.onFinishHydration(() => {
-    if (useSpaceStore.persist.hasHydrated()) {
+  let tabHydrated = useTabStore.persist.hasHydrated()
+  let spaceHydrated = useSpaceStore.persist.hasHydrated()
+
+  const trySync = (): void => {
+    if (tabHydrated && spaceHydrated) {
       initialSync()
       unsub1()
-    }
-  })
-  const unsub2 = useSpaceStore.persist.onFinishHydration(() => {
-    if (useTabStore.persist.hasHydrated()) {
-      initialSync()
       unsub2()
     }
+  }
+
+  const unsub1 = useTabStore.persist.onFinishHydration(() => {
+    tabHydrated = true
+    trySync()
+  })
+  const unsub2 = useSpaceStore.persist.onFinishHydration(() => {
+    spaceHydrated = true
+    trySync()
   })
 }

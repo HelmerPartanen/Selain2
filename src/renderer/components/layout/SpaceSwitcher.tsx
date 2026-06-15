@@ -313,6 +313,14 @@ function SpaceSwitcherInner(): React.JSX.Element {
   const activeSpace = spaces[activeSpaceId]
   const hasMultipleSpaces = spaceOrder.length > 1
 
+  // Reset transient form state whenever the switcher closes (including external closes)
+  useEffect(() => {
+    if (!isOpen) {
+      setIsCreating(false)
+      setEditingId(null)
+    }
+  }, [isOpen])
+
   const handleToggle = useCallback(() => {
     setOpen(!isOpen)
     setIsCreating(false)

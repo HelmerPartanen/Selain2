@@ -707,13 +707,17 @@ function OnboardingFlowInner(): React.JSX.Element {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent): void => {
       if (exiting) return
-      if (e.key === 'ArrowRight' || e.key === 'Enter') next()
+      if (e.key === 'ArrowRight') next()
+      else if (e.key === 'Enter') {
+        const tag = (e.target as HTMLElement).tagName
+        if (tag === 'BUTTON' || tag === 'A' || tag === 'SELECT' || tag === 'TEXTAREA') return
+        next()
+      }
       else if (e.key === 'ArrowLeft' && !isFirst) back()
-      else if (e.key === 'Escape') skip()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [next, back, skip, isFirst, exiting])
+  }, [next, back, isFirst, exiting])
 
   return (
     <motion.div

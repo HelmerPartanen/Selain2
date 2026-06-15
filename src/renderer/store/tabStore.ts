@@ -535,6 +535,15 @@ export const useTabStore = create<TabStore>()(
           if (activeTab) activeTab.isSuspended = false
           const splitTab = state.splitTabId ? state.tabs[state.splitTabId] : undefined
           if (splitTab) splitTab.isSuspended = false
+          // Clear stale split state if the split tab no longer exists
+          if (state.splitTabId && !state.tabs[state.splitTabId]) {
+            state.splitTabId = null
+            state.focusedPanel = 'primary'
+          }
+          // Clear stale activeTabId if the tab no longer exists
+          if (state.activeTabId && !state.tabs[state.activeTabId]) {
+            state.activeTabId = state.tabOrder[0] ?? null
+          }
         }
       }
     ),

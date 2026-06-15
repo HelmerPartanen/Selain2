@@ -47,9 +47,14 @@ export const useBookmarkStore = create<BookmarkState>()(
       },
 
       removeBookmark: (url) => {
-        set((state) => ({
-          bookmarks: state.bookmarks.filter((b) => b.url !== url)
-        }))
+        set((state) => {
+          const newFavouritePositions = { ...state.favouritePositions }
+          delete newFavouritePositions[url]
+          return {
+            bookmarks: state.bookmarks.filter((b) => b.url !== url),
+            favouritePositions: newFavouritePositions,
+          }
+        })
       },
 
       reorderBookmarks: (fromIndex, toIndex) => {

@@ -18,20 +18,17 @@ export function setupAIIPC(): void {
   // ── Status check ──────────────────────────────────────────────────────────
   // Returns the full AI readiness picture in a single round-trip
   ipcMain.handle('ai:check-status', async () => {
-    const installed = await checkOllamaInstalled()
-    if (!installed) {
-      return { installed: false, running: false, modelReady: false }
-    }
-
+    // First check if the service is already running (HTTP probe — most reliable).
+    // This correctly handles Ollama installations that are not on PATH.
     const running = await checkOllamaRunning()
-    if (!running) {
-      // Binary exists but the service is not started — treat same as missing
-      // (user may need to run `ollama serve` or restart)
-      return { installed: true, running: false, modelReady: false }
+    if (running) {
+      const modelReady = await checkModelAvailable()
+      return { installed: true, running: true, modelReady }
     }
 
-    const modelReady = await checkModelAvailable()
-    return { installed: true, running: true, modelReady }
+    // Service not reachable — check if binary is installed at all
+    const installed = await checkOllamaInstalled()
+    return { installed, running: false, modelReady: false }
   })
 
   // ── Model pull ────────────────────────────────────────────────────────────

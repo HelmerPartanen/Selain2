@@ -133,4 +133,29 @@ export function setupCSP(): void {
       }
     })
   })
+
+  // Also register on persist:default so the app-shell CSP applies if it ever
+  // loads via this session. External (non-file://) requests pass through unmodified.
+  session.fromPartition('persist:default').webRequest.onHeadersReceived((details, callback) => {
+    if (!details.url.startsWith('file://')) {
+      callback({ cancel: false })
+      return
+    }
+    callback({
+      cancel: false,
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self';" +
+          " script-src 'self' 'unsafe-inline';" +
+          " style-src 'self' 'unsafe-inline';" +
+          " img-src 'self' data: blob: https:;" +
+          " font-src 'self' data:;" +
+          " connect-src 'self' https: ws:;" +
+          " media-src 'self' blob: https:;" +
+          " frame-src 'none';"
+        ]
+      }
+    })
+  })
 }

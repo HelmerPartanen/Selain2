@@ -152,23 +152,30 @@ function PrivacyPaneInner(): React.JSX.Element {
               No saved site permission decisions yet.
             </div>
           ) : (
-            permissionEntries.slice(0, 12).map((entry) => (
-              <SettingRow
-                key={`${entry.origin}-${entry.permission}`}
-                label={entry.origin}
-                desc={`${SITE_PERMISSION_LABELS[entry.permission] ?? entry.permission}: ${entry.decision}`}
-              >
-                <button
-                  onClick={() => {
-                    resetOrigin(entry.origin)
-                    showToast({ message: 'Site permissions reset', type: 'success' })
-                  }}
-                  className="px-3 py-1.5 rounded-full text-[11px] text-red-500 bg-red-500/[0.08] hover:bg-red-500/[0.14]"
+            <>
+              {permissionEntries.slice(0, 12).map((entry) => (
+                <SettingRow
+                  key={`${entry.origin}-${entry.permission}`}
+                  label={entry.origin}
+                  desc={`${SITE_PERMISSION_LABELS[entry.permission] ?? entry.permission}: ${entry.decision}`}
                 >
-                  Reset
-                </button>
-              </SettingRow>
-            ))
+                  <button
+                    onClick={() => {
+                      resetOrigin(entry.origin)
+                      showToast({ message: 'Site permissions reset', type: 'success' })
+                    }}
+                    className="px-3 py-1.5 rounded-full text-[11px] text-red-500 bg-red-500/[0.08] hover:bg-red-500/[0.14]"
+                  >
+                    Reset
+                  </button>
+                </SettingRow>
+              ))}
+              {permissionEntries.length > 12 && (
+                <p className="text-xs text-gray-400 dark:text-neutral-500 text-center py-2">
+                  {permissionEntries.length - 12} more sites — clear all to reset
+                </p>
+              )}
+            </>
           )}
         </SettingGroup>
       </div>

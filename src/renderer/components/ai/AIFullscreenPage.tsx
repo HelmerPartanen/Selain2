@@ -72,6 +72,8 @@ function AIFullscreenPageInner(): React.JSX.Element {
     navigator.clipboard.writeText(summary).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {
+      // Clipboard access denied — no feedback change needed
     })
   }, [summary])
 
@@ -107,13 +109,13 @@ function AIFullscreenPageInner(): React.JSX.Element {
 
   // Show summary overlay automatically when loading completes
   useEffect(() => {
-    if (isOpen && !isLoading && isAIReady) {
+    if (isOpen && !isLoading && aiStatus !== 'idle' && aiStatus !== 'checking') {
       const timer = setTimeout(() => {
         useUIStore.setState({ isAISummaryOverlayVisible: true })
       }, 200)
       return () => clearTimeout(timer)
     }
-  }, [isOpen, isLoading, isAIReady])
+  }, [isOpen, isLoading, aiStatus])
 
   useEffect(() => {
     return () => {

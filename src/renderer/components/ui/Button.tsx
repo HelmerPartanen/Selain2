@@ -46,8 +46,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'ghost', className = '', rounded = 'rounded-full', children, onClick, onMouseDown, disabled, type, title, tabIndex, id, ...ariaProps }, ref) => (
     <motion.button
       ref={ref}
-      whileHover={disabled ? undefined : { scale: 1.0 }}
-      whileTap={disabled ? undefined : { scale: 1.0 }}
+      whileTap={disabled ? undefined : { scale: 0.94 }}
       transition={SPRING_SNAPPY}
       onClick={onClick}
       onMouseDown={onMouseDown}

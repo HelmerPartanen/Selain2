@@ -152,7 +152,7 @@ function ControlButton({
       transition={SPRING_SNAPPY}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`relative w-9 h-9 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100${hoverBg} ${hoverText}`}
+      className={`relative w-9 h-9 flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100 ${hoverBg} ${hoverText}`}
     >
       <span className="relative z-10">{children}</span>
     </motion.button>
