@@ -87,8 +87,9 @@ const TabCard = memo(function TabCard({
       exit={disableAnimations ? undefined : { scale: 0.8, opacity: 0 }}
       transition={disableAnimations ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
     >
-      <button
+      <motion.button
         onClick={onSelect}
+        whileTap={{ scale: 0.99 }}
         className={`
           relative w-full rounded-lg overflow-hidden text-left transition-shadow duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50
@@ -99,6 +100,10 @@ const TabCard = memo(function TabCard({
               : 'ring-1 ring-gray-200 dark:ring-neutral-700 shadow-lg hover:shadow-xl hover:ring-blue-400/50 dark:hover:ring-blue-500/40'
           }
         `}
+        style={{
+          transformOrigin: 'center',
+          transition: 'box-shadow 200ms ease, ring-color 200ms ease, transform 200ms ease',
+        }}
       >
         {/* Thumbnail area */}
         <div className="relative aspect-[16/10] bg-gray-100 dark:bg-neutral-800 overflow-hidden">
@@ -144,13 +149,17 @@ const TabCard = memo(function TabCard({
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 dark:group-hover:bg-white/5 transition-colors duration-150" />
           <button
-            onClick={onToggleSelected}
-            className={`absolute top-2 left-2 w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-              isSelected ? 'bg-blue-500 border-blue-500' : 'bg-black/30 border-white/30'
+            onClick={(e) => {
+              // If user is not in select-mode, keep old behavior (toggle selection, but don’t activate/close)
+              e.stopPropagation()
+              onToggleSelected(e)
+            }}
+            className={`absolute bottom-2 right-2 w-5 h-5 rounded-full border flex items-center justify-center transition-colors transition-transform duration-200 ${
+              isSelected ? 'bg-blue-500 border-blue-500' : 'bg-transparent border-transparent'
             }`}
             aria-label={isSelected ? 'Deselect tab' : 'Select tab'}
           >
-            {isSelected && <SvgIcon svg={checkSvg} size={10} className="text-white" />}
+            {isSelected && <SvgIcon svg={checkSvg} size={14} className="text-white" />}
           </button>
           <div className="absolute top-2 right-2 flex gap-1">
             {preview.pinned && <span className="px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[9px]">Pinned</span>}
@@ -158,7 +167,8 @@ const TabCard = memo(function TabCard({
             {preview.isSuspended && <span className="px-1.5 py-0.5 rounded-full bg-neutral-700 text-white text-[9px]">Sleeping</span>}
           </div>
         </div>
-      </button>
+      </motion.button>
+
 
       {/* Close button — only shown when the tab can be closed */}
       {canClose && (
@@ -210,6 +220,7 @@ function TabOverviewInner(): React.JSX.Element {
   const [query, setQuery] = useState('')
   const [groupMode, setGroupMode] = useState<'space' | 'domain'>('space')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [isSelecting, setIsSelecting] = useState(false)
   const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false)
   const [hoveredMoveSpaceIdx, setHoveredMoveSpaceIdx] = useState<number | null>(null)
   const moveButtonRef = useRef<HTMLButtonElement | null>(null)
@@ -289,6 +300,16 @@ function TabOverviewInner(): React.JSX.Element {
     [closeOverview]
   )
 
+  const toggleSelecting = useCallback(() => {
+    setIsSelecting((v) => {
+      const next = !v
+      if (!next) setSelectedIds(new Set())
+      setIsMoveMenuOpen(false)
+      setHoveredMoveSpaceIdx(null)
+      return next
+    })
+  }, [])
+
   const handleClose = useCallback(
     (e: React.MouseEvent, tabId: string) => {
       e.stopPropagation()
@@ -349,6 +370,7 @@ function TabOverviewInner(): React.JSX.Element {
     setPreviews((prev) => prev.filter((preview) => !selectedIds.has(preview.id)))
     setSelectedIds(new Set())
     setIsMoveMenuOpen(false)
+    setIsSelecting(false)
   }, [selectedIds])
 
   const handleSleepSelected = useCallback(() => {
@@ -356,6 +378,7 @@ function TabOverviewInner(): React.JSX.Element {
     setPreviews((prev) => prev.map((preview) => selectedIds.has(preview.id) ? { ...preview, isSuspended: true } : preview))
     setSelectedIds(new Set())
     setIsMoveMenuOpen(false)
+    setIsSelecting(false)
   }, [selectedIds])
 
   const handleCloseDuplicates = useCallback(() => {
@@ -363,6 +386,7 @@ function TabOverviewInner(): React.JSX.Element {
     for (const preview of duplicates) useTabStore.getState().removeTab(preview.id)
     setPreviews((prev) => prev.filter((preview) => !preview.isDuplicate))
     setSelectedIds(new Set())
+    setIsSelecting(false)
   }, [previews])
 
   const handleMoveSelectedToSpace = useCallback((spaceId: string) => {
@@ -370,12 +394,14 @@ function TabOverviewInner(): React.JSX.Element {
     setIsMoveMenuOpen(false)
     setHoveredMoveSpaceIdx(null)
     setSelectedIds(new Set())
+    setIsSelecting(false)
   }, [selectedIds])
 
   useEffect(() => {
     if (selectedIds.size === 0) {
       setIsMoveMenuOpen(false)
       setHoveredMoveSpaceIdx(null)
+      setIsSelecting(false)
     }
   }, [selectedIds.size])
 
@@ -441,7 +467,7 @@ function TabOverviewInner(): React.JSX.Element {
                 {previews.length} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
               </h2>
               <div
-                className={`mt-4 flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-full px-1.5 py-1 drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+                className={`mt-4 flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-full px-1.5 py-1 drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 border border-black/5 dark:border-white/5'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="relative flex items-center h-10 w-72 max-w-[calc(100vw-72px)] min-w-0">
@@ -462,6 +488,21 @@ function TabOverviewInner(): React.JSX.Element {
                   <SvgIcon svg={groupMode === 'space' ? folderSvg : globeSvg} size={14} />
                   <span className="text-[12px]">{groupMode === 'space' ? 'Space' : 'Domain'}</span>
                 </button>
+                <motion.button
+                  onClick={toggleSelecting}
+                  whileTap={{ scale: 0.96 }}
+                  className="h-10 px-3 rounded-full flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                  title={isSelecting ? 'Exit selection' : 'Select tabs'}
+                  aria-label={isSelecting ? 'Exit selection mode' : 'Enter selection mode'}
+                  style={{
+                    background: isSelecting ? 'rgba(43, 127, 255, 0.08)' : undefined,
+                  }}
+                >
+                  <span className="flex h-5 w-5 items-center justify-center">
+                    <SvgIcon svg={checkSvg} size={14} className={isSelecting ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-neutral-300'} />
+                  </span>
+                  <span className="text-[12px] font-medium">Select</span>
+                </motion.button>
                 {selectedIds.size > 0 && (
                   <>
                     <button
@@ -605,7 +646,18 @@ function TabOverviewInner(): React.JSX.Element {
                         canClose={!isOnlyTabOnNewTab}
                         isSelected={selectedIds.has(preview.id)}
                         disableAnimations={disableAnimations}
-                        onSelect={() => handleSelect(preview.id)}
+                        onSelect={() => {
+                          if (isSelecting) {
+                            setSelectedIds((prev) => {
+                              const next = new Set(prev)
+                              if (next.has(preview.id)) next.delete(preview.id)
+                              else next.add(preview.id)
+                              return next
+                            })
+                          } else {
+                            handleSelect(preview.id)
+                          }
+                        }}
                         onClose={(e) => handleClose(e, preview.id)}
                         onToggleSelected={(e) => handleToggleSelected(e, preview.id)}
                       />
@@ -620,11 +672,11 @@ function TabOverviewInner(): React.JSX.Element {
                   onClick={handleNewTab}
                   className="w-full rounded-lg overflow-hidden
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
-                    bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.97]"
+                    bg-white/90 dark:bg-[#1D1F23]/90 hover:opacity-70 dark:hover:opacity-100 dark:hover:brightness-120 active:scale-[0.97]"
                 >
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
-                    <SvgIcon svg={plusSvg} size={22} className="text-gray-500 dark:text-neutral-400" />
-                    <span className="text-[13px] font-medium text-gray-600 dark:text-neutral-400">New Tab</span>
+                    <SvgIcon svg={plusSvg} size={22} className="text-neutral-700 dark:text-neutral-400" />
+                    <span className="text-[13px] font-medium text-neutral-700 dark:text-neutral-400">New Tab</span>
                   </div>
                 </button>
               </div>

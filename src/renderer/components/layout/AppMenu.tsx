@@ -187,7 +187,7 @@ function AppMenuInner(): React.JSX.Element {
                       <button
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
-                        className="w-full rounded-xl flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150 relative [app-region:no-drag]"
+                        className="w-full rounded-lg flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150 relative [app-region:no-drag]"
                         style={disableAnimations
                           ? { opacity: 1, animation: 'none' }
                           : {

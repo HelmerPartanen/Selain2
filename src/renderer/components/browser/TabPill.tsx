@@ -181,7 +181,7 @@ const TabRow = memo(function TabRow({
     <button
       onClick={handleClick}
       onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e) }}
-      className={`relative group flex items-center gap-3 w-full px-3.5 h-10 rounded-xl text-left transition-all duration-150 font-light ${
+      className={`relative group flex items-center gap-3 w-full px-3.5 h-10 rounded-lg text-left transition-all duration-150 font-light ${
         isHighlighted
           ? 'text-gray-900 dark:text-white bg-black/[0.04] dark:bg-white/[0.06]'
           : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
