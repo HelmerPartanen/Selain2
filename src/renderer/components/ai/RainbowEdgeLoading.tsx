@@ -11,12 +11,15 @@ import { useEffect, useRef, useState } from 'react'
 const RAINBOW_GRADIENT =
   'conic-gradient(from 90deg, #FFE066, #FF8FB1, #FF6FD8, #C77DFF, #6FA8FF, #6FE3C9, #C8F06F, #FFE066)'
 
+const GLOW_OVERLAY =
+  'radial-gradient(circle at 100% 100%, rgba(255,255,255,0.18) 0%, rgba(125,211,252,0.12) 24%, rgba(192,132,252,0.10) 48%, transparent 72%)'
+
 // How long the shockwave takes to travel from the corner past the
 // far edge of the screen.
-const SHOCKWAVE_DURATION = 900
+const SHOCKWAVE_DURATION = 850
 // Thickness of the blurred ring, as a percentage of the screen
 // diagonal (the ring spans roughly +/- this value around its radius).
-const SHOCKWAVE_BAND = 12
+const SHOCKWAVE_BAND = 11
 
 export function RainbowEdgeLoading(): React.JSX.Element {
   // Toggle the "exploded" class shortly after mount so the CSS
@@ -94,13 +97,31 @@ export function RainbowEdgeLoading(): React.JSX.Element {
           }
         }
 
+        @keyframes rainbow-pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.35;
+          }
+          50% {
+            transform: scale(1.04);
+            opacity: 0.55;
+          }
+        }
+
         .rainbow-burst-layer {
-          animation: rainbow-burst 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          animation: rainbow-burst 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          will-change: transform, opacity;
         }
 
         .rainbow-drift-layer {
-          animation: rainbow-drift 50s linear infinite;
-          animation-delay: 1.1s;
+          animation: rainbow-drift 52s linear infinite;
+          animation-delay: 1.05s;
+          will-change: transform;
+        }
+
+        .rainbow-pulse-layer {
+          animation: rainbow-pulse 9s ease-in-out infinite;
+          will-change: transform, opacity;
         }
       `}</style>
 
@@ -108,7 +129,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
           shows a hard edge at the screen boundary. */}
       <div
         className="absolute -inset-[20%]"
-        style={{ filter: 'blur(90px)' }}
+        style={{ filter: 'blur(86px)' }}
       >
         {/* Burst layer: scales up from a point at the bottom-right
             corner with a slight overshoot, then holds. */}
@@ -123,8 +144,20 @@ export function RainbowEdgeLoading(): React.JSX.Element {
             transformOrigin: '100% 100%',
             transform: exploded ? undefined : 'translate(50%, 50%) scale(0.05)',
             opacity: exploded ? undefined : 0,
+            mixBlendMode: 'screen',
           }}
         >
+          <div
+            className={exploded ? 'rainbow-pulse-layer' : ''}
+            style={{
+              position: 'absolute',
+              inset: '-8%',
+              borderRadius: '50%',
+              background: GLOW_OVERLAY,
+              opacity: 0.35,
+              filter: 'blur(10px)',
+            }}
+          />
           {/* Drift layer: once settled, slowly rotates/breathes so the
               glow feels alive without being distracting. */}
           <div
@@ -134,7 +167,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
               inset: 0,
               borderRadius: '50%',
               background: RAINBOW_GRADIENT,
-              opacity: 0.2,
+              opacity: 0.22,
             }}
           />
         </div>
@@ -159,8 +192,8 @@ export function RainbowEdgeLoading(): React.JSX.Element {
         style={
           {
             '--shock-r': '0%',
-            backdropFilter: 'blur(36px) saturate(1.15) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(36px) saturate(1.15) brightness(1.04)',
+            backdropFilter: 'blur(34px) saturate(1.18) brightness(1.05)',
+            WebkitBackdropFilter: 'blur(34px) saturate(1.18) brightness(1.05)',
             maskImage: shockwaveMask,
             WebkitMaskImage: shockwaveMask,
             transition: 'opacity 0.25s ease-out',

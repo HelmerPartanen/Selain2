@@ -211,12 +211,6 @@ function AIFullscreenPageInner(): React.JSX.Element {
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <motion.button
-                      onClick={toggleSummaryOverlay}
-                      className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-full text-gray-700 dark:text-neutral-300 text-sm font-medium select-none transition-colors duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] whitespace-nowrap h-9 min-w-[96px]"
-                    >
-                      {isSummaryOverlayVisible ? 'Original' : 'Summary'}
-                    </motion.button>
                   </motion.div>
                 )}
 
@@ -226,7 +220,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                 {/* Close button in glass pill */}
                 {!isLoading && (
                   <motion.div
-                    className={`pointer-events-auto rounded-full drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+                    className="pointer-events-auto rounded-full"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
