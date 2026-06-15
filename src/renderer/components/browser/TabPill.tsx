@@ -6,6 +6,8 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_fill.svg?raw'
 import tabsSvg from '@/assets/icons/Interface/Tabs.svg?raw'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_2_Fill.svg?raw'
+import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
+import pinFillSvg from '@/assets/icons/Objects/Pin_Fill.svg?raw'
 import splitSvg from '@/assets/icons/Arrows/Triangle_Branch.svg?raw'
 import unsplitSvg from '@/assets/icons/Arrows/Triangle_Merge.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
@@ -57,11 +59,14 @@ const TabRow = memo(function TabRow({
   const removeTab = useTabStore((s) => s.removeTab)
   const splitTab = useTabStore((s) => s.splitTab)
   const unsplit = useTabStore((s) => s.unsplit)
+  const toggleMute = useTabStore((s) => s.toggleMute)
 
   const title = meta?.title ?? 'New Tab'
   const favicon = meta?.favicon
   const isLoading = meta?.isLoading ?? false
   const isPlayingMedia = meta?.isPlayingMedia ?? false
+  const isMuted = meta?.isMuted ?? false
+  const pinned = meta?.pinned ?? false
 
   const handleClick = useCallback(() => {
     setActiveTab(tabId)
@@ -128,8 +133,14 @@ const TabRow = memo(function TabRow({
         <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-blue-500 z-10" />
       )}
 
-      {!isHighlighted && isPlayingMedia && (
-        <SvgIcon svg={soundFillSvg} size={12} className="flex-shrink-0 text-blue-500 z-10" />
+      {(isPlayingMedia || isMuted) && (
+        <div
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full cursor-pointer z-10 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors duration-100"
+          onClick={(e) => { e.stopPropagation(); toggleMute(tabId) }}
+          title={isMuted ? 'Unmute tab' : 'Mute tab'}
+        >
+          <SvgIcon svg={isMuted ? soundMuteSvg : soundFillSvg} size={12} />
+        </div>
       )}
 
       {/* Split/unsplit action — shown when not the active tab */}
@@ -143,9 +154,17 @@ const TabRow = memo(function TabRow({
         </div>
       )}
 
+      {pinned && (
+        <SvgIcon svg={pinFillSvg} size={10} className="flex-shrink-0 text-amber-500 dark:text-amber-400 z-10 opacity-70" />
+      )}
       <div
-        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors duration-100 z-10"
-        onClick={handleClose}
+        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-colors duration-100 z-10 ${
+          pinned
+            ? 'text-gray-300 dark:text-neutral-600 cursor-not-allowed'
+            : 'text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700'
+        }`}
+        onClick={pinned ? undefined : handleClose}
+        title={pinned ? 'Unpin to close' : 'Close tab'}
       >
         <SvgIcon svg={closeSvg} size={11} />
       </div>
@@ -202,7 +221,14 @@ function TabPillInner(): React.JSX.Element {
           transition={SPRING_SNAPPY}
           className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
         >
-          <SvgIcon svg={tabsSvg} size={16}/>
+          <div className="relative">
+            <SvgIcon svg={tabsSvg} size={16}/>
+            {tabCount > 1 && (
+              <span className="absolute -top-2 -right-2 min-w-[14px] h-3.5 bg-blue-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none pointer-events-none">
+                {tabCount > 99 ? '99+' : tabCount}
+              </span>
+            )}
+          </div>
         </motion.button>
       </div>
 

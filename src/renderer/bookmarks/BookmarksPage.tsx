@@ -9,10 +9,12 @@ import starSvg from '@/assets/icons/Interface/Star.svg?raw'
 import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useBookmarkStore, type BookmarkEntry } from '@/store/bookmarkStore'
+import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
 import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
+import { showToast } from '@/components/ui/Toast'
 
 const SEARCH_DEBOUNCE_MS = 200
 
@@ -36,7 +38,21 @@ const BookmarkRow = memo(function BookmarkRow({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay }}
-      onClick={() => onNavigate(entry.url)}
+      onClick={(e) => {
+        if (e.ctrlKey || e.metaKey) {
+          useTabStore.getState().addTab(entry.url)
+          useUIStore.getState().closeBookmarks()
+        } else {
+          onNavigate(entry.url)
+        }
+      }}
+      onAuxClick={(e) => {
+        if (e.button === 1) {
+          e.preventDefault()
+          useTabStore.getState().addTab(entry.url)
+          useUIStore.getState().closeBookmarks()
+        }
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
@@ -120,6 +136,46 @@ function BookmarksPanelInner(): React.JSX.Element {
     removeBookmark(url)
   }, [removeBookmark])
 
+  const handleExport = useCallback(async () => {
+    const items = bookmarks
+      .map((b) => `    <DT><A HREF="${b.url}" ADD_DATE="${Math.floor((b.createdAt || Date.now()) / 1000)}">${b.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</A>`)
+      .join('\n')
+    const html = `<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Bookmarks</TITLE>\n<H1>Bookmarks</H1>\n<DL><p>\n${items}\n</DL><p>`
+    const ok = await window.electronAPI.exportBookmarksHtml(html)
+    if (ok) showToast({ message: 'Bookmarks exported', type: 'success' })
+  }, [bookmarks])
+
+  const handleBookmarkAll = useCallback(() => {
+    const { tabs, tabOrder } = useTabStore.getState()
+    const store = useBookmarkStore.getState()
+    let count = 0
+    for (const id of tabOrder) {
+      const tab = tabs[id]
+      if (!tab || !tab.url.startsWith('http')) continue
+      store.addBookmark(tab.url, tab.title || tab.url, tab.favicon || null)
+      count++
+    }
+    if (count > 0) showToast({ message: `${count} tab${count === 1 ? '' : 's'} bookmarked`, type: 'success' })
+  }, [])
+
+  const handleImport = useCallback(async () => {
+    const html = await window.electronAPI.importBookmarksHtml()
+    if (!html) return
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+    const links = Array.from(doc.querySelectorAll('a[href]'))
+    const store = useBookmarkStore.getState()
+    let count = 0
+    for (const a of links) {
+      const url = a.getAttribute('href') || ''
+      if (!url.startsWith('http')) continue
+      const title = a.textContent?.trim() || url
+      store.addBookmark(url, title, null)
+      count++
+    }
+    showToast({ message: count > 0 ? `${count} bookmarks imported` : 'No bookmarks found', type: count > 0 ? 'success' : 'info' })
+  }, [])
+
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const el = event.currentTarget
     if (el.scrollTop + el.clientHeight < el.scrollHeight - 200) return
@@ -147,15 +203,39 @@ function BookmarksPanelInner(): React.JSX.Element {
           <SvgIcon svg={bookmarkSvg} size={16} />
           Bookmarks
         </h2>
-        <motion.button
-          onClick={closeBookmarks}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.9 }}
-          transition={SPRING_SNAPPY}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
-        >
-          <SvgIcon svg={closeSvg} size={13} />
-        </motion.button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleBookmarkAll}
+            className="px-2.5 py-1 rounded-full text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+            title="Bookmark all open tabs"
+          >
+            Bookmark all
+          </button>
+          <button
+            onClick={handleImport}
+            className="px-2.5 py-1 rounded-full text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+            title="Import bookmarks from HTML"
+          >
+            Import
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={bookmarks.length === 0}
+            className="px-2.5 py-1 rounded-full text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-40 disabled:pointer-events-none transition-colors duration-150"
+            title="Export bookmarks to HTML"
+          >
+            Export
+          </button>
+          <motion.button
+            onClick={closeBookmarks}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.9 }}
+            transition={SPRING_SNAPPY}
+            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+          >
+            <SvgIcon svg={closeSvg} size={13} />
+          </motion.button>
+        </div>
       </div>
 
       {/* Search */}

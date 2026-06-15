@@ -615,9 +615,9 @@ function TabOverviewInner(): React.JSX.Element {
               <div className="tab-overview-card" style={{ animationDelay: disableAnimations ? undefined : `${previews.length * 40}ms` }}>
                 <button
                   onClick={handleNewTab}
-                  className="w-full rounded-lg overflow-hidden border border-black/10 dark:border-white/10
+                  className="w-full rounded-lg overflow-hidden
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
-                    bg-white/80 dark:bg-[#1D1F23]/80 hover:bg-white dark:hover:dark:bg-[#1D1F23]/60 active:scale-[0.97]"
+                    bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] active:scale-[0.97]"
                 >
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
                     <SvgIcon svg={plusSvg} size={22} className="text-gray-500 dark:text-neutral-400" />

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
+import { showToast } from '@/components/ui/Toast'
 
 function getFocusedTabId(): string | null {
   const s = useTabStore.getState()
@@ -45,7 +46,14 @@ export function useKeyboardShortcuts(): void {
       if (ctrl && !shift && key === 'w') {
         e.preventDefault()
         const tabId = getFocusedTabId()
-        if (tabId) useTabStore.getState().removeTab(tabId)
+        if (tabId) {
+          const tab = useTabStore.getState().tabs[tabId]
+          if (tab?.pinned) {
+            showToast({ message: 'Unpin the tab to close it', type: 'info' })
+          } else {
+            useTabStore.getState().removeTab(tabId)
+          }
+        }
         return
       }
 
@@ -77,13 +85,49 @@ export function useKeyboardShortcuts(): void {
         return
       }
 
-      // Escape — Close find bar (when not in input)
+      // Ctrl+M — Toggle mute on current tab
+      if (ctrl && !shift && key === 'm') {
+        e.preventDefault()
+        const tabId = getFocusedTabId()
+        if (tabId) useTabStore.getState().toggleMute(tabId)
+        return
+      }
+
+      // Ctrl+D — Duplicate current tab
+      if (ctrl && !shift && key === 'd') {
+        e.preventDefault()
+        const tabId = getFocusedTabId()
+        if (tabId) useTabStore.getState().duplicateTab(tabId)
+        return
+      }
+
+      // Ctrl+H — Toggle history
+      if (ctrl && !shift && key === 'h') {
+        e.preventDefault()
+        useUIStore.getState().toggleHistory()
+        return
+      }
+
+      // Ctrl+B — Toggle bookmarks
+      if (ctrl && !shift && key === 'b') {
+        e.preventDefault()
+        useUIStore.getState().toggleBookmarks()
+        return
+      }
+
+      // Ctrl+, — Toggle settings
+      if (ctrl && !shift && key === ',') {
+        e.preventDefault()
+        useUIStore.getState().toggleSettings()
+        return
+      }
+
+      // Escape — Close find bar and other transient UI (when not in input)
       if (key === 'escape' && !isInputField) {
         const ui = useUIStore.getState()
-        if (ui.isFindBarOpen) {
-          ui.closeFindBar()
-          return
-        }
+        if (ui.isFindBarOpen) { ui.closeFindBar(); return }
+        if (ui.isDropdownOpen) { ui.setDropdownOpen(false); return }
+        if (ui.isMenuOpen) { ui.setMenuOpen(false); return }
       }
 
       // Ctrl+Shift+S — Toggle split view (split next tab or unsplit)

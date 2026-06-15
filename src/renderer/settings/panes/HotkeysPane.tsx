@@ -49,6 +49,7 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
         shortcuts: [
             { keys: 'Ctrl + T', description: 'New tab' },
             { keys: 'Ctrl + W', description: 'Close current tab' },
+            { keys: 'Ctrl + D', description: 'Duplicate current tab' },
             { keys: 'Ctrl + Shift + T', description: 'Reopen last closed tab' },
             { keys: 'Ctrl + Tab', description: 'Next tab' },
             { keys: 'Ctrl + Shift + Tab', description: 'Previous tab' },
@@ -71,7 +72,11 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
     {
         label: 'Tools',
         shortcuts: [
+            { keys: 'Ctrl + M', description: 'Mute / unmute tab' },
             { keys: 'Ctrl + F', description: 'Find in page' },
+            { keys: 'Ctrl + H', description: 'Open history' },
+            { keys: 'Ctrl + B', description: 'Open bookmarks' },
+            { keys: 'Ctrl + ,', description: 'Open settings' },
             { keys: 'Escape', description: 'Close find bar / panels' }
         ]
     }

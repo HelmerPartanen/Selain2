@@ -18,6 +18,7 @@ function FindBarInner(): React.JSX.Element {
   const [query, setQuery] = useState('')
   const [activeMatch, setActiveMatch] = useState(0)
   const [totalMatches, setTotalMatches] = useState(0)
+  const [matchCase, setMatchCase] = useState(false)
   const prevTabIdRef = useRef<string | null>(null)
 
   // Focus input on mount
@@ -66,31 +67,31 @@ function FindBarInner(): React.JSX.Element {
     if (!webview) return
 
     if (query.length > 0) {
-      ;(webview as unknown as { findInPage(text: string, options?: { findNext?: boolean; forward?: boolean }): number })
-        .findInPage(query)
+      ;(webview as unknown as { findInPage(text: string, options?: { findNext?: boolean; forward?: boolean; matchCase?: boolean }): number })
+        .findInPage(query, { matchCase })
     } else {
       ;(webview as unknown as { stopFindInPage(action: string): void })
         .stopFindInPage('clearSelection')
       setActiveMatch(0)
       setTotalMatches(0)
     }
-  }, [query, tabId])
+  }, [query, tabId, matchCase])
 
   const handleNext = useCallback(() => {
     if (!tabId || !query) return
     const webview = webviewRegistry.get(tabId)
     if (!webview) return
-    ;(webview as unknown as { findInPage(text: string, options?: { findNext?: boolean; forward?: boolean }): number })
-      .findInPage(query, { findNext: true, forward: true })
-  }, [tabId, query])
+    ;(webview as unknown as { findInPage(text: string, options?: { findNext?: boolean; forward?: boolean; matchCase?: boolean }): number })
+      .findInPage(query, { findNext: true, forward: true, matchCase })
+  }, [tabId, query, matchCase])
 
   const handlePrev = useCallback(() => {
     if (!tabId || !query) return
     const webview = webviewRegistry.get(tabId)
     if (!webview) return
-    ;(webview as unknown as { findInPage(text: string, options?: { findNext?: boolean; forward?: boolean }): number })
-      .findInPage(query, { findNext: true, forward: false })
-  }, [tabId, query])
+    ;(webview as unknown as { findInPage(text: string, options?: { findNext?: boolean; forward?: boolean; matchCase?: boolean }): number })
+      .findInPage(query, { findNext: true, forward: false, matchCase })
+  }, [tabId, query, matchCase])
 
   const handleClose = useCallback(() => {
     if (tabId) {
@@ -147,6 +148,18 @@ function FindBarInner(): React.JSX.Element {
           </span>
         )}
 
+        <button
+          onClick={() => setMatchCase((v) => !v)}
+          aria-label="Match case"
+          aria-pressed={matchCase}
+          className={`w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-semibold transition-colors duration-100 ${
+            matchCase
+              ? 'bg-blue-500/20 text-blue-500 dark:text-blue-400'
+              : 'text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+          }`}
+        >
+          Aa
+        </button>
         <Button variant="icon" onClick={handlePrev} aria-label="Previous match">
           <SvgIcon svg={chevronUpSvg} size={13} />
         </Button>

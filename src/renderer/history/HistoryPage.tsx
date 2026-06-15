@@ -8,6 +8,7 @@ import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
+import { useTabStore, type ClosedTab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
@@ -38,7 +39,21 @@ const HistoryRow = memo(function HistoryRow({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay: index * 0.03 }}
-      onClick={() => onNavigate(entry.url)}
+      onClick={(e) => {
+        if (e.ctrlKey || e.metaKey) {
+          useTabStore.getState().addTab(entry.url)
+          useUIStore.getState().closeHistory()
+        } else {
+          onNavigate(entry.url)
+        }
+      }}
+      onAuxClick={(e) => {
+        if (e.button === 1) {
+          e.preventDefault()
+          useTabStore.getState().addTab(entry.url)
+          useUIStore.getState().closeHistory()
+        }
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
@@ -87,8 +102,63 @@ const HistoryRow = memo(function HistoryRow({
   )
 })
 
+const RecentlyClosedRow = memo(function RecentlyClosedRow({
+  tab,
+  onReopen,
+  index
+}: {
+  tab: ClosedTab
+  onReopen: () => void
+  index: number
+}): React.JSX.Element {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...SPRING_LIST, delay: index * 0.03 }}
+      onClick={onReopen}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-150"
+    >
+      {hovered && (
+        <motion.div
+          layoutId="recently-closed-hover"
+          className="absolute inset-0 rounded-full glass glass-interactive"
+          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, filter: 'blur(2px)' }}
+          transition={SPRING_SNAPPY}
+        />
+      )}
+      <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
+        {tab.favicon ? (
+          <img src={tab.favicon} alt="" className="w-6 h-6" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+        ) : (
+          <SvgIcon svg={globeSvg} size={28} className="text-gray-400 dark:text-neutral-500" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0 z-10">
+        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+          {tab.title || simplifyUrl(tab.url)}
+        </div>
+        <div className="text-xs text-gray-500 dark:text-neutral-500 truncate">
+          {simplifyUrl(tab.url)}
+        </div>
+      </div>
+      <span className="flex-shrink-0 text-[11px] text-blue-500 dark:text-blue-400 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        Reopen
+      </span>
+    </motion.div>
+  )
+})
+
 function HistoryPanelInner(): React.JSX.Element {
   const closeHistory = useUIStore((s) => s.closeHistory)
+  const recentlyClosed = useTabStore((s) => s.recentlyClosed)
+  const reopenClosedAt = useTabStore((s) => s.reopenClosedAt)
   const entries = useHistoryStore((s) => s.entries)
   const getGrouped = useHistoryStore((s) => s.getGrouped)
   const searchFn = useHistoryStore((s) => s.search)
@@ -258,6 +328,23 @@ function HistoryPanelInner(): React.JSX.Element {
           </div>
         ) : (
           <div className="space-y-6">
+            {recentlyClosed.length > 0 && (
+              <div>
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-600 mb-2 px-3">
+                  Recently Closed
+                </h2>
+                <div className="space-y-0.5">
+                  {recentlyClosed.slice(0, 8).map((tab, i) => (
+                    <RecentlyClosedRow
+                      key={`rc-${i}-${tab.url}`}
+                      tab={tab}
+                      index={i}
+                      onReopen={() => { reopenClosedAt(i); closeHistory() }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
             {visibleGrouped.map((group) => (
               <div key={group.label}>
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-600 mb-2 px-3">

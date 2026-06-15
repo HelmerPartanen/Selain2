@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { useSettingsStore } from './settingsStore'
 import { createIPCStorage } from './ipcStorage'
+import { webviewRegistry } from '@/webview/webviewRegistry'
 
 export interface Tab {
   id: string
@@ -10,6 +11,7 @@ export interface Tab {
   favicon: string
   isLoading: boolean
   isPlayingMedia: boolean
+  isMuted: boolean
   canGoBack: boolean
   canGoForward: boolean
   isSuspended: boolean
@@ -47,12 +49,14 @@ export interface TabStore {
   recentlyClosed: ClosedTab[]
 
   addTab: (url?: string) => string
+  duplicateTab: (id: string) => void
   removeTab: (id: string) => void
   setActiveTab: (id: string) => void
   updateTab: (id: string, patch: Partial<Omit<Tab, 'id'>>) => void
   reorderTab: (fromIndex: number, toIndex: number) => void
   suspendTab: (id: string, reason?: 'manual' | 'memory' | 'cleanup') => void
   togglePinned: (id: string) => void
+  toggleMute: (id: string) => void
 
   // Split view actions
   splitTab: (tabId: string) => void
@@ -67,7 +71,7 @@ export interface TabStore {
 
 /** Shape persisted to disk — a subset of TabStore without action methods */
 type PersistedTabState = Pick<TabStore, 'tabOrder' | 'activeTabId' | 'splitTabId' | 'focusedPanel' | 'recentlyClosed'> & {
-  tabs: Record<string, Omit<Tab, 'isPlayingMedia' | 'virtualBackUrl' | 'virtualForwardUrl' | 'thumbnail'>>
+  tabs: Record<string, Omit<Tab, 'isPlayingMedia' | 'isMuted' | 'virtualBackUrl' | 'virtualForwardUrl' | 'thumbnail'>>
 }
 
 const SESSION_RESTORE_FAILED_EVENT = 'session-restore-failed'
@@ -93,6 +97,7 @@ function createTab(url: string): Tab {
     favicon: '',
     isLoading: false,
     isPlayingMedia: false,
+    isMuted: false,
     canGoBack: false,
     canGoForward: false,
     isSuspended: false,
@@ -146,6 +151,29 @@ export const useTabStore = create<TabStore>()(
             'addTab'
           )
           return tab.id
+        },
+
+        duplicateTab: (id) => {
+          const source = get().tabs[id]
+          if (!source) return
+          const tab = createTab(source.url)
+          tab.title = source.title
+          tab.favicon = source.favicon
+          set(
+            (state) => {
+              const nextOrder = [...state.tabOrder]
+              const sourceIndex = nextOrder.indexOf(id)
+              const insertIndex = sourceIndex >= 0 ? sourceIndex + 1 : nextOrder.length
+              nextOrder.splice(insertIndex, 0, tab.id)
+              return {
+                tabs: { ...state.tabs, [tab.id]: tab },
+                tabOrder: nextOrder,
+                activeTabId: tab.id
+              }
+            },
+            undefined,
+            'duplicateTab'
+          )
         },
 
         removeTab: (id) => {
@@ -398,6 +426,24 @@ export const useTabStore = create<TabStore>()(
           )
         },
 
+        toggleMute: (id) => {
+          const tab = get().tabs[id]
+          if (!tab) return
+          const newMuted = !tab.isMuted
+          set(
+            (state) => {
+              const t = state.tabs[id]
+              if (!t) return state
+              return { tabs: { ...state.tabs, [id]: { ...t, isMuted: newMuted } } }
+            },
+            undefined,
+            'toggleMute'
+          )
+          // Apply to webview directly — setAudioMuted is a DOM-level API
+          const webview = webviewRegistry.get(id)
+          if (webview) (webview as unknown as { setAudioMuted(m: boolean): void }).setAudioMuted(newMuted)
+        },
+
         // ─── Split View ────────────────────────────────────
 
         splitTab: (tabId) => {
@@ -497,6 +543,7 @@ export const useTabStore = create<TabStore>()(
                 favicon: tab.favicon,
                 isLoading: false,
                 isPlayingMedia: false,
+                isMuted: false,
                 canGoBack: false,
                 canGoForward: false,
                 isSuspended: true, // All restored tabs start suspended
@@ -519,6 +566,7 @@ export const useTabStore = create<TabStore>()(
             tab.createdAt = tab.createdAt ?? Date.now()
             tab.lastActiveAt = tab.lastActiveAt ?? tab.createdAt
             tab.pinned = tab.pinned ?? false
+            tab.isMuted = false // isMuted is session-only, always reset on restore
           }
           // If user disabled tab restore, clear all rehydrated tabs and start fresh
           const { restoreTabs } = useSettingsStore.getState()

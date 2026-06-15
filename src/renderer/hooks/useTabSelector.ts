@@ -85,12 +85,12 @@ export function useFocusedTabCanNavigate(): { canGoBack: boolean; canGoForward: 
   )
 }
 
-export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean } | undefined {
+export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean; isMuted: boolean; pinned: boolean } | undefined {
   return useTabStore(
     useShallow((s) => {
       const tab = s.tabs[id]
       if (!tab) return undefined
-      return { title: tab.title, favicon: tab.favicon, isLoading: tab.isLoading, isPlayingMedia: tab.isPlayingMedia }
+      return { title: tab.title, favicon: tab.favicon, isLoading: tab.isLoading, isPlayingMedia: tab.isPlayingMedia, isMuted: tab.isMuted, pinned: tab.pinned }
     })
   )
 }

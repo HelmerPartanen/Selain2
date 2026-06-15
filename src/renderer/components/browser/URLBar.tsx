@@ -10,6 +10,8 @@ import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
 import bookmarkFillSvg from '@/assets/icons/Objects/Bookmark_Fill.svg?raw'
 import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState, useFocusedTabMediaPlaying } from '@/hooks/useTabSelector'
+import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_2_Fill.svg?raw'
+import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -382,6 +384,10 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   // PiP state
   const isPlayingMedia = useFocusedTabMediaPlaying()
+  const isMuted = useTabStore((s) => tabId ? (s.tabs[tabId]?.isMuted ?? false) : false)
+  const handleToggleMute = useCallback(() => {
+    if (tabId) useTabStore.getState().toggleMute(tabId)
+  }, [tabId])
   const handlePiP = useCallback(() => {
     if (!tabId) return
     const webview = webviewRegistry.get(tabId)
@@ -543,6 +549,28 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                 className="flex-shrink-0 text-gray-400 dark:text-neutral-500"
               >
                 <SvgIcon svg={PIP_SVG} size={15} />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mute button */}
+        <AnimatePresence>
+          {(isPlayingMedia || isMuted) && !isFocused && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 28, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={SPRING_FAST}
+              className="flex-shrink-0 flex items-center justify-center overflow-hidden ml-1"
+            >
+              <Button
+                variant="icon"
+                onClick={handleToggleMute}
+                aria-label={isMuted ? 'Unmute tab' : 'Mute tab'}
+                className={`flex-shrink-0 ${isMuted ? 'text-red-400' : 'text-gray-400 dark:text-neutral-500'}`}
+              >
+                <SvgIcon svg={isMuted ? soundMuteSvg : soundFillSvg} size={15} />
               </Button>
             </motion.div>
           )}

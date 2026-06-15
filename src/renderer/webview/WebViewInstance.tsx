@@ -33,6 +33,8 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   const debounceTimerRef = useRef<number | null>(null)
   const progressResetTimerRef = useRef<number | null>(null)
 
+  const [errorState, setErrorState] = useState<{ code: number; description: string } | null>(null)
+
   const flushUpdate = useCallback(() => {
     const patch = pendingUpdateRef.current
     if (patch) {
@@ -58,6 +60,9 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     domReadyRef.current = true
     const webview = webviewRef.current
     if (!webview) return
+    // Restore mute state if the tab was muted before this webview initialized
+    const { isMuted } = useTabStore.getState().tabs[tabId] ?? {}
+    if (isMuted) (webview as unknown as { setAudioMuted(m: boolean): void }).setAudioMuted(true)
       ; (webview as unknown as { insertCSS(css: string): Promise<string> }).insertCSS(SCROLLBAR_CSS)
 
     // Inject horizontal trackpad scroll capture
@@ -78,9 +83,10 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       canGoBack: webview.canGoBack(),
       canGoForward: webview.canGoForward()
     })
-  }, [batchUpdate])
+  }, [batchUpdate, tabId])
 
   const handleDidStartLoading = useCallback(() => {
+    setErrorState(null)
     batchUpdate({ isLoading: true, loadProgress: 0.15 })
   }, [batchUpdate])
 
@@ -126,6 +132,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
 
   const handleDidNavigate = useCallback(
     (event: Electron.DidNavigateEvent) => {
+      setErrorState(null)
       const webview = webviewRef.current
       lastNavigatedUrlRef.current = event.url
       batchUpdate({
@@ -161,6 +168,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       // Ignore subframe failures and user-aborted navigations
       if (!event.isMainFrame) return
       if (event.errorCode === -3) return // ERR_ABORTED (user navigated away)
+      setErrorState({ code: event.errorCode, description: event.errorDescription })
       const webview = webviewRef.current
       batchUpdate({
         isLoading: false,
@@ -352,6 +360,23 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
         className="w-full h-full"
         style={{ display: 'inline-flex' }}
       />
+      {errorState && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white dark:bg-neutral-950 select-none px-8">
+          <span className="text-6xl font-thin text-gray-200 dark:text-neutral-800 tabular-nums">{errorState.code}</span>
+          <h2 className="text-base font-semibold text-gray-800 dark:text-neutral-200">
+            This page can&apos;t be reached
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-neutral-500 max-w-xs text-center leading-relaxed">
+            {errorState.description}
+          </p>
+          <button
+            onClick={() => { webviewRef.current?.reload(); setErrorState(null) }}
+            className="mt-1 px-5 py-2 rounded-full text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-150"
+          >
+            Try again
+          </button>
+        </div>
+      )}
     </div>
   )
 }

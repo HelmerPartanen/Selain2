@@ -30,11 +30,11 @@ const menuItems = [
     shortcut: "Ctrl+Shift+A",
   },
   { id: "divider2", label: "", icon: null, shortcut: "" },
-  { id: "bookmarks", label: "Bookmarks", icon: bookmarkSvg, shortcut: "" },
-  { id: "history", label: "History", icon: counterclockwiseSvg, shortcut: "" },
+  { id: "bookmarks", label: "Bookmarks", icon: bookmarkSvg, shortcut: "Ctrl+B" },
+  { id: "history", label: "History", icon: counterclockwiseSvg, shortcut: "Ctrl+H" },
   { id: "downloads", label: "Downloads", icon: downloadSvg, shortcut: "" },
   { id: "divider3", label: "", icon: null, shortcut: "" },
-  { id: "settings", label: "Settings", icon: settingsSvg, shortcut: "" },
+  { id: "settings", label: "Settings", icon: settingsSvg, shortcut: "Ctrl+," },
 ] as const;
 
 function AppMenuInner(): React.JSX.Element {
