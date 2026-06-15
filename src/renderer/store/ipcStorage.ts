@@ -60,10 +60,33 @@ async function flushStoreWrite(name: string): Promise<void> {
     await window.electronAPI.saveStore(name, nextValue)
     lastSavedByStore.set(name, nextValue)
     perf.flushed += 1
-  } catch {
+  } catch (err) {
     perf.ipcFailures += 1
-    localStorage.setItem(name, nextValue)
-    perf.fallbackWrites += 1
+    const errorMsg = err instanceof Error ? err.message : String(err)
+    logger.error(`[ipcStorage] IPC save failed for store '${name}': ${errorMsg}`)
+
+    // Show user warning only once per store per session
+    const warningKey = `ipc-fallback-warning-${name}`
+    const shown = sessionStorage.getItem(warningKey)
+    if (!shown) {
+      // Only log warning once per store to avoid spam
+      logger.warn(
+        `[ipcStorage] Store '${name}' falling back to localStorage. Check disk space or file permissions.`
+      )
+      sessionStorage.setItem(warningKey, '1')
+    }
+
+    // Fallback to localStorage
+    try {
+      localStorage.setItem(name, nextValue)
+      perf.fallbackWrites += 1
+    } catch (storageErr) {
+      logger.error(
+        `[ipcStorage] Both IPC and localStorage failed for '${name}':`,
+        storageErr
+      )
+      perf.ipcFailures += 1
+    }
   } finally {
     inFlightByStore.delete(name)
 

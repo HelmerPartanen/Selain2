@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
@@ -86,19 +87,31 @@ const TabCard = memo(function TabCard({
               draggable={false}
             />
           ) : isNewTab ? (
-            <div className="absolute inset-0 overflow-hidden">
-              <div
-                className="pointer-events-none select-none"
-                style={{
-                  width: '1280px',
-                  height: '800px',
-                  transform: 'scale(0.203125)',
-                  transformOrigin: 'top left',
-                }}
-              >
-                <NewTabPage />
+            <ErrorBoundary
+              fallback={
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-neutral-850">
+                  <div className="text-center">
+                    <div className="text-[11px] text-gray-500 dark:text-neutral-400">
+                      Failed to load page
+                    </div>
+                  </div>
+                </div>
+              }
+            >
+              <div className="absolute inset-0 overflow-hidden">
+                <div
+                  className="pointer-events-none select-none"
+                  style={{
+                    width: '1280px',
+                    height: '800px',
+                    transform: 'scale(0.203125)',
+                    transformOrigin: 'top left',
+                  }}
+                >
+                  <NewTabPage />
+                </div>
               </div>
-            </div>
+            </ErrorBoundary>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-neutral-850">
               <SvgIcon svg={globeSvg} size={28} className="text-gray-300 dark:text-neutral-600" />

@@ -9,6 +9,9 @@
 //          error → checking           (retry)
 
 import { create } from 'zustand'
+import { logger } from '@/utils/logger'
+
+const AI_TIMEOUT_MS = 5000
 
 export type AIStatus =
   | 'idle'           // not yet checked
@@ -76,7 +79,14 @@ export const useAIStore = create<AIStore>((set, get) => ({
   checkStatus: async () => {
     set({ status: 'checking', error: null })
     try {
-      const result = await window.electronAPI.checkAIStatus()
+      // Apply timeout to prevent indefinite hanging
+      const result = await Promise.race([
+        window.electronAPI.checkAIStatus(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('AI status check timeout')), AI_TIMEOUT_MS)
+        )
+      ])
+
       if (!result.installed) {
         set({ status: 'missing-ollama' })
       } else if (!result.running) {
@@ -87,14 +97,32 @@ export const useAIStore = create<AIStore>((set, get) => ({
         set({ status: 'ready' })
       }
     } catch (err) {
-      set({ status: 'error', error: String(err) })
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+      logger.error('[AI] Status check failed:', errorMsg)
+      set({ status: 'error', error: errorMsg })
     }
   },
 
   startDownload: async () => {
     if (get().status === 'downloading') return
     set({ status: 'downloading', pullProgress: null, error: null })
-    await window.electronAPI.pullAIModel()
+    try {
+      await Promise.race([
+        window.electronAPI.pullAIModel(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Model pull timeout')), 30 * 60 * 1000) // 30 min timeout
+        )
+      ])
+      // Don't set success here — wait for _onDone callback from IPC
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Download failed'
+      logger.error('[AI] Model pull failed:', errorMsg)
+      set({
+        status: 'error',
+        error: errorMsg,
+        pullProgress: null
+      })
+    }
   },
 
   cancelDownload: () => {

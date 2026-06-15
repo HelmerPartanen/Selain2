@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -12,6 +12,8 @@ import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
 import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
+
+const SEARCH_DEBOUNCE_MS = 200
 
 function formatTime(ts: number): string {
   const d = new Date(ts)
@@ -93,10 +95,17 @@ function HistoryPanelInner(): React.JSX.Element {
   const removeEntry = useHistoryStore((s) => s.removeEntry)
   const clearAll = useHistoryStore((s) => s.clearAll)
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [confirmingClear, setConfirmingClear] = useState(false)
 
+  // Debounce search query to reduce O(n) filter calls
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [query])
+
   const grouped = useMemo(() => getGrouped(), [getGrouped, entries])
-  const searchResults = query.length >= 2 ? searchFn(query) : null
+  const searchResults = debouncedQuery.length >= 2 ? searchFn(debouncedQuery) : null
 
   const handleNavigate = useCallback(
     (url: string) => {

@@ -210,6 +210,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   }, [tabId])
 
   // One-time event listener attachment on mount
+  // Dependencies include all handler functions to ensure effect re-runs only when handlers change
   useEffect(() => {
     const webview = webviewRef.current
     if (!webview) return
@@ -241,8 +242,21 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       webview.removeEventListener('focus', handleWebviewFocus)
       webview.removeEventListener('console-message', handleConsoleMessage as EventListener)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabId])
+  }, [
+    tabId,
+    handleDomReady,
+    handleDidStartLoading,
+    handleDidStopLoading,
+    handlePageTitleUpdated,
+    handlePageFaviconUpdated,
+    handleDidNavigate,
+    handleDidNavigateInPage,
+    handleDidFailLoad,
+    handleMediaStartedPlaying,
+    handleMediaPaused,
+    handleWebviewFocus,
+    handleConsoleMessage
+  ])
 
   // Subscribe to store URL changes and navigate imperatively.
   // Uses a custom equality check so it only fires on actual URL changes,

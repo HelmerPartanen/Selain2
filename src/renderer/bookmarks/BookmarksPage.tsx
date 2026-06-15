@@ -14,6 +14,8 @@ import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
 import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
 
+const SEARCH_DEBOUNCE_MS = 200
+
 
 const BookmarkRow = memo(function BookmarkRow({
   entry,
@@ -86,15 +88,22 @@ function BookmarksPanelInner(): React.JSX.Element {
   const bookmarks = useBookmarkStore((s) => s.bookmarks)
   const removeBookmark = useBookmarkStore((s) => s.removeBookmark)
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [renderLimit, setRenderLimit] = useState(120)
 
+  // Debounce search query to reduce O(n) filter calls
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [query])
+
   const filtered = useMemo(() => {
-    if (!query) return bookmarks
-    const q = query.toLowerCase()
+    if (!debouncedQuery) return bookmarks
+    const q = debouncedQuery.toLowerCase()
     return bookmarks.filter(
       (b) => b.url.toLowerCase().includes(q) || b.title.toLowerCase().includes(q)
     )
-  }, [bookmarks, query])
+  }, [bookmarks, debouncedQuery])
 
   const visible = useMemo(() => filtered.slice(0, renderLimit), [filtered, renderLimit])
   const hasMore = visible.length < filtered.length

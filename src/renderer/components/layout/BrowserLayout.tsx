@@ -25,6 +25,7 @@ import { useTabStore } from "@/store/tabStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useUIStore } from "@/store/uiStore";
 import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
+import { logger } from "@/utils/logger";
 import {
   isBundledKey,
   resolveBundledWallpaperUrl,
@@ -184,11 +185,12 @@ function BrowserLayoutInner(): React.JSX.Element {
     };
   }, [wallpaper]);
 
+  // Track all issued blob URLs to prevent accumulation
+  const blobUrlsRef = useRef<Set<string>>(new Set());
+  const prevBlobRef = useRef<string | null>(null);
+
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
-  // NOTE: Revocation is deferred to useEffect (after commit) so the DOM
-  // never references a revoked blob URL during the render-to-commit gap.
-  const prevBlobRef = useRef<string | null>(null);
   const wallpaperUrl = useMemo(() => {
     if (!wallpaper) return null;
     // Resolve preset keys (e.g. "preset:ready_bloom") to theme-appropriate SVG
@@ -199,33 +201,41 @@ function BrowserLayoutInner(): React.JSX.Element {
     if (!resolved) return null;
     if (resolved.startsWith("data:image/svg+xml")) return resolved;
     if (resolved.startsWith("blob:")) return resolved;
-    if (resolved.startsWith("data:")) return dataUrlToBlobUrl(resolved);
+
+    // Create blob URL and track it immediately
+    if (resolved.startsWith("data:")) {
+      const blobUrl = dataUrlToBlobUrl(resolved);
+      blobUrlsRef.current.add(blobUrl);
+      return blobUrl;
+    }
     return resolved;
   }, [wallpaper, isDark, bundledResolvedUrl]);
 
-  // Revoke the previous blob URL after React has committed the new one to the DOM
+  // Revoke old blob URLs after new one is rendered, preventing accumulation
   useEffect(() => {
-    const prev = prevBlobRef.current;
-    // Only revoke if it's a blob URL we created (not one from the store)
-    if (prev && prev !== wallpaperUrl) {
-      URL.revokeObjectURL(prev);
-    }
-    // Track the current blob URL for future cleanup
-    prevBlobRef.current =
-      wallpaperUrl &&
-        wallpaperUrl.startsWith("blob:") &&
-        !wallpaper?.startsWith("blob:")
-        ? wallpaperUrl
-        : null;
+    // Revoke all blob URLs except the current one
+    const toRevoke = Array.from(blobUrlsRef.current).filter(url => url !== wallpaperUrl);
+    toRevoke.forEach(url => {
+      try {
+        URL.revokeObjectURL(url);
+        blobUrlsRef.current.delete(url);
+      } catch (err) {
+        logger.warn("Failed to revoke blob URL:", err);
+      }
+    });
 
     return () => {
-      // On unmount, revoke any outstanding blob URL
-      if (prevBlobRef.current) {
-        URL.revokeObjectURL(prevBlobRef.current);
-        prevBlobRef.current = null;
-      }
+      // On unmount, revoke all remaining blob URLs
+      blobUrlsRef.current.forEach(url => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          logger.warn("Failed to revoke blob URL on unmount:", err);
+        }
+      });
+      blobUrlsRef.current.clear();
     };
-  }, [wallpaperUrl, wallpaper]);
+  }, [wallpaperUrl]);
 
   // ── Apply UI zoom scale via Electron webFrame ──
   useEffect(() => {

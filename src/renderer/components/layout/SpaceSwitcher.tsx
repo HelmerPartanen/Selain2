@@ -76,7 +76,7 @@ function SpaceRow({
     >
       <SpaceDot hue={space.hue} />
       <span className="flex-1 text-xs truncate">{space.name}</span>
-      <span className="text-[10px] text-gray-400 dark:text-neutral-500 tabular-nums">
+      <span className="text-xs text-gray-400 dark:text-neutral-500">
         {tabCount}
       </span>
 
