@@ -68,6 +68,21 @@ const api: ElectronAPI = {
   requestPiP: (webContentsId: number) => ipcRenderer.send('request-pip', webContentsId),
   fetchSearchSuggestions: (query: string) => ipcRenderer.invoke('fetch-search-suggestions', query),
   captureTab: (webContentsId: number) => ipcRenderer.invoke('capture-tab', webContentsId),
+  getSiteInfo: (url: string) => ipcRenderer.invoke('get-site-info', url),
+  clearSiteData: (origin: string) => ipcRenderer.invoke('clear-site-data', origin),
+  forgetSite: (origin: string) => ipcRenderer.invoke('forget-site', origin),
+  onPermissionRequest: (callback: (request: { id: string; origin: string; permission: string; requestingUrl: string }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, request: { id: string; origin: string; permission: string; requestingUrl: string }): void => {
+      callback(request)
+    }
+    ipcRenderer.on('permission-request', handler)
+    return () => { ipcRenderer.removeListener('permission-request', handler) }
+  },
+  respondToPermissionRequest: (id: string, decision: 'allow' | 'deny') => ipcRenderer.send('permission-response', id, decision),
+  exportBookmarksHtml: (html: string) => ipcRenderer.invoke('export-bookmarks-html', html),
+  importBookmarksHtml: () => ipcRenderer.invoke('import-bookmarks-html'),
+  exportProfileBackup: (data: string) => ipcRenderer.invoke('export-profile-backup', data),
+  importProfileBackup: () => ipcRenderer.invoke('import-profile-backup'),
   // ── AI / Ollama ──────────────────────────────────────────────────────────
   checkAIStatus: () => ipcRenderer.invoke('ai:check-status'),
   pullAIModel: () => ipcRenderer.invoke('ai:pull-model'),

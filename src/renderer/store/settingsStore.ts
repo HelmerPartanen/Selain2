@@ -9,6 +9,7 @@ import { createIPCStorage } from './ipcStorage'
 import { logger } from '@/utils/logger'
 
 export type NewTabMode = 'bookmarks' | 'blank'
+export type PrivacyProfile = 'standard' | 'strict' | 'private'
 
 export interface SettingsState {
   /** Restore previous session tabs on startup */
@@ -25,6 +26,8 @@ export interface SettingsState {
   enableAutoHide: boolean
   /** Clear browsing data on exit */
   clearOnExit: boolean
+  /** Default privacy behavior for browsing contexts */
+  privacyProfile: PrivacyProfile
   /** Whether the user has completed the onboarding flow */
   onboardingCompleted: boolean
 
@@ -40,6 +43,8 @@ export interface SettingsState {
   showNewTabFrequentSection: boolean
   /** Enable built-in Adblocker */
   enableAdblocker: boolean
+  /** Mirror vertical wheel scrolling across split panes */
+  syncSplitScrolling: boolean
 
   /** Disable non-essential UI animations */
   disableAnimations: boolean
@@ -55,6 +60,7 @@ export interface SettingsActions {
   setAutoHideDelay: (ms: number) => void
   setEnableAutoHide: (v: boolean) => void
   setClearOnExit: (v: boolean) => void
+  setPrivacyProfile: (v: PrivacyProfile) => void
   setOnboardingCompleted: (v: boolean) => void
 
   setAutoGroupTabsByDomain: (v: boolean) => void
@@ -63,6 +69,7 @@ export interface SettingsActions {
   setShowNewTabContinueSection: (v: boolean) => void
   setShowNewTabFrequentSection: (v: boolean) => void
   setEnableAdblocker: (v: boolean) => void
+  setSyncSplitScrolling: (v: boolean) => void
   setDisableAnimations: (v: boolean) => void
   setDisableBlurEffects: (v: boolean) => void
 }
@@ -82,6 +89,7 @@ export const useSettingsStore = create<SettingsStore>()(
       autoHideDelay: 2500,
       enableAutoHide: true,
       clearOnExit: false,
+      privacyProfile: 'standard',
       onboardingCompleted: false,
       autoGroupTabsByDomain: false,
       showTabCleanupSuggestions: true,
@@ -89,6 +97,7 @@ export const useSettingsStore = create<SettingsStore>()(
       showNewTabContinueSection: true,
       showNewTabFrequentSection: true,
       enableAdblocker: true,
+      syncSplitScrolling: false,
       disableAnimations: false,
       disableBlurEffects: false,
 
@@ -100,6 +109,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setAutoHideDelay: (ms) => set({ autoHideDelay: Math.max(1000, Math.min(5000, ms)) }),
       setEnableAutoHide: (v) => set({ enableAutoHide: v }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
+      setPrivacyProfile: (v) => set({ privacyProfile: v }),
       setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
       setAutoGroupTabsByDomain: (v) => set({ autoGroupTabsByDomain: v }),
       setShowTabCleanupSuggestions: (v) => set({ showTabCleanupSuggestions: v }),
@@ -107,6 +117,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setShowNewTabContinueSection: (v) => set({ showNewTabContinueSection: v }),
       setShowNewTabFrequentSection: (v) => set({ showNewTabFrequentSection: v }),
       setEnableAdblocker: (v) => set({ enableAdblocker: v }),
+      setSyncSplitScrolling: (v) => set({ syncSplitScrolling: v }),
       setDisableAnimations: (v) => set({ disableAnimations: v }),
       setDisableBlurEffects: (v) => set({ disableBlurEffects: v }),
     }),

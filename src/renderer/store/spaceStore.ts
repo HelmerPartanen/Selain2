@@ -8,6 +8,7 @@ import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
 import { logger } from '@/utils/logger'
 import { useTabStore } from './tabStore'
+import type { PrivacyProfile } from './settingsStore'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -20,6 +21,11 @@ export interface Space {
   tabIds: string[]
   /** Last active tab in this space (restored on switch) */
   activeTabId: string | null
+  pinnedUrls: string[]
+  restoreMode: 'restore' | 'sleep' | 'blank'
+  privacyProfile: PrivacyProfile
+  createdAt: number
+  updatedAt: number
 }
 
 export interface SpaceStore {
@@ -33,6 +39,9 @@ export interface SpaceStore {
   setSpaceHue: (id: string, hue: number) => void
   switchSpace: (id: string) => void
   moveTabToSpace: (tabId: string, targetSpaceId: string) => void
+  setSpaceRestoreMode: (id: string, mode: Space['restoreMode']) => void
+  setSpacePrivacyProfile: (id: string, profile: PrivacyProfile) => void
+  saveCurrentTabsAsSpace: (name: string, hue: number) => string
 
   /** @internal — called by tab-sync subscriber */
   _syncNewTab: (tabId: string) => void
@@ -58,12 +67,34 @@ export const SPACE_PRESET_HUES = [
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function createDefaultSpace(): Space {
+  const now = Date.now()
   return {
     id: DEFAULT_SPACE_ID,
     name: 'General',
     hue: -1,
     tabIds: [],
     activeTabId: null,
+    pinnedUrls: [],
+    restoreMode: 'restore',
+    privacyProfile: 'standard',
+    createdAt: now,
+    updatedAt: now,
+  }
+}
+
+function normalizeSpace(space: Partial<Space> & Pick<Space, 'id' | 'name'>): Space {
+  const now = Date.now()
+  return {
+    id: space.id,
+    name: space.name,
+    hue: space.hue ?? -1,
+    tabIds: Array.isArray(space.tabIds) ? space.tabIds : [],
+    activeTabId: space.activeTabId ?? null,
+    pinnedUrls: Array.isArray(space.pinnedUrls) ? space.pinnedUrls : [],
+    restoreMode: space.restoreMode ?? 'restore',
+    privacyProfile: space.privacyProfile ?? 'standard',
+    createdAt: space.createdAt ?? now,
+    updatedAt: space.updatedAt ?? now,
   }
 }
 
@@ -93,7 +124,19 @@ export const useSpaceStore = create<SpaceStore>()(
 
         addSpace: (name, hue) => {
           const id = crypto.randomUUID()
-          const space: Space = { id, name, hue, tabIds: [], activeTabId: null }
+          const now = Date.now()
+          const space: Space = {
+            id,
+            name,
+            hue,
+            tabIds: [],
+            activeTabId: null,
+            pinnedUrls: [],
+            restoreMode: 'restore',
+            privacyProfile: 'standard',
+            createdAt: now,
+            updatedAt: now,
+          }
           set(
             (s) => ({
               spaces: { ...s.spaces, [id]: space },
@@ -150,7 +193,7 @@ export const useSpaceStore = create<SpaceStore>()(
             (s) => {
               const space = s.spaces[id]
               if (!space) return s
-              return { spaces: { ...s.spaces, [id]: { ...space, name } } }
+              return { spaces: { ...s.spaces, [id]: { ...space, name, updatedAt: Date.now() } } }
             },
             undefined,
             'renameSpace'
@@ -164,7 +207,7 @@ export const useSpaceStore = create<SpaceStore>()(
             (s) => {
               const space = s.spaces[id]
               if (!space) return s
-              return { spaces: { ...s.spaces, [id]: { ...space, hue } } }
+              return { spaces: { ...s.spaces, [id]: { ...space, hue, updatedAt: Date.now() } } }
             },
             undefined,
             'setSpaceHue'
@@ -227,8 +270,8 @@ export const useSpaceStore = create<SpaceStore>()(
 
           const newSpaces = {
             ...state.spaces,
-            [sourceId]: { ...source, tabIds: newSourceTabIds },
-            [targetSpaceId]: { ...target, tabIds: [...target.tabIds, tabId] },
+            [sourceId]: { ...source, tabIds: newSourceTabIds, updatedAt: Date.now() },
+            [targetSpaceId]: { ...target, tabIds: [...target.tabIds, tabId], updatedAt: Date.now() },
           }
 
           set({ spaces: newSpaces }, undefined, 'moveTabToSpace')
@@ -247,6 +290,63 @@ export const useSpaceStore = create<SpaceStore>()(
         },
 
         // ── Internal sync helpers ────────────────────────────────────────────
+
+        setSpaceRestoreMode: (id, mode) => {
+          set(
+            (s) => {
+              const space = s.spaces[id]
+              if (!space) return s
+              return { spaces: { ...s.spaces, [id]: { ...space, restoreMode: mode, updatedAt: Date.now() } } }
+            },
+            undefined,
+            'setSpaceRestoreMode'
+          )
+        },
+
+        setSpacePrivacyProfile: (id, profile) => {
+          set(
+            (s) => {
+              const space = s.spaces[id]
+              if (!space) return s
+              return { spaces: { ...s.spaces, [id]: { ...space, privacyProfile: profile, updatedAt: Date.now() } } }
+            },
+            undefined,
+            'setSpacePrivacyProfile'
+          )
+        },
+
+        saveCurrentTabsAsSpace: (name, hue) => {
+          const tabStore = useTabStore.getState()
+          const tabIds = [...tabStore.tabOrder]
+          const pinnedUrls = tabIds
+            .map((id) => tabStore.tabs[id])
+            .filter((tab) => tab?.pinned)
+            .map((tab) => tab!.url)
+          const id = crypto.randomUUID()
+          const now = Date.now()
+          const space: Space = {
+            id,
+            name,
+            hue,
+            tabIds,
+            activeTabId: tabStore.activeTabId,
+            pinnedUrls,
+            restoreMode: 'restore',
+            privacyProfile: 'standard',
+            createdAt: now,
+            updatedAt: now,
+          }
+          set(
+            (s) => ({
+              spaces: { ...s.spaces, [id]: space },
+              spaceOrder: [...s.spaceOrder, id],
+              activeSpaceId: id,
+            }),
+            undefined,
+            'saveCurrentTabsAsSpace'
+          )
+          return id
+        },
 
         _syncNewTab: (tabId) => {
           const state = get()
@@ -319,6 +419,9 @@ export const useSpaceStore = create<SpaceStore>()(
           }
           if (!state.spaces[state.activeSpaceId]) {
             state.activeSpaceId = DEFAULT_SPACE_ID
+          }
+          for (const [id, space] of Object.entries(state.spaces)) {
+            state.spaces[id] = normalizeSpace(space)
           }
         },
       }

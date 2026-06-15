@@ -76,7 +76,7 @@ const THUMB_H = 175 // 16:10 aspect
 const thumbCache = new Map<string, string>()
 const thumbInFlight = new Map<string, Promise<string>>()
 
-const THUMB_MAX_CONCURRENT = 2
+const THUMB_MAX_CONCURRENT = 4
 let activeThumbJobs = 0
 const thumbQueue: Array<() => void> = []
 
@@ -113,7 +113,9 @@ export function generateThumbnail(fullUrl: string): Promise<string> {
     () =>
       new Promise<string>((resolve) => {
         const img = new Image()
-        img.crossOrigin = 'anonymous'
+        // No crossOrigin: bundled images are local Vite-glob URLs, so we
+        // skip the CORS handshake and let the image load directly. This
+        // shaves a meaningful amount of time off the first decode.
         img.onload = (): void => {
           const canvas = document.createElement('canvas')
           canvas.width = THUMB_W
@@ -153,18 +155,7 @@ export async function generateAllThumbnails(): Promise<Map<string, string>> {
   return new Map(entries)
 }
 
-/**
- * Revoke all cached thumbnail blob URLs and clear the cache.
- * Call this when the wallpaper settings pane unmounts to prevent memory leaks
- * in long-running sessions.
- */
-export function clearThumbCache(): void {
-  thumbQueue.length = 0
-  for (const url of thumbCache.values()) {
-    if (url.startsWith('blob:')) {
-      URL.revokeObjectURL(url)
-    }
-  }
-  thumbCache.clear()
-  thumbInFlight.clear()
-}
+// Note: the thumbnail cache is intentionally module-scoped and long-lived.
+// It's tiny (<20 small JPEG blob URLs) and surviving across pane open/close
+// means re-opens of the wallpaper pane are instant. If memory ever becomes
+// a concern, swap the Map for a bounded LRU.

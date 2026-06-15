@@ -53,6 +53,22 @@ export interface ElectronAPI {
   fetchSearchSuggestions(query: string): Promise<any>
   /** Capture webview thumbnail safely without crashing the context bridge */
   captureTab(webContentsId: number): Promise<string | null>
+  getSiteInfo(url: string): Promise<{
+    origin: string
+    hostname: string
+    isSecure: boolean
+    cookieCount: number
+    cacheSize: number
+    adblockerEnabled: boolean
+  } | null>
+  clearSiteData(origin: string): Promise<boolean>
+  forgetSite(origin: string): Promise<boolean>
+  onPermissionRequest(callback: (request: { id: string; origin: string; permission: string; requestingUrl: string }) => void): () => void
+  respondToPermissionRequest(id: string, decision: 'allow' | 'deny'): void
+  exportBookmarksHtml(html: string): Promise<boolean>
+  importBookmarksHtml(): Promise<string | null>
+  exportProfileBackup(data: string): Promise<boolean>
+  importProfileBackup(): Promise<string | null>
   // ── AI / Ollama ──────────────────────────────────────────────────────────
   /** Check whether Ollama is installed, running, and the model is available */
   checkAIStatus(): Promise<{ installed: boolean; running: boolean; modelReady: boolean }>

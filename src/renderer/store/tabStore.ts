@@ -20,6 +20,10 @@ export interface Tab {
   virtualForwardUrl: string | null
   /** Cached base64 thumbnail generated just before the tab went to the background */
   thumbnail: string | null
+  createdAt: number
+  lastActiveAt: number
+  pinned: boolean
+  sleepReason?: 'manual' | 'memory' | 'cleanup'
 }
 
 export type FocusedPanel = 'primary' | 'split'
@@ -47,7 +51,8 @@ export interface TabStore {
   setActiveTab: (id: string) => void
   updateTab: (id: string, patch: Partial<Omit<Tab, 'id'>>) => void
   reorderTab: (fromIndex: number, toIndex: number) => void
-  suspendTab: (id: string) => void
+  suspendTab: (id: string, reason?: 'manual' | 'memory' | 'cleanup') => void
+  togglePinned: (id: string) => void
 
   // Split view actions
   splitTab: (tabId: string) => void
@@ -80,6 +85,7 @@ function isSpecialPage(url: string): boolean {
 }
 
 function createTab(url: string): Tab {
+  const now = Date.now()
   return {
     id: crypto.randomUUID(),
     url,
@@ -93,7 +99,10 @@ function createTab(url: string): Tab {
     loadProgress: 0,
     virtualBackUrl: null,
     virtualForwardUrl: null,
-    thumbnail: null
+    thumbnail: null,
+    createdAt: now,
+    lastActiveAt: now,
+    pinned: false
   }
 }
 
@@ -145,6 +154,7 @@ export const useTabStore = create<TabStore>()(
           if (index === -1) return
 
           const closedTab = state.tabs[id]
+          if (closedTab?.pinned && state.tabOrder.length > 1) return
 
           // If it's the only tab...
           if (state.tabOrder.length === 1) {
@@ -264,14 +274,21 @@ export const useTabStore = create<TabStore>()(
                 ...patch,
                 tabs: {
                   ...s.tabs,
-                  [id]: { ...tab, isSuspended: false }
+                  [id]: { ...tab, isSuspended: false, sleepReason: undefined, lastActiveAt: Date.now() }
                 }
               }),
               undefined,
               'setActiveTab/restore'
             )
           } else {
-            set(patch, undefined, 'setActiveTab')
+            set(
+              (s) => ({
+                ...patch,
+                tabs: { ...s.tabs, [id]: { ...tab, lastActiveAt: Date.now() } }
+              }),
+              undefined,
+              'setActiveTab'
+            )
           }
         },
 
@@ -352,7 +369,7 @@ export const useTabStore = create<TabStore>()(
           )
         },
 
-        suspendTab: (id) => {
+        suspendTab: (id, reason = 'manual') => {
           set(
             (state) => {
               const tab = state.tabs[id]
@@ -360,12 +377,24 @@ export const useTabStore = create<TabStore>()(
               return {
                 tabs: {
                   ...state.tabs,
-                  [id]: { ...tab, isSuspended: true }
+                  [id]: { ...tab, isSuspended: true, sleepReason: reason }
                 }
               }
             },
             undefined,
             'suspendTab'
+          )
+        },
+
+        togglePinned: (id) => {
+          set(
+            (state) => {
+              const tab = state.tabs[id]
+              if (!tab) return state
+              return { tabs: { ...state.tabs, [id]: { ...tab, pinned: !tab.pinned } } }
+            },
+            undefined,
+            'togglePinned'
           )
         },
 
@@ -471,7 +500,11 @@ export const useTabStore = create<TabStore>()(
                 canGoBack: false,
                 canGoForward: false,
                 isSuspended: true, // All restored tabs start suspended
-                loadProgress: 0
+                loadProgress: 0,
+                createdAt: tab.createdAt ?? Date.now(),
+                lastActiveAt: tab.lastActiveAt ?? Date.now(),
+                pinned: tab.pinned ?? false,
+                sleepReason: tab.sleepReason
               }
             ])
           )
@@ -482,6 +515,11 @@ export const useTabStore = create<TabStore>()(
           state.recentlyClosed = Array.isArray(state.recentlyClosed)
             ? state.recentlyClosed.slice(0, MAX_RECENTLY_CLOSED)
             : []
+          for (const tab of Object.values(state.tabs)) {
+            tab.createdAt = tab.createdAt ?? Date.now()
+            tab.lastActiveAt = tab.lastActiveAt ?? tab.createdAt
+            tab.pinned = tab.pinned ?? false
+          }
           // If user disabled tab restore, clear all rehydrated tabs and start fresh
           const { restoreTabs } = useSettingsStore.getState()
           if (!restoreTabs) {

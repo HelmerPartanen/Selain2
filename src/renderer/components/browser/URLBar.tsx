@@ -15,12 +15,14 @@ import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
+import { useSpaceStore } from '@/store/spaceStore'
 import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
 import { logger } from '@/utils/logger'
 import { fetchSearchSuggestions } from '@/utils/searchUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 import { SiteInfoPopover } from './SiteInfoPopover'
+import { getTabDomain } from '@/utils/tabAnalysis'
 
 import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
 
@@ -42,6 +44,25 @@ const LoadingProgressBar = memo(function LoadingProgressBar() {
   )
 })
 
+type Suggestion = HistoryEntry & {
+  type?: 'history' | 'search' | 'bookmark' | 'command' | 'tab' | 'space' | 'settings'
+  action?: () => void
+}
+
+function makeCommandSuggestion(id: string, title: string, action: () => void, type: Suggestion['type'] = 'command'): Suggestion {
+  return {
+    id,
+    url: `command://${id}`,
+    title,
+    visitCount: 0,
+    lastVisit: 0,
+    timestamp: Date.now(),
+    favicon: '',
+    type,
+    action,
+  }
+}
+
 function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => void }): React.JSX.Element {
   const tabId = useFocusedTabId()
   const url = useFocusedTabUrl()
@@ -54,7 +75,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
   const [isFocused, setIsFocused] = useState(false)
 
   // Autocomplete state
-  const [suggestions, setSuggestions] = useState<(HistoryEntry & { type?: 'history' | 'search' | 'bookmark' })[]>([])
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const [suggestionsUnavailable, setSuggestionsUnavailable] = useState<null | 'offline' | 'error'>(null)
@@ -98,6 +119,68 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     let controller: AbortController | null = null
     setSuggestionsUnavailable(null)
 
+    const makeCommandResults = (): Suggestion[] => {
+      const raw = query.trim()
+      if (!raw.startsWith('@')) return []
+      const [scopeRaw = '', ...rest] = raw.slice(1).split(/\s+/)
+      const scope = scopeRaw.toLowerCase()
+      const term = rest.join(' ').toLowerCase()
+      const tabStore = useTabStore.getState()
+      const spaces = useSpaceStore.getState()
+      const activeTab = tabStore.activeTabId ? tabStore.tabs[tabStore.activeTabId] : null
+      if (scope === 'tabs') {
+        return tabStore.tabOrder
+          .map((id) => tabStore.tabs[id])
+          .filter(Boolean)
+          .filter((tab) => !term || tab!.title.toLowerCase().includes(term) || tab!.url.toLowerCase().includes(term))
+          .slice(0, 8)
+          .map((tab) => makeCommandSuggestion(`tab-${tab!.id}`, `Switch to ${tab!.title || simplifyUrl(tab!.url)}`, () => tabStore.setActiveTab(tab!.id), 'tab'))
+      }
+      if (scope === 'history') return useHistoryStore.getState().search(term || raw).map((entry) => ({ ...entry, type: 'history' as const }))
+      if (scope === 'bookmarks') return useBookmarkStore.getState().search(term).slice(0, 8).map((b) => ({
+        id: `bookmark-${b.id}`, url: b.url, title: b.title, favicon: b.favicon ?? '', visitCount: 0, lastVisit: 0, timestamp: b.createdAt, type: 'bookmark' as const
+      }))
+      if (scope === 'spaces') {
+        return spaces.spaceOrder
+          .map((id) => spaces.spaces[id])
+          .filter(Boolean)
+          .filter((space) => !term || space!.name.toLowerCase().includes(term))
+          .map((space) => makeCommandSuggestion(`space-${space!.id}`, `Switch to Space: ${space!.name}`, () => spaces.switchSpace(space!.id), 'space'))
+      }
+      if (scope === 'settings') {
+        return ['General', 'Privacy', 'Search Engine', 'Shortcuts', 'Appearance'].filter((name) => !term || name.toLowerCase().includes(term)).map((name) =>
+          makeCommandSuggestion(`settings-${name}`, `Open ${name} settings`, () => useUIStore.getState().toggleSettings(), 'settings')
+        )
+      }
+      if (scope === 'site' && activeTab) {
+        const domain = getTabDomain(activeTab.url)
+        return [
+          makeCommandSuggestion('site-close-domain', `Close tabs from ${domain}`, () => {
+            const state = useTabStore.getState()
+            state.tabOrder.forEach((id) => {
+              const tab = state.tabs[id]
+              if (tab && id !== state.activeTabId && getTabDomain(tab.url) === domain) state.removeTab(id)
+            })
+          }),
+          makeCommandSuggestion('site-privacy', `Open privacy settings for ${domain}`, () => useUIStore.getState().toggleSettings(), 'settings'),
+        ]
+      }
+      return [
+        makeCommandSuggestion('hint-tabs', '@tabs - search open tabs', () => {}),
+        makeCommandSuggestion('hint-history', '@history - search history', () => {}),
+        makeCommandSuggestion('hint-bookmarks', '@bookmarks - search bookmarks', () => {}),
+        makeCommandSuggestion('hint-spaces', '@spaces - switch spaces', () => {}),
+        makeCommandSuggestion('hint-settings', '@settings - open settings', () => {}),
+      ]
+    }
+
+    const commandResults = makeCommandResults()
+    if (commandResults.length > 0) {
+      setSuggestions(commandResults)
+      setSelectedIndex(-1)
+      return
+    }
+
     // Always compute local results immediately so the list feels instant.
     const historyResults = useHistoryStore
       .getState()
@@ -119,7 +202,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         type: 'bookmark' as const
       }))
 
-    const seedMap = new Map<string, (HistoryEntry & { type?: 'history' | 'search' | 'bookmark' })>()
+    const seedMap = new Map<string, Suggestion>()
     for (const item of [...historyResults, ...bookmarkResults]) {
       seedMap.set(item.url, item)
     }
@@ -166,7 +249,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
       // Combine and deduplicate by URL, preferring history/bookmarks over search
       const combined = [...initial, ...searchResults]
-      const byUrl = new Map<string, (HistoryEntry & { type?: 'history' | 'search' | 'bookmark' })>()
+      const byUrl = new Map<string, Suggestion>()
       for (const item of combined) {
         const existing = byUrl.get(item.url)
         if (!existing) {
@@ -220,7 +303,13 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         e.preventDefault()
         setSelectedIndex((prev) => {
           if (prev >= 0 && currentSuggestions[prev]) {
-            navigate(currentSuggestions[prev].url)
+            const suggestion = currentSuggestions[prev]
+            if (suggestion.action) {
+              suggestion.action()
+              setSuggestions([])
+            } else {
+              navigate(suggestion.url)
+            }
           } else {
             navigate(inputValue)
           }
@@ -330,8 +419,22 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         <div className="relative flex-1 min-w-0 flex items-center h-full">
           <div className="absolute left-1.5 z-10 flex items-center justify-center">
             <div
-              className={iconKey === 'search' ? 'pointer-events-none opacity-80' : ''}
+              className={iconKey === 'search' ? 'pointer-events-none opacity-80' : 'cursor-pointer'}
               aria-label="Site information"
+              role={iconKey === 'search' ? undefined : 'button'}
+              tabIndex={iconKey === 'search' ? undefined : 0}
+              onMouseDown={(e) => {
+                if (iconKey === 'search') return
+                e.preventDefault()
+                setIsSiteInfoOpen((open) => !open)
+              }}
+              onKeyDown={(e) => {
+                if (iconKey === 'search') return
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setIsSiteInfoOpen((open) => !open)
+                }
+              }}
             >
 
                   {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />}

@@ -2,7 +2,8 @@
 // Sets Chrome-compatible user agent, disables spell checker, configures
 // permission handlers for both sessions, and applies CSP headers in prod.
 
-import { session } from 'electron'
+import { ipcMain, session } from 'electron'
+import { getMainWindow } from './state'
 
 const ALLOWED_PERMISSIONS = new Set([
   'clipboard-read',
@@ -38,17 +39,60 @@ function shouldAllowPermission(permission: string, requestingUrl: string | undef
   return isSecureTrustedOrigin(requestingUrl)
 }
 
+const pendingPermissionRequests = new Map<string, (decision: boolean) => void>()
+
+function askRendererForPermission(permission: string, requestingUrl: string | undefined, fallback: (decision: boolean) => void): void {
+  const win = getMainWindow()
+  if (!win || !requestingUrl) {
+    fallback(false)
+    return
+  }
+  const origin = (() => {
+    try {
+      return new URL(requestingUrl).origin
+    } catch {
+      return requestingUrl
+    }
+  })()
+  const id = `perm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  const timer = setTimeout(() => {
+    pendingPermissionRequests.delete(id)
+    fallback(false)
+  }, 15000)
+  pendingPermissionRequests.set(id, (decision) => {
+    clearTimeout(timer)
+    fallback(decision)
+  })
+  win.webContents.send('permission-request', { id, origin, permission, requestingUrl })
+}
+
 const CHROME_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
 export function setupPermissions(): void {
+  ipcMain.on('permission-response', (_event, id: unknown, decision: unknown) => {
+    if (typeof id !== 'string') return
+    const resolver = pendingPermissionRequests.get(id)
+    if (!resolver) return
+    pendingPermissionRequests.delete(id)
+    resolver(decision === 'allow')
+  })
+
   const configureSes = (ses: Electron.Session): void => {
     ses.setUserAgent(CHROME_UA)
     ses.setSpellCheckerEnabled(false)
 
     ses.setPermissionRequestHandler((webContents, permission, callback, details) => {
       const requestingUrl = details?.requestingUrl ?? webContents.getURL()
-      callback(shouldAllowPermission(permission, requestingUrl))
+      if (!shouldAllowPermission(permission, requestingUrl)) {
+        callback(false)
+        return
+      }
+      if (permission === 'fullscreen') {
+        callback(true)
+        return
+      }
+      askRendererForPermission(permission, requestingUrl, callback)
     })
 
     ses.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {

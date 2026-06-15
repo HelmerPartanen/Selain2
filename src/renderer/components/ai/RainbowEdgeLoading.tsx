@@ -64,7 +64,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  const shockwaveMask = `radial-gradient(circle at 100% 100%, transparent calc(var(--shock-r) - ${SHOCKWAVE_BAND}%), rgba(0,0,0,0.85) var(--shock-r), transparent calc(var(--shock-r) + ${SHOCKWAVE_BAND}%))`
+  const shockwaveMask = `radial-gradient(circle at 100% 100%, transparent calc(var(--shock-r) - ${SHOCKWAVE_BAND}%), rgba(0,0,0,1) var(--shock-r), transparent calc(var(--shock-r) + ${SHOCKWAVE_BAND}%))`
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -167,7 +167,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
               inset: 0,
               borderRadius: '50%',
               background: RAINBOW_GRADIENT,
-              opacity: 0.22,
+              opacity: 0.1,
             }}
           />
         </div>
@@ -179,7 +179,7 @@ export function RainbowEdgeLoading(): React.JSX.Element {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(circle at 30% 30%, rgba(255, 0, 240, 0.35) 0%, transparent 55%)',
+            'radial-gradient(circle at 30% 30%, rgba(255, 0, 240, 0.1) 0%, transparent 55%)',
         }}
       />
 
@@ -192,8 +192,8 @@ export function RainbowEdgeLoading(): React.JSX.Element {
         style={
           {
             '--shock-r': '0%',
-            backdropFilter: 'blur(34px) saturate(1.18) brightness(1.05)',
-            WebkitBackdropFilter: 'blur(34px) saturate(1.18) brightness(1.05)',
+            backdropFilter: 'blur(2px) saturate(1.5) brightness(1.05)',
+            WebkitBackdropFilter: 'blur(2px) saturate(1.2) brightness(1.05)',
             maskImage: shockwaveMask,
             WebkitMaskImage: shockwaveMask,
             transition: 'opacity 0.25s ease-out',

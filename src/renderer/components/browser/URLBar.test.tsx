@@ -19,9 +19,39 @@ vi.mock('@/store/tabStore', () => ({
 }))
 
 vi.mock('@/store/uiStore', () => ({
-  useUIStore: vi.fn((selector) => selector({
+  useUIStore: Object.assign(vi.fn((selector) => selector({
     urlBarFocusRequested: false,
     clearUrlBarFocus: vi.fn()
+  })), {
+    getState: () => ({
+      clearUrlBarFocus: vi.fn(),
+      toggleSettings: vi.fn()
+    })
+  })
+}))
+
+vi.mock('@/store/spaceStore', () => {
+  const state = {
+    spaces: {},
+    spaceOrder: [],
+    activeSpaceId: 'default',
+    switchSpace: vi.fn()
+  }
+  return {
+    useSpaceStore: Object.assign(vi.fn((selector) => selector(state)), {
+      getState: () => state
+    })
+  }
+})
+
+vi.mock('@/store/sitePermissionsStore', () => ({
+  getOriginFromUrl: (url: string) => new URL(url).origin,
+  SITE_PERMISSION_LABELS: {
+    media: 'Camera and microphone'
+  },
+  useSitePermissionsStore: vi.fn((selector) => selector({
+    entries: {},
+    resetOrigin: vi.fn()
   }))
 }))
 
@@ -36,11 +66,18 @@ vi.mock('@/store/historyStore', () => ({
 }))
 
 vi.mock('@/store/bookmarkStore', () => ({
-  useBookmarkStore: vi.fn((selector) => selector({
+  useBookmarkStore: Object.assign(vi.fn((selector) => selector({
     isBookmarked: vi.fn().mockReturnValue(false),
     addBookmark: vi.fn(),
     removeBookmark: vi.fn()
-  }))
+  })), {
+    getState: () => ({
+      isBookmarked: vi.fn().mockReturnValue(false),
+      addBookmark: vi.fn(),
+      removeBookmark: vi.fn(),
+      search: vi.fn().mockReturnValue([])
+    })
+  })
 }))
 
 vi.mock('@/utils/searchUtils', () => ({
@@ -59,7 +96,14 @@ vi.mock('@/webview/webviewRegistry', () => ({
 
 // Mock window.electronAPI
 window.electronAPI = {
-  requestPiP: vi.fn()
+  requestPiP: vi.fn(),
+  getSiteInfo: vi.fn().mockResolvedValue({
+    cookieCount: 0,
+    cacheSize: 0,
+    adblockerEnabled: true
+  }),
+  clearSiteData: vi.fn().mockResolvedValue(true),
+  forgetSite: vi.fn().mockResolvedValue(true)
 } as any
 
 describe('URLBar', () => {

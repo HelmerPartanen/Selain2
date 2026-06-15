@@ -19,6 +19,7 @@ import { useTabCleanupSuggestions } from "@/hooks/useTabCleanupSuggestions";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useDownloadListener } from "@/hooks/useDownloadListener";
 import { useAISetup } from "@/hooks/useAISetup";
+import { usePermissionRequests } from "@/hooks/usePermissionRequests";
 import { useTrackpadTabSwipe } from "@/hooks/useTrackpadTabSwipe";
 import { useIsDark } from "@/hooks/useIsDark";
 import { useTabStore } from "@/store/tabStore";
@@ -134,6 +135,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   useDownloadListener();
   useTrackpadTabSwipe();
   useAISetup();
+  usePermissionRequests();
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const uiZoom = useSettingsStore((s) => s.uiZoom);
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);

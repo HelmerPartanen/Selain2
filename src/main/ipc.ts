@@ -41,6 +41,16 @@ function sendToMainWindow(channel: string, payload: unknown): void {
   win.webContents.send(channel, payload)
 }
 
+function originFromUrl(input: string): string | null {
+  try {
+    const url = new URL(input)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
+    return url.origin
+  } catch {
+    return null
+  }
+}
+
 export function setupIPC(): void {
   startPerfLogging()
   setupAIIPC()
@@ -161,6 +171,61 @@ export function setupIPC(): void {
     }
   })
 
+  ipcMain.handle('get-site-info', async (_event, url: unknown) => {
+    if (typeof url !== 'string') return null
+    const origin = originFromUrl(url)
+    if (!origin) return null
+    const ses = session.fromPartition('persist:default')
+    try {
+      const parsed = new URL(origin)
+      const cookies = await ses.cookies.get({ url: origin })
+      const cacheSize = await ses.getCacheSize()
+      return {
+        origin,
+        hostname: parsed.hostname,
+        isSecure: parsed.protocol === 'https:',
+        cookieCount: cookies.length,
+        cacheSize,
+        adblockerEnabled: true,
+      }
+    } catch (err) {
+      logger.warn('Failed to get site info:', err)
+      return null
+    }
+  })
+
+  ipcMain.handle('clear-site-data', async (_event, origin: unknown) => {
+    if (typeof origin !== 'string') return false
+    const safeOrigin = originFromUrl(origin)
+    if (!safeOrigin) return false
+    const ses = session.fromPartition('persist:default')
+    try {
+      await ses.clearStorageData({ origin: safeOrigin })
+      const cookies = await ses.cookies.get({ url: safeOrigin })
+      await Promise.all(cookies.map((cookie) => ses.cookies.remove(safeOrigin, cookie.name)))
+      return true
+    } catch (err) {
+      logger.warn('Failed to clear site data:', err)
+      return false
+    }
+  })
+
+  ipcMain.handle('forget-site', async (_event, origin: unknown) => {
+    if (typeof origin !== 'string') return false
+    const safeOrigin = originFromUrl(origin)
+    if (!safeOrigin) return false
+    const ses = session.fromPartition('persist:default')
+    try {
+      await ses.clearStorageData({ origin: safeOrigin })
+      const cookies = await ses.cookies.get({ url: safeOrigin })
+      await Promise.all(cookies.map((cookie) => ses.cookies.remove(safeOrigin, cookie.name)))
+      return true
+    } catch (err) {
+      logger.warn('Failed to forget site:', err)
+      return false
+    }
+  })
+
   // ── Image picker dialog ──────────────────────────────────────────────────
   ipcMain.handle('open-image-dialog', async () => {
     const win = getMainWindow()
@@ -233,7 +298,9 @@ export function setupIPC(): void {
     'bookmark-store',
     'browser-history',
     'download-history',
-    'space-store'
+    'space-store',
+    'site-permissions',
+    'shortcut-store'
   ])
   const storeDir = app.getPath('userData')
 
@@ -293,6 +360,58 @@ export function setupIPC(): void {
       logger.warn(`Failed to save store "${name}":`, err)
       return false
     }
+  })
+
+  ipcMain.handle('export-bookmarks-html', async (_event, html: unknown) => {
+    if (typeof html !== 'string') return false
+    const win = getMainWindow()
+    if (!win) return false
+    const result = await dialog.showSaveDialog(win, {
+      title: 'Export bookmarks',
+      defaultPath: 'bookmarks.html',
+      filters: [{ name: 'HTML', extensions: ['html'] }],
+    })
+    if (result.canceled || !result.filePath) return false
+    await writeFile(result.filePath, html, 'utf-8')
+    return true
+  })
+
+  ipcMain.handle('import-bookmarks-html', async () => {
+    const win = getMainWindow()
+    if (!win) return null
+    const result = await dialog.showOpenDialog(win, {
+      title: 'Import bookmarks',
+      filters: [{ name: 'HTML', extensions: ['html', 'htm'] }],
+      properties: ['openFile'],
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return await readFile(result.filePaths[0]!, 'utf-8')
+  })
+
+  ipcMain.handle('export-profile-backup', async (_event, data: unknown) => {
+    if (typeof data !== 'string') return false
+    const win = getMainWindow()
+    if (!win) return false
+    const result = await dialog.showSaveDialog(win, {
+      title: 'Export browser profile',
+      defaultPath: 'browser-profile-backup.json',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    })
+    if (result.canceled || !result.filePath) return false
+    await writeFile(result.filePath, data, 'utf-8')
+    return true
+  })
+
+  ipcMain.handle('import-profile-backup', async () => {
+    const win = getMainWindow()
+    if (!win) return null
+    const result = await dialog.showOpenDialog(win, {
+      title: 'Import browser profile',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+      properties: ['openFile'],
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return await readFile(result.filePaths[0]!, 'utf-8')
   })
 
   // ── Picture-in-Picture ──────────────────────────────────────────────────
