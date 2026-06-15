@@ -12,7 +12,7 @@ const execAsync = promisify(exec)
 
 export const OLLAMA_HOST = 'localhost'
 export const OLLAMA_PORT = 11434
-export const TARGET_MODEL = 'smollm3:3b'
+export const TARGET_MODEL = 'qwen2.5:0.5b'
 
 let activePullRequest: http.ClientRequest | null = null
 
@@ -169,7 +169,7 @@ export function isPulling(): boolean {
 let activeSummaryRequest: http.ClientRequest | null = null
 
 // ── System prompt ─────────────────────────────────────────────────────────────
-// Designed for SmolLM3 3B — keep the prompt concise and factual for reliable summaries.
+// Designed for Qwen2.5 0.5B — keep the prompt concise and factual for reliable summaries.
 // Prioritizes preservation of most valuable information by content type.
 const SYSTEM_PROMPT = `You are a browser assistant that summarizes web pages intelligently, preserving the most valuable information.
 
