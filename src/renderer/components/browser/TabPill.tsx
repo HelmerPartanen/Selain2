@@ -9,6 +9,7 @@ import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_2_Fill.svg?raw'
 import splitSvg from '@/assets/icons/Arrows/Triangle_Branch.svg?raw'
 import unsplitSvg from '@/assets/icons/Arrows/Triangle_Merge.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
+import { useShallow } from 'zustand/react/shallow'
 import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying, useSpaceTabOrder } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -78,13 +79,14 @@ const TabRow = memo(function TabRow({
   const handleSplit = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
+      // Check current state in callback to avoid dependency on prop changes
       if (isSplitTarget) {
         unsplit()
       } else {
         splitTab(tabId)
       }
     },
-    [tabId, splitTab, unsplit, isSplitTarget]
+    [tabId, splitTab, unsplit]
   )
 
   const isHighlighted = isActive || isSplitTarget
@@ -160,8 +162,10 @@ function TabPillInner(): React.JSX.Element {
   const reopenClosedAt = useTabStore((s) => s.reopenClosedAt)
   const recentlyClosed = useTabStore((s) => s.recentlyClosed)
   const bgMediaPlaying = useBackgroundMediaPlaying()
-  const isExpanded = useUIStore((s) => s.isDropdownOpen)
-  const setDropdownOpen = useUIStore((s) => s.setDropdownOpen)
+  const { isExpanded, setDropdownOpen } = useUIStore(useShallow((s) => ({
+    isExpanded: s.isDropdownOpen,
+    setDropdownOpen: s.setDropdownOpen,
+  })))
   const tabCount = tabOrder.length
 
   useEffect(() => {

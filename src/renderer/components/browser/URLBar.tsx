@@ -203,28 +203,32 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (suggestions.length > 0) {
+      const currentSuggestions = suggestionRequestIdRef.current >= 0 ? suggestions : []
+      if (currentSuggestions.length > 0) {
         if (e.key === 'ArrowDown') {
           e.preventDefault()
-          setSelectedIndex((prev) => (prev + 1) % suggestions.length)
+          setSelectedIndex((prev) => (prev + 1) % currentSuggestions.length)
           return
         }
         if (e.key === 'ArrowUp') {
           e.preventDefault()
-          setSelectedIndex((prev) => (prev <= 0 ? suggestions.length - 1 : prev - 1))
+          setSelectedIndex((prev) => (prev <= 0 ? currentSuggestions.length - 1 : prev - 1))
           return
         }
       }
       if (e.key === 'Enter') {
         e.preventDefault()
-        if (selectedIndex >= 0 && suggestions[selectedIndex]) {
-          navigate(suggestions[selectedIndex].url)
-        } else {
-          navigate(inputValue)
-        }
+        setSelectedIndex((prev) => {
+          if (prev >= 0 && currentSuggestions[prev]) {
+            navigate(currentSuggestions[prev].url)
+          } else {
+            navigate(inputValue)
+          }
+          return prev
+        })
         inputRef.current?.blur()
       } else if (e.key === 'Escape') {
-        if (suggestions.length > 0) {
+        if (currentSuggestions.length > 0) {
           setSuggestions([])
           setSelectedIndex(-1)
         } else {
@@ -233,7 +237,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         }
       }
     },
-    [inputValue, navigate, url, suggestions, selectedIndex]
+    [inputValue, navigate, url, suggestions]
   )
 
   const handleFocus = useCallback(() => {

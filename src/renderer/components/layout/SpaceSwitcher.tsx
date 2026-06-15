@@ -301,13 +301,17 @@ function SpaceSwitcherInner(): React.JSX.Element {
   const switchSpace = useSpaceStore((s) => s.switchSpace)
   const moveTabToSpace = useSpaceStore((s) => s.moveTabToSpace)
 
-  const isOpen = useUIStore((s) => s.isSpaceSwitcherOpen)
-  const setOpen = useUIStore((s) => s.setSpaceSwitcherOpen)
+  const { isOpen, setOpen } = useUIStore(useShallow((s) => ({
+    isOpen: s.isSpaceSwitcherOpen,
+    setOpen: s.setSpaceSwitcherOpen,
+  })))
+  const { disableAnimations, disableBlurEffects } = useSettingsStore(useShallow((s) => ({
+    disableAnimations: s.disableAnimations,
+    disableBlurEffects: s.disableBlurEffects,
+  })))
 
   const activeSpace = spaces[activeSpaceId]
   const hasMultipleSpaces = spaceOrder.length > 1
-  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
 
   const handleToggle = useCallback(() => {
     setOpen(!isOpen)

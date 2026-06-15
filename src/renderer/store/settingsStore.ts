@@ -6,6 +6,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
+import { logger } from '@/utils/logger'
 
 export type NewTabMode = 'bookmarks' | 'blank'
 
@@ -109,6 +110,10 @@ export const useSettingsStore = create<SettingsStore>()(
       setDisableAnimations: (v) => set({ disableAnimations: v }),
       setDisableBlurEffects: (v) => set({ disableBlurEffects: v }),
     }),
-    { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>() }
+    { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>({
+        onParseError(name) {
+          logger.error(`[settingsStore] Corrupted persisted data for '${name}' detected; using default settings`)
+        }
+      }) }
   )
 )

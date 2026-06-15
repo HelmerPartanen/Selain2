@@ -1,5 +1,6 @@
 import { memo, useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useShallow } from 'zustand/react/shallow';
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import homeSvg from "@/assets/icons/Interface/Home_2.svg?raw";
 import bookmarkSvg from "@/assets/icons/Objects/Bookmark.svg?raw";
@@ -37,12 +38,14 @@ const menuItems = [
 ] as const;
 
 function AppMenuInner(): React.JSX.Element {
-  const isOpen = useUIStore((s) => s.isMenuOpen);
-  const setMenuOpen = useUIStore((s) => s.setMenuOpen);
-  const isSettingsOpen = useUIStore((s) => s.isSettingsOpen);
-  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen);
-  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
-  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen);
+  const { isOpen, setMenuOpen, isSettingsOpen, isBookmarksOpen, isHistoryOpen, isDownloadsOpen } = useUIStore(useShallow((s) => ({
+    isOpen: s.isMenuOpen,
+    setMenuOpen: s.setMenuOpen,
+    isSettingsOpen: s.isSettingsOpen,
+    isBookmarksOpen: s.isBookmarksOpen,
+    isHistoryOpen: s.isHistoryOpen,
+    isDownloadsOpen: s.isDownloadsOpen,
+  })));
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const isPanelOpen =

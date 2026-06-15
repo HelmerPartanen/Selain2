@@ -51,6 +51,15 @@ export function useLRUTabManager(): void {
             }
           }
         }
+
+        // Also aggressively clear thumbnails for suspended tabs to prevent memory bloat
+        // This ensures thumbnails don't accumulate for tabs that will likely never be viewed again
+        for (const id of state.tabOrder) {
+          const tab = state.tabs[id]
+          if (tab && tab.isSuspended && tab.thumbnail && !protectedIds.has(id)) {
+            state.updateTab(id, { thumbnail: null })
+          }
+        }
       },
       { equalityFn: (a, b) => a.activeTabId === b.activeTabId && a.splitTabId === b.splitTabId }
     )

@@ -28,22 +28,30 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   const lastNavigatedUrlRef = useRef(initialUrl)
 
   // Batch pending store updates to reduce Zustand set() calls
+  // Use 1ms timer debounce instead of RAF to reduce microtask queue buildup with many tabs
   const pendingUpdateRef = useRef<Record<string, unknown> | null>(null)
-  const rafIdRef = useRef<number>(0)
+  const debounceTimerRef = useRef<number | null>(null)
   const progressResetTimerRef = useRef<number | null>(null)
 
   const flushUpdate = useCallback(() => {
     const patch = pendingUpdateRef.current
     if (patch) {
       pendingUpdateRef.current = null
-      useTabStore.getState().updateTab(tabId, patch as Partial<Omit<import('@/store/tabStore').Tab, 'id'>>)
+      try {
+        useTabStore.getState().updateTab(tabId, patch as Partial<Omit<import('@/store/tabStore').Tab, 'id'>>)
+      } catch (error) {
+        logger.error(`[WebViewInstance] Failed to flush tab update for ${tabId}:`, error)
+        // Re-queue the patch for retry on next debounce cycle
+        pendingUpdateRef.current = patch
+      }
     }
   }, [tabId])
 
   const batchUpdate = useCallback((patch: Record<string, unknown>) => {
     pendingUpdateRef.current = { ...pendingUpdateRef.current, ...patch }
-    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
-    rafIdRef.current = requestAnimationFrame(flushUpdate)
+    if (debounceTimerRef.current) window.clearTimeout(debounceTimerRef.current)
+    // Use 1ms debounce: fast enough to feel responsive, allows events to batch naturally
+    debounceTimerRef.current = window.setTimeout(flushUpdate, 1)
   }, [flushUpdate])
 
   const handleDomReady = useCallback(() => {
@@ -184,14 +192,23 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   }, [tabId])
 
   const handleConsoleMessage = useCallback((event: any) => {
-    if (event.level === 0 && event.message.startsWith('BROWSER_ACTION:swipe:')) {
-      const parts = event.message.split(':')
-      const deltaX = parseFloat(parts[2] || '0')
-      const deltaY = parseFloat(parts[3] || '0')
-      const ctrlKey = parts[4] === 'true'
-      handleTabSwipeDelta(deltaX, deltaY, ctrlKey)
+    try {
+      if (!event || typeof event.message !== 'string') return
+      if (event.level === 0 && event.message.startsWith('BROWSER_ACTION:swipe:')) {
+        const parts = event.message.split(':')
+        // Defensive parsing: ensure we have enough parts before accessing
+        if (parts.length < 4) return
+        const deltaX = parseFloat(parts[2] || '0')
+        const deltaY = parseFloat(parts[3] || '0')
+        const ctrlKey = parts[4] === 'true'
+        if (!isNaN(deltaX) && !isNaN(deltaY)) {
+          handleTabSwipeDelta(deltaX, deltaY, ctrlKey)
+        }
+      }
+    } catch (err) {
+      logger.warn(`[WebViewInstance] Failed to parse console message for tab ${tabId}:`, err)
     }
-  }, [])
+  }, [handleTabSwipeDelta, tabId])
 
   // Register/unregister in the global webview registry
   useEffect(() => {
@@ -201,8 +218,8 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     }
     return () => {
       webviewRegistry.unregister(tabId)
-      // Cancel any pending batched updates on unmount
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+      // Cancel pending batched updates on unmount
+      if (debounceTimerRef.current) window.clearTimeout(debounceTimerRef.current)
       if (progressResetTimerRef.current !== null) {
         window.clearTimeout(progressResetTimerRef.current)
       }

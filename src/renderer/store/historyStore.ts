@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
+import { logger } from '@/utils/logger'
 
 export interface HistoryEntry {
   url: string
@@ -146,6 +147,10 @@ export const useHistoryStore = create<HistoryState>()(
           .map(([label, entries]) => ({ label, entries }))
       }
     }),
-    { name: 'browser-history', version: 1, storage: createIPCStorage<HistoryState>() }
+    { name: 'browser-history', version: 1, storage: createIPCStorage<HistoryState>({
+        onParseError(name) {
+          logger.error(`[historyStore] Corrupted persisted data for '${name}' detected; starting with empty history`)
+        }
+      }) }
   )
 )

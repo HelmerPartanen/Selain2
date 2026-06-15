@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
+import { logger } from '@/utils/logger'
 
 export interface SearchEngine {
   id: string
@@ -40,6 +41,10 @@ export const useSearchEngineStore = create<SearchEngineState>()(
         return engine.searchUrl.replace('{query}', encodeURIComponent(query))
       }
     }),
-    { name: 'search-engine', version: 1, storage: createIPCStorage<SearchEngineState>() }
+    { name: 'search-engine', version: 1, storage: createIPCStorage<SearchEngineState>({
+        onParseError(name) {
+          logger.error(`[searchEngineStore] Corrupted persisted data for '${name}' detected; using default search engine`)
+        }
+      }) }
   )
 )

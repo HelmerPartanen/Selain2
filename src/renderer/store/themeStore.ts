@@ -6,6 +6,7 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { saveWallpaper, loadWallpaper } from './wallpaperDB'
 import { createIPCStorage } from './ipcStorage'
+import { logger } from '@/utils/logger'
 
 export type ThemeMode = 'dark' | 'light' | 'system'
 
@@ -52,7 +53,11 @@ export const useThemeStore = create<ThemeStore>()(
       }),
       {
         name: 'theme-store',
-        storage: createIPCStorage<Pick<ThemeState, 'themeMode'>>(),
+        storage: createIPCStorage<Pick<ThemeState, 'themeMode'>>({
+          onParseError(name) {
+            logger.error(`[themeStore] Corrupted persisted data for '${name}' detected; using system theme`)
+          }
+        }),
         // Only persist themeMode — wallpaper goes to filesystem via wallpaperDB
         partialize: (state) => ({
           themeMode: state.themeMode

@@ -8,14 +8,14 @@ import { useAIStore } from '@/store/aiStore'
 export function useAISetup(): void {
   useEffect(() => {
     const api = window.electronAPI
-    const store = useAIStore.getState()
 
+    // Always get fresh store reference from getState() to avoid stale closures
     const offProgress = api.onAIPullProgress((data) => {
-      store._onProgress(data)
+      useAIStore.getState()._onProgress(data)
     })
 
     const offDone = api.onAIPullDone((data) => {
-      store._onDone(data)
+      useAIStore.getState()._onDone(data)
     })
 
     const offChunk = api.onAISummaryChunk((token) => {
@@ -26,6 +26,7 @@ export function useAISetup(): void {
       useAIStore.getState()._onSummaryDone(data)
     })
 
+    // Cleanup: unsubscribe from all IPC listeners
     return () => {
       offProgress()
       offDone()

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
+import { logger } from '@/utils/logger'
 
 export interface DownloadItem {
   id: string
@@ -38,9 +39,15 @@ export const useDownloadStore = create<DownloadState>()(
       downloads: {},
 
       addDownload: (item) => {
-        set((state) => ({
-          downloads: { ...state.downloads, [item.id]: item }
-        }))
+        set((state) => {
+          const downloads = { ...state.downloads, [item.id]: item }
+          // Enforce max downloads limit by removing oldest ones
+          const entries = Object.entries(downloads).sort((a, b) => b[1].startTime - a[1].startTime)
+          if (entries.length > MAX_PERSISTED_DOWNLOADS) {
+            entries.slice(MAX_PERSISTED_DOWNLOADS).forEach(([id]) => delete downloads[id])
+          }
+          return { downloads }
+        })
       },
 
       updateProgress: (id, receivedBytes, totalBytes, speed) => {
@@ -101,7 +108,11 @@ export const useDownloadStore = create<DownloadState>()(
     {
       name: 'download-history',
       version: 1,
-      storage: createIPCStorage<PersistedDownloadState>(),
+      storage: createIPCStorage<PersistedDownloadState>({
+        onParseError(name) {
+          logger.error(`[downloadStore] Corrupted persisted data for '${name}' detected; starting with empty download history`)
+        }
+      }),
       partialize: (state): PersistedDownloadState => {
         // Only persist completed/failed/cancelled downloads (not active ones)
         // Limit to MAX_PERSISTED_DOWNLOADS most recent

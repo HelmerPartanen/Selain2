@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import sparkleSvg from '@/assets/icons/Weather/Sparkle.svg?raw'
 import { useUIStore } from '@/store/uiStore'
@@ -10,10 +11,12 @@ import { useAIStore } from '@/store/aiStore'
 // ── Main component ──────────────────────────────────────────────────────────
 
 function AISummaryButtonInner(): React.JSX.Element {
-  const isOpen = useUIStore((s) => s.isAISummaryOpen)
-  const toggleAISummary = useUIStore((s) => s.toggleAISummary)
-  const closeAISummary = useUIStore((s) => s.closeAISummary)
-  const openAIFullscreen = useUIStore((s) => s.openAIFullscreen)
+  const { isOpen, toggleAISummary, closeAISummary, openAIFullscreen } = useUIStore(useShallow((s) => ({
+    isOpen: s.isAISummaryOpen,
+    toggleAISummary: s.toggleAISummary,
+    closeAISummary: s.closeAISummary,
+    openAIFullscreen: s.openAIFullscreen,
+  })))
   const aiStatus = useAIStore((s) => s.status)
   const checkAIStatus = useAIStore((s) => s.checkStatus)
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)

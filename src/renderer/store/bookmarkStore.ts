@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
+import { logger } from '@/utils/logger'
 
 export interface BookmarkEntry {
   id: string
@@ -80,6 +81,10 @@ export const useBookmarkStore = create<BookmarkState>()(
         )
       }
     }),
-    { name: 'bookmark-store', version: 1, storage: createIPCStorage<BookmarkState>() }
+    { name: 'bookmark-store', version: 1, storage: createIPCStorage<BookmarkState>({
+        onParseError(name) {
+          logger.error(`[bookmarkStore] Corrupted persisted data for '${name}' detected; starting with empty bookmarks`)
+        }
+      }) }
   )
 )

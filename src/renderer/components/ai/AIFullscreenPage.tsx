@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useUIStore } from '@/store/uiStore'
@@ -45,10 +46,12 @@ const RefreshIcon = (): React.JSX.Element => (
 )
 
 function AIFullscreenPageInner(): React.JSX.Element {
-  const isOpen = useUIStore((s) => s.isAIFullscreenOpen)
-  const isSummaryOverlayVisible = useUIStore((s) => s.isAISummaryOverlayVisible)
-  const toggleSummaryOverlay = useUIStore((s) => s.toggleAISummaryOverlay)
-  const closeAIFullscreen = useUIStore((s) => s.closeAIFullscreen)
+  const { isOpen, isSummaryOverlayVisible, toggleSummaryOverlay, closeAIFullscreen } = useUIStore(useShallow((s) => ({
+    isOpen: s.isAIFullscreenOpen,
+    isSummaryOverlayVisible: s.isAISummaryOverlayVisible,
+    toggleSummaryOverlay: s.toggleAISummaryOverlay,
+    closeAIFullscreen: s.closeAIFullscreen,
+  })))
   const aiStatus = useAIStore((s) => s.status)
   const checkAIStatus = useAIStore((s) => s.checkStatus)
   const isSummarizing = useAIStore((s) => s.isSummarizing)

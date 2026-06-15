@@ -97,6 +97,7 @@ function HistoryPanelInner(): React.JSX.Element {
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [confirmingClear, setConfirmingClear] = useState(false)
+  const [renderLimit, setRenderLimit] = useState(120)
 
   // Debounce search query to reduce O(n) filter calls
   useEffect(() => {
@@ -105,7 +106,31 @@ function HistoryPanelInner(): React.JSX.Element {
   }, [query])
 
   const grouped = useMemo(() => getGrouped(), [getGrouped, entries])
-  const searchResults = debouncedQuery.length >= 2 ? searchFn(debouncedQuery) : null
+  const searchResults = useMemo(() => 
+    debouncedQuery.length >= 2 ? searchFn(debouncedQuery) : null
+  , [debouncedQuery, searchFn])
+  
+  // Incremental rendering: batch grouped history entries to avoid rendering all at once
+  const visibleGrouped = useMemo(() => {
+    if (!grouped) return []
+    const result = []
+    let count = 0
+    for (const group of grouped) {
+      const groupEntries = group.entries.slice(0, Math.max(renderLimit - count, 0))
+      result.push({ ...group, entries: groupEntries })
+      count += groupEntries.length
+      if (count >= renderLimit) break
+    }
+    return result
+  }, [grouped, renderLimit])
+  
+  const hasMoreHistory = useMemo(() => {
+    let count = 0
+    for (const group of grouped) {
+      count += group.entries.length
+    }
+    return count > renderLimit
+  }, [grouped, renderLimit])
 
   const handleNavigate = useCallback(
     (url: string) => {
@@ -118,6 +143,21 @@ function HistoryPanelInner(): React.JSX.Element {
   const handleRemove = useCallback((url: string) => {
     removeEntry(url)
   }, [removeEntry])
+
+  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const el = event.currentTarget
+    if (el.scrollTop + el.clientHeight < el.scrollHeight - 200) return
+    setRenderLimit((prev) => {
+      const totalCount = grouped.reduce((sum, g) => sum + g.entries.length, 0)
+      if (prev >= totalCount) return prev
+      return Math.min(totalCount, prev + 120)
+    })
+  }, [grouped])
+
+  // Reset incremental window when query/filter changes
+  useEffect(() => {
+    setRenderLimit(120)
+  }, [query, entries.length])
 
   const clearButton = entries.length > 0 ? (
     confirmingClear ? (
@@ -188,7 +228,7 @@ function HistoryPanelInner(): React.JSX.Element {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 glass-scroll">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 glass-scroll" onScroll={handleScroll}>
         {entries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-neutral-600">
             <SvgIcon svg={counterclockwiseSvg} size={40} className="mb-3 opacity-50" />
@@ -200,7 +240,7 @@ function HistoryPanelInner(): React.JSX.Element {
             {searchResults.length === 0 ? (
               <p className="text-center text-sm text-gray-400 dark:text-neutral-600 py-8">No results</p>
             ) : (
-              searchResults.map((entry, i) => (
+              searchResults.slice(0, renderLimit).map((entry, i) => (
                 <HistoryRow
                   key={entry.url}
                   entry={entry}
@@ -210,10 +250,15 @@ function HistoryPanelInner(): React.JSX.Element {
                 />
               ))
             )}
+            {searchResults.length > renderLimit && (
+              <div className="px-3 py-2 text-xs text-gray-500 dark:text-neutral-500">
+                Loading more… ({renderLimit}/{searchResults.length})
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
-            {grouped.map((group) => (
+            {visibleGrouped.map((group) => (
               <div key={group.label}>
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-600 mb-2 px-3">
                   {group.label}
@@ -231,6 +276,11 @@ function HistoryPanelInner(): React.JSX.Element {
                 </div>
               </div>
             ))}
+            {hasMoreHistory && (
+              <div className="px-3 py-2 text-xs text-gray-500 dark:text-neutral-500 text-center">
+                Loading more…
+              </div>
+            )}
           </div>
         )}
       </div>

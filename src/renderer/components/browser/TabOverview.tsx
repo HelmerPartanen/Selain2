@@ -6,6 +6,7 @@ import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
+import { useShallow } from 'zustand/react/shallow'
 import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSpaceStore } from '@/store/spaceStore'
@@ -162,8 +163,10 @@ const TabCard = memo(function TabCard({
 // ─── TabOverview ─────────────────────────────────────────────────────────────
 
 function TabOverviewInner(): React.JSX.Element {
-  const isOpen = useUIStore((s) => s.isTabOverviewOpen)
-  const closeOverview = useUIStore((s) => s.closeTabOverview)
+  const { isOpen, closeOverview } = useUIStore(useShallow((s) => ({
+    isOpen: s.isTabOverviewOpen,
+    closeOverview: s.closeTabOverview,
+  })))
   const activeTabId = useTabStore((s) => s.activeTabId)
   const [previews, setPreviews] = useState<TabPreview[]>([])
   const cancelledRef = useRef(false)

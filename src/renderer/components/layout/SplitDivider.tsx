@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useShallow } from 'zustand/react/shallow';
 import { useUIStore } from "@/store/uiStore";
 
 const SNAP_THRESHOLD = 0.025; // Snap when within 2.5% of a snap point
@@ -15,8 +16,10 @@ function snapRatio(ratio: number): number {
 }
 
 function SplitDividerInner(): React.JSX.Element {
-  const splitRatio = useUIStore((s) => s.splitRatio);
-  const setSplitRatio = useUIStore((s) => s.setSplitRatio);
+  const { splitRatio, setSplitRatio } = useUIStore(useShallow((s) => ({
+    splitRatio: s.splitRatio,
+    setSplitRatio: s.setSplitRatio,
+  })));
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isSnapped, setIsSnapped] = useState(false);

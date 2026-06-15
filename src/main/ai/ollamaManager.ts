@@ -45,7 +45,11 @@ function httpGet(path: string, timeoutMs = 3000): Promise<string> {
 
 export async function checkOllamaInstalled(): Promise<boolean> {
   try {
-    await execAsync('ollama --version')
+    // Add 5-second timeout to prevent app hang if ollama is unresponsive
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('ollama check timeout')), 5000)
+    )
+    await Promise.race([execAsync('ollama --version'), timeoutPromise])
     return true
   } catch {
     return false

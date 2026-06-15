@@ -6,6 +6,7 @@
 import { create } from 'zustand'
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
+import { logger } from '@/utils/logger'
 import { useTabStore } from './tabStore'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -297,7 +298,11 @@ export const useSpaceStore = create<SpaceStore>()(
       {
         name: 'space-store',
         version: 1,
-        storage: createIPCStorage<PersistedSpaceState>(),
+        storage: createIPCStorage<PersistedSpaceState>({
+          onParseError(name) {
+            logger.error(`[spaceStore] Corrupted persisted data for '${name}' detected; starting with default space`)
+          }
+        }),
         partialize: (state): PersistedSpaceState => ({
           spaces: state.spaces,
           spaceOrder: state.spaceOrder,

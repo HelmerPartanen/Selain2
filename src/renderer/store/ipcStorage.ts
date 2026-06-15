@@ -7,7 +7,7 @@ import { createJSONStorage } from 'zustand/middleware'
 import type { StateStorage } from 'zustand/middleware'
 import { logger } from '@/utils/logger'
 
-const WRITE_DEBOUNCE_MS = 350
+const WRITE_DEBOUNCE_MS = 150
 const PERF_LOGS = import.meta.env.DEV && localStorage.getItem('perf.ipcStorage') === '1'
 
 type PendingWrite = {
@@ -18,7 +18,7 @@ type PendingWrite = {
 
 const pendingWrites = new Map<string, PendingWrite>()
 const lastSavedByStore = new Map<string, string>()
-const inFlightByStore = new Set<string>()
+const inFlightPromises = new Map<string, Promise<void>>()
 
 const perf = {
   queued: 0,
@@ -37,15 +37,27 @@ function startPerfTimer(): void {
     logger.log('[perf][ipcStorage]', {
       ...perf,
       pendingStores: pendingWrites.size,
-      inFlightStores: inFlightByStore.size
+      inFlightStores: inFlightPromises.size
     })
   }, 10000)
 }
 
 async function flushStoreWrite(name: string): Promise<void> {
+  // Serialize flushes for this store using Promise-based queue
+  // This prevents race conditions where two concurrent flush calls can both pass the guard
+  const existingPromise = inFlightPromises.get(name)
+  if (existingPromise) {
+    // Wait for existing flush to complete, then re-check for new pending data
+    await existingPromise
+    const pending = pendingWrites.get(name)
+    if (pending) {
+      return flushStoreWrite(name)
+    }
+    return
+  }
+
   const pending = pendingWrites.get(name)
   if (!pending) return
-  if (inFlightByStore.has(name)) return
 
   const nextValue = pending.value
   const lastSaved = lastSavedByStore.get(name)
@@ -55,49 +67,54 @@ async function flushStoreWrite(name: string): Promise<void> {
     return
   }
 
-  inFlightByStore.add(name)
-  try {
-    await window.electronAPI.saveStore(name, nextValue)
-    lastSavedByStore.set(name, nextValue)
-    perf.flushed += 1
-  } catch (err) {
-    perf.ipcFailures += 1
-    const errorMsg = err instanceof Error ? err.message : String(err)
-    logger.error(`[ipcStorage] IPC save failed for store '${name}': ${errorMsg}`)
-
-    // Show user warning only once per store per session
-    const warningKey = `ipc-fallback-warning-${name}`
-    const shown = sessionStorage.getItem(warningKey)
-    if (!shown) {
-      // Only log warning once per store to avoid spam
-      logger.warn(
-        `[ipcStorage] Store '${name}' falling back to localStorage. Check disk space or file permissions.`
-      )
-      sessionStorage.setItem(warningKey, '1')
-    }
-
-    // Fallback to localStorage
+  // Create and register the in-flight promise
+  const flushPromise = (async () => {
     try {
-      localStorage.setItem(name, nextValue)
-      perf.fallbackWrites += 1
-    } catch (storageErr) {
-      logger.error(
-        `[ipcStorage] Both IPC and localStorage failed for '${name}':`,
-        storageErr
-      )
+      await window.electronAPI.saveStore(name, nextValue)
+      lastSavedByStore.set(name, nextValue)
+      perf.flushed += 1
+    } catch (err) {
       perf.ipcFailures += 1
-    }
-  } finally {
-    inFlightByStore.delete(name)
+      const errorMsg = err instanceof Error ? err.message : String(err)
+      logger.error(`[ipcStorage] IPC save failed for store '${name}': ${errorMsg}`)
 
-    const latest = pendingWrites.get(name)
-    // If a newer value arrived during in-flight save, flush again immediately.
-    if (latest && latest.value !== nextValue) {
-      latest.flushPromise = flushStoreWrite(name)
-    } else {
-      pendingWrites.delete(name)
+      // Show user warning only once per store per session
+      const warningKey = `ipc-fallback-warning-${name}`
+      const shown = sessionStorage.getItem(warningKey)
+      if (!shown) {
+        // Only log warning once per store to avoid spam
+        logger.warn(
+          `[ipcStorage] Store '${name}' falling back to localStorage. Check disk space or file permissions.`
+        )
+        sessionStorage.setItem(warningKey, '1')
+      }
+
+      // Fallback to localStorage
+      try {
+        localStorage.setItem(name, nextValue)
+        perf.fallbackWrites += 1
+      } catch (storageErr) {
+        logger.error(
+          `[ipcStorage] Both IPC and localStorage failed for '${name}':`,
+          storageErr
+        )
+        perf.ipcFailures += 1
+      }
+    } finally {
+      inFlightPromises.delete(name)
+
+      const latest = pendingWrites.get(name)
+      // If a newer value arrived during in-flight save, flush again immediately.
+      if (latest && latest.value !== nextValue) {
+        latest.flushPromise = flushStoreWrite(name)
+      } else {
+        pendingWrites.delete(name)
+      }
     }
-  }
+  })()
+
+  inFlightPromises.set(name, flushPromise)
+  await flushPromise
 }
 
 function scheduleStoreWrite(name: string, value: string): Promise<void> {

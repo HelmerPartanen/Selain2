@@ -32,6 +32,7 @@ import {
   resolveWallpaperUrl,
 } from "@/theme/bundledWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
+import { useShallow } from 'zustand/react/shallow';
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { onSessionRestoreFailed } from "@/store/tabStore";
@@ -136,20 +137,37 @@ function BrowserLayoutInner(): React.JSX.Element {
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const uiZoom = useSettingsStore((s) => s.uiZoom);
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);
-  const isDropdownOpen = useUIStore((s) => s.isDropdownOpen);
-  const isMenuOpen = useUIStore((s) => s.isMenuOpen);
-  const isSettingsOpen = useUIStore((s) => s.isSettingsOpen);
-  const isBookmarksOpen = useUIStore((s) => s.isBookmarksOpen);
-  const isFindBarOpen = useUIStore((s) => s.isFindBarOpen);
-  const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
-  const isDownloadsOpen = useUIStore((s) => s.isDownloadsOpen);
-  const isTabOverviewOpen = useUIStore((s) => s.isTabOverviewOpen);
-  const isSplitView = useTabStore((s) => s.splitTabId !== null);
-  const closeDropdown = useUIStore((s) => s.setDropdownOpen);
-  const closeMenu = useUIStore((s) => s.setMenuOpen);
-  const isSpaceSwitcherOpen = useUIStore((s) => s.isSpaceSwitcherOpen);
-  const closeSpaceSwitcher = useUIStore((s) => s.setSpaceSwitcherOpen);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
+  
+  // Consolidate all UIStore selectors into single subscription to reduce re-renders
+  const {
+    isDropdownOpen,
+    isMenuOpen,
+    isSettingsOpen,
+    isBookmarksOpen,
+    isFindBarOpen,
+    isHistoryOpen,
+    isDownloadsOpen,
+    isTabOverviewOpen,
+    isSpaceSwitcherOpen,
+    setDropdownOpen: closeDropdown,
+    setMenuOpen: closeMenu,
+    setSpaceSwitcherOpen: closeSpaceSwitcher,
+  } = useUIStore(useShallow((s) => ({
+    isDropdownOpen: s.isDropdownOpen,
+    isMenuOpen: s.isMenuOpen,
+    isSettingsOpen: s.isSettingsOpen,
+    isBookmarksOpen: s.isBookmarksOpen,
+    isFindBarOpen: s.isFindBarOpen,
+    isHistoryOpen: s.isHistoryOpen,
+    isDownloadsOpen: s.isDownloadsOpen,
+    isTabOverviewOpen: s.isTabOverviewOpen,
+    isSpaceSwitcherOpen: s.isSpaceSwitcherOpen,
+    setDropdownOpen: s.setDropdownOpen,
+    setMenuOpen: s.setMenuOpen,
+    setSpaceSwitcherOpen: s.setSpaceSwitcherOpen,
+  })));
+  const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
 
   const handleMainContentErrorRetry = useCallback(() => {
@@ -214,27 +232,36 @@ function BrowserLayoutInner(): React.JSX.Element {
   // Revoke old blob URLs after new one is rendered, preventing accumulation
   useEffect(() => {
     // Revoke all blob URLs except the current one
-    const toRevoke = Array.from(blobUrlsRef.current).filter(url => url !== wallpaperUrl);
-    toRevoke.forEach(url => {
-      try {
-        URL.revokeObjectURL(url);
-        blobUrlsRef.current.delete(url);
-      } catch (err) {
-        logger.warn("Failed to revoke blob URL:", err);
+    const toRevoke: string[] = []
+    const currentUrl = wallpaperUrl
+    
+    for (const url of blobUrlsRef.current) {
+      if (url !== currentUrl) {
+        toRevoke.push(url)
       }
-    });
+    }
+    
+    // Revoke synchronously and remove from tracking
+    for (const url of toRevoke) {
+      try {
+        URL.revokeObjectURL(url)
+        blobUrlsRef.current.delete(url)
+      } catch (err) {
+        logger.warn("Failed to revoke blob URL:", err)
+      }
+    }
 
     return () => {
       // On unmount, revoke all remaining blob URLs
-      blobUrlsRef.current.forEach(url => {
+      for (const url of blobUrlsRef.current) {
         try {
-          URL.revokeObjectURL(url);
+          URL.revokeObjectURL(url)
         } catch (err) {
-          logger.warn("Failed to revoke blob URL on unmount:", err);
+          logger.warn("Failed to revoke blob URL on unmount:", err)
         }
-      });
-      blobUrlsRef.current.clear();
-    };
+      }
+      blobUrlsRef.current.clear()
+    }
   }, [wallpaperUrl]);
 
   // ── Apply UI zoom scale via Electron webFrame ──
@@ -298,6 +325,8 @@ function BrowserLayoutInner(): React.JSX.Element {
         message: "Session could not be restored; starting fresh.",
         type: "info",
       });
+      // Auto-create a new tab so user isn't left with empty tab list
+      useTabStore.getState().addTab();
     });
   }, []);
 

@@ -84,9 +84,10 @@ function FavouriteTile({
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
+    // Capture current position at drag start time
     dragStart.current = { x: pos.x, y: pos.y, px: e.clientX, py: e.clientY }
     hasMoved.current = false
-  }, [pos.x, pos.y])
+  }, [])
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragStart.current) return
@@ -100,19 +101,21 @@ function FavouriteTile({
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     e.currentTarget.releasePointerCapture(e.pointerId)
-    if (hasMoved.current && dragStart.current) {
-      const { w, h } = getContainerBounds()
-      const rawX = dragStart.current.x + dragOffset.x
-      const rawY = dragStart.current.y + dragOffset.y
-      const newX = clamp(rawX, 0, w - TILE_W)
-      const newY = clamp(rawY, 0, h - TILE_H)
-      setFavouritePosition(url, newX, newY)
-    }
-    dragStart.current = null
-    hasMoved.current = false
-    setDragging(false)
-    setDragOffset({ x: 0, y: 0 })
-  }, [dragOffset, url, setFavouritePosition, getContainerBounds])
+    setDragOffset((currentOffset) => {
+      if (hasMoved.current && dragStart.current) {
+        const { w, h } = getContainerBounds()
+        const rawX = dragStart.current.x + currentOffset.x
+        const rawY = dragStart.current.y + currentOffset.y
+        const newX = clamp(rawX, 0, w - TILE_W)
+        const newY = clamp(rawY, 0, h - TILE_H)
+        setFavouritePosition(url, newX, newY)
+      }
+      dragStart.current = null
+      hasMoved.current = false
+      setDragging(false)
+      return { x: 0, y: 0 }
+    })
+  }, [url, setFavouritePosition, getContainerBounds])
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
