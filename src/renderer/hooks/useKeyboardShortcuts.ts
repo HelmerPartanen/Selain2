@@ -158,6 +158,14 @@ export function useKeyboardShortcuts(): void {
         return
       }
 
+      // Ctrl+Shift+Z — Sleep/suspend current tab
+      if (ctrl && shift && key === 'z') {
+        e.preventDefault()
+        const tabId = getFocusedTabId()
+        if (tabId) useTabStore.getState().suspendTab(tabId, 'manual')
+        return
+      }
+
       // Ctrl+Tab / Ctrl+Shift+Tab — Cycle tabs
       if (ctrl && key === 'tab') {
         e.preventDefault()

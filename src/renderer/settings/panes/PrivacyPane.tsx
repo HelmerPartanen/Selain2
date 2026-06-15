@@ -14,9 +14,32 @@ import type { PrivacyProfile } from "@/store/settingsStore";
 import { useHistoryStore } from "@/store/historyStore";
 import { useDownloadStore } from "@/store/downloadStore";
 import { useBookmarkStore } from "@/store/bookmarkStore";
+import type { BookmarkEntry } from "@/store/bookmarkStore";
 import { SITE_PERMISSION_LABELS, useSitePermissionsStore } from "@/store/sitePermissionsStore";
 import { showToast } from "@/components/ui/Toast";
 import { SPRING_SNAPPY } from "@/utils/springs";
+
+interface ProfileBackup {
+  version: 1
+  bookmarks: BookmarkEntry[]
+  settings: {
+    restoreTabs: boolean
+    newTabMode: string
+    homepageUrl: string
+    uiZoom: number
+    enableAutoHide: boolean
+    clearOnExit: boolean
+    privacyProfile: string
+    autoGroupTabsByDomain: boolean
+    showTabCleanupSuggestions: boolean
+    smartUrlBarFocus: boolean
+    showNewTabContinueSection: boolean
+    showNewTabFrequentSection: boolean
+    enableAdblocker: boolean
+    disableAnimations: boolean
+    disableBlurEffects: boolean
+  }
+}
 
 function PrivacyPaneInner(): React.JSX.Element {
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);
@@ -28,6 +51,77 @@ function PrivacyPaneInner(): React.JSX.Element {
   const permissionEntries = useSitePermissionsStore((s) => s.listAll());
   const resetOrigin = useSitePermissionsStore((s) => s.resetOrigin);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
+
+  const handleExportProfile = useCallback(async () => {
+    const s = useSettingsStore.getState()
+    const backup: ProfileBackup = {
+      version: 1,
+      bookmarks: useBookmarkStore.getState().bookmarks,
+      settings: {
+        restoreTabs: s.restoreTabs,
+        newTabMode: s.newTabMode,
+        homepageUrl: s.homepageUrl,
+        uiZoom: s.uiZoom,
+        enableAutoHide: s.enableAutoHide,
+        clearOnExit: s.clearOnExit,
+        privacyProfile: s.privacyProfile,
+        autoGroupTabsByDomain: s.autoGroupTabsByDomain,
+        showTabCleanupSuggestions: s.showTabCleanupSuggestions,
+        smartUrlBarFocus: s.smartUrlBarFocus,
+        showNewTabContinueSection: s.showNewTabContinueSection,
+        showNewTabFrequentSection: s.showNewTabFrequentSection,
+        enableAdblocker: s.enableAdblocker,
+        disableAnimations: s.disableAnimations,
+        disableBlurEffects: s.disableBlurEffects,
+      },
+    }
+    const success = await window.electronAPI.exportProfileBackup(JSON.stringify(backup, null, 2))
+    if (success) {
+      showToast({ message: 'Profile exported successfully', type: 'success' })
+    }
+  }, [])
+
+  const handleImportProfile = useCallback(async () => {
+    const json = await window.electronAPI.importProfileBackup()
+    if (!json) return
+    try {
+      const data = JSON.parse(json) as ProfileBackup
+      if (data.version !== 1) throw new Error('Unsupported version')
+
+      if (Array.isArray(data.bookmarks)) {
+        const bkStore = useBookmarkStore.getState()
+        data.bookmarks.forEach((b) => {
+          if (b.url && !bkStore.isBookmarked(b.url)) {
+            bkStore.addBookmark(b.url, b.title || b.url, b.favicon)
+          }
+        })
+      }
+
+      if (data.settings) {
+        const s = useSettingsStore.getState()
+        const st = data.settings
+        if (typeof st.restoreTabs === 'boolean') s.setRestoreTabs(st.restoreTabs)
+        if (st.newTabMode === 'bookmarks' || st.newTabMode === 'blank') s.setNewTabMode(st.newTabMode)
+        if (typeof st.homepageUrl === 'string') s.setHomepageUrl(st.homepageUrl)
+        if (typeof st.uiZoom === 'number') s.setUiZoom(st.uiZoom)
+        if (typeof st.enableAutoHide === 'boolean') s.setEnableAutoHide(st.enableAutoHide)
+        if (typeof st.clearOnExit === 'boolean') s.setClearOnExit(st.clearOnExit)
+        if (['standard', 'strict', 'private'].includes(st.privacyProfile)) s.setPrivacyProfile(st.privacyProfile as PrivacyProfile)
+        if (typeof st.autoGroupTabsByDomain === 'boolean') s.setAutoGroupTabsByDomain(st.autoGroupTabsByDomain)
+        if (typeof st.showTabCleanupSuggestions === 'boolean') s.setShowTabCleanupSuggestions(st.showTabCleanupSuggestions)
+        if (typeof st.smartUrlBarFocus === 'boolean') s.setSmartUrlBarFocus(st.smartUrlBarFocus)
+        if (typeof st.showNewTabContinueSection === 'boolean') s.setShowNewTabContinueSection(st.showNewTabContinueSection)
+        if (typeof st.showNewTabFrequentSection === 'boolean') s.setShowNewTabFrequentSection(st.showNewTabFrequentSection)
+        if (typeof st.enableAdblocker === 'boolean') s.setEnableAdblocker(st.enableAdblocker)
+        if (typeof st.disableAnimations === 'boolean') s.setDisableAnimations(st.disableAnimations)
+        if (typeof st.disableBlurEffects === 'boolean') s.setDisableBlurEffects(st.disableBlurEffects)
+      }
+
+      showToast({ message: 'Profile imported successfully', type: 'success' })
+    } catch {
+      showToast({ message: 'Failed to import: invalid profile file', type: 'error' })
+    }
+  }, [])
 
   const clearHistory = useCallback(() => {
     useHistoryStore.getState().clearAll();
@@ -178,6 +272,29 @@ function PrivacyPaneInner(): React.JSX.Element {
             </>
           )}
         </SettingGroup>
+      </div>
+
+      <div>
+        <SectionHeader>Profile Backup</SectionHeader>
+        <Desc>Export your bookmarks and settings to a file, or restore them from a previous backup.</Desc>
+        <div className="flex gap-2">
+          <motion.button
+            onClick={handleExportProfile}
+            whileTap={{ scale: 0.97 }}
+            transition={SPRING_SNAPPY}
+            className="flex-1 px-4 py-2.5 rounded-full text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.07] transition-colors duration-150"
+          >
+            Export Profile
+          </motion.button>
+          <motion.button
+            onClick={handleImportProfile}
+            whileTap={{ scale: 0.97 }}
+            transition={SPRING_SNAPPY}
+            className="flex-1 px-4 py-2.5 rounded-full text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.07] transition-colors duration-150"
+          >
+            Import Profile
+          </motion.button>
+        </div>
       </div>
 
       <div>

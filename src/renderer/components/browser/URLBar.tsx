@@ -616,18 +616,19 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
                       <SvgIcon svg={counterclockwiseSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
                     )}
                     <span className="flex-1 text-[13px] truncate">{entry.title || simplifyUrl(entry.url)}</span>
-                    {entry.type !== 'search' && (
+                    {(entry.type === 'history' || entry.type === 'bookmark') && (
                       <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">
                         {simplifyUrl(entry.url)}
                       </span>
                     )}
-                    {entry.type && (
+                    {entry.type && entry.type !== 'search' && entry.type !== 'command' && (
                       <span className="flex-shrink-0 text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-600 ml-1">
-                        {entry.type === 'history'
-                          ? 'History'
-                          : entry.type === 'bookmark'
-                          ? 'Bookmark'
-                          : 'Suggestion'}
+                        {entry.type === 'history' ? 'History'
+                          : entry.type === 'bookmark' ? 'Bookmark'
+                          : entry.type === 'tab' ? 'Tab'
+                          : entry.type === 'space' ? 'Space'
+                          : entry.type === 'settings' ? 'Settings'
+                          : null}
                       </span>
                     )}
                   </span>

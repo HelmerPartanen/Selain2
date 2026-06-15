@@ -211,6 +211,8 @@ function TabOverviewInner(): React.JSX.Element {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false)
   const [hoveredMoveSpaceIdx, setHoveredMoveSpaceIdx] = useState<number | null>(null)
+  const moveButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [moveMenuPos, setMoveMenuPos] = useState({ x: 0, y: 0 })
   const cancelledRef = useRef(false)
 
   // Snapshot tabs + capture thumbnails when opening; cancel on close

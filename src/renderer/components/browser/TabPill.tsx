@@ -18,6 +18,91 @@ import { useUIStore } from '@/store/uiStore'
 
 import { SPRING_POPUP, SPRING_FAST, SPRING_SNAPPY, SPRING_EXPAND } from '@/utils/springs'
 
+const ContextMenuItem = memo(function ContextMenuItem({
+  onClick,
+  disabled,
+  children,
+  danger,
+}: {
+  onClick: () => void
+  disabled?: boolean
+  children: React.ReactNode
+  danger?: boolean
+}) {
+  return (
+    <button
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`w-full flex items-center gap-2.5 px-3.5 h-9 rounded-lg text-left text-[13px] font-light transition-colors duration-100 ${
+        disabled
+          ? 'opacity-40 cursor-not-allowed text-gray-700 dark:text-neutral-300'
+          : danger
+          ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40'
+          : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+      }`}
+    >
+      {children}
+    </button>
+  )
+})
+
+function TabContextMenu({ tabId, x, y, onClose }: {
+  tabId: string
+  x: number
+  y: number
+  onClose: () => void
+}) {
+  const meta = useTabMeta(tabId)
+  const duplicateTab = useTabStore(s => s.duplicateTab)
+  const removeTab = useTabStore(s => s.removeTab)
+  const toggleMute = useTabStore(s => s.toggleMute)
+  const togglePinned = useTabStore(s => s.togglePinned)
+  const suspendTab = useTabStore(s => s.suspendTab)
+  const pinned = meta?.pinned ?? false
+  const isMuted = meta?.isMuted ?? false
+  const isPlayingMedia = meta?.isPlayingMedia ?? false
+
+  useEffect(() => {
+    const handler = () => onClose()
+    window.addEventListener('mousedown', handler, true)
+    return () => window.removeEventListener('mousedown', handler, true)
+  }, [onClose])
+
+  const safeX = Math.min(x, window.innerWidth - 200)
+  const safeY = Math.min(y, window.innerHeight - 248)
+
+  return (
+    <div
+      className="fixed z-[200] min-w-[190px] rounded-xl overflow-hidden drop-shadow-lg bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5 p-1"
+      style={{ top: Math.max(8, safeY), left: Math.max(8, safeX) }}
+      onMouseDown={e => e.stopPropagation()}
+    >
+      <ContextMenuItem onClick={() => { duplicateTab(tabId); onClose() }}>
+        Duplicate Tab
+      </ContextMenuItem>
+      <ContextMenuItem onClick={() => { togglePinned(tabId); onClose() }}>
+        {pinned ? 'Unpin Tab' : 'Pin Tab'}
+      </ContextMenuItem>
+      {(isPlayingMedia || isMuted) && (
+        <ContextMenuItem onClick={() => { toggleMute(tabId); onClose() }}>
+          {isMuted ? 'Unmute Tab' : 'Mute Tab'}
+        </ContextMenuItem>
+      )}
+      <ContextMenuItem onClick={() => { suspendTab(tabId, 'manual'); onClose() }}>
+        Sleep Tab
+      </ContextMenuItem>
+      <div className="mx-2 my-1 h-px bg-black/5 dark:bg-white/5" />
+      <ContextMenuItem
+        onClick={() => { removeTab(tabId); onClose() }}
+        disabled={pinned}
+        danger
+      >
+        Close Tab
+      </ContextMenuItem>
+    </div>
+  )
+}
+
 function ActiveFavicon(): React.JSX.Element {
   const activeTabId = useActiveTabId()
   const state = useTabFaviconState(activeTabId ?? '')
@@ -43,6 +128,7 @@ const TabRow = memo(function TabRow({
   hovered,
   onHover,
   onLeave,
+  onContextMenu,
 }: {
   tabId: string
   isActive: boolean
@@ -53,6 +139,7 @@ const TabRow = memo(function TabRow({
   hovered?: boolean
   onHover?: () => void
   onLeave?: () => void
+  onContextMenu?: (e: React.MouseEvent) => void
 }): React.JSX.Element {
   const meta = useTabMeta(tabId)
   const setActiveTab = useTabStore((s) => s.setActiveTab)
@@ -101,6 +188,7 @@ const TabRow = memo(function TabRow({
       onClick={handleClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
+      onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e) }}
       className={`relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white ${isHighlighted ? 'text-gray-900 dark:text-white' : ''
         }`}
       style={{
@@ -196,6 +284,7 @@ function TabPillInner(): React.JSX.Element {
   const handleClose = useCallback(() => setDropdownOpen(false), [setDropdownOpen])
 
   const [hoveredRow, setHoveredRow] = useState<number | string | null>(null)
+  const [contextMenu, setContextMenu] = useState<{ tabId: string; x: number; y: number } | null>(null)
 
   const handleReopenAt = useCallback((index: number) => {
     reopenClosedAt(index)
@@ -287,6 +376,7 @@ function TabPillInner(): React.JSX.Element {
                       hovered={hoveredRow === index}
                       onHover={() => setHoveredRow(index)}
                       onLeave={() => setHoveredRow(null)}
+                      onContextMenu={(e) => setContextMenu({ tabId: id, x: e.clientX, y: e.clientY })}
                     />
                   ))}
                 </div>
@@ -332,6 +422,15 @@ function TabPillInner(): React.JSX.Element {
           </>
         )}
       </AnimatePresence>
+
+      {contextMenu && (
+        <TabContextMenu
+          tabId={contextMenu.tabId}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
 
       <AnimatePresence initial={false}>
         {bgMediaPlaying && (

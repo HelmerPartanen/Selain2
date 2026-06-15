@@ -56,7 +56,8 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: 'Ctrl + 1–9', description: 'Switch to tab 1–9' },
             { keys: 'Ctrl + Shift + A', description: 'Tab overview' },
             { keys: 'Ctrl + Shift + S', description: 'Toggle split view' },
-            { keys: 'Ctrl + Shift + X', description: 'Swap split panels' }
+            { keys: 'Ctrl + Shift + X', description: 'Swap split panels' },
+            { keys: 'Ctrl + Shift + Z', description: 'Sleep current tab' }
         ]
     },
     {
