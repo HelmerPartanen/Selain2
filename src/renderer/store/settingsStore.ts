@@ -10,6 +10,7 @@ import { logger } from '@/utils/logger'
 
 export type NewTabMode = 'bookmarks' | 'blank'
 export type PrivacyProfile = 'standard' | 'strict' | 'private'
+export type TabsButtonAction = 'overview' | 'menu'
 
 export interface SettingsState {
   /** Restore previous session tabs on startup */
@@ -50,6 +51,8 @@ export interface SettingsState {
   disableAnimations: boolean
   /** Disable blur and translucent effects */
   disableBlurEffects: boolean
+  /** What the tabs count button opens */
+  tabsButtonAction: TabsButtonAction
 }
 
 export interface SettingsActions {
@@ -72,6 +75,7 @@ export interface SettingsActions {
   setSyncSplitScrolling: (v: boolean) => void
   setDisableAnimations: (v: boolean) => void
   setDisableBlurEffects: (v: boolean) => void
+  setTabsButtonAction: (v: TabsButtonAction) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -100,6 +104,7 @@ export const useSettingsStore = create<SettingsStore>()(
       syncSplitScrolling: false,
       disableAnimations: false,
       disableBlurEffects: false,
+      tabsButtonAction: 'overview' as TabsButtonAction,
 
       // ── Actions ──
       setRestoreTabs: (v) => set({ restoreTabs: v }),
@@ -120,6 +125,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setSyncSplitScrolling: (v) => set({ syncSplitScrolling: v }),
       setDisableAnimations: (v) => set({ disableAnimations: v }),
       setDisableBlurEffects: (v) => set({ disableBlurEffects: v }),
+      setTabsButtonAction: (v) => set({ tabsButtonAction: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>({
         onParseError(name) {

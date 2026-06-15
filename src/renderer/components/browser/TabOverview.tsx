@@ -12,6 +12,7 @@ import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
 import bedSvg from '@/assets/icons/Objects/Bed.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 import chevronDownSvg from '@/assets/icons/Arrows/Chevron_Down.svg?raw'
+import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import { useShallow } from 'zustand/react/shallow'
 import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -94,7 +95,7 @@ const TabCard = memo(function TabCard({
           ${isActive
             ? 'ring-2 ring-blue-500 shadow-xl'
             : isSelected
-              ? 'ring-2 ring-emerald-500 shadow-xl'
+              ? 'ring-2 ring-blue-500 shadow-xl'
               : 'ring-1 ring-gray-200 dark:ring-neutral-700 shadow-lg hover:shadow-xl hover:ring-blue-400/50 dark:hover:ring-blue-500/40'
           }
         `}
@@ -145,11 +146,11 @@ const TabCard = memo(function TabCard({
           <button
             onClick={onToggleSelected}
             className={`absolute top-2 left-2 w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-              isSelected ? 'bg-emerald-500 border-emerald-500' : 'bg-black/30 border-white/30'
+              isSelected ? 'bg-blue-500 border-blue-500' : 'bg-black/30 border-white/30'
             }`}
             aria-label={isSelected ? 'Deselect tab' : 'Select tab'}
           >
-            {isSelected && <span className="w-2 h-2 rounded-full bg-white" />}
+            {isSelected && <SvgIcon svg={checkSvg} size={10} className="text-white" />}
           </button>
           <div className="absolute top-2 right-2 flex gap-1">
             {preview.pinned && <span className="px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[9px]">Pinned</span>}

@@ -10,11 +10,11 @@ import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
 import pinFillSvg from '@/assets/icons/Objects/Pin_Fill.svg?raw'
 import splitSvg from '@/assets/icons/Arrows/Triangle_Branch.svg?raw'
 import unsplitSvg from '@/assets/icons/Arrows/Triangle_Merge.svg?raw'
-import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import { useShallow } from 'zustand/react/shallow'
 import { useTabOrder, useActiveTabId, useSplitTabId, useIsSplitView, useTabMeta, useTabFaviconState, useBackgroundMediaPlaying, useSpaceTabOrder } from '@/hooks/useTabSelector'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
 import { SPRING_POPUP, SPRING_FAST, SPRING_SNAPPY, SPRING_EXPAND } from '@/utils/springs'
 
@@ -125,9 +125,6 @@ const TabRow = memo(function TabRow({
   isSplit,
   index,
   onSelect,
-  hovered,
-  onHover,
-  onLeave,
   onContextMenu,
 }: {
   tabId: string
@@ -136,9 +133,6 @@ const TabRow = memo(function TabRow({
   isSplit: boolean
   index: number
   onSelect: () => void
-  hovered?: boolean
-  onHover?: () => void
-  onLeave?: () => void
   onContextMenu?: (e: React.MouseEvent) => void
 }): React.JSX.Element {
   const meta = useTabMeta(tabId)
@@ -186,24 +180,17 @@ const TabRow = memo(function TabRow({
   return (
     <button
       onClick={handleClick}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
       onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e) }}
-      className={`relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white ${isHighlighted ? 'text-gray-900 dark:text-white' : ''
-        }`}
+      className={`relative group flex items-center gap-3 w-full px-3.5 h-10 rounded-xl text-left transition-all duration-150 font-light ${
+        isHighlighted
+          ? 'text-gray-900 dark:text-white bg-black/[0.04] dark:bg-white/[0.06]'
+          : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+      }`}
       style={{
         opacity: 0,
-        animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`
+        animation: `menu-item-in 160ms ease-out ${50 + index * 20}ms forwards`
       }}
     >
-      {(hovered || isHighlighted) && (
-        <motion.div
-          layoutId="tab-row-highlight"
-          className="absolute inset-0 rounded-full bg-white/20 backdrop-blur-sm"
-          transition={SPRING_SNAPPY}
-          style={{ zIndex: 1 }}
-        />
-      )}
 
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
         {isLoading ? (
@@ -266,14 +253,15 @@ function TabPillInner(): React.JSX.Element {
   const splitTabId = useSplitTabId()
   const isSplit = useIsSplitView()
   const addTab = useTabStore((s) => s.addTab)
-  const reopenClosedAt = useTabStore((s) => s.reopenClosedAt)
-  const recentlyClosed = useTabStore((s) => s.recentlyClosed)
   const bgMediaPlaying = useBackgroundMediaPlaying()
   const { isExpanded, setDropdownOpen } = useUIStore(useShallow((s) => ({
     isExpanded: s.isDropdownOpen,
     setDropdownOpen: s.setDropdownOpen,
   })))
   const tabCount = tabOrder.length
+  const tabsButtonAction = useSettingsStore((s) => s.tabsButtonAction)
+  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   useEffect(() => {
     if (tabCount <= 1) setDropdownOpen(false)
@@ -283,12 +271,7 @@ function TabPillInner(): React.JSX.Element {
   const handleToggle = useCallback(() => setDropdownOpen(!isExpanded), [isExpanded, setDropdownOpen])
   const handleClose = useCallback(() => setDropdownOpen(false), [setDropdownOpen])
 
-  const [hoveredRow, setHoveredRow] = useState<number | string | null>(null)
   const [contextMenu, setContextMenu] = useState<{ tabId: string; x: number; y: number } | null>(null)
-
-  const handleReopenAt = useCallback((index: number) => {
-    reopenClosedAt(index)
-  }, [reopenClosedAt])
 
   return (
     <div className="relative">
@@ -304,8 +287,14 @@ function TabPillInner(): React.JSX.Element {
         </motion.button>
 
         <motion.button
-          onClick={() => useUIStore.getState().toggleTabOverview()}
-          aria-label="Tab overview"
+          onClick={() => {
+            if (tabsButtonAction === 'menu') {
+              setDropdownOpen(!isExpanded)
+            } else {
+              useUIStore.getState().toggleTabOverview()
+            }
+          }}
+          aria-label={tabsButtonAction === 'menu' ? 'Tab list' : 'Tab overview'}
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
           className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
@@ -327,15 +316,15 @@ function TabPillInner(): React.JSX.Element {
           <>
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px]"
+              className="absolute bottom-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px] mb-2"
               style={{ originX: 0.5, originY: 1 }}
-              initial={{
+              initial={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: -10,
+                y: 10,
                 borderRadius: 40,
-                filter: 'blur(6px)',
+                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
               animate={{
                 scaleX: 1,
@@ -343,17 +332,17 @@ function TabPillInner(): React.JSX.Element {
                 opacity: 1,
                 y: 0,
                 borderRadius: 16,
-                filter: 'blur(0px)',
+                filter: disableBlurEffects ? 'none' : 'blur(0px)',
               }}
-              exit={{
+              exit={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: -10,
+                y: 10,
                 borderRadius: 40,
-                filter: 'blur(6px)',
+                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
-              transition={{
+              transition={disableAnimations ? { duration: 0 } : {
                 type: 'spring',
                 stiffness: 380,
                 damping: 28,
@@ -362,8 +351,8 @@ function TabPillInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className="rounded-3xl glass-heavy overflow-hidden">
-                <div className="px-3 py-2 max-h-[320px] glass-scroll overflow-hidden">
+              <div className={`rounded-xl drop-shadow-lg overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+                <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1">
                   {tabOrder.map((id, index) => (
                     <TabRow
                       key={id}
@@ -373,50 +362,11 @@ function TabPillInner(): React.JSX.Element {
                       isSplit={isSplit}
                       index={index}
                       onSelect={handleClose}
-                      hovered={hoveredRow === index}
-                      onHover={() => setHoveredRow(index)}
-                      onLeave={() => setHoveredRow(null)}
                       onContextMenu={(e) => setContextMenu({ tabId: id, x: e.clientX, y: e.clientY })}
                     />
                   ))}
                 </div>
 
-                {recentlyClosed.length > 0 && (
-                  <>
-                    <div className="mx-2 my-1 h-px bg-[var(--border-divider)]" />
-                    <div className="px-3 py-2 space-y-0.5">
-                      {recentlyClosed.map((closed, index) => {
-                        const rowKey = `reopen-${index}`
-                        return (
-                          <button
-                            key={`${closed.url}-${index}`}
-                            onClick={() => { handleReopenAt(index); handleClose() }}
-                            onMouseEnter={() => setHoveredRow(rowKey)}
-                            onMouseLeave={() => setHoveredRow(null)}
-                            className="relative group flex items-center gap-3 w-full px-3.5 h-9 rounded-full text-left transition-all duration-150 font-light text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white"
-                          >
-                            {hoveredRow === rowKey && (
-                              <motion.div
-                                layoutId="tab-row-highlight"
-                                className="absolute inset-0 rounded-full glass glass-interactive"
-                                transition={SPRING_SNAPPY}
-                                style={{ zIndex: 1 }}
-                              />
-                            )}
-                            <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
-                              {closed.favicon ? (
-                                <img src={closed.favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
-                              ) : (
-                                <SvgIcon svg={counterclockwiseSvg} size={14} className="text-gray-400" />
-                              )}
-                            </div>
-                            <span className="flex-1 text-[13px] truncate z-10">{closed.title || closed.url}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </>
-                )}
               </div>
             </motion.div>
           </>

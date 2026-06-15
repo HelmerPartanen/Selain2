@@ -9,7 +9,7 @@ import {
   SettingRow,
   Toggle,
 } from "@/settings/components/SettingsShared";
-import { useSettingsStore, type NewTabMode } from "@/store/settingsStore";
+import { useSettingsStore, type NewTabMode, type TabsButtonAction } from "@/store/settingsStore";
 import { useTabStore } from "@/store/tabStore";
 import { SPRING_SNAPPY } from "@/utils/springs";
 import {
@@ -28,6 +28,8 @@ function GeneralPaneInner(): React.JSX.Element {
   const setAutoGroupTabsByDomain = useSettingsStore((s) => s.setAutoGroupTabsByDomain);
   const showTabCleanupSuggestions = useSettingsStore((s) => s.showTabCleanupSuggestions);
   const setShowTabCleanupSuggestions = useSettingsStore((s) => s.setShowTabCleanupSuggestions);
+  const tabsButtonAction = useSettingsStore((s) => s.tabsButtonAction);
+  const setTabsButtonAction = useSettingsStore((s) => s.setTabsButtonAction);
   const smartUrlBarFocus = useSettingsStore((s) => s.smartUrlBarFocus);
   const setSmartUrlBarFocus = useSettingsStore((s) => s.setSmartUrlBarFocus);
   const showNewTabContinueSection = useSettingsStore((s) => s.showNewTabContinueSection);
@@ -170,6 +172,34 @@ function GeneralPaneInner(): React.JSX.Element {
         <SectionHeader>Tab behavior</SectionHeader>
         <Desc>Let the browser help keep your tabs organized, without losing control.</Desc>
         <SettingGroup>
+          <SettingRow
+            label="Tabs button action"
+            desc="Choose what the tab count button in the toolbar opens."
+          >
+            <div
+              className="flex gap-1 p-1 rounded-full bg-white/25 dark:bg-white/8 shadow"
+              role="radiogroup"
+              aria-label="Tabs button action"
+            >
+              {([['overview', 'Overview'], ['menu', 'List']] as [TabsButtonAction, string][]).map(([value, label]) => {
+                const isActive = tabsButtonAction === value;
+                return (
+                  <button
+                    key={value}
+                    role="radio"
+                    aria-checked={isActive}
+                    onClick={() => setTabsButtonAction(value)}
+                    className={`relative px-3 py-1.5 rounded-full text-[12px] font-normal transition-all duration-150 ${isActive
+                      ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
+                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </SettingRow>
           <SettingRow
             label="Group similar sites"
             desc="Keep tabs from the same site clustered together automatically."
