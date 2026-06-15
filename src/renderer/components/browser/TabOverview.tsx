@@ -224,15 +224,18 @@ function TabOverviewInner(): React.JSX.Element {
 
     // Snapshot tab data at open time (decoupled from live `tabs` object)
     const { tabOrder, tabs } = useTabStore.getState()
-    const { spaces, activeSpaceId } = useSpaceStore.getState()
-    const spaceTabSet = new Set(spaces[activeSpaceId]?.tabIds ?? [])
-    const spaceTabOrder = tabOrder.filter((id) => spaceTabSet.has(id))
-    const duplicates = findDuplicateTabIds(spaceTabOrder, tabs)
-    const snapshots: TabPreview[] = spaceTabOrder
+    const { spaces } = useSpaceStore.getState()
+    const spaceByTabId = new Map<string, string>()
+    for (const space of Object.values(spaces)) {
+      for (const tabId of space.tabIds) {
+        spaceByTabId.set(tabId, space.name)
+      }
+    }
+    const duplicates = findDuplicateTabIds(tabOrder, tabs)
+    const snapshots: TabPreview[] = tabOrder
       .map((id) => {
         const tab = tabs[id]
         if (!tab) return null
-        const owner = Object.values(spaces).find((space) => space.tabIds.includes(id))
         return {
           id,
           title: tab.title,
@@ -242,7 +245,7 @@ function TabOverviewInner(): React.JSX.Element {
           isPlayingMedia: tab.isPlayingMedia,
           thumbnail: tab.thumbnail,
           domain: getTabDomain(tab.url),
-          spaceName: owner?.name ?? 'General',
+          spaceName: spaceByTabId.get(id) ?? 'General',
           isDuplicate: duplicates.has(id),
           pinned: tab.pinned,
           isSuspended: tab.isSuspended
