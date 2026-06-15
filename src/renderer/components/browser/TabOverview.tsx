@@ -94,7 +94,7 @@ const TabCard = memo(function TabCard({
           ${isActive
             ? 'ring-2 ring-blue-500 shadow-xl'
             : isSelected
-              ? 'ring-2 ring-emerald-400 shadow-xl'
+              ? 'ring-2 ring-emerald-500 shadow-xl'
               : 'ring-1 ring-gray-200 dark:ring-neutral-700 shadow-lg hover:shadow-xl hover:ring-blue-400/50 dark:hover:ring-blue-500/40'
           }
         `}
@@ -145,7 +145,7 @@ const TabCard = memo(function TabCard({
           <button
             onClick={onToggleSelected}
             className={`absolute top-2 left-2 w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-              isSelected ? 'bg-emerald-400 border-emerald-300' : 'bg-black/30 border-white/30'
+              isSelected ? 'bg-emerald-500 border-emerald-500' : 'bg-black/30 border-white/30'
             }`}
             aria-label={isSelected ? 'Deselect tab' : 'Select tab'}
           >
@@ -617,7 +617,7 @@ function TabOverviewInner(): React.JSX.Element {
                   onClick={handleNewTab}
                   className="w-full rounded-lg overflow-hidden border border-black/10 dark:border-white/10
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
-                    bg-white/80 dark:bg-[#1D1F23]/80 hover:bg-white dark:hover:bg-white/[0.06] active:scale-[0.97]"
+                    bg-white/80 dark:bg-[#1D1F23]/80 hover:bg-white dark:hover:dark:bg-[#1D1F23]/60 active:scale-[0.97]"
                 >
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
                     <SvgIcon svg={plusSvg} size={22} className="text-gray-500 dark:text-neutral-400" />
