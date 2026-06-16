@@ -1,6 +1,6 @@
 // ─── Privacy Settings Pane ───────────────────────────────────────────────────
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Desc,
@@ -48,7 +48,10 @@ function PrivacyPaneInner(): React.JSX.Element {
   const setEnableAdblocker = useSettingsStore((s) => s.setEnableAdblocker);
   const privacyProfile = useSettingsStore((s) => s.privacyProfile);
   const setPrivacyProfile = useSettingsStore((s) => s.setPrivacyProfile);
-  const permissionEntries = useSitePermissionsStore((s) => s.listAll());
+  const entries = useSitePermissionsStore((s) => s.entries);
+  const permissionEntries = useMemo(() => {
+    return Object.values(entries).sort((a, b) => b.updatedAt - a.updatedAt);
+  }, [entries]);
   const resetOrigin = useSitePermissionsStore((s) => s.resetOrigin);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
 
