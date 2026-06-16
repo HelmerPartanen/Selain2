@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
-import boxSvg from '@/assets/icons/Devices/Display.svg?raw'
+import boxSvg from '@/assets/icons/Interface/Menu_Points_3.svg?raw'
 import pencilSvg from '@/assets/icons/Objects/Pencil.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 import rightSmallSvg from '@/assets/icons/Arrows/Right_Small.svg?raw'
@@ -41,7 +41,6 @@ function SpaceRow({
   onMoveTab: () => void
   disableAnimations: boolean
 }): React.JSX.Element {
-  const tabCount = space.tabIds.length
   const isGeneral = space.id === DEFAULT_SPACE_ID
   const hasTint = space.hue >= 0
 
@@ -61,7 +60,7 @@ function SpaceRow({
   return (
     <button
       onClick={onSelect}
-      className={`group flex items-center gap-2 w-full pr-1 pl-2.5 h-10 rounded-lg text-left transition-colors duration-75 ${
+      className={`group flex items-center gap-1 w-full pr-0.5 pl-2.5 h-10 rounded-lg text-left transition-colors duration-75 ${
         isActive
           ? hasTint
             ? ''
@@ -76,17 +75,17 @@ function SpaceRow({
         className="flex-shrink-0"
         style={accentColor ? { color: accentColor } : undefined}
       >
-        <SvgIcon svg={boxSvg} size={14} />
+        <div style={{ display: 'flex' }}>
+          <SvgIcon svg={boxSvg} size={16} />
+        </div>
       </span>
       <span
-        className="flex-1 text-xs truncate"
+        className="flex-1 text-[13px] truncate"
         style={accentColor ? { color: accentColor } : undefined}
       >
         {space.name}
       </span>
-      <span className="text-[12px] text-gray-400 dark:text-neutral-500 pr-1">
-        {tabCount}
-      </span>
+      
 
       {/* Move active tab here — only on non-active spaces when multiple exist */}
       {!isActive && hasMultipleSpaces && (
@@ -377,31 +376,35 @@ function SpaceSwitcherInner(): React.JSX.Element {
   )
 
   return (
-    <div className="relative">
-      {/* Pill trigger */}
-     <motion.button
-  onClick={handleToggle}
-  aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
-  whileTap={disableAnimations ? undefined : { scale: 0.88 }}
-  whileHover={
-    disableAnimations
-      ? undefined
-      : activeHue >= 0
-      ? { filter: 'brightness(1.2)' }
-      : undefined
-  }
-  transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-  style={
-    activeHue >= 0
-      ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
-      : undefined
-  }
-  className="h-10 w-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
->
-  <span style={activeHue >= 0 ? { color: `hsl(${activeHue} 55% 55%)` } : undefined}>
-    <SvgIcon svg={boxSvg} size={16} />
-  </span>
-</motion.button>
+  <div className="relative">
+    <motion.button
+      onClick={handleToggle}
+      aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
+      whileTap={disableAnimations ? undefined : { scale: 0.88 }}
+      whileHover={
+        disableAnimations
+          ? undefined
+          : activeHue >= 0
+          ? { filter: 'brightness(1.2)' }
+          : undefined
+      }
+      transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
+      style={
+        activeHue >= 0
+          ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
+          : undefined
+      }
+      className="h-10 w-10 flex items-center justify-center leading-none rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+    >
+      <span
+        className="flex items-center justify-center"
+        style={activeHue >= 0 ? { color: `hsl(${activeHue} 55% 55%)` } : undefined}
+      >
+        <div style={{ display: 'flex' }}>
+          <SvgIcon svg={boxSvg} size={16} />
+        </div>
+      </span>
+    </motion.button>
 
       {/* Popup */}
       <AnimatePresence>
@@ -418,7 +421,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
               exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
-              <div className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23]'}`}>
+              <div className={`rounded-xl shadow-sm overflow-hidden min-w-[280px] ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23]'}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   {editingId && spaces[editingId] ? (
                             <motion.div
@@ -454,7 +457,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
                       exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
                       transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
-                    <div className="p-1 space-y-0.5">
+                    <div className="p-1 space-y-1">
                       {spaceOrder.map((id, index) => {
                         const space = spaces[id]
                         if (!space) return null
@@ -482,7 +485,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
                     <div className="p-1">
                       <button
                         onClick={() => setIsCreating(true)}
-                        className="flex items-center gap-3 w-full px-2.5 h-8 rounded-xl text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
+                        className="flex items-center gap-3 w-full px-2.5 h-10 rounded-xl text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
                       >
                         <SvgIcon svg={plusSvg} size={14} />
                         <span className="text-[13px]">New Space</span>
