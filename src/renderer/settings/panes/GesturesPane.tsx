@@ -154,10 +154,10 @@ function GesturesPaneInner(): React.JSX.Element {
         type="button"
         onClick={() => setTwoFingerSwipeAction(action)}
         className={[
-          "h-10 px-3 rounded-lg text-[13px] transition-colors duration-150 select-none",
+          "relative px-3 py-1.5 rounded-lg text-[12px] font-normal transition-all duration-150",
           active
-            ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30"
-            : "bg-transparent text-gray-700 dark:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] border border-transparent"
+            ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
+            : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
         ].join(" ")}
       >
         {label}
@@ -192,12 +192,12 @@ function GesturesPaneInner(): React.JSX.Element {
 
       <div className="mt-2">
         <SettingRow
-          label="Two-finger swipe behavior"
-          desc="Choose whether the horizontal two-finger swipe cycles through tabs or acts like back/forward navigation."
+          label="Horizontal two-finger swipe"
+          desc="Choose whether the horizontal two-finger swipe cycles through tabs or navigates back/forward in the browser."
         >
-          <div className="flex gap-2">
+          <div className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]">
             {renderSwipeModeButton("tabs", "Tabs")}
-            {renderSwipeModeButton("navigation", "Back/Forward")}
+            {renderSwipeModeButton("navigation", "Navigation")}
           </div>
         </SettingRow>
       </div>
