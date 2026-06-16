@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
-import boxSvg from '@/assets/icons/Objects/Box.svg?raw'
+import boxSvg from '@/assets/icons/Devices/Display.svg?raw'
 import pencilSvg from '@/assets/icons/Objects/Pencil.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 import rightSmallSvg from '@/assets/icons/Arrows/Right_Small.svg?raw'
@@ -84,7 +84,7 @@ function SpaceRow({
       >
         {space.name}
       </span>
-      <span className="text-xs text-gray-400 dark:text-neutral-500 pr-1">
+      <span className="text-[12px] text-gray-400 dark:text-neutral-500 pr-1">
         {tabCount}
       </span>
 
@@ -152,7 +152,7 @@ function NewSpaceForm({
   }
 
   return (
-    <div className="p-2.5 space-y-2.5">
+    <div className="p-2.5 space-y-3">
       <input
         ref={inputRef}
         value={name}
@@ -162,16 +162,16 @@ function NewSpaceForm({
           if (e.key === 'Escape') onCancel()
         }}
         placeholder="Space name…"
-        className="w-full h-8 px-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus-visible:ring-1 focus-visible:ring-gray-300 dark:focus-visible:ring-neutral-600"
+        className="w-full h-8 p-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-[12px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus-visible:ring-1 focus-visible:ring-transparent"
       />
 
       {/* Color picker */}
       <div className="flex items-center gap-1.5 px-0.5">
         <button
           onClick={() => setSelectedHue(-1)}
-          className={`w-5 h-5 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
+          className={`w-6 h-6 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
             selectedHue === -1
-              ? 'ring-2 ring-offset-1 ring-gray-400 dark:ring-neutral-400 dark:ring-offset-neutral-800 scale-110'
+              ? 'ring-2 ring-offset-1 ring-blue-500 dark:ring-blue-500 dark:ring-offset-neutral-800 scale-110'
               : 'hover:scale-110'
           }`}
           title="No tint"
@@ -184,9 +184,9 @@ function NewSpaceForm({
           <button
             key={preset.hue}
             onClick={() => setSelectedHue(preset.hue)}
-            className={`w-5 h-5 rounded-full transition-all duration-100 ${
+            className={`w-6 h-6 rounded-full transition-all duration-100 ${
               selectedHue === preset.hue
-                ? 'ring-2 ring-offset-1 ring-gray-400 dark:ring-neutral-400 dark:ring-offset-neutral-800 scale-110'
+                ? 'ring-2 ring-offset-1 ring-blue-500 dark:ring-blue-500 dark:ring-offset-neutral-800 scale-110'
                 : 'hover:scale-110'
             }`}
             style={{ background: `hsl(${preset.hue} 55% 55%)` }}
@@ -200,13 +200,13 @@ function NewSpaceForm({
         <button
           onClick={handleSubmit}
           disabled={!name.trim()}
-          className="flex-1 h-7 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[11px] font-medium hover:opacity-90 disabled:opacity-40 transition-opacity duration-100"
+          className="flex-1 h-8 rounded-lg bg-black/[0.1] dark:bg-white/[0.12] text-gray-700 dark:text-gray-300 text-[11px] font-medium hover:opacity-90 disabled:opacity-40 transition-opacity duration-100"
         >
           Create
         </button>
         <button
           onClick={onCancel}
-          className="h-7 px-3 rounded-lg text-[11px] text-gray-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
+          className="h-8 px-3 rounded-lg text-[11px] text-gray-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
         >
           Cancel
         </button>
