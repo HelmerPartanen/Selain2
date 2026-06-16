@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
+import boxSvg from '@/assets/icons/Objects/Box.svg?raw'
 import pencilSvg from '@/assets/icons/Objects/Pencil.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 import rightSmallSvg from '@/assets/icons/Arrows/Right_Small.svg?raw'
@@ -16,22 +17,6 @@ import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
 
-// ─── Space Dot ───────────────────────────────────────────────────────────────
-
-function SpaceDot({ hue, size = 8 }: { hue: number; size?: number }): React.JSX.Element {
-  return (
-    <div
-      className="rounded-full flex-shrink-0"
-      style={{
-        width: size,
-        height: size,
-        background: hue >= 0
-          ? `hsl(${hue} 55% 55%)`
-          : 'rgba(128, 128, 128, 0.3)',
-      }}
-    />
-  )
-}
 
 // ─── Space Row ───────────────────────────────────────────────────────────────
 
@@ -58,24 +43,47 @@ function SpaceRow({
 }): React.JSX.Element {
   const tabCount = space.tabIds.length
   const isGeneral = space.id === DEFAULT_SPACE_ID
+  const hasTint = space.hue >= 0
+
+  const animationStyle = disableAnimations
+    ? { opacity: 1, animation: 'none' as const }
+    : {
+        opacity: 0,
+        animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`,
+      }
+
+  const tintStyle = hasTint
+    ? { background: `hsla(${space.hue} 55% 55% / ${isActive ? 0.14 : 0.08})` }
+    : undefined
+
+  const accentColor = hasTint ? `hsl(${space.hue} 55% 55%)` : undefined
 
   return (
     <button
       onClick={onSelect}
-      className={`group flex items-center gap-1 w-full pr-1 pl-3 h-10 rounded-lg text-left transition-colors duration-75 ${
+      className={`group flex items-center gap-2 w-full pr-1 pl-2.5 h-10 rounded-lg text-left transition-colors duration-75 ${
         isActive
-          ? 'bg-black/[0.06] dark:bg-white/[0.08] text-gray-900 dark:text-white'
-          : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
+          ? hasTint
+            ? ''
+            : 'bg-black/[0.06] dark:bg-white/[0.08] text-gray-900 dark:text-white'
+          : hasTint
+            ? ''
+            : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
       }`}
-      style={disableAnimations
-        ? { opacity: 1, animation: 'none' }
-        : {
-            opacity: 0,
-            animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`,
-          }}
+      style={{ ...animationStyle, ...tintStyle }}
     >
-      <SpaceDot hue={space.hue} />
-      <span className="flex-1 text-xs truncate">{space.name}</span>
+      <span
+        className="flex-shrink-0"
+        style={accentColor ? { color: accentColor } : undefined}
+      >
+        <SvgIcon svg={boxSvg} size={14} />
+      </span>
+      <span
+        className="flex-1 text-xs truncate"
+        style={accentColor ? { color: accentColor } : undefined}
+      >
+        {space.name}
+      </span>
       <span className="text-xs text-gray-400 dark:text-neutral-500 pr-1">
         {tabCount}
       </span>
@@ -311,6 +319,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
   })))
 
   const activeSpace = spaces[activeSpaceId]
+  const activeHue = activeSpace?.hue ?? -1
   const hasMultipleSpaces = spaceOrder.length > 1
 
   // Reset transient form state whenever the switcher closes (including external closes)
@@ -372,28 +381,19 @@ function SpaceSwitcherInner(): React.JSX.Element {
       {/* Pill trigger */}
       <motion.button
         onClick={handleToggle}
-        aria-label="Switch space"
+        aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
         whileTap={disableAnimations ? undefined : { scale: 0.88 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        className={`h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none ${
-          hasMultipleSpaces ? 'gap-1.5 px-2.5' : 'w-10'
-        }`}
+        style={
+          activeHue >= 0
+            ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
+            : undefined
+        }
+        className="h-10 w-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
       >
-        <SpaceDot hue={activeSpace?.hue ?? -1} size={7} />
-        <AnimatePresence initial={false} mode="wait">
-          {hasMultipleSpaces && (
-            <motion.span
-              key={activeSpaceId}
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 4 }}
-              transition={{ duration: 0.15 }}
-              className="text-[11px] font-medium max-w-[60px] truncate"
-            >
-              {activeSpace?.name ?? 'General'}
-            </motion.span>
-          )}
-        </AnimatePresence>
+        <span style={activeHue >= 0 ? { color: `hsl(${activeHue} 55% 55%)` } : undefined}>
+          <SvgIcon svg={boxSvg} size={16} />
+        </span>
       </motion.button>
 
       {/* Popup */}
