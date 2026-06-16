@@ -57,18 +57,8 @@ const BookmarkRow = memo(function BookmarkRow({
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-150"
+      className="relative group flex items-center gap-3 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150"
     >
-      {hovered && (
-        <motion.div
-          layoutId="history-hover"
-          className="absolute inset-0 rounded-full glass glass-interactive"
-          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, filter: 'blur(2px)' }}
-          transition={SPRING_SNAPPY}
-        />
-      )}
 
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {entry.favicon ? (
@@ -90,10 +80,10 @@ const BookmarkRow = memo(function BookmarkRow({
           e.stopPropagation()
           onRemove(entry.url)
         }}
-        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 z-10"
+        className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-500/[0.08] dark:hover:bg-red-500/[0.08] transition-all duration-150 z-10"
         aria-label="Remove bookmark"
       >
-        <SvgIcon svg={trashSvg} size={14} />
+        <SvgIcon svg={trashSvg} size={16} />
       </button>
     </motion.div>
   )
@@ -198,7 +188,7 @@ function BookmarksPanelInner(): React.JSX.Element {
       className="flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+      <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px bg-black/[0.04] dark:bg-white/[0.06]' }}>
         <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
           <SvgIcon svg={bookmarkSvg} size={16} />
           Bookmarks
@@ -206,14 +196,14 @@ function BookmarksPanelInner(): React.JSX.Element {
         <div className="flex items-center gap-1">
           <button
             onClick={handleBookmarkAll}
-            className="px-2.5 py-1 rounded-full text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+            className="px-2.5 py-1 rounded-lg text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
             title="Bookmark all open tabs"
           >
             Bookmark all
           </button>
           <button
             onClick={handleImport}
-            className="px-2.5 py-1 rounded-full text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+            className="px-2.5 py-1 rounded-lg text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
             title="Import bookmarks from HTML"
           >
             Import
@@ -221,7 +211,7 @@ function BookmarksPanelInner(): React.JSX.Element {
           <button
             onClick={handleExport}
             disabled={bookmarks.length === 0}
-            className="px-2.5 py-1 rounded-full text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-40 disabled:pointer-events-none transition-colors duration-150"
+            className="px-2.5 py-1 rounded-lg text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-40 disabled:pointer-events-none transition-colors duration-150"
             title="Export bookmarks to HTML"
           >
             Export
@@ -231,16 +221,16 @@ function BookmarksPanelInner(): React.JSX.Element {
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.9 }}
             transition={SPRING_SNAPPY}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
           >
-            <SvgIcon svg={closeSvg} size={13} />
+            <SvgIcon svg={closeSvg} size={16} />
           </motion.button>
         </div>
       </div>
 
       {/* Search */}
       {bookmarks.length > 0 && (
-        <div className="px-6 pt-4 pb-2 flex-shrink-0">
+        <div className="px-4 pt-4 pb-2 flex-shrink-0">
           <div className="relative">
             <SvgIcon svg={searchSvg} size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" />
             <input
@@ -249,7 +239,7 @@ function BookmarksPanelInner(): React.JSX.Element {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search bookmarks..."
               autoFocus
-              className="w-full h-9 pl-9 pr-3 rounded-full bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-all duration-150"
+              className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-all duration-150"
             />
           </div>
         </div>
