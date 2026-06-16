@@ -440,7 +440,7 @@ export function SummaryContent({
             {/* Summary metadata header */}
             {summary && (
               <motion.div
-                className="flex items-center gap-4 mb-4 pb-4 border-b border-gray-200 dark:border-gray-800"
+                className="flex items-center gap-4 mb-4 pb-4 border-b border-black/[0.04] dark:border-white/[0.06]"
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}

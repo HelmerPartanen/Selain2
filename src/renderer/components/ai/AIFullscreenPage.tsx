@@ -161,10 +161,18 @@ function AIFullscreenPageInner(): React.JSX.Element {
 
 {/* PDF-only label during thinking */}
 {isPdfThinking && (
-  <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[152] pointer-events-none">
-    <div className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-neutral-400 via-white to-neutral-400 bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
-      Summarizing PDF…
-    </div>
+  <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[152] pointer-events-none rounded-xl bg-white dark:bg-[#1D1F23] shadow-sm">
+    <div className="
+  px-4 py-2 text-sm font-medium
+  bg-gradient-to-r 
+  from-neutral-700 via-neutral-500 to-neutral-700
+  dark:from-neutral-600 dark:via-white dark:to-neutral-600
+  bg-[length:200%_100%] 
+  bg-clip-text text-transparent 
+  animate-shimmer
+">
+  Summarizing PDF…
+</div>
   </div>
 )}
 
