@@ -159,14 +159,14 @@ function AIFullscreenPageInner(): React.JSX.Element {
             {isThinking && <RainbowEdgeLoading />}
           </AnimatePresence>
 
-          {/* PDF-only label during thinking */}
-          {isPdfThinking && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[152] pointer-events-none">
-              <div className={`px-4 py-2 rounded-full text-[12px] font-medium text-gray-600 dark:text-neutral-300 shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}>
-                Summarizing PDF…
-              </div>
-            </div>
-          )}
+{/* PDF-only label during thinking */}
+{isPdfThinking && (
+  <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[152] pointer-events-none">
+    <div className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-neutral-400 via-white to-neutral-400 bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer">
+      Summarizing PDF…
+    </div>
+  </div>
+)}
 
           {/* Content area - original website remains visible in background */}
           <div className="relative w-full h-full flex items-center justify-center">
@@ -308,3 +308,6 @@ function AIFullscreenPageInner(): React.JSX.Element {
 }
 
 export const AIFullscreenPage = memo(AIFullscreenPageInner)
+
+
+

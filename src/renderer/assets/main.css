@@ -192,11 +192,20 @@ body,
   }
 }
 
-/* Loading shimmer for progress bars */
+/* Loading shimmer (used by the AI fullscreen PDF overlay label) */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
 
 /* Gentle pulse for hint indicators */
 @keyframes hint-pulse {
