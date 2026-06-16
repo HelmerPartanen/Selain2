@@ -8,7 +8,8 @@ import { useTabStore } from '@/store/tabStore'
 import { useAIStore } from '@/store/aiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING_SNAPPY } from '@/utils/springs'
-import { webviewRegistry } from '@/webview/webviewRegistry'
+import { extractPageContentForSummary, isLikelyPdfUrl } from '@/utils/extractPageContent'
+import { applyPdfSummaryGlow, removePdfSummaryGlow } from '@/utils/pdfSummaryGlow'
 import { RainbowEdgeLoading } from './RainbowEdgeLoading'
 import { SummaryContent } from './SummaryContent'
 import { OllamaSetupContent } from './OllamaSetupContent'
@@ -55,15 +56,20 @@ function AIFullscreenPageInner(): React.JSX.Element {
   const aiStatus = useAIStore((s) => s.status)
   const checkAIStatus = useAIStore((s) => s.checkStatus)
   const isSummarizing = useAIStore((s) => s.isSummarizing)
+  const summarySource = useAIStore((s) => s.summarySource)
   const summary = useAIStore((s) => s.summary)
   const startSummary = useAIStore((s) => s.startSummary)
   const cancelSummary = useAIStore((s) => s.cancelSummary)
   const resetSummary = useAIStore((s) => s.resetSummary)
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const isAIReady = aiStatus === 'ready'
   const isLoading = isSummarizing
+  const isPdfLoading = summarySource === 'pdf' && isOpen && !isSummaryOverlayVisible
+  const showWebsiteRainbow = isLoading && summarySource !== 'pdf'
   const [summaryKey, setSummaryKey] = useState(0)
   const [copied, setCopied] = useState(false)
+  const glowTabIdRef = useRef<string | null>(null)
 
   const wordCount = summary ? summary.trim().split(/\s+/).length : 0
 
@@ -77,21 +83,42 @@ function AIFullscreenPageInner(): React.JSX.Element {
     })
   }, [summary])
 
+  const clearPdfGlow = useCallback(async () => {
+    const tabId = glowTabIdRef.current
+    glowTabIdRef.current = null
+    if (tabId) await removePdfSummaryGlow(tabId)
+  }, [])
+
   const triggerSummarization = useCallback(async () => {
     const tabId = useTabStore.getState().activeTabId
-    let pageText = ''
-    if (tabId) {
-      const webview = webviewRegistry.get(tabId)
-      if (webview) {
-        try {
-          pageText = (await webview.executeJavaScript('document.body.innerText')) as string
-        } catch {
-          // page text extraction failed — proceed with empty text
-        }
-      }
+    if (!tabId) {
+      startSummary('')
+      return
     }
-    startSummary(pageText)
-  }, [startSummary])
+
+    const url = useTabStore.getState().tabs[tabId]?.url ?? ''
+    const likelyPdf = isLikelyPdfUrl(url)
+
+    if (likelyPdf) {
+      useAIStore.setState({ summarySource: 'pdf' })
+      glowTabIdRef.current = tabId
+      await applyPdfSummaryGlow(tabId, !disableAnimations)
+    }
+
+    const { text, source } = await extractPageContentForSummary(tabId)
+
+    if (source === 'pdf') {
+      useAIStore.setState({ summarySource: 'pdf' })
+      if (!likelyPdf) {
+        glowTabIdRef.current = tabId
+        await applyPdfSummaryGlow(tabId, !disableAnimations)
+      }
+    } else {
+      useAIStore.setState({ summarySource: 'webpage' })
+    }
+
+    startSummary(text, source)
+  }, [startSummary, disableAnimations])
 
   // Trigger AI status check and summarization on open
   useEffect(() => {
@@ -104,8 +131,30 @@ function AIFullscreenPageInner(): React.JSX.Element {
     } else {
       cancelSummary()
       resetSummary()
+      void clearPdfGlow()
     }
-  }, [isOpen, aiStatus, isAIReady, triggerSummarization, checkAIStatus, cancelSummary, resetSummary])
+  }, [isOpen, aiStatus, isAIReady, triggerSummarization, checkAIStatus, cancelSummary, resetSummary, clearPdfGlow])
+
+  // Keep PDF page glow active while preparing or summarizing (pages may load lazily)
+  useEffect(() => {
+    if (!isPdfLoading) return
+    const tabId = glowTabIdRef.current ?? useTabStore.getState().activeTabId
+    if (!tabId) return
+
+    void applyPdfSummaryGlow(tabId, !disableAnimations)
+    const retry = window.setTimeout(() => {
+      void applyPdfSummaryGlow(tabId, !disableAnimations)
+    }, 500)
+
+    return () => window.clearTimeout(retry)
+  }, [isPdfLoading, disableAnimations])
+
+  // Remove PDF page glow once PDF loading phase ends (summary overlay shown or panel closed)
+  useEffect(() => {
+    if (!isPdfLoading && glowTabIdRef.current) {
+      void clearPdfGlow()
+    }
+  }, [isPdfLoading, clearPdfGlow])
 
   // Show summary overlay automatically when loading completes
   useEffect(() => {
@@ -120,8 +169,9 @@ function AIFullscreenPageInner(): React.JSX.Element {
   useEffect(() => {
     return () => {
       cancelSummary()
+      void clearPdfGlow()
     }
-  }, [cancelSummary])
+  }, [cancelSummary, clearPdfGlow])
 
   // Escape to close
   useEffect(() => {
@@ -153,10 +203,19 @@ function AIFullscreenPageInner(): React.JSX.Element {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Loading phase: rainbow edges */}
+          {/* Website loading: corner rainbow burst. PDF loading: glow is injected into the webview. */}
           <AnimatePresence>
-            {isLoading && <RainbowEdgeLoading />}
+            {showWebsiteRainbow && <RainbowEdgeLoading />}
           </AnimatePresence>
+
+          {/* PDF loading: subtle label only — glow is injected into the webview pages */}
+          {isPdfLoading && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[152] pointer-events-none">
+              <div className={`px-4 py-2 rounded-full text-[12px] font-medium text-gray-600 dark:text-neutral-300 shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}>
+                Summarizing PDF…
+              </div>
+            </div>
+          )}
 
           {/* Content area - original website remains visible in background */}
           <div className="relative w-full h-full flex items-center justify-center">
@@ -202,7 +261,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
             <motion.div
               className="absolute top-0 left-0 right-0 z-[152] pointer-events-none"
               initial={{ opacity: 0, y: -20 }}
-              animate={!isLoading ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+              animate={(!isLoading || isPdfLoading) ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
@@ -223,7 +282,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                 <div className="flex-1" />
 
                 {/* Close button in glass pill */}
-                {!isLoading && (
+                {(!isLoading || isPdfLoading) && (
                   <motion.div
                     className="pointer-events-auto rounded-full"
                     initial={{ opacity: 0, scale: 0.8 }}

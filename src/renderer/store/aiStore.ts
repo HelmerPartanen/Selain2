@@ -38,6 +38,7 @@ interface AIState {
   summaryBuffer: string
   isSummarizing: boolean
   summaryError: string | null
+  summarySource: 'webpage' | 'pdf' | null
 }
 
 interface AIActions {
@@ -48,7 +49,7 @@ interface AIActions {
   /** Cancel an in-progress pull */
   cancelDownload(): void
   /** Start summarizing the given page text */
-  startSummary(pageText: string): void
+  startSummary(pageText: string, source?: 'webpage' | 'pdf'): void
   /** Cancel an in-progress summarization */
   cancelSummary(): void
   /** Reset summary state (e.g. on panel close or regenerate) */
@@ -77,6 +78,7 @@ export const useAIStore = create<AIStore>((set, get) => ({
   summaryBuffer: '',
   isSummarizing: false,
   summaryError: null,
+  summarySource: null,
 
   checkStatus: async () => {
     set({ status: 'checking', error: null })
@@ -126,19 +128,19 @@ export const useAIStore = create<AIStore>((set, get) => ({
     set({ status: 'missing-model', pullProgress: null })
   },
 
-  startSummary: (pageText: string) => {
+  startSummary: (pageText: string, source: 'webpage' | 'pdf' = 'webpage') => {
     window.electronAPI.cancelSummarize()
-    set({ summary: '', summaryBuffer: '', isSummarizing: true, summaryError: null })
-    window.electronAPI.summarizePage(pageText)
+    set({ summary: '', summaryBuffer: '', isSummarizing: true, summaryError: null, summarySource: source })
+    window.electronAPI.summarizePage({ text: pageText, source })
   },
 
   cancelSummary: () => {
     window.electronAPI.cancelSummarize()
-    set({ isSummarizing: false })
+    set({ isSummarizing: false, summarySource: null })
   },
 
   resetSummary: () => {
-    set({ summary: '', summaryBuffer: '', isSummarizing: false, summaryError: null })
+    set({ summary: '', summaryBuffer: '', isSummarizing: false, summaryError: null, summarySource: null })
   },
 
   _onProgress: (data) => {
@@ -160,13 +162,13 @@ export const useAIStore = create<AIStore>((set, get) => ({
 
   _onSummaryDone: ({ success, error }) => {
     if (success) {
-      set((s) => ({ summary: s.summaryBuffer, summaryBuffer: '', isSummarizing: false }))
+      set((s) => ({ summary: s.summaryBuffer, summaryBuffer: '', isSummarizing: false, summarySource: null }))
     } else {
-      set({ summaryBuffer: '', isSummarizing: false, summaryError: error ?? 'Summarization failed' })
+      set({ summaryBuffer: '', isSummarizing: false, summaryError: error ?? 'Summarization failed', summarySource: null })
     }
   },
 
   reset: () => {
-    set({ status: 'idle', error: null, pullProgress: null, summary: '', summaryBuffer: '', isSummarizing: false, summaryError: null })
+    set({ status: 'idle', error: null, pullProgress: null, summary: '', summaryBuffer: '', isSummarizing: false, summaryError: null, summarySource: null })
   },
 }))

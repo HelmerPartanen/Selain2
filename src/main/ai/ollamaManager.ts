@@ -206,7 +206,9 @@ let activeSummaryRequest: http.ClientRequest | null = null
 // ── System prompt ─────────────────────────────────────────────────────────────
 // Designed for Qwen2.5 0.5B — keep the prompt concise and factual for reliable summaries.
 // Prioritizes preservation of most valuable information by content type.
-const SYSTEM_PROMPT = `You are a browser assistant that summarizes web pages intelligently, preserving the most valuable information.
+export type SummarizeSource = 'webpage' | 'pdf'
+
+const SYSTEM_PROMPT = `You are a browser assistant that summarizes web pages and PDF documents intelligently, preserving the most valuable information.
 
 Your output must be short, specific, and immediately useful to someone who hasn't read the page.
 
@@ -234,6 +236,12 @@ For NEWS, ARTICLES, or ESSAYS:
 For BIOGRAPHIES or ENCYCLOPEDIAS:
 - Mention the person's full name, birth/death dates, nationality, profession
 - Highlight their major role, achievement, or historical significance
+
+For PDF DOCUMENTS, REPORTS, or PAPERS:
+- Identify the document type (report, paper, manual, invoice, etc.)
+- Lead with the subject or title if visible
+- Summarize main sections, key findings, and conclusions
+- Include important data points, dates, and names when present
 
 **Universal Rules:**
 - Detect the language of the page text and summarize in that same language
@@ -305,7 +313,7 @@ const PREAMBLE_RE =
 
 // ── Public summarize function ─────────────────────────────────────────────────
 
-export function summarizePage(pageText: string): void {
+export function summarizePage(pageText: string, source: SummarizeSource = 'webpage'): void {
   // Cancel any in-flight request before starting a new one
   if (activeSummaryRequest) {
     activeSummaryRequest.destroy()
@@ -316,15 +324,22 @@ export function summarizePage(pageText: string): void {
 
   // If the page yielded nothing useful, short-circuit immediately
   if (!context.trim()) {
-    sendToRenderer('ai:summary-chunk', '*No readable content found on this page.*')
+    const emptyMessage = source === 'pdf'
+      ? '*No readable text found in this PDF.*'
+      : '*No readable content found on this page.*'
+    sendToRenderer('ai:summary-chunk', emptyMessage)
     sendToRenderer('ai:summary-done', { success: true })
     return
   }
 
+  const promptLead = source === 'pdf'
+    ? 'Read the following PDF document text and summarize it clearly and accurately:'
+    : 'Read the following page text and summarize it clearly and accurately:'
+
   const requestBody = JSON.stringify({
     model: TARGET_MODEL,
     system: SYSTEM_PROMPT,
-    prompt: `Read the following page text and summarize it clearly and accurately:\n\n${context}`,
+    prompt: `${promptLead}\n\n${context}`,
     stream: true,
     // Tighten generation: we want concise, factual output — not creative rambling.
     // num_predict caps tokens; temperature 0.2 reduces hallucination on 1B models.

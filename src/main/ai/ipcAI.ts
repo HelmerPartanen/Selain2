@@ -12,7 +12,9 @@ import {
   isPulling,
   summarizePage,
   cancelSummarization,
+  type SummarizeSource,
 } from './ollamaManager'
+import { extractPdfText } from './pdfTextExtractor'
 
 export function setupAIIPC(): void {
   // ── Status check ──────────────────────────────────────────────────────────
@@ -44,11 +46,25 @@ export function setupAIIPC(): void {
     cancelPull()
   })
 
+  // ── Extract PDF text ──────────────────────────────────────────────────────
+  ipcMain.handle('ai:extract-pdf-text', async (_event, url: string) => {
+    if (typeof url !== 'string' || !url.trim()) return ''
+    try {
+      return await extractPdfText(url)
+    } catch {
+      return ''
+    }
+  })
+
   // ── Summarize page content ────────────────────────────────────────────────
   // Renderer sends extracted page text; we stream tokens back via push events
-  ipcMain.on('ai:summarize', (_event, pageText: string) => {
-    if (typeof pageText !== 'string') return
-    summarizePage(pageText)
+  ipcMain.on('ai:summarize', (_event, payload: { text: string; source?: SummarizeSource } | string) => {
+    if (typeof payload === 'string') {
+      summarizePage(payload)
+      return
+    }
+    if (!payload || typeof payload.text !== 'string') return
+    summarizePage(payload.text, payload.source ?? 'webpage')
   })
 
   ipcMain.on('ai:cancel-summarize', () => {

@@ -101,7 +101,9 @@ const api: ElectronAPI = {
     ipcRenderer.on('ai:pull-done', handler)
     return () => { ipcRenderer.removeListener('ai:pull-done', handler) }
   },
-  summarizePage: (text: string) => ipcRenderer.send('ai:summarize', text),
+  extractPdfText: (url: string) => ipcRenderer.invoke('ai:extract-pdf-text', url),
+  summarizePage: (payload: { text: string; source?: 'webpage' | 'pdf' } | string) =>
+    ipcRenderer.send('ai:summarize', payload),
   cancelSummarize: () => ipcRenderer.send('ai:cancel-summarize'),
   onAISummaryChunk: (callback: (token: string) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, token: string): void => {

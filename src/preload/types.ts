@@ -80,8 +80,10 @@ export interface ElectronAPI {
   onAIPullProgress(callback: (data: { status: string; progress: number; total: number; completed: number }) => void): () => void
   /** Subscribe to pull completion (success or error) */
   onAIPullDone(callback: (data: { success: boolean; error?: string }) => void): () => void
+  /** Extract plain text from a PDF URL (file:// or http(s)://) */
+  extractPdfText(url: string): Promise<string>
   /** Send extracted page text to main process to summarize via Ollama */
-  summarizePage(text: string): void
+  summarizePage(payload: { text: string; source?: 'webpage' | 'pdf' } | string): void
   /** Cancel an in-progress summarization */
   cancelSummarize(): void
   /** Receive a streamed token chunk from Ollama */
