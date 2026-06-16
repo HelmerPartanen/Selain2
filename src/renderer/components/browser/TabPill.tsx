@@ -73,7 +73,7 @@ function TabContextMenu({ tabId, x, y, onClose }: {
 
   return (
     <div
-      className="fixed z-[200] min-w-[190px] rounded-xl overflow-hidden drop-shadow-lg bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5 p-1"
+      className="fixed z-[200] min-w-[190px] rounded-xl overflow-hidden shadow-sm bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5 p-1"
       style={{ top: Math.max(8, safeY), left: Math.max(8, safeX) }}
       onMouseDown={e => e.stopPropagation()}
     >
@@ -281,7 +281,7 @@ function TabPillInner(): React.JSX.Element {
           aria-label="New tab"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
@@ -297,7 +297,7 @@ function TabPillInner(): React.JSX.Element {
           aria-label={tabsButtonAction === 'menu' ? 'Tab list' : 'Tab overview'}
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-full"
+          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <div className="relative">
             <SvgIcon svg={tabsSvg} size={16}/>
@@ -351,7 +351,7 @@ function TabPillInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className={`rounded-xl drop-shadow-lg overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+              <div className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
                 <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1">
                   {tabOrder.map((id, index) => (
                     <TabRow

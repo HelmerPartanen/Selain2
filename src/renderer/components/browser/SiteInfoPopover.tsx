@@ -176,7 +176,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
         }
       >
         <div
-          className={`rounded-xl mb-2 drop-shadow-lg overflow-hidden ${
+          className={`rounded-xl mb-2 shadow-sm overflow-hidden ${
             disableBlurEffects
               ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
               : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'

@@ -234,7 +234,7 @@ function FloatingControlsInner(): React.JSX.Element {
 
           {/* Floating controls — frosted glass surface with backdrop blur */}
           <motion.div
-            className={`absolute bottom-5 mb-0 rounded-full [app-region:no-drag] pointer-events-auto drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+            className={`absolute bottom-5 p-1 rounded-xl [app-region:no-drag] pointer-events-auto shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-lg border border-black/5 dark:border-white/5'}`}
             initial={disableAnimations ? undefined : { y: 40, scale: 0.85, opacity: 0 }}
             animate={
               isIdle
@@ -262,7 +262,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   {(canGoBack || canGoForward) && (
                     <motion.div
                       key="nav-pod"
-                      className="flex items-center rounded-full gap-0.5"
+                      className="flex items-center"
                       initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                       animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
                       exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
@@ -281,7 +281,7 @@ function FloatingControlsInner(): React.JSX.Element {
                             animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
                             exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                             transition={SPRING_EXPAND}
-                            className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-full"
+                            className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
                           >
                             <SvgIcon svg={chevronLeftSvg} size={16} />
                           </motion.button>
@@ -298,7 +298,7 @@ function FloatingControlsInner(): React.JSX.Element {
                             animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
                             exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                             transition={SPRING_EXPAND}
-                            className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
+                            className="h-10 w-10 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
                           >
                             <SvgIcon svg={chevronRightSvg} size={16} />
                           </motion.button>

@@ -35,7 +35,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   `,
   icon: `
     w-7 h-7
-    text-gray-700 dark:text-neutral-300
+    text-gray-600 dark:text-neutral-400
     bg-transparent
     hover:bg-black/[0.04] hover:text-gray-900
     dark:hover:bg-white/[0.06] dark:hover:text-white
@@ -43,7 +43,7 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'ghost', className = '', rounded = 'rounded-full', children, onClick, onMouseDown, disabled, type, title, tabIndex, id, ...ariaProps }, ref) => (
+  ({ variant = 'ghost', className = '', rounded = 'rounded-lg', children, onClick, onMouseDown, disabled, type, title, tabIndex, id, ...ariaProps }, ref) => (
     <motion.button
       ref={ref}
       whileTap={disabled ? undefined : { scale: 0.94 }}

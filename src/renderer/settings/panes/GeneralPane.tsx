@@ -121,7 +121,7 @@ function GeneralPaneInner(): React.JSX.Element {
         <SectionHeader>New Tab</SectionHeader>
         <Desc>Choose what appears when you open a new tab.</Desc>
         <div
-          className="flex gap-1 p-1 rounded-full bg-white/25 dark:bg-white/8 shadow"
+          className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]"
           role="radiogroup"
           aria-label="New tab page mode"
         >
@@ -134,8 +134,8 @@ function GeneralPaneInner(): React.JSX.Element {
                 role="radio"
                 aria-checked={isActive}
                 onClick={() => setNewTabMode(mode)}
-                className={`relative flex-1 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 ${isActive
-                  ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
+                className={`relative flex-1 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-150 ${isActive
+                  ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
                   : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                   }`}
               >
@@ -177,7 +177,7 @@ function GeneralPaneInner(): React.JSX.Element {
             desc="Choose what the tab count button in the toolbar opens."
           >
             <div
-              className="flex gap-1 p-1 rounded-full bg-white/25 dark:bg-white/8 shadow"
+              className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]"
               role="radiogroup"
               aria-label="Tabs button action"
             >
@@ -189,8 +189,8 @@ function GeneralPaneInner(): React.JSX.Element {
                     role="radio"
                     aria-checked={isActive}
                     onClick={() => setTabsButtonAction(value)}
-                    className={`relative px-3 py-1.5 rounded-full text-[12px] font-normal transition-all duration-150 ${isActive
-                      ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
+                    className={`relative px-3 py-1.5 rounded-lg text-[12px] font-normal transition-all duration-150 ${isActive
+                      ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
                       : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                     }`}
                   >
@@ -260,10 +260,10 @@ function GeneralPaneInner(): React.JSX.Element {
             aria-invalid={!!homepageError}
             aria-describedby={homepageError ? "homepage-error" : undefined}
             spellCheck={false}
-            className={`w-full px-3.5 py-2.5 rounded-full glass bg-white/25 dark:bg-white/8 shadow ring-1 text-[13px] font-normal text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none border transition-all duration-200 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl bg-black/[0.08] dark:bg-white/[0.10] ring-1 border text-[13px] font-normal text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none transition-all duration-200 ${
               homepageError
                 ? "ring-red-500/50 dark:ring-red-400/50 border-red-500/30 dark:border-red-400/30"
-                : "ring-black/5 dark:ring-white/10 border-transparent focus:border-blue-500/30 dark:focus:border-blue-400/30 focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+                : "ring-transparent dark:ring-transparent border-transparent focus:border-blue-500/30 dark:focus:border-blue-400/30 focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
             }`}
           />
           {homepageError && (

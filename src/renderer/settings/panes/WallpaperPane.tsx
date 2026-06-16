@@ -42,7 +42,7 @@ const SOLID_DATA_URLS_SET = new Set(SOLID_DATA_URL_MAP.values());
 // every render. (Tailwind JIT doesn't need the strings to be literal in
 // source — the classes are already used in the file.)
 const THUMB_BASE_CLASS =
-  "relative flex-shrink-0 w-[140px] aspect-[16/10] rounded-xl overflow-hidden transition-all duration-150";
+  "relative flex-shrink-0 w-[180px] aspect-[16/10] rounded-lg overflow-hidden transition-all duration-150";
 const THUMB_RING_ACTIVE =
   "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900";
 const THUMB_RING_INACTIVE =
@@ -322,7 +322,7 @@ function WallpaperPaneInner(): React.JSX.Element {
           type="button"
           onClick={handleCustomImage}
           aria-label="Upload custom wallpaper image"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] transition-all duration-150 hover:bg-black/[0.06] dark:hover:bg-white/[0.07] hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
         >
           <SvgIcon svg={uploadSvg} size={14} />
           Upload Image
@@ -331,7 +331,7 @@ function WallpaperPaneInner(): React.JSX.Element {
           type="button"
           onClick={handleClear}
           aria-label="Remove current wallpaper"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-[12px] font-medium text-red-500 dark:text-red-400 border border-red-500/20 dark:border-red-400/20 bg-red-500/[0.06] dark:bg-red-400/[0.08] transition-all duration-150 hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14] active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-medium text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] transition-all duration-150 hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14] active:scale-[0.97]"
         >
           <SvgIcon svg={trashSvg} size={14} />
           Remove

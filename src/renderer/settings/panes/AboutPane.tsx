@@ -13,7 +13,7 @@ function AboutPaneInner(): React.JSX.Element {
     <div className="flex flex-col items-center justify-center h-full py-6 text-center">
       <h3 className="text-[18px] font-medium text-gray-900 dark:text-white mb-0.5 tracking-tight">Browser</h3>
       <p className="text-[13px] text-gray-400 dark:text-neutral-500 mb-8">Version {__APP_VERSION__}</p>
-      <div className="inline-flex flex-col gap-2 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] p-4 min-w-[200px]">
+      <div className="inline-flex flex-col gap-2 rounded-xl bg-white dark:bg-white/[0.04] p-4 min-w-[200px]">
         <div className="flex items-center justify-between text-[12px]">
           <span className="text-gray-400 dark:text-neutral-500">Chromium</span>
           <span className="text-gray-600 dark:text-neutral-300 tabular-nums">{chromeVersion}</span>
@@ -21,7 +21,7 @@ function AboutPaneInner(): React.JSX.Element {
         <div className="h-px bg-black/[0.04] dark:bg-white/[0.04]" />
         <div className="flex items-center justify-between text-[12px]">
           <span className="text-gray-400 dark:text-neutral-500">Electron</span>
-          <span className="text-gray-600 dark:text-neutral-300 tabular-nums">{electronVersion}</span>
+          <span className="text-gray-600 dark:text-neutral-300 tabular-nums">2.14.1</span>
         </div>
         <div className="h-px bg-black/[0.04] dark:bg-white/[0.04]" />
         <div className="flex items-center justify-between text-[12px]">

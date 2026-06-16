@@ -212,6 +212,6 @@ export const SOLID_COLOR_PRESETS = [
   { name: 'Amethyst',      hex: '#0d0618' },
   { name: 'Navy',          hex: '#020812' },
   { name: 'Graphite',      hex: '#374151' },
-  { name: 'Silver',        hex: '#f2f2f7' },
+  { name: 'Silver',        hex: '#f5f5f5' },
   { name: 'Starlight',     hex: '#faf9f6' },
 ]

@@ -375,7 +375,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
         aria-label="Switch space"
         whileTap={disableAnimations ? undefined : { scale: 0.88 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        className={`h-10 flex items-center justify-center rounded-full text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none ${
+        className={`h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none ${
           hasMultipleSpaces ? 'gap-1.5 px-2.5' : 'w-10'
         }`}
       >
@@ -411,7 +411,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
               exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
-              <div className={`rounded-xl drop-shadow-lg overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23]'}`}>
+              <div className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23]'}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   {editingId && spaces[editingId] ? (
                             <motion.div

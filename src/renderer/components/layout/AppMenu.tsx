@@ -109,7 +109,7 @@ function AppMenuInner(): React.JSX.Element {
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+        className="h-10 w-10 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
           <motion.span
@@ -178,7 +178,7 @@ function AppMenuInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className={`rounded-xl mb-2 drop-shadow-lg overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+              <div className={`rounded-xl mb-2 shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
                 <div className="p-1 relative">
                   {actionableItems.map((item, idx) => {
                     const Icon = item.icon!;

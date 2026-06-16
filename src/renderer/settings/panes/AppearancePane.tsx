@@ -63,7 +63,7 @@ function AppearancePaneInner(): React.JSX.Element {
                 aria-label={`${label} theme`}
                 onClick={() => setThemeMode(mode)}
                 className={`relative flex-1 flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-150 ${isActive
-                    ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
+                    ? "text-gray-700 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
                     : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                   }`}
               >
@@ -79,7 +79,7 @@ function AppearancePaneInner(): React.JSX.Element {
         <SectionHeader>Interface Scale</SectionHeader>
         <Desc>Scale the browser UI. Does not affect web page content.</Desc>
         <div
-          className="flex gap-1 p-1 rounded-full bg-white/25 dark:bg-white/8 shadow"
+          className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]"
           role="radiogroup"
           aria-label="Interface scale"
         >
@@ -92,8 +92,8 @@ function AppearancePaneInner(): React.JSX.Element {
                 aria-checked={isActive}
                 aria-label={`${z}% zoom`}
                 onClick={() => handleUiZoomSelect(z)}
-                className={`relative flex-1 px-3 py-2 rounded-full text-[13px] font-normal transition-all duration-150 ${isActive
-                    ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
+                className={`relative flex-1 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-150 ${isActive
+                    ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
                     : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
                   }`}
               >

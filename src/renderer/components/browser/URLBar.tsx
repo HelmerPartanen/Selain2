@@ -584,7 +584,7 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
-            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[24px] overflow-hidden z-[100] drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}
+            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-[24px] overflow-hidden z-[100] shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}
             style={{ originY: 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}

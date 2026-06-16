@@ -15,7 +15,7 @@ function GestureVisualization({
 }): React.JSX.Element {
 
     // Removed the 'absolute' from the base class so we can use it in flex containers safely
-    const baseFinger = "w-4 h-4 rounded-full bg-black/25 dark:bg-white/70";
+    const baseFinger = "w-4 h-4 rounded-full bg-white dark:bg-white/70";
 
     // Standardized keyframe transition: 
     // 1. Fade in & press down (0 -> 15%)
@@ -125,7 +125,7 @@ function GestureVisualization({
             </div>
 
             {/* Trackpad visualizer */}
-            <div className="relative mt-2 h-32 w-48 rounded-xl bg-gray-200/50 dark:bg-black/20 border border-gray-300/50 dark:border-white/10 overflow-hidden shrink-0 shadow-inner">
+            <div className="relative mt-2 h-32 w-48 rounded-xl bg-gray-300 dark:bg-black/20 border border-gray-300/50 dark:border-white/10 overflow-hidden shrink-0 shadow-inner">
                 {/* Trackpad surface detail */}
                 <div className="absolute inset-0 opacity-[0.03] dark:opacity-5 mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
                 {renderFingers()}

@@ -154,7 +154,7 @@ const TabCard = memo(function TabCard({
               e.stopPropagation()
               onToggleSelected(e)
             }}
-            className={`absolute bottom-2 right-2 w-5 h-5 rounded-full border flex items-center justify-center transition-colors transition-transform duration-200 ${
+            className={`absolute bottom-2 right-2 w-5 h-5 rounded-md border flex items-center justify-center transition-colors transition-transform duration-200 ${
               isSelected ? 'bg-blue-500 border-blue-500' : 'bg-transparent border-transparent'
             }`}
             aria-label={isSelected ? 'Deselect tab' : 'Select tab'}
@@ -172,16 +172,16 @@ const TabCard = memo(function TabCard({
 
       {/* Close button — only shown when the tab can be closed */}
       {canClose && (
-        <div className="absolute -top-1.5 -right-1.5 z-10">
+        <div className="absolute top-2 right-2 z-10">
           <button
             onClick={onClose}
-            className="w-6 h-6 rounded-full bg-gray-800/80 dark:bg-neutral-600/90
+            className="w-6 h-6 rounded-lg bg-gray-800/80 dark:bg-neutral-600/90
               flex items-center justify-center text-white
               opacity-0 group-hover:opacity-100 transition-opacity duration-150
               hover:bg-gray-600/80 dark:hover:bg-neutral-700/90 active:scale-90"
             aria-label={`Close ${title}`}
           >
-            <SvgIcon svg={closeSvg} size={11} />
+            <SvgIcon svg={closeSvg} size={12} />
           </button>
         </div>
       )}
@@ -467,7 +467,7 @@ function TabOverviewInner(): React.JSX.Element {
                 {previews.length} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
               </h2>
               <div
-                className={`mt-4 flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-full px-1.5 py-1 drop-shadow-lg ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 border border-black/5 dark:border-white/5'}`}
+                className={`mt-4 flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 border border-black/5 dark:border-white/5'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="relative flex items-center h-10 w-72 max-w-[calc(100vw-72px)] min-w-0">
@@ -481,7 +481,7 @@ function TabOverviewInner(): React.JSX.Element {
                 </div>
                 <button
                   onClick={() => setGroupMode(groupMode === 'space' ? 'domain' : 'space')}
-                  className="h-10 px-3 rounded-full flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                  className="h-10 px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
                   title={`Group by ${groupMode === 'space' ? 'domain' : 'space'}`}
                   aria-label={`Group by ${groupMode === 'space' ? 'domain' : 'space'}`}
                 >
@@ -491,7 +491,7 @@ function TabOverviewInner(): React.JSX.Element {
                 <motion.button
                   onClick={toggleSelecting}
                   whileTap={{ scale: 0.96 }}
-                  className="h-10 px-3 rounded-full flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                  className="h-10 px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
                   title={isSelecting ? 'Exit selection' : 'Select tabs'}
                   aria-label={isSelecting ? 'Exit selection mode' : 'Enter selection mode'}
                   style={{
@@ -507,7 +507,7 @@ function TabOverviewInner(): React.JSX.Element {
                   <>
                     <button
                       onClick={handleSleepSelected}
-                      className="h-10 px-3 rounded-full flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                      className="h-10 px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
                       title={`Sleep ${selectedIds.size} selected`}
                     >
                       <SvgIcon svg={bedSvg} size={14} />
@@ -515,7 +515,7 @@ function TabOverviewInner(): React.JSX.Element {
                     </button>
                     <button
                       onClick={handleCloseSelected}
-                      className="h-10 px-3 rounded-full flex items-center gap-2 text-red-500 hover:bg-red-500/[0.08] transition-[background-color] duration-150 select-none"
+                      className="h-10 px-3 rounded-lg flex items-center gap-2 text-red-500 hover:bg-red-500/[0.08] transition-[background-color] duration-150 select-none"
                       title={`Close ${selectedIds.size} selected`}
                     >
                       <SvgIcon svg={trashSvg} size={14} />
@@ -524,7 +524,7 @@ function TabOverviewInner(): React.JSX.Element {
                     <div className="relative">
                       <button
                         onClick={() => setIsMoveMenuOpen((open) => !open)}
-                        className="h-10 px-3 rounded-full flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                        className="h-10 px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
                         title="Move selected tabs to space"
                         aria-label="Move selected tabs to space"
                         aria-expanded={isMoveMenuOpen}
@@ -576,7 +576,7 @@ function TabOverviewInner(): React.JSX.Element {
                               }}
                               onMouseDown={(e) => e.stopPropagation()}
                             >
-                              <div className={`rounded-xl drop-shadow-lg overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+                              <div className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
                                 <div className="p-1 relative">
                                   {moveSpaceOptions.map((space, idx) => (
                                     <button
