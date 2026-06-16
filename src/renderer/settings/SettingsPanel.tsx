@@ -10,7 +10,7 @@ import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
 import brushSvg from "@/assets/icons/News/Camera_Macro.svg?raw";
 import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
-import displaySvg from "@/assets/icons/Devices/Display.svg?raw";
+import displaySvg from "@/assets/icons/Human/Person_Circle.svg?raw";
 import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
@@ -25,7 +25,7 @@ import { PrivacyPane } from "@/settings/panes/PrivacyPane";
 import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
 import { HotkeysPane } from "@/settings/panes/HotkeysPane";
 import { GesturesPane } from "@/settings/panes/GesturesPane";
-import { GraphicsPane } from "./panes/GraphicsPane";
+import { AccessibilityPane } from "./panes/AccessibilityPane";
 import { AboutPane } from "@/settings/panes/AboutPane";
 import { SPRING_CONTENT, SPRING_SNAPPY } from "@/utils/springs";
 
@@ -35,7 +35,7 @@ type SettingsCategory =
   | "general"
   | "appearance"
   | "wallpaper"
-  | "graphics"
+  | "accessibility"
   | "privacy"
   | "search"
   | "hotkeys"
@@ -53,7 +53,7 @@ const CATEGORIES: CategoryItem[] = [
   { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-slate-100 text-slate-700 dark:bg-slate-700/10 dark:text-slate-200" },
   { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-300" },
   { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300" },
-  { id: "graphics", label: "Graphics", icon: displaySvg, colorClass: "bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300" },
+  { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300" },
   { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" },
   { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" },
   { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" },
@@ -75,8 +75,8 @@ function SettingsContent({
       return <AppearancePane />;
     case "wallpaper":
       return <WallpaperPane />;
-    case "graphics":
-      return <GraphicsPane />;
+    case "accessibility":
+      return <AccessibilityPane />;
     case "privacy":
       return <PrivacyPane />;
     case "search":
