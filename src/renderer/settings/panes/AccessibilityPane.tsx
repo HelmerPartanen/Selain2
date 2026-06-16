@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Toggle, SettingGroup } from "@/settings/components/SettingsShared";
+import { Toggle, SettingGroup, SectionHeader } from "@/settings/components/SettingsShared";
 import { useSettingsStore } from "@/store/settingsStore";
 
 function AccessibilityPaneInner(): React.JSX.Element {
@@ -11,6 +11,7 @@ function AccessibilityPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-7">
       <div>
+        <SectionHeader>Visibility</SectionHeader>
         <SettingGroup className="bg-white dark:bg-white/8 rounded-xl overflow-hidden">
 
           {/* Row 1 */}

@@ -88,7 +88,7 @@ export function SettingGroup({
   className?: string
 }): React.JSX.Element {
   return (
-    <div className={`rounded-2xl ${className}`}>
+    <div className={`rounded-xl ${className}`}>
       {children}
     </div>
   )
