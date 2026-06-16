@@ -21,7 +21,7 @@ import { useSpaceStore, type Space } from '@/store/spaceStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { NewTabPage } from '@/newtab/NewTabPage'
 import { SPRING } from '@/utils/springs'
-import { findDuplicateTabIds, getTabDomain } from '@/utils/tabAnalysis'
+import { findDuplicateTabIds } from '@/utils/tabAnalysis'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -33,7 +33,6 @@ interface TabPreview {
   isLoading: boolean
   isPlayingMedia: boolean
   thumbnail: string | null
-  domain: string
   spaceName: string
   isDuplicate: boolean
   pinned: boolean
@@ -218,7 +217,6 @@ function TabOverviewInner(): React.JSX.Element {
   const activeTabId = useTabStore((s) => s.activeTabId)
   const [previews, setPreviews] = useState<TabPreview[]>([])
   const [query, setQuery] = useState('')
-  const [groupMode, setGroupMode] = useState<'space' | 'domain'>('space')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isSelecting, setIsSelecting] = useState(false)
   const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false)
@@ -258,7 +256,6 @@ function TabOverviewInner(): React.JSX.Element {
           isLoading: tab.isLoading,
           isPlayingMedia: tab.isPlayingMedia,
           thumbnail: tab.thumbnail,
-          domain: getTabDomain(tab.url),
           spaceName: spaceByTabId.get(id) ?? 'General',
           isDuplicate: duplicates.has(id),
           pinned: tab.pinned,
@@ -339,13 +336,12 @@ function TabOverviewInner(): React.JSX.Element {
     return (
       preview.title.toLowerCase().includes(q) ||
       preview.url.toLowerCase().includes(q) ||
-      preview.domain.toLowerCase().includes(q) ||
       preview.spaceName.toLowerCase().includes(q)
     )
   })
 
   const groupedPreviews = filteredPreviews.reduce<Record<string, TabPreview[]>>((acc, preview) => {
-    const key = groupMode === 'space' ? preview.spaceName : preview.domain
+    const key = preview.spaceName
     acc[key] = [...(acc[key] ?? []), preview]
     return acc
   }, {})
@@ -479,15 +475,6 @@ function TabOverviewInner(): React.JSX.Element {
                     className="w-full h-full rounded-full bg-transparent pl-9 pr-3 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none"
                   />
                 </div>
-                <button
-                  onClick={() => setGroupMode(groupMode === 'space' ? 'domain' : 'space')}
-                  className="h-10 px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
-                  title={`Group by ${groupMode === 'space' ? 'domain' : 'space'}`}
-                  aria-label={`Group by ${groupMode === 'space' ? 'domain' : 'space'}`}
-                >
-                  <SvgIcon svg={groupMode === 'space' ? folderSvg : globeSvg} size={14} />
-                  <span className="text-[12px]">{groupMode === 'space' ? 'Space' : 'Domain'}</span>
-                </button>
                 <motion.button
                   onClick={toggleSelecting}
                   whileTap={{ scale: 0.96 }}
