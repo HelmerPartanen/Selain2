@@ -193,10 +193,10 @@ function PrivacyPaneInner(): React.JSX.Element {
             <button
               key={id}
               onClick={() => setPrivacyProfile(id)}
-              className={`rounded-2xl p-3 text-left border transition-colors ${
+              className={`rounded-xl p-3 text-left transition-colors ${
                 privacyProfile === id
-                  ? 'border-blue-400 bg-blue-500/[0.08] text-blue-600 dark:text-blue-300'
-                  : 'border-black/[0.06] dark:border-white/[0.08] text-gray-600 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]'
+                  ? 'bg-blue-500/10 dark:bg-blue-400/10 hover:bg-blue-500/15 dark:hover:bg-blue-400/15 text-blue-600 dark:text-blue-300'
+                  : 'text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]'
               }`}
             >
               <div className="text-[13px] font-medium">{label}</div>
@@ -285,7 +285,7 @@ function PrivacyPaneInner(): React.JSX.Element {
             onClick={handleExportProfile}
             whileTap={{ scale: 0.97 }}
             transition={SPRING_SNAPPY}
-            className="flex-1 px-4 py-2.5 rounded-full text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.07] transition-colors duration-150"
+            className="flex-1 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
           >
             Export Profile
           </motion.button>
@@ -293,7 +293,7 @@ function PrivacyPaneInner(): React.JSX.Element {
             onClick={handleImportProfile}
             whileTap={{ scale: 0.97 }}
             transition={SPRING_SNAPPY}
-            className="flex-1 px-4 py-2.5 rounded-full text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.07] transition-colors duration-150"
+            className="flex-1 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
           >
             Import Profile
           </motion.button>
@@ -328,11 +328,11 @@ function PrivacyPaneInner(): React.JSX.Element {
                 }}
                 whileTap={{ scale: 0.97 }}
                 transition={SPRING_SNAPPY}
-                className={`px-4 py-2.5 rounded-full text-[12px] font-medium transition-all duration-200 ${isConfirming
+                className={`px-4 py-2.5 rounded-lg text-[12px] font-medium transition-all duration-150 ${isConfirming
                     ? "bg-red-500 text-white shadow-sm"
                     : action.destructive
-                      ? "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] border border-red-500/20 dark:border-red-400/20 hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14]"
-                      : "text-gray-600 dark:text-neutral-300 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] hover:bg-black/[0.06] dark:hover:bg-white/[0.07]"
+                      ? "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14]"
+                      : "text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
                   }`}
               >
                 <AnimatePresence mode="wait">

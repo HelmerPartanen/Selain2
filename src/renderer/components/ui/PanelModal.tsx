@@ -158,7 +158,7 @@ export function PanelModal({
           aria-modal={aria['aria-modal']}
           aria-label={aria['aria-label']}
           tabIndex={-1}
-          className={`${disableBlurEffects ? 'rounded-xl overflow-hidden shadow-sm bg-[#f5f5f5] dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'rounded-xl overflow-hidden shadow-sm bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xl border border-black/5 dark:border-white/5'} [app-region:no-drag] pointer-events-auto ${className}`}
+          className={`${disableBlurEffects ? 'rounded-xl overflow-hidden shadow-sm bg-neutral-100 dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'rounded-xl overflow-hidden shadow-sm bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xl border border-black/5 dark:border-white/5'} [app-region:no-drag] pointer-events-auto ${className}`}
           style={{ width, height, transformOrigin: '50% 100%', perspective: 800 }}
           initial={disableAnimations ? undefined : PANEL_INITIAL}
           animate={PANEL_ANIMATE}

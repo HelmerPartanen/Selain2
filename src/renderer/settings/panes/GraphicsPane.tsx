@@ -13,7 +13,7 @@ function GraphicsPaneInner(): React.JSX.Element {
       <div>
         <SectionHeader>Graphics Performance</SectionHeader>
         <Desc>Reduce visual effects to improve responsiveness on low-end hardware.</Desc>
-        <SettingGroup className="bg-white/25 dark:bg-white/8">
+        <SettingGroup className="bg-white dark:bg-white/8">
           <SettingRow
             label="Reduce motion"
             desc="Disable non-essential UI transitions and animated menus."
