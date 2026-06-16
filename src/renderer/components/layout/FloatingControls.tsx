@@ -265,7 +265,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   <motion.div
                     layout={false}
                     animate={{ width: canGoBack ? 40 : 0 }}
-                    transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
+                    transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                     style={{ overflow: "hidden" }}
                   >
                     <motion.button
@@ -290,7 +290,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   <motion.div
                     layout={false}
                     animate={{ width: canGoForward ? 40 : 0 }}
-                    transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
+                    transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                     style={{ overflow: "hidden" }}
                   >
                     <motion.button
