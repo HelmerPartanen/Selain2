@@ -12,7 +12,7 @@ const execAsync = promisify(exec)
 
 export const OLLAMA_HOST = 'localhost'
 export const OLLAMA_PORT = 11434
-export const TARGET_MODEL = 'qwen2.5:0.5b'
+export const TARGET_MODEL = 'qwen2.5:3b'
 
 let activePullRequest: http.ClientRequest | null = null
 

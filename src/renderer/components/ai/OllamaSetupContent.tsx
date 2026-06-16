@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAIStore, type AIStatus } from '@/store/aiStore'
 import ollamaIcon from '@/assets/ollama/ollama-icon.svg'
 import { CONTENT_HEIGHT } from './constants'
+import boxSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
+import { SvgIcon } from '../ui/SvgIcon'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -82,7 +84,7 @@ function PrimaryButton({
       disabled={disabled}
       whileTap={{ scale: 0.96 }}
       transition={{ duration: 0.1 }}
-      className="px-4 py-2 rounded-xl text-[12px] font-medium transition-colors duration-100 hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+      className="px-4 py-2 rounded-lg text-[12px] font-medium transition-colors duration-100 hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
       style={
         variant === 'danger'
           ? { background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }
@@ -203,10 +205,9 @@ function MissingModelScreen({ onDownload }: { onDownload: () => void }): React.J
   return (
     <SetupShell>
       <div
-        className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg"
-        style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}
+        className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg"
       >
-        📦
+        <SvgIcon svg={boxSvg} size={24} className="text-black"/>
       </div>
 
       <div className="space-y-1.5">
@@ -214,13 +215,13 @@ function MissingModelScreen({ onDownload }: { onDownload: () => void }): React.J
           AI model not downloaded
         </p>
         <p className="text-[12px] text-gray-400 dark:text-neutral-500 font-light leading-relaxed max-w-[300px]">
-          The <span className="font-mono text-blue-400">qwen2.5:0.5b</span> model needs to be downloaded once. It runs fully offline after that.
+          The <span className="font-mono text-blue-400">Qwen-2.5-3b</span> model needs to be downloaded once. It runs fully offline after that.
         </p>
       </div>
 
       <div className="flex flex-col items-center gap-2">
         <PrimaryButton onClick={onDownload}>
-          Download Qwen2.5 0.5B
+          Download Qwen-2.5-3b
         </PrimaryButton>
         <p className="text-[10px] text-gray-400 dark:text-neutral-600 font-light">
           Stored locally · No account required · Runs on-device
@@ -249,7 +250,7 @@ function DownloadingScreen(): React.JSX.Element {
           <p className="text-[13px] font-medium text-gray-800 dark:text-neutral-200">
             Downloading model
           </p>
-          <span className="text-[12px] font-medium tabular-nums" style={{ color: '#818cf8' }}>
+          <span className="text-[12px] font-medium tabular-nums text-gray-400 dark:text-neutral-500">
             {progress}%
           </span>
         </div>
@@ -260,10 +261,8 @@ function DownloadingScreen(): React.JSX.Element {
           style={{ background: 'var(--glass-bg-heavy)' }}
         >
           <motion.div
-            className="h-full rounded-full"
+            className="h-full rounded-full bg-blue-500"
             style={{
-              background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899)',
-              boxShadow: '0 0 8px rgba(99,102,241,0.5)',
             }}
             animate={{ width: `${Math.max(progress, 2)}%` }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
