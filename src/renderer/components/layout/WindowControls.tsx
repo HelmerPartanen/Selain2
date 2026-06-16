@@ -85,7 +85,7 @@ function WindowControlsInner(): React.JSX.Element {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className={`mt-2.5 mr-2.5 flex items-center rounded-full overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/95 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5'}`}
+            className={`mt-2.5 mr-2.5 flex items-center rounded-xl overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/95 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5'}`}
             style={{ pointerEvents: "auto" }}
             initial={disableAnimations ? undefined : { opacity: 0, scale: 0.85, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -95,8 +95,8 @@ function WindowControlsInner(): React.JSX.Element {
             <ControlButton
               onClick={handleMinimize}
               label="Minimize"
-              hoverBg="hover:bg-gray-200/30 dark:hover:bg-neutral-700/40"
-              hoverText="hover:text-gray-600 dark:hover:text-gray-300"
+              hoverBg="hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+              hoverText="hover:text-gray-700 dark:hover:text-gray-300"
             >
               <SvgIcon svg={minusSvg} size={12} />
             </ControlButton>
@@ -104,7 +104,7 @@ function WindowControlsInner(): React.JSX.Element {
             <ControlButton
               onClick={handleToggleMaximize}
               label={isMaximized ? "Restore" : "Maximize"}
-              hoverBg="hover:bg-gray-200/30 dark:hover:bg-neutral-700/30"
+              hoverBg="hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
               hoverText="hover:text-gray-600 dark:hover:text-gray-300"
             >
               {isMaximized ? (
@@ -148,7 +148,6 @@ function ControlButton({
     <motion.button
       onClick={onClick}
       aria-label={label}
-      whileTap={{ scale: 0.78 }}
       transition={SPRING_SNAPPY}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
