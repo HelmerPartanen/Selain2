@@ -33,18 +33,8 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
       onClick={() => { /* clicking row opens handled by parent if needed */ }}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-150"
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer transition-all duration-150"
     >
-      {hovered && (
-        <motion.div
-          layoutId="history-hover"
-          className="absolute inset-0 rounded-full glass glass-interactive"
-          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, filter: 'blur(2px)' }}
-          transition={SPRING_SNAPPY}
-        />
-      )}
 
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {item.state === 'completed' ? (

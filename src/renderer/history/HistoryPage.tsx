@@ -58,18 +58,8 @@ const HistoryRow = memo(function HistoryRow({
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-150"
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-150"
     >
-      {hovered && (
-        <motion.div
-          layoutId="history-hover"
-          className="absolute inset-0 rounded-full glass glass-interactive"
-          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, filter: 'blur(2px)' }}
-          transition={SPRING_SNAPPY}
-        />
-      )}
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {entry.favicon ? (
           <img src={entry.favicon} alt="" className="w-6 h-6" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
@@ -121,18 +111,8 @@ const RecentlyClosedRow = memo(function RecentlyClosedRow({
       onClick={onReopen}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer transition-all duration-150"
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer transition-all duration-150"
     >
-      {hovered && (
-        <motion.div
-          layoutId="recently-closed-hover"
-          className="absolute inset-0 rounded-full glass glass-interactive"
-          initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, filter: 'blur(2px)' }}
-          transition={SPRING_SNAPPY}
-        />
-      )}
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {tab.favicon ? (
           <img src={tab.favicon} alt="" className="w-6 h-6" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
@@ -149,7 +129,7 @@ const RecentlyClosedRow = memo(function RecentlyClosedRow({
         </div>
       </div>
       <span className="flex-shrink-0 text-[11px] text-blue-500 dark:text-blue-400 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-        Reopen
+        Open
       </span>
     </motion.div>
   )
@@ -249,7 +229,7 @@ function HistoryPanelInner(): React.JSX.Element {
     ) : (
       <button
         onClick={() => setConfirmingClear(true)}
-        className="text-xs text-gray-500 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-100 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+        className="text-xs text-gray-500 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-300 transition-colors duration-100 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
       >
         Clear all
       </button>
@@ -259,8 +239,8 @@ function HistoryPanelInner(): React.JSX.Element {
   return (
     <PanelModal
       onClose={closeHistory}
-      width="560px"
-      height="520px"
+      width="1000px"
+      height="650px"
       className="flex flex-col"
     >
       <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>

@@ -152,10 +152,7 @@ function SettingsPanelInner(): React.JSX.Element {
       <div className="flex h-full overflow-hidden">
         <div className="flex-shrink-0 h-full">
           <div className="w-[240px] h-full bg-white dark:bg-white/5 flex flex-col overflow-hidden" style={{ borderRight: '1px solid var(--border-subtle)' }}>
-            <div className="px-4 pt-5 pb-3">
-              <h2 className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-neutral-500">
-                Settings
-              </h2>
+            <div className="p-1">
             </div>
             <div className="flex-1 px-1.5 pb-4 overflow-y-auto">
               <Sidebar
