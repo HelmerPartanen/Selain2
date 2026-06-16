@@ -11,7 +11,7 @@ function AccessibilityPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-7">
       <div>
-        <SectionHeader>Visibility</SectionHeader>
+        <SectionHeader className="mb-3">Visibility</SectionHeader> 
         <SettingGroup className="bg-white dark:bg-white/8 rounded-xl overflow-hidden">
 
           {/* Row 1 */}
@@ -54,7 +54,6 @@ function AccessibilityPaneInner(): React.JSX.Element {
               />
             </div>
           </div>
-
         </SettingGroup>
       </div>
     </div>
