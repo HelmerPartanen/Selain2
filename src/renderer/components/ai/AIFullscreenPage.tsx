@@ -171,7 +171,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   transition={{ duration: 0.2 }}
                 >
                   {/* Semi-transparent background for the overlay */}
-                  <div className={`absolute inset-0 ${disableBlurEffects ? 'bg-white dark:bg-[#121316]' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-lg'}`} />
+                  <div className={`absolute inset-0 ${disableBlurEffects ? 'bg-white dark:bg-[#121316]' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg'}`} />
 
                   {/* Summary content container */}
                   <motion.div
@@ -210,7 +210,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                 {/* Smart toggle button in glass pill */}
                 {!isLoading && isAIReady && (
                   <motion.div
-                    className={`pointer-events-auto rounded-full shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+                    className={`pointer-events-auto rounded-full shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}

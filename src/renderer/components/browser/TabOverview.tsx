@@ -467,7 +467,7 @@ function TabOverviewInner(): React.JSX.Element {
                 {previews.length} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
               </h2>
               <div
-                className={`mt-4 flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/90 border border-black/5 dark:border-white/5'}`}
+                className={`mt-4 flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 border border-black/5 dark:border-white/5'}`}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="relative flex items-center h-10 w-72 max-w-[calc(100vw-72px)] min-w-0">
@@ -672,7 +672,7 @@ function TabOverviewInner(): React.JSX.Element {
                   onClick={handleNewTab}
                   className="w-full rounded-lg overflow-hidden
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
-                    bg-white/90 dark:bg-[#1D1F23]/90 hover:opacity-70 dark:hover:opacity-100 dark:hover:brightness-120 active:scale-[0.97]"
+                    bg-white/90 dark:bg-[#1D1F23]/80 hover:opacity-70 dark:hover:opacity-100 dark:hover:brightness-120 active:scale-[0.97]"
                 >
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
                     <SvgIcon svg={plusSvg} size={22} className="text-neutral-700 dark:text-neutral-400" />

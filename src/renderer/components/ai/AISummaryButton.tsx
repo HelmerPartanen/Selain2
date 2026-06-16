@@ -63,7 +63,7 @@ function AISummaryButtonInner(): React.JSX.Element {
                 aria-label="AI Summary - Fullscreen"
                 whileTap={{ scale: 0.82 }}
                 transition={SPRING_SNAPPY}
-                className={`h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]' : 'bg-white/90 dark:bg-[#1D1F23]/90 backdrop-blur-xs border border-black/5 dark:border-white/5 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'}`}
+                className={`h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xs border border-black/5 dark:border-white/5 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'}`}
               >
                 <SvgIcon svg={sparkleSvg} size={18} className="text-blue-400 dark:text-blue-400" />
               </motion.button>
