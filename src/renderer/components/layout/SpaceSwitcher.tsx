@@ -62,9 +62,9 @@ function SpaceRow({
   return (
     <button
       onClick={onSelect}
-      className={`group flex items-center gap-2.5 w-full px-2.5 h-8 rounded-xl text-left transition-colors duration-75 ${
+      className={`group flex items-center gap-1 w-full pr-1 pl-3 h-10 rounded-lg text-left transition-colors duration-75 ${
         isActive
-          ? 'bg-black/[0.05] dark:bg-white/[0.08] text-gray-900 dark:text-white'
+          ? 'bg-black/[0.06] dark:bg-white/[0.08] text-gray-900 dark:text-white'
           : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
       }`}
       style={disableAnimations
@@ -76,45 +76,45 @@ function SpaceRow({
     >
       <SpaceDot hue={space.hue} />
       <span className="flex-1 text-xs truncate">{space.name}</span>
-      <span className="text-xs text-gray-400 dark:text-neutral-500">
+      <span className="text-xs text-gray-400 dark:text-neutral-500 pr-1">
         {tabCount}
       </span>
 
       {/* Move active tab here — only on non-active spaces when multiple exist */}
       {!isActive && hasMultipleSpaces && (
         <div
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-all duration-100"
+          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500 hover:bg-blue-500/[0.08] dark:hover:bg-blue-500/[0.08] transition-all duration-100"
           onClick={(e) => {
             e.stopPropagation()
             onMoveTab()
           }}
           title="Move current tab here"
         >
-          <SvgIcon svg={rightSmallSvg} size={12} />
+          <SvgIcon svg={rightSmallSvg} size={14} />
         </div>
       )}
 
       {/* Edit */}
       <div
-        className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-neutral-300 transition-all duration-100"
+        className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-gray-600 dark:hover:text-neutral-300 transition-all duration-100"
         onClick={(e) => {
           e.stopPropagation()
           onEdit()
         }}
       >
-        <SvgIcon svg={pencilSvg} size={11} />
+        <SvgIcon svg={pencilSvg} size={14} />
       </div>
 
       {/* Delete (not General) */}
       {!isGeneral && (
         <div
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-red-500 transition-all duration-100"
+          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-red-500/[0.08] dark:hover:bg-red-500/[0.08] hover:text-red-500 transition-all duration-100"
           onClick={(e) => {
             e.stopPropagation()
             onDelete()
           }}
         >
-          <SvgIcon svg={trashSvg} size={11} />
+          <SvgIcon svg={trashSvg} size={14} />
         </div>
       )}
     </button>
@@ -448,13 +448,6 @@ function SpaceSwitcherInner(): React.JSX.Element {
                       transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                     <div className="p-1 space-y-0.5">
-                      {/* Header */}
-                      <div className="px-2.5 pt-1.5 pb-1">
-                        <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-neutral-500">
-                          Spaces
-                        </span>
-                      </div>
-
                       {spaceOrder.map((id, index) => {
                         const space = spaces[id]
                         if (!space) return null
@@ -482,10 +475,10 @@ function SpaceSwitcherInner(): React.JSX.Element {
                     <div className="p-1">
                       <button
                         onClick={() => setIsCreating(true)}
-                        className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-xl text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
+                        className="flex items-center gap-3 w-full px-2.5 h-8 rounded-xl text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
                       >
-                        <SvgIcon svg={plusSvg} size={13} />
-                        <span className="text-xs">New Space</span>
+                        <SvgIcon svg={plusSvg} size={14} />
+                        <span className="text-[13px]">New Space</span>
                       </button>
                     </div>
                     </motion.div>
