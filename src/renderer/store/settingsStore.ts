@@ -11,6 +11,7 @@ import { logger } from '@/utils/logger'
 export type NewTabMode = 'bookmarks' | 'blank'
 export type PrivacyProfile = 'standard' | 'strict' | 'private'
 export type TabsButtonAction = 'overview' | 'menu'
+export type TwoFingerSwipeAction = 'tabs' | 'navigation'
 
 export interface SettingsState {
   /** Restore previous session tabs on startup */
@@ -51,6 +52,9 @@ export interface SettingsState {
   disableAnimations: boolean
   /** Disable blur and translucent effects */
   disableBlurEffects: boolean
+  /** Two-finger horizontal trackpad swipe behavior */
+  twoFingerSwipeAction: TwoFingerSwipeAction
+
   /** What the tabs count button opens */
   tabsButtonAction: TabsButtonAction
 }
@@ -75,6 +79,7 @@ export interface SettingsActions {
   setSyncSplitScrolling: (v: boolean) => void
   setDisableAnimations: (v: boolean) => void
   setDisableBlurEffects: (v: boolean) => void
+  setTwoFingerSwipeAction: (v: TwoFingerSwipeAction) => void
   setTabsButtonAction: (v: TabsButtonAction) => void
 }
 
@@ -104,6 +109,7 @@ export const useSettingsStore = create<SettingsStore>()(
       syncSplitScrolling: false,
       disableAnimations: false,
       disableBlurEffects: false,
+      twoFingerSwipeAction: 'tabs' as TwoFingerSwipeAction,
       tabsButtonAction: 'overview' as TabsButtonAction,
 
       // ── Actions ──
@@ -125,6 +131,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setSyncSplitScrolling: (v) => set({ syncSplitScrolling: v }),
       setDisableAnimations: (v) => set({ disableAnimations: v }),
       setDisableBlurEffects: (v) => set({ disableBlurEffects: v }),
+      setTwoFingerSwipeAction: (v) => set({ twoFingerSwipeAction: v }),
       setTabsButtonAction: (v) => set({ tabsButtonAction: v }),
     }),
     { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>({

@@ -1,6 +1,8 @@
 import { useCallback, useEffect } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
+import { useSettingsStore } from '@/store/settingsStore'
+import { webviewRegistry } from '@/webview/webviewRegistry'
 
 const SWIPE_THRESHOLD = 120
 let swipeDeltaAccumulator = 0
@@ -35,13 +37,56 @@ export function handleTabSwipeDelta(deltaX: number, deltaY = 0, ctrlKey = false)
   }, 300)
 
   if (Math.abs(swipeDeltaAccumulator) >= SWIPE_THRESHOLD) {
+    const direction = swipeDeltaAccumulator > 0 ? 1 : -1 // + => right swipe, - => left swipe
+
+    const twoFingerSwipeAction = useSettingsStore.getState().twoFingerSwipeAction
+    if (twoFingerSwipeAction === 'navigation') {
+      const { activeTabId } = useTabStore.getState()
+      if (!activeTabId) {
+        swipeDeltaAccumulator = 0
+        return
+      }
+
+      const webview = webviewRegistry.get(activeTabId)
+      const tab = useTabStore.getState().tabs[activeTabId]
+
+      // Swipe LEFT => back, RIGHT => forward
+      if (direction < 0) {
+        if (webview && webview.canGoBack()) {
+          webview.goBack()
+        } else if (tab?.virtualBackUrl) {
+          useTabStore.getState().updateTab(activeTabId, {
+            url: tab.virtualBackUrl,
+            virtualForwardUrl: tab.url,
+            virtualBackUrl: null,
+            canGoBack: false,
+            canGoForward: false,
+          })
+        }
+      } else {
+        // forward
+        if (tab && tab.url === 'browser://newtab' && tab.virtualForwardUrl) {
+          useTabStore.getState().updateTab(activeTabId, {
+            url: tab.virtualForwardUrl,
+            virtualBackUrl: tab.url,
+            virtualForwardUrl: null,
+          })
+        } else {
+          webview?.goForward()
+        }
+      }
+
+      swipeDeltaAccumulator = 0
+      return
+    }
+
+    // Default: switch tabs
     const { tabOrder, activeTabId, setActiveTab } = useTabStore.getState()
     if (!activeTabId || tabOrder.length <= 1) {
       swipeDeltaAccumulator = 0
       return
     }
     const idx = tabOrder.indexOf(activeTabId)
-    const direction = swipeDeltaAccumulator > 0 ? 1 : -1
     const nextIdx = idx + direction
     if (nextIdx >= 0 && nextIdx < tabOrder.length) {
       setActiveTab(tabOrder[nextIdx]!)
