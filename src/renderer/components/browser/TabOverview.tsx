@@ -615,7 +615,7 @@ function TabOverviewInner(): React.JSX.Element {
                 {previews.some((preview) => preview.isDuplicate) && (
                   <button
                     onClick={handleCloseDuplicates}
-                    className="h-10 px-3 rounded-full flex items-center gap-2 text-amber-600 dark:text-amber-400 hover:bg-amber-500/[0.1] transition-[background-color] duration-150 select-none"
+                    className="h-10 px-3 rounded-lg flex items-center gap-2 text-[12px] text-amber-600 dark:text-amber-400 hover:bg-amber-500/[0.1] transition-[background-color] duration-150 select-none"
                     title="Close duplicate tabs"
                   >
                     <SvgIcon svg={tabsSvg} size={14} />
