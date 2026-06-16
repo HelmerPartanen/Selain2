@@ -234,6 +234,7 @@ function FloatingControlsInner(): React.JSX.Element {
 
           {/* Floating controls — frosted glass surface with backdrop blur */}
           <motion.div
+            layout
             className={`absolute bottom-5 p-1 rounded-xl [app-region:no-drag] pointer-events-auto shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg border border-black/5 dark:border-white/5'}`}
             initial={disableAnimations ? undefined : { y: 40, scale: 0.85, opacity: 0 }}
             animate={
@@ -258,55 +259,58 @@ function FloatingControlsInner(): React.JSX.Element {
                 </div>
 
                 {/* ── Nav Pod ── */}
-                <AnimatePresence initial={false}>
-                  {(canGoBack || canGoForward) && (
-                    <motion.div
-                      key="nav-pod"
-                      className="flex items-center"
-                      initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                      animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                      exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                      transition={SPRING_EXPAND}
-                      style={{ overflow: 'hidden' }}
+                {/* Keep reflow-based expansion/shrink (no width:auto transitions). */}
+                <motion.div className="flex items-center" style={{ overflow: "hidden" }}>
+                  {/* Back button slot (40px wide) */}
+                  <motion.div
+                    layout={false}
+                    animate={{ width: canGoBack ? 40 : 0 }}
+                    transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <motion.button
+                      onClick={handleGoBack}
+                      disabled={!canGoBack}
+                      aria-label="Go back"
+                      whileTap={{ scale: 0.86 }}
+                      initial={false}
+                      animate={{
+                        opacity: canGoBack ? 1 : 0,
+                        scale: canGoBack ? 1 : 0.85,
+                        filter: canGoBack ? "blur(0px)" : "blur(4px)",
+                      }}
+                      transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
+                      className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
                     >
-                      <AnimatePresence initial={false}>
-                        {canGoBack && (
-                          <motion.button
-                            key="back"
-                            onClick={handleGoBack}
-                            disabled={!canGoBack}
-                            aria-label="Go back"
-                            whileTap={{ scale: 0.82, x: -2, rotateY: -8 }}
-                            initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                            exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                            transition={SPRING_EXPAND}
-                            className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
-                          >
-                            <SvgIcon svg={chevronLeftSvg} size={16} />
-                          </motion.button>
-                        )}
-                      </AnimatePresence>
-                      <AnimatePresence initial={false}>
-                        {canGoForward && (
-                          <motion.button
-                            key="forward"
-                            onClick={handleGoForward}
-                            aria-label="Go forward"
-                            whileTap={{ scale: 0.82, x: 2, rotateY: 8 }}
-                            initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                            exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                            transition={SPRING_EXPAND}
-                            className="h-10 w-10 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none flex-shrink-0"
-                          >
-                            <SvgIcon svg={chevronRightSvg} size={16} />
-                          </motion.button>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      <SvgIcon svg={chevronLeftSvg} size={16} />
+                    </motion.button>
+                  </motion.div>
+
+                  {/* Forward button slot (40px wide) */}
+                  <motion.div
+                    layout={false}
+                    animate={{ width: canGoForward ? 40 : 0 }}
+                    transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <motion.button
+                      onClick={handleGoForward}
+                      aria-label="Go forward"
+                      whileTap={{ scale: 0.86 }}
+                      disabled={!canGoForward}
+                      initial={false}
+                      animate={{
+                        opacity: canGoForward ? 1 : 0,
+                        scale: canGoForward ? 1 : 0.85,
+                        filter: canGoForward ? "blur(0px)" : "blur(4px)",
+                      }}
+                      transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
+                      className="h-10 w-10 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
+                    >
+                      <SvgIcon svg={chevronRightSvg} size={16} />
+                    </motion.button>
+                  </motion.div>
+                </motion.div>
 
                 {/* ── URL Pod ── */}
                 <div className="flex items-center rounded-full min-w-0 flex-shrink">
