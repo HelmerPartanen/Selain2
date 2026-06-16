@@ -379,22 +379,29 @@ function SpaceSwitcherInner(): React.JSX.Element {
   return (
     <div className="relative">
       {/* Pill trigger */}
-      <motion.button
-        onClick={handleToggle}
-        aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
-        whileTap={disableAnimations ? undefined : { scale: 0.88 }}
-        transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        style={
-          activeHue >= 0
-            ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
-            : undefined
-        }
-        className="h-10 w-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
-      >
-        <span style={activeHue >= 0 ? { color: `hsl(${activeHue} 55% 55%)` } : undefined}>
-          <SvgIcon svg={boxSvg} size={16} />
-        </span>
-      </motion.button>
+     <motion.button
+  onClick={handleToggle}
+  aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
+  whileTap={disableAnimations ? undefined : { scale: 0.88 }}
+  whileHover={
+    disableAnimations
+      ? undefined
+      : activeHue >= 0
+      ? { filter: 'brightness(1.2)' }
+      : undefined
+  }
+  transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
+  style={
+    activeHue >= 0
+      ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
+      : undefined
+  }
+  className="h-10 w-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+>
+  <span style={activeHue >= 0 ? { color: `hsl(${activeHue} 55% 55%)` } : undefined}>
+    <SvgIcon svg={boxSvg} size={16} />
+  </span>
+</motion.button>
 
       {/* Popup */}
       <AnimatePresence>
