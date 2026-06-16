@@ -195,7 +195,7 @@ function PrivacyPaneInner(): React.JSX.Element {
               onClick={() => setPrivacyProfile(id)}
               className={`rounded-xl p-3 text-left transition-colors ${
                 privacyProfile === id
-                  ? 'bg-blue-500/10 dark:bg-blue-400/10 hover:bg-blue-500/15 dark:hover:bg-blue-400/15 text-blue-600 dark:text-blue-300'
+                  ? 'bg-green-500/10 dark:bg-green-400/10 hover:bg-green-500/15 dark:hover:bg-green-400/15 text-green-600 dark:text-green-300'
                   : 'text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]'
               }`}
             >
