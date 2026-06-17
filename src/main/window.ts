@@ -49,6 +49,13 @@ export function createWindow(): void {
     }
   })
 
+  win.maximize()
+
+  win.once('ready-to-show', () => {
+    win.show()
+  })
+
+
   setMainWindow(win)
 
   win.on('ready-to-show', () => {

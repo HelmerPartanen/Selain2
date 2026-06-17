@@ -91,6 +91,10 @@ type Block =
   | { kind: 'p'; text: string }
   | { kind: 'gap' }
 
+function cleanHeadingText(text: string): string {
+  return text.trim().replace(/^\{(.+)\}$/, '$1').trim()
+}
+
 function parseBlocks(raw: string): Block[] {
   const blocks: Block[] = []
   let listKind: 'ul' | 'ol' | null = null
@@ -121,7 +125,7 @@ function parseBlocks(raw: string): Block[] {
     if (mH1 || mH2 || mH3) {
       flushList()
       const t = mH3?.[1] ?? mH2?.[1] ?? mH1?.[1] ?? ''
-      blocks.push({ kind: mH3 ? 'h3' : mH2 ? 'h2' : 'h1', text: t as string })
+      blocks.push({ kind: mH3 ? 'h3' : mH2 ? 'h2' : 'h1', text: cleanHeadingText(t as string) })
     } else if (mCB) {
       flushList()
       const lang = mCB[1] || ''
@@ -344,7 +348,7 @@ function ErrorContent(): React.JSX.Element {
     'ENOENT': 'Ollama installation not found. Please install Ollama first.',
     'timeout': 'Request timed out. Try again in a moment.',
   }
-  
+
   let friendlyMessage = 'Something went wrong while summarizing this page.'
   for (const [key, msg] of Object.entries(errorMessages)) {
     if (summaryError?.includes(key)) {

@@ -12,7 +12,7 @@ const execAsync = promisify(exec)
 
 export const OLLAMA_HOST = 'localhost'
 export const OLLAMA_PORT = 11434
-export const TARGET_MODEL = 'phi3:mini'
+export const TARGET_MODEL = 'qwen2.5:3b'
 
 let activePullRequest: http.ClientRequest | null = null
 
@@ -206,103 +206,57 @@ let activeSummaryRequest: http.ClientRequest | null = null
 export type SummarizeSource = 'webpage' | 'pdf'
 
 // ── System prompt ─────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Designed for small local models. The output contract is intentionally strict so the renderer always gets a well-structured document.
-
-You write tight, well-structured page summaries in markdown.
-
-Output contract — always use this structure, replacing the example text with source-specific content:
+const SYSTEM_PROMPT = `You write fast, clean markdown summaries from extracted webpage or PDF text.
 
 ## Concise source-specific title
-One or two sentences that state what this is and why it matters. No preamble.
+One sentence stating the main point. No preamble.
 
 ## Key points
 - **Key term** followed by the first concrete point.
 - **Key term** followed by the second concrete point.
 - **Key term** followed by the third concrete point.
-- Include 4–6 bullets total, one line each, no nested lists.
+- Include 3–5 bullets total, one line each, no nested lists.
 
 ## Takeaway
 One sentence with the single thing the reader should remember.
 
-If the page contains a notable verbatim quote, place it directly after the overview as a blockquote:
-> "{exact quote}"
-
-If the page lists references or links, end with a horizontal rule and a "Source:" line:
----
-Source: {url}
-
 Hard rules:
 - Match the language of the page. Non-English page → non-English summary.
-- No "Here is the summary". No "Sure!". No filler. Start with the first ## line.
+- Start with the first ## line. No "Here is the summary". No filler.
+- Never wrap the title or headings in braces, brackets, or quotes.
 - No emojis, no exclamation marks, no hype words ("amazing", "incredible").
 - Never invent facts. If a number, date, or name is not in the source, omit it.
 - Bold only the key term in a bullet, not the whole sentence.
-- 150–220 words total. Stop as soon as Takeaway is written — do not append extras.
+- 90–150 words total. Stop as soon as Takeaway is written.
 - If the page text is too thin to summarize, output exactly:
   ## Summary
 
   *Not enough readable content to summarize.*
 
-Content-type notes (use only what fits):
-- News / articles: lead with the main event, person, or claim in the overview; bullets hold concrete details (who, what, when, where, numbers).
-- How-to / tutorial: overview states the goal; bullets are the steps or sections in order.
-- Recipe: overview names the dish and yield; bullets are ingredients or techniques, not full instructions.
-- Bio / encyclopedia: overview = identity (name, dates, role); bullets = achievements or context.
-- Report / paper / PDF: overview = document type and subject; bullets = key findings, methodology, conclusions.
-- Opinion / essay: overview states the thesis; bullets = the supporting arguments in order.
-
 Formatting: use exactly three ## headings: the source-specific title, Key points, and Takeaway. Do not use # or ###. Bullets are dash-space. Blockquote is >-space. Keep paragraphs single-line.`
 
 // ── Context extraction ────────────────────────────────────────────────────────
-// A naive .slice(0, 6000) front-loads boilerplate (nav, cookie banners, hero
-// marketing copy) and cuts off the actual content. This extractor prioritises:
-//   1. Title + meta description (highest signal, zero tokens wasted)
-//   2. Body text with nav/footer/cookie noise stripped
-//   3. The opening ~2 000 chars (lede) + the closing ~1 000 chars (CTA/conclusion)
-//      with a middle sample — better coverage than a flat prefix.
+const WEB_CONTEXT_BUDGET = 3600
+const PDF_CONTEXT_BUDGET = 6500
 
-const NOISE_RE =
-  /^(accept( all)? cookies?|cookie (policy|settings|preferences)|privacy policy|terms( of( service|use))?|copyright ©|all rights reserved|skip to (main )?content|back to top|\d+ min(ute)? read|share (this|on)|follow us|subscribe( to our newsletter)?|sign (in|up)|log (in|out)|menu|navigation|search\.{0,3})/i
-
-function isStructuredLine(line: string): boolean {
-  return /[\t:|]/.test(line)
+function compactContext(raw: string): string {
+  return raw
+    .replace(/\r/g, '\n')
+    .replace(/[ \t\f\v]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
-function normalizeLine(line: string): string {
-  return line.replace(/^[#>*+\-\s]+/, '').trim()
+function fitContextBudget(text: string, budget: number): string {
+  if (text.length <= budget) return text
+  const headSize = Math.floor(budget * 0.75)
+  const tailSize = budget - headSize - 7
+  return `${text.slice(0, headSize).trim()}\n\n[...]\n\n${text.slice(-tailSize).trim()}`
 }
 
-function extractPageContext(raw: string): string {
-  const lines = raw
-    .split(/\n+/)
-    .map((l) => normalizeLine(l.trim()))
-    .filter((l) => (l.length > 25 || isStructuredLine(l)) && !NOISE_RE.test(l))
-
-  // Deduplicate repeated lines (nav items often repeat verbatim)
-  const seen = new Set<string>()
-  const deduped: string[] = []
-  for (const line of lines) {
-    const key = line.toLowerCase()
-    if (!seen.has(key)) {
-      seen.add(key)
-      deduped.push(line)
-    }
-  }
-
-  const joined = deduped.join('\n')
-
-  // Budget: ~4 500 chars → fits comfortably within the model context window used for summaries.
-  const BUDGET = 4500
-  if (joined.length <= BUDGET) return joined
-
-  // Take the opening lede (first 60% of budget) + conclusion (last 25%)
-  // This captures both the main claim and the call-to-action/conclusion.
-  const ledeEnd = Math.floor(BUDGET * 0.6)
-  const tailStart = joined.length - Math.floor(BUDGET * 0.25)
-  const lede = joined.slice(0, ledeEnd)
-  const tail = joined.slice(tailStart)
-
-  return `${lede}\n\n[…]\n\n${tail}`
+function prepareSummaryContext(raw: string, source: SummarizeSource): string {
+  const compact = compactContext(raw)
+  return fitContextBudget(compact, source === 'pdf' ? PDF_CONTEXT_BUDGET : WEB_CONTEXT_BUDGET)
 }
 
 // Strip preamble phrases that small models emit despite instructions.
@@ -320,7 +274,7 @@ export function summarizePage(pageText: string, source: SummarizeSource = 'webpa
     activeSummaryRequest = null
   }
 
-  const context = extractPageContext(pageText)
+  const context = prepareSummaryContext(pageText, source)
 
   // If the page yielded nothing useful, short-circuit immediately
   if (!context.trim()) {
@@ -333,25 +287,21 @@ export function summarizePage(pageText: string, source: SummarizeSource = 'webpa
   }
 
   const promptLead = source === 'pdf'
-    ? 'Read the following PDF document text and summarize it clearly and accurately:'
-    : 'Read the following page text and summarize it clearly and accurately:'
+    ? 'Summarize this extracted PDF text:'
+    : 'Summarize this extracted webpage text:'
 
   const requestBody = JSON.stringify({
     model: TARGET_MODEL,
     system: SYSTEM_PROMPT,
     prompt: `${promptLead}\n\n${context}`,
     stream: true,
-    // Generation tuning for the structured output contract:
-    //   - temperature 0.2: low enough that the 3B model follows the skeleton
-    //     (headings + bullets + takeaway) instead of drifting into prose.
-    //   - num_predict 500: the skeleton is ~150–220 words ≈ 220–300 tokens,
-    //     plus margin so a bullet or the takeaway never gets cut mid-sentence.
-    //   - repeat_penalty 1.15: discourages the model from looping on the
-    //     bullet marker `- ` when emitting the key-points list.
+    // Keep generation short: summarization speed is mostly input tokens + output tokens.
     options: {
-      temperature: 0.2,
-      num_predict: 500,
-      repeat_penalty: 1.15,
+      temperature: 0.1,
+      top_p: 0.9,
+      num_ctx: source === 'pdf' ? 4096 : 2048,
+      num_predict: 280,
+      repeat_penalty: 1.1,
     },
   })
 
@@ -367,9 +317,9 @@ export function summarizePage(pageText: string, source: SummarizeSource = 'webpa
   }
 
   // Preamble stripping: buffer the first PREAMBLE_BUFFER_SIZE chars, then stream freely.
-  // 200 chars gives the model room to settle into a `##` heading even if it
+  // 96 chars gives the model room to settle into a `##` heading even if it
   // tries a short preamble first; the regex strips it before forwarding.
-  const PREAMBLE_BUFFER_SIZE = 200
+  const PREAMBLE_BUFFER_SIZE = 96
   let preambleBuffer = ''
   let preambleStripped = false
   // Track whether we've sent at least one chunk — for the end-flush guard

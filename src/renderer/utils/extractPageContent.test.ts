@@ -23,8 +23,9 @@ describe('isLikelyPdfUrl', () => {
 })
 
 // ── extractPageContentForSummary ───────────────────────────────────────────────
-// These tests pin the contract that the AI summary path uses Reader Mode first,
-// so the model only ever sees the article body — not nav, ads, or footers.
+// These tests pin the contract that the AI summary path uses a lightweight
+// DOM text extraction pass, so the model sees key page text without obvious
+// nav, ads, sidebars, or footer chrome.
 
 const tabStoreState = {
   tabs: {} as Record<string, { id: string; url: string; title: string }>,
@@ -45,21 +46,12 @@ vi.mock('@/webview/webviewRegistry', () => ({
   electronAPI: { extractPdfText: vi.fn().mockResolvedValue('') },
 }
 
-const ARTICLE_HTML = `
-<!DOCTYPE html>
-<html>
-  <head><title>The Real Story</title></head>
-  <body>
-    <nav><a href="/">Home</a></nav>
-    <article>
-      <h1>The Real Story</h1>
-      <p>${'Main article paragraph. '.repeat(40)}</p>
-      <p>${'Another paragraph with substance. '.repeat(40)}</p>
-    </article>
-    <footer>Subscribe to our newsletter! Privacy Policy. Terms of Service.</footer>
-  </body>
-</html>
-`
+const EXTRACTED_ARTICLE_TEXT = [
+  'Title: The Real Story',
+  'Heading: The Real Story',
+  'Main article paragraph. '.repeat(40),
+  'Another paragraph with substance. '.repeat(40),
+].join('\n\n')
 
 beforeEach(() => {
   tabStoreState.tabs = {}
@@ -75,23 +67,22 @@ describe('extractPageContentForSummary', () => {
     expect(result.source).toBe('webpage')
   })
 
-  it('prefers Reader Mode text over raw body text for articles', async () => {
+  it('extracts key article text without Reader Mode', async () => {
     tabStoreState.tabs = { 'tab-1': { id: 'tab-1', url: 'https://example.com/story', title: 'The Real Story' } }
-    executeJavaScript.mockResolvedValue(ARTICLE_HTML)
+    executeJavaScript.mockResolvedValue(EXTRACTED_ARTICLE_TEXT)
     webviewRegistryGet.mockReturnValue({ executeJavaScript })
 
     const result = await extractPageContentForSummary('tab-1')
     expect(result.source).toBe('webpage')
-    // Reader Mode output — article body, no nav/footer noise.
     expect(result.text).toContain('Main article paragraph')
+    expect(result.text).toContain('Another paragraph with substance')
     expect(result.text).not.toContain('Subscribe to our newsletter')
     expect(result.text).not.toContain('Privacy Policy')
   })
 
-  it('falls back to raw body text when Reader Mode finds nothing', async () => {
+  it('returns webpage source when DOM extraction finds little content', async () => {
     tabStoreState.tabs = { 'tab-1': { id: 'tab-1', url: 'https://example.com/blank', title: 'Blank' } }
-    // Return HTML with no readable article — Readability returns null.
-    executeJavaScript.mockResolvedValue('<!DOCTYPE html><html><body></body></html>')
+    executeJavaScript.mockResolvedValue('')
     webviewRegistryGet.mockReturnValue({ executeJavaScript })
 
     const result = await extractPageContentForSummary('tab-1')
