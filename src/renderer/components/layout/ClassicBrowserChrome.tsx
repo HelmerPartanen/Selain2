@@ -66,14 +66,9 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
     >
       {/* Tab strip row */}
 
-      <div className={`flex items-center h-11 px-0.5 border-b ${chromeSurface} [app-region:drag]`}>
-        <div className="flex-1 min-w-0 flex items-center pr-2 [app-region:no-drag]">
+      <div className={`flex items-center h-11 px-1 border-b ${chromeSurface} [app-region:drag]`}>
+        <div className="flex-1 min-w-0 flex items-center pr-1 [app-region:no-drag]">
           <TabStrip />
-        </div>
-
-        <div 
-        className="items-center justify-center flex-shrink-0 h-full w-px bg-black/[0.04] dark:bg-white/[0.06]"
-      >
         </div>
 
         <div className="flex-shrink-0 [app-region:no-drag]">
@@ -84,7 +79,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
       {/* Toolbar row */}
 
       <div
-        className={`flex items-center gap-1 h-11 px-2 border-b ${chromeSurface}`}
+        className={`flex items-center gap-1 h-11 px-1 border-b ${chromeSurface}`}
       >
         <div className="flex items-center gap-0.5 flex-shrink-0">
           <AppMenu />
@@ -114,7 +109,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
           </button>
         </div>
 
-        <div className="flex-1 min-w-0 flex items-center px-1">
+        <div className="flex-1 min-w-0 flex items-center">
           <div className="w-full min-w-0 rounded-lg bg-black/[0.08] hover:bg-black/[0.04] dark:bg-white/[0.06] dark:hover:bg-white/[0.08]">
             <URLBar layout="classic" popoverDirection="down" />
           </div>

@@ -109,10 +109,10 @@ function WindowControlsInner({
 
   if (embedded) {
     return (
-      <div className="flex items-start [app-region:no-drag] -mr-0.5 -mt-px">
+      <div className="flex items-start [app-region:no-drag] -mr-1 §-mt-px">
         <div className="flex items-center">
           <Win11ControlButton onClick={handleMinimize} label="Minimize">
-            <SvgIcon svg={minusSvg} size={12} />
+            <SvgIcon svg={minusSvg} size={16} />
           </Win11ControlButton>
 
           <Win11ControlButton
@@ -120,9 +120,9 @@ function WindowControlsInner({
             label={isMaximized ? "Restore" : "Maximize"}
           >
             {isMaximized ? (
-              <SvgIcon svg={CARDS_SVG} size={12} />
+              <SvgIcon svg={CARDS_SVG} size={16} />
             ) : (
-              <SvgIcon svg={SQUARE_SVG} size={12} />
+              <SvgIcon svg={SQUARE_SVG} size={16} />
             )}
           </Win11ControlButton>
 
@@ -131,7 +131,7 @@ function WindowControlsInner({
             label="Close"
             variant="close"
           >
-            <SvgIcon svg={closeSvg} size={12} />
+            <SvgIcon svg={closeSvg} size={16} />
           </Win11ControlButton>
         </div>
       </div>

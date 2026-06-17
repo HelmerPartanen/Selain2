@@ -73,32 +73,9 @@ export function TabContextMenu({ tabId, x, y, onClose }: {
 
   return (
     <div
-      className="fixed z-[200] min-w-[190px] rounded-xl overflow-hidden shadow-sm bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5 p-1"
-      style={{ top: Math.max(8, safeY), left: Math.max(8, safeX) }}
-      onMouseDown={e => e.stopPropagation()}
+      className=""
     >
-      <ContextMenuItem onClick={() => { duplicateTab(tabId); onClose() }}>
-        Duplicate Tab
-      </ContextMenuItem>
-      <ContextMenuItem onClick={() => { togglePinned(tabId); onClose() }}>
-        {pinned ? 'Unpin Tab' : 'Pin Tab'}
-      </ContextMenuItem>
-      {(isPlayingMedia || isMuted) && (
-        <ContextMenuItem onClick={() => { toggleMute(tabId); onClose() }}>
-          {isMuted ? 'Unmute Tab' : 'Mute Tab'}
-        </ContextMenuItem>
-      )}
-      <ContextMenuItem onClick={() => { suspendTab(tabId, 'manual'); onClose() }}>
-        Sleep Tab
-      </ContextMenuItem>
-      <div className="mx-2 my-1 h-px bg-black/5 dark:bg-white/5" />
-      <ContextMenuItem
-        onClick={() => { removeTab(tabId); onClose() }}
-        disabled={pinned}
-        danger
-      >
-        Close Tab
-      </ContextMenuItem>
+      
     </div>
   )
 }

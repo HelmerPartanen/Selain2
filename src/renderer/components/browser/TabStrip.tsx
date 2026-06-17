@@ -160,7 +160,7 @@ const TabStripItem = memo(function TabStripItem({
       } ${
         isHighlighted
           ? "bg-white dark:bg-white/[0.12] text-gray-900 dark:text-white"
-          : "bg-black/[0.08] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-gray-600 dark:text-neutral-400 border border-transparent"
+          : "bg-black/[0.08] hover:bg-black/[0.04] dark:bg-transparent dark:hover:bg-white/[0.06] text-gray-600 dark:text-neutral-400"
       }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
@@ -332,95 +332,95 @@ function TabStripInner(): React.JSX.Element {
   }, [setTabStripMenuOpen]);
 
   return (
-    <div className="flex items-center flex-1 min-w-0 gap-1">
-      <div
-        ref={tabsContainerRef}
-        className="flex items-end flex-1 min-w-0 gap-0.5 overflow-hidden [app-region:no-drag]"
-      >
-        {tabOrder.map((id) => (
-          <TabStripItem
-            key={id}
-            tabId={id}
-            isActive={id === activeTabId}
-            isSplitTarget={id === splitTabId}
-            isSplit={isSplit}
-            tabWidth={tabWidth}
-            compactMode={compactMode}
-            onContextMenu={(e) =>
-              setContextMenu({ tabId: id, x: e.clientX, y: e.clientY })
+  <div className="flex items-center flex-1 min-w-0 gap-1 [app-region:no-drag]">
+  <div
+    ref={tabsContainerRef}
+    className="flex items-center flex-1 min-w-0 gap-0.5 overflow-hidden"
+  >
+    {tabOrder.map((id) => (
+      <TabStripItem
+        key={id}
+        tabId={id}
+        isActive={id === activeTabId}
+        isSplitTarget={id === splitTabId}
+        isSplit={isSplit}
+        tabWidth={tabWidth}
+        compactMode={compactMode}
+        onContextMenu={(e) =>
+          setContextMenu({ tabId: id, x: e.clientX, y: e.clientY })
+        }
+      />
+    ))}
+
+    {/* Inside the container so it follows the last tab naturally */}
+    <button
+      type="button"
+      onClick={handleAddTab}
+      aria-label="New tab"
+      className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors"
+    >
+      <SvgIcon svg={plusSvg} size={14} />
+    </button>
+  </div>
+
+
+    <div className="relative z-10">
+      <AnimatePresence>
+        {menuOpen && tabsButtonAction === "menu" && (
+          <motion.div
+            className="absolute top-full right-0 z-[100] min-w-[230px] max-w-[290px] mt-1"
+            initial={
+              disableAnimations
+                ? undefined
+                : { opacity: 0, y: -6, scale: 0.96 }
             }
-          />
-        ))}
-      </div>
-
-      <div
-        className={`flex items-center gap-0.5 flex-shrink-0 [app-region:no-drag] relative z-10 pl-1`}
-      >
-        <button
-          type="button"
-          onClick={handleAddTab}
-          aria-label="New tab"
-          className="h-8 w-8 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors"
-        >
-          <SvgIcon svg={plusSvg} size={14} />
-        </button>
-
-        <AnimatePresence>
-          {menuOpen && tabsButtonAction === "menu" && (
-            <motion.div
-              className="absolute top-full right-0 z-[100] min-w-[230px] max-w-[290px] mt-1"
-              initial={
-                disableAnimations
-                  ? undefined
-                  : { opacity: 0, y: -6, scale: 0.96 }
-              }
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={
-                disableAnimations
-                  ? undefined
-                  : { opacity: 0, y: -6, scale: 0.96 }
-              }
-              transition={disableAnimations ? { duration: 0 } : SPRING_POPUP}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={
+              disableAnimations
+                ? undefined
+                : { opacity: 0, y: -6, scale: 0.96 }
+            }
+            transition={disableAnimations ? { duration: 0 } : SPRING_POPUP}
+          >
+            <div
+              className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? "bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10" : "bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5"}`}
             >
-              <div
-                className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? "bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10" : "bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5"}`}
-              >
-                <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1 scrollbar-none">
-                  {tabOrder.map((id, index) => (
-                    <TabRow
-                      key={id}
-                      tabId={id}
-                      isActive={id === activeTabId}
-                      isSplitTarget={id === splitTabId}
-                      isSplit={isSplit}
-                      index={index}
-                      onSelect={handleCloseMenu}
-                      onContextMenu={(e) =>
-                        setContextMenu({
-                          tabId: id,
-                          x: e.clientX,
-                          y: e.clientY,
-                        })
-                      }
-                    />
-                  ))}
-                </div>
+              <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1 scrollbar-none">
+                {tabOrder.map((id, index) => (
+                  <TabRow
+                    key={id}
+                    tabId={id}
+                    isActive={id === activeTabId}
+                    isSplitTarget={id === splitTabId}
+                    isSplit={isSplit}
+                    index={index}
+                    onSelect={handleCloseMenu}
+                    onContextMenu={(e) =>
+                      setContextMenu({
+                        tabId: id,
+                        x: e.clientX,
+                        y: e.clientY,
+                      })
+                    }
+                  />
+                ))}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {contextMenu && (
-        <TabContextMenu
-          tabId={contextMenu.tabId}
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={() => setContextMenu(null)}
-        />
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  );
+
+    {contextMenu && (
+      <TabContextMenu
+        tabId={contextMenu.tabId}
+        x={contextMenu.x}
+        y={contextMenu.y}
+        onClose={() => setContextMenu(null)}
+      />
+    )}
+  </div>
+);
 }
 
 export const TabStrip = memo(TabStripInner);
