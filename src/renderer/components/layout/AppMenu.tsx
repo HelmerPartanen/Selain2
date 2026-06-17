@@ -55,7 +55,7 @@ function AppMenuInner(): React.JSX.Element {
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const uiLayout = useSettingsStore((s) => s.uiLayout)
   const popoverBelow = uiLayout === 'classic'
-const { enterY, exitY } = getPopoverMotion(popoverBelow)
+  const { enterY, exitY } = getPopoverMotion(popoverBelow)
   const triggerRef = useRef<HTMLDivElement>(null)
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
   const [mounted, setMounted] = useState(false)
