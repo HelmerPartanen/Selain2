@@ -412,7 +412,7 @@ function URLBarInner({
   return (
     <div className={`relative ${isClassic ? 'w-full min-w-0' : ''}`}>
       <motion.div
-        className={`relative flex items-center h-10 will-change-[width] pl-2 ${isClassic ? 'w-full' : ''}`}
+        className={`relative flex items-center h-10 will-change-[width] pl-2 ${isClassic ? 'w-full pr-2' : ''}`}
         animate={
           isClassic
             ? undefined

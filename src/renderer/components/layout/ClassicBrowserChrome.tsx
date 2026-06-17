@@ -82,7 +82,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
       <div
 
-        className={`flex items-start h-11 px-2 border-b ${chromeSurface} [app-region:drag]`}
+        className={`flex items-start h-11 px-0.5 border-b ${chromeSurface} [app-region:drag]`}
 
       >
 
@@ -104,7 +104,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
       {/* Toolbar row */}
 
-      <div className={`flex items-center gap-1 h-11 px-2 border-b ${toolbarSurface}`}>
+      <div className={`flex items-center gap-1 h-11 px-2 border-b ${chromeSurface}`}>
 
         <div className="flex items-center gap-0.5 flex-shrink-0">
 
