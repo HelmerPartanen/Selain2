@@ -120,8 +120,7 @@ function WebViewManagerInner(): React.JSX.Element {
           <div
             className="absolute inset-0 webview-container"
             style={{
-              backgroundColor: showPrimarySpecial ? 'transparent' : 'var(--bg-solid-fallback)',
-              transition: 'background-color 200ms'
+              backgroundColor: showPrimarySpecial ? 'transparent' : 'var(--bg-solid-fallback)'
             }}
           >
             {primaryEntries.map((entry) => {
@@ -159,8 +158,7 @@ function WebViewManagerInner(): React.JSX.Element {
           <div
             className="absolute inset-0 webview-container"
             style={{
-              backgroundColor: showSplitSpecial ? 'transparent' : 'var(--bg-solid-fallback)',
-              transition: 'background-color 200ms'
+              backgroundColor: showSplitSpecial ? 'transparent' : 'var(--bg-solid-fallback)'
             }}
           >
             {splitEntries.map((entry) => {
@@ -194,8 +192,7 @@ function WebViewManagerInner(): React.JSX.Element {
       <div
         className="absolute inset-0 webview-container"
         style={{
-          backgroundColor: showPrimarySpecial ? 'transparent' : 'var(--bg-solid-fallback)',
-          transition: 'background-color 200ms'
+          backgroundColor: showPrimarySpecial ? 'transparent' : 'var(--bg-solid-fallback)'
         }}
       >
         {activeEntries.map((entry) => {

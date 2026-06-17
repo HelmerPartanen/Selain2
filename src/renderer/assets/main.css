@@ -43,6 +43,9 @@
   --glass-bg-heavy:    rgb(255, 255, 255);
   --glass-bg-subtle:   rgb(245, 245, 245);
 
+  /* Solid fallback background for webview containers (prevents wallpaper flash) */
+  --bg-solid-fallback: rgb(255, 255, 255);
+
   /* Multi-layer shadow system — depth through stacking, not opacity */
   --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
@@ -60,6 +63,9 @@
   --glass-bg:          rgb(30, 30, 30);
   --glass-bg-heavy:    rgb(30, 30, 30);
   --glass-bg-subtle:   rgb(38, 38, 38);
+
+  /* Solid fallback background for webview containers (prevents wallpaper flash) */
+  --bg-solid-fallback: rgb(30, 30, 30);
 
   --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.15);
   --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.10);
@@ -224,7 +230,8 @@ body,
   contain: layout style;
 }
 
-.webview-container { contain: strict; }
+.webview-container { contain: strict; background: var(--bg-solid-fallback); }
+webview { background: var(--bg-solid-fallback); }
 .split-panel { contain: strict; }
 
 /* Tab overview card entry — GPU-accelerated CSS stagger animation */

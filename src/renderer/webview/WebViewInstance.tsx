@@ -345,7 +345,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       style={{
         opacity: isActive ? 1 : 0,
         transform: isActive ? 'scale(1)' : 'scale(0.97)',
-        transition: `opacity ${TAB_TRANSITION_MS}ms ease-out, transform ${TAB_TRANSITION_MS}ms ease-out`,
+        transition: isActive ? 'none' : `opacity ${TAB_TRANSITION_MS}ms ease-out, transform ${TAB_TRANSITION_MS}ms ease-out`,
         zIndex: isActive ? 10 : 1,
         visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: isActive ? 'auto' : 'none'
