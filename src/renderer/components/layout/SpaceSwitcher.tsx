@@ -16,7 +16,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
-import { clampPopoverLeft, getPopoverMotion } from '@/utils/popoverPosition'
+import { clampPopoverLeft, clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition'
 
 const SPACE_POPOVER_WIDTH = 280
 const SPACE_POPOVER_ESTIMATED_HEIGHT = 360
@@ -327,21 +327,21 @@ const popoverBelow = uiLayout === 'classic'
   const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
 
   useLayoutEffect(() => {
-  if (!isOpen || !triggerRef.current) {
-    setPopoverPos(null)
-    return
-  }
-  const rect = triggerRef.current.getBoundingClientRect()
-  if (!popoverBelow) {
-    // Bottom toolbar layout: anchor above trigger
-    const left = clampPopoverLeft(rect, SPACE_POPOVER_WIDTH)
-    const top = rect.top - SPACE_POPOVER_ESTIMATED_HEIGHT - 8
-    setPopoverPos({ left, top: Math.max(8, top) })
-  } else {
-    // Classic (top toolbar) layout: pin to top-left corner
-    setPopoverPos({ left: 2, top: 42 })
-  }
-}, [isOpen, popoverBelow])
+    if (!isOpen || !triggerRef.current) {
+      setPopoverPos(null)
+      return
+    }
+    const rect = triggerRef.current.getBoundingClientRect()
+    if (!popoverBelow) {
+      // Bottom toolbar layout: anchor above trigger
+      const left = clampPopoverLeft(rect, SPACE_POPOVER_WIDTH)
+      const top = clampPopoverTop(rect, SPACE_POPOVER_ESTIMATED_HEIGHT, popoverBelow)
+      setPopoverPos({ left, top })
+    } else {
+      // Classic (top toolbar) layout: pin to top-left corner
+      setPopoverPos({ left: 2, top: 42 })
+    }
+  }, [isOpen, popoverBelow])
 
   const activeSpace = spaces[activeSpaceId]
   const activeHue = activeSpace?.hue ?? -1
@@ -434,14 +434,28 @@ const popoverBelow = uiLayout === 'classic'
 
       {/* Popup */}
       <AnimatePresence>
-        {isOpen && popoverPos && (
+        {isOpen && (
           <>
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
             <motion.div
-              className="fixed z-[100] min-w-[220px] max-w-[280px]"
-              style={{ left: popoverPos.left, top: popoverPos.top, originX: 0.5, originY: popoverBelow ? 0 : 1, perspective: 600 }}
+              className={`${popoverBelow ? 'fixed' : 'absolute left-1/2 bottom-[45px] -translate-x-1/2'} z-[100] min-w-[220px] max-w-[280px]`}
+              style={
+                popoverBelow
+                  ? {
+                      left: popoverPos?.left,
+                      top: popoverPos?.top,
+                      originX: 0.5,
+                      originY: 0,
+                      perspective: 600,
+                    }
+                  : {
+                      originX: 0.5,
+                      originY: 1,
+                      perspective: 600,
+                    }
+              }
               initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: enterY, rotateX: popoverBelow ? 16 : -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
               exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: exitY, rotateX: popoverBelow ? 10 : -10 }}

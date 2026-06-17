@@ -1,4 +1,5 @@
-import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { useShallow } from 'zustand/react/shallow';
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -17,7 +18,7 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
 import { normalizeURL, isValidHomepageUrl } from "@/utils/urlUtils";
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs';
-import { clampPopoverLeft, getPopoverMotion } from '@/utils/popoverPosition';
+import { clampPopoverLeft, clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition';
 
 const MENU_WIDTH = 280;
 const MENU_ESTIMATED_HEIGHT = 420;
@@ -57,23 +58,28 @@ function AppMenuInner(): React.JSX.Element {
 const { enterY, exitY } = getPopoverMotion(popoverBelow)
   const triggerRef = useRef<HTMLDivElement>(null)
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useLayoutEffect(() => {
-  if (!isOpen || !triggerRef.current) {
-    setMenuPos(null)
-    return
-  }
-  const rect = triggerRef.current.getBoundingClientRect()
-  if (!popoverBelow) {
-    // Bottom toolbar layout: anchor above trigger
-    const left = clampPopoverLeft(rect, MENU_WIDTH)
-    const top = rect.top - MENU_ESTIMATED_HEIGHT - 8
-    setMenuPos({ left, top: Math.max(8, top) })
-  } else {
-    // Classic (top toolbar) layout: pin to top-left corner
-    setMenuPos({ left: 2, top: 42 })
-  }
-}, [isOpen, popoverBelow])
+    if (!isOpen || !triggerRef.current) {
+      setMenuPos(null)
+      return
+    }
+    const rect = triggerRef.current.getBoundingClientRect()
+    if (!popoverBelow) {
+      // Bottom toolbar layout: anchor above trigger
+      const left = clampPopoverLeft(rect, MENU_WIDTH)
+      const top = clampPopoverTop(rect, MENU_ESTIMATED_HEIGHT, popoverBelow)
+      setMenuPos({ left, top })
+    } else {
+      // Classic (top toolbar) layout: pin to top-left corner
+      setMenuPos({ left: 2, top: 42 })
+    }
+  }, [isOpen, popoverBelow])
 
   const isPanelOpen =
     isSettingsOpen ||
@@ -164,15 +170,21 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
         </div>
       </motion.button>
 
-      <AnimatePresence>
-        {isOpen && menuPos && (
-          <>
-            {/* Click-away */}
-            <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
-            <motion.div
-              className="fixed z-[100] min-w-[280px]"
-              style={{ left: menuPos.left, top: menuPos.top, originX: 0.5, originY: popoverBelow ? 0 : 1 }}
-              initial={disableAnimations ? undefined : {
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <>
+              {/* Click-away */}
+              <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
+              <motion.div
+                className="fixed z-[100] min-w-[280px]"
+                style={{
+                  left: menuPos?.left,
+                  top: menuPos?.top,
+                  originX: 0.5,
+                  originY: popoverBelow ? 0 : 1,
+                }}
+                initial={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
