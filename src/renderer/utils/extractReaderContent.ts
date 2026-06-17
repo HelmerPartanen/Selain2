@@ -6,7 +6,10 @@ import { isLikelyPdfUrl } from '@/utils/extractPageContent'
 
 export interface ReaderArticle {
   title: string
+  /** Sanitized article HTML (used for rendering in reader mode). */
   content: string
+  /** Plain-text version of the article — same node tree, all tags stripped. */
+  text: string
   byline: string | null
   siteName: string | null
   excerpt: string | null
@@ -48,9 +51,17 @@ export async function extractReaderContent(tabId: string): Promise<ReaderArticle
     const article = new Readability(doc).parse()
     if (!article?.content?.trim()) return null
 
+    // Readability also produces a pre-stripped textContent we can hand to the
+    // AI without re-walking the HTML. Collapse runs of whitespace so the prompt
+    // doesn't get bloated by indentation/newlines from the parsed DOM.
+    const text = (article.textContent ?? '')
+      .replace(/\s+/g, ' ')
+      .trim()
+
     return {
       title: article.title?.trim() || tab?.title || 'Article',
       content: article.content,
+      text,
       byline: article.byline ?? null,
       siteName: article.siteName ?? null,
       excerpt: article.excerpt ?? null,

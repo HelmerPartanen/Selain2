@@ -203,55 +203,80 @@ export function isPulling(): boolean {
 
 let activeSummaryRequest: http.ClientRequest | null = null
 
-// ── System prompt ─────────────────────────────────────────────────────────────
-// Designed for Qwen2.5 0.5B — keep the prompt concise and factual for reliable summaries.
-// Prioritizes preservation of most valuable information by content type.
 export type SummarizeSource = 'webpage' | 'pdf'
 
-const SYSTEM_PROMPT = `You are a browser assistant that summarizes web pages and PDF documents intelligently, preserving the most valuable information.
+// ── System prompt ─────────────────────────────────────────────────────────────
+// Designed for Qwen2.5 3B. The output contract is intentionally strict so the
+// renderer always gets a well-structured document — even from a small model.
+//
+// Output skeleton (always follow this exact shape):
+//
+//   ## {Topic or title}              ← H2 headline, no leading emoji
+//   {1–2 sentence overview}         ← plain paragraph, no bullet
+//   ## Key points                    ← H2, ALWAYS present
+//   - {point 1}                      ← 3–6 bullets, each one line, **bold** the key term
+//   - {point 2}
+//   ...
+//   ## Takeaway                      ← H2, ALWAYS present
+//   {one sentence}                   ← a single decisive line
+//
+// Optional, only if present in the source:
+//   > {verbatim quote}               ← blockquote for a notable pull-quote
+//   ---                              ← horizontal rule before a "Source" / links block
+//   Source: {url}                    ← plain text, no bullet
+//
+// Hard rules:
+//   - Match the source language. If the page is Finnish, the summary is Finnish.
+//   - No preamble. No "Here is the summary:". Start with the `##` line.
+//   - No emojis, no exclamation marks, no marketing voice.
+//   - Never invent facts. If a number, date, or name is uncertain, drop it.
+//   - Bold only the key term inside a bullet (e.g. "- **React 19** ships..."), not whole sentences.
+//   - Keep total length 150–220 words. Stop as soon as the Takeaway is written.
+//   - If the page is thin or unreadable, output exactly: "## Summary\n\n*Not enough readable content to summarize.*"
+const SYSTEM_PROMPT = `You write tight, well-structured page summaries in markdown.
 
-Your output must be short, specific, and immediately useful to someone who hasn't read the page.
+Output contract — always use this exact skeleton:
 
-**Content-Type Priority Rules:**
+## {Topic}
+{One or two sentences that state what this is and why it matters. No preamble.}
 
-For RECIPES or COOKING:
-- Lead with the dish name and key distinguishing feature (e.g., "**Fudgy Brownies** - uses 2 eggs + water for moist texture")
-- Include 2-3 critical ingredients or techniques if listed (e.g., "Uses powdered sugar for thickening")
-- Mention yield/servings, prep time, or special notes if present
-- Include ingredient counts if visible (e.g., "7 pantry ingredients")
-- Never omit the recipe itself — if it exists on the page, capture the essential elements
+## Key points
+- {point 1 — **bold** the key term at the start}
+- {point 2 — **bold** the key term}
+- {point 3 — **bold** the key term}
+- {4–6 bullets total, one line each, no nested lists}
 
-For HOW-TOs, TUTORIALS, or GUIDES:
-- Start with what skill/task is covered
-- List 3-5 key steps or sections as bullet points
-- Highlight any tools, requirements, or prerequisites
-- Include time estimate if available
+## Takeaway
+{One sentence — the single thing the reader should remember.}
 
-For NEWS, ARTICLES, or ESSAYS:
-- Lead with the main event, person, or claim
-- Include concrete details: names, dates, places, numbers
-- Mention who/what is involved
-- Include the core conclusion or takeaway
+If the page contains a notable verbatim quote, place it directly after the overview as a blockquote:
+> "{exact quote}"
 
-For BIOGRAPHIES or ENCYCLOPEDIAS:
-- Mention the person's full name, birth/death dates, nationality, profession
-- Highlight their major role, achievement, or historical significance
+If the page lists references or links, end with a horizontal rule and a "Source:" line:
+---
+Source: {url}
 
-For PDF DOCUMENTS, REPORTS, or PAPERS:
-- Identify the document type (report, paper, manual, invoice, etc.)
-- Lead with the subject or title if visible
-- Summarize main sections, key findings, and conclusions
-- Include important data points, dates, and names when present
+Hard rules:
+- Match the language of the page. Non-English page → non-English summary.
+- No "Here is the summary". No "Sure!". No filler. Start with the first ## line.
+- No emojis, no exclamation marks, no hype words ("amazing", "incredible").
+- Never invent facts. If a number, date, or name is not in the source, omit it.
+- Bold only the key term in a bullet, not the whole sentence.
+- 150–220 words total. Stop as soon as Takeaway is written — do not append extras.
+- If the page text is too thin to summarize, output exactly:
+  ## Summary
 
-**Universal Rules:**
-- Detect the language of the page text and summarize in that same language
-- Use 2–5 short sentences OR bullet points if the content naturally lists separate items
-- Never repeat page title verbatim — start directly with substance
-- Preserve URLs or references mentioned on the page (e.g., "Check https://example.com for the original")
-- Avoid vague language, filler, and invented facts
-- If content is thin, say so honestly in one sentence
-- Plain markdown only. Use **bold** for key terms. Use bullets (-) for genuinely list-like content.
-`
+  *Not enough readable content to summarize.*
+
+Content-type notes (use only what fits):
+- News / articles: lead with the main event, person, or claim in the overview; bullets hold concrete details (who, what, when, where, numbers).
+- How-to / tutorial: overview states the goal; bullets are the steps or sections in order.
+- Recipe: overview names the dish and yield; bullets are ingredients or techniques, not full instructions.
+- Bio / encyclopedia: overview = identity (name, dates, role); bullets = achievements or context.
+- Report / paper / PDF: overview = document type and subject; bullets = key findings, methodology, conclusions.
+- Opinion / essay: overview states the thesis; bullets = the supporting arguments in order.
+
+Formatting: use exactly two ## headings (Topic, Key points, Takeaway). Do not use # or ###. Bullets are dash-space. Blockquote is >-space. Keep paragraphs single-line.`
 
 // ── Context extraction ────────────────────────────────────────────────────────
 // A naive .slice(0, 6000) front-loads boilerplate (nav, cookie banners, hero
@@ -306,10 +331,10 @@ function extractPageContext(raw: string): string {
 }
 
 // Strip preamble phrases that small models emit despite instructions.
-// We buffer the first 120 chars before sending so we can clean the very
-// first token(s) — beyond that we stream immediately for low latency.
+// We buffer the first PREAMBLE_BUFFER_SIZE chars before sending so we can clean
+// the very first token(s) — beyond that we stream immediately for low latency.
 const PREAMBLE_RE =
-  /^\s*(?:(?:here(?:'s| is)|below is|the following)(?:\s+(?:a|the|my|your|an?)\s+)?(?:(?:markdown\s+)?summary|overview|breakdown)[^:\n]*[:.]\s*\n*|(?:sure|okay|of course|absolutely)[!,.]?\s*\n*)/i
+  /^\s*(?:(?:here(?:'s| is)|below is|the following)(?:\s+(?:a|the|my|your|an?)\s+)?(?:(?:markdown\s+)?summary|overview|breakdown|recap)[^:\n]*[:.]\s*\n*|(?:sure|okay|of course|absolutely|certainly|got it)[!,.]?\s*\n*|here you go[:,]?\s*\n*)/i
 
 // ── Public summarize function ─────────────────────────────────────────────────
 
@@ -341,12 +366,17 @@ export function summarizePage(pageText: string, source: SummarizeSource = 'webpa
     system: SYSTEM_PROMPT,
     prompt: `${promptLead}\n\n${context}`,
     stream: true,
-    // Tighten generation: we want concise, factual output — not creative rambling.
-    // num_predict caps tokens; temperature 0.2 reduces hallucination on 1B models.
+    // Generation tuning for the structured output contract:
+    //   - temperature 0.2: low enough that the 3B model follows the skeleton
+    //     (headings + bullets + takeaway) instead of drifting into prose.
+    //   - num_predict 500: the skeleton is ~150–220 words ≈ 220–300 tokens,
+    //     plus margin so a bullet or the takeaway never gets cut mid-sentence.
+    //   - repeat_penalty 1.15: discourages the model from looping on the
+    //     bullet marker `- ` when emitting the key-points list.
     options: {
       temperature: 0.2,
-      num_predict: 300,
-      repeat_penalty: 1.1,
+      num_predict: 500,
+      repeat_penalty: 1.15,
     },
   })
 
@@ -361,8 +391,10 @@ export function summarizePage(pageText: string, source: SummarizeSource = 'webpa
     },
   }
 
-  // Preamble stripping: buffer the first PREAMBLE_BUFFER_SIZE chars, then stream freely
-  const PREAMBLE_BUFFER_SIZE = 120
+  // Preamble stripping: buffer the first PREAMBLE_BUFFER_SIZE chars, then stream freely.
+  // 200 chars gives the model room to settle into a `##` heading even if it
+  // tries a short preamble first; the regex strips it before forwarding.
+  const PREAMBLE_BUFFER_SIZE = 200
   let preambleBuffer = ''
   let preambleStripped = false
   // Track whether we've sent at least one chunk — for the end-flush guard

@@ -1,6 +1,7 @@
 import { useTabStore } from '@/store/tabStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { isSpecialPage } from '@/utils/urlUtils'
+import { extractReaderContent } from '@/utils/extractReaderContent'
 
 export type PageContentSource = 'webpage' | 'pdf'
 
@@ -64,6 +65,12 @@ async function tryExtractPdfText(url: string): Promise<string | null> {
 /**
  * Extract readable text from the active tab for AI summarization.
  * Uses PDF parsing for documents and DOM text for normal web pages.
+ *
+ * For web pages, Reader Mode (Mozilla Readability) is tried first so the
+ * summary only covers the main article — no nav bars, cookie banners, ads,
+ * or footer links. If Readability can't find an article (e.g. single-page
+ * apps, login walls), we fall back to the full body text so the user still
+ * gets a summary rather than an empty result.
  */
 export async function extractPageContentForSummary(tabId: string): Promise<PageContentForSummary> {
   const tab = useTabStore.getState().tabs[tabId]
@@ -77,6 +84,18 @@ export async function extractPageContentForSummary(tabId: string): Promise<PageC
   if (isLikelyPdfUrl(url)) {
     const pdfText = await tryExtractPdfText(url)
     if (pdfText) return { text: pdfText, source: 'pdf' }
+  }
+
+  // Try Reader Mode first — the same extractor Reader Mode itself uses, so
+  // the AI summary is grounded in the actual article body.
+  const reader = await extractReaderContent(tabId)
+  if (reader && reader.text.length >= 120) {
+    // Prepend the title so the model always has it, even if Readability
+    // merged the headline into the body without enough signal on its own.
+    const header = reader.title && reader.title !== title
+      ? `Title: ${reader.title}\n\n`
+      : ''
+    return { text: `${header}${reader.text}`, source: 'webpage' }
   }
 
   const webview = webviewRegistry.get(tabId)
