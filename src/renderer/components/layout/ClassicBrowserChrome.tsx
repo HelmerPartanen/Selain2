@@ -67,7 +67,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
       {/* Tab strip row */}
 
       <div className={`flex items-center h-11 px-1 border-b ${chromeSurface} [app-region:drag]`}>
-        <div className="flex-1 min-w-0 flex items-center pr-1 [app-region:no-drag]">
+        <div className="flex-1 min-w-0 flex items-center pr-1">
           <TabStrip />
         </div>
 

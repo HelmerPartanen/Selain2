@@ -151,7 +151,7 @@ const TabStripItem = memo(function TabStripItem({
         maxWidth: TAB_MAX_WIDTH,
       }}
       title={compactMode !== "full" ? title : undefined}
-      className={`group relative flex items-center h-8 rounded-lg text-left transition-colors duration-100 overflow-hidden flex-shrink focus:outline-none ${
+      className={`group relative flex items-center h-8 rounded-lg text-left transition-colors duration-100 overflow-hidden flex-shrink focus:outline-none [app-region:no-drag] ${
         compactMode === "icon"
           ? "justify-center px-1 gap-0"
           : compactMode === "compact"
@@ -332,7 +332,7 @@ function TabStripInner(): React.JSX.Element {
   }, [setTabStripMenuOpen]);
 
   return (
-  <div className="flex items-center flex-1 min-w-0 gap-1 [app-region:no-drag]">
+  <div className="flex items-center flex-1 min-w-0 gap-1 [app-region:drag]">
   <div
     ref={tabsContainerRef}
     className="flex items-center flex-1 min-w-0 gap-0.5 overflow-hidden"
@@ -357,7 +357,7 @@ function TabStripInner(): React.JSX.Element {
       type="button"
       onClick={handleAddTab}
       aria-label="New tab"
-      className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors"
+      className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors [app-region:no-drag]"
     >
       <SvgIcon svg={plusSvg} size={14} />
     </button>
