@@ -9,6 +9,8 @@ interface UIState {
   isDropdownOpen: boolean
   isMenuOpen: boolean
   isSpaceSwitcherOpen: boolean
+  isTabStripMenuOpen: boolean
+  isDownloadPopoverOpen: boolean
   isFindBarOpen: boolean
   isAISummaryOpen: boolean
   isAIFullscreenOpen: boolean
@@ -31,6 +33,8 @@ interface UIState {
   setDropdownOpen: (open: boolean) => void
   setMenuOpen: (open: boolean) => void
   setSpaceSwitcherOpen: (open: boolean) => void
+  setTabStripMenuOpen: (open: boolean) => void
+  setDownloadPopoverOpen: (open: boolean) => void
   openFindBar: () => void
   closeFindBar: () => void
   toggleFindBar: () => void
@@ -67,6 +71,8 @@ export const useUIStore = create<UIState>((set) => ({
   isDropdownOpen: false,
   isMenuOpen: false,
   isSpaceSwitcherOpen: false,
+  isTabStripMenuOpen: false,
+  isDownloadPopoverOpen: false,
   isAISummaryOpen: false,
   isAIFullscreenOpen: false,
   isAISummaryOverlayVisible: false,
@@ -92,6 +98,8 @@ export const useUIStore = create<UIState>((set) => ({
   setDropdownOpen: (open) => set({ isDropdownOpen: open }),
   setMenuOpen: (open) => set({ isMenuOpen: open }),
   setSpaceSwitcherOpen: (open) => set({ isSpaceSwitcherOpen: open }),
+  setTabStripMenuOpen: (open) => set({ isTabStripMenuOpen: open }),
+  setDownloadPopoverOpen: (open) => set({ isDownloadPopoverOpen: open }),
   openFindBar: () => set({ isFindBarOpen: true }),
   closeFindBar: () => set({ isFindBarOpen: false }),
   toggleFindBar: () => set((s) => ({ isFindBarOpen: !s.isFindBarOpen })),

@@ -65,7 +65,15 @@ function makeCommandSuggestion(id: string, title: string, action: () => void, ty
   }
 }
 
-function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => void }): React.JSX.Element {
+function URLBarInner({
+  onFocusChange,
+  layout = 'floating',
+  popoverDirection = 'up',
+}: {
+  onFocusChange?: (focused: boolean) => void
+  layout?: 'floating' | 'classic'
+  popoverDirection?: 'up' | 'down'
+}): React.JSX.Element {
   const tabId = useFocusedTabId()
   const url = useFocusedTabUrl()
   const { isLoading } = useFocusedTabNavState()
@@ -398,12 +406,19 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
     }
   }, [tabId])
 
+  const isClassic = layout === 'classic'
+  const dropdownBelow = popoverDirection === 'down'
+
   return (
-    <div className="relative">
+    <div className={`relative ${isClassic ? 'w-full min-w-0' : ''}`}>
       <motion.div
-        className="relative flex items-center h-10 will-change-[width] pl-2"
-        animate={{ width: isFocused ? Math.min(500, typeof window !== 'undefined' ? window.innerWidth - 160 : 500) : 320 }}
-        transition={SPRING_EXPAND}
+        className={`relative flex items-center h-10 will-change-[width] pl-2 ${isClassic ? 'w-full' : ''}`}
+        animate={
+          isClassic
+            ? undefined
+            : { width: isFocused ? Math.min(500, typeof window !== 'undefined' ? window.innerWidth - 160 : 500) : 320 }
+        }
+        transition={isClassic ? undefined : SPRING_EXPAND}
       >
         <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>
           <div className="relative flex items-center justify-center w-[15px] h-[15px]">
@@ -584,11 +599,13 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
       <AnimatePresence>
         {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
-            className={`absolute bottom-full mb-2.5 p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}
-            style={{ originY: 1 }}
-            initial={{ scaleY: 0.6, opacity: 0, y: 6 }}
+            className={`absolute p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'} ${
+              dropdownBelow ? 'top-full mt-2.5' : 'bottom-full mb-2.5'
+            }`}
+            style={{ originY: dropdownBelow ? 0 : 1 }}
+            initial={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
-            exit={{ scaleY: 0.6, opacity: 0, y: 6 }}
+            exit={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
             transition={SPRING_POPUP}
           >
             {suggestions.map((entry, i) => {
@@ -654,6 +671,8 @@ function URLBarInner({ onFocusChange }: { onFocusChange?: (focused: boolean) => 
         onClose={() => setIsSiteInfoOpen(false)}
         url={url}
         isSecure={isSecure}
+        popoverDirection={popoverDirection}
+        anchorLeft={isClassic}
       />
     </div>
   )

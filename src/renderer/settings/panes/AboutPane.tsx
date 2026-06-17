@@ -21,7 +21,7 @@ function AboutPaneInner(): React.JSX.Element {
         <div className="h-px bg-black/[0.04] dark:bg-white/[0.04]" />
         <div className="flex items-center justify-between text-[12px]">
           <span className="text-gray-400 dark:text-neutral-500">Electron</span>
-          <span className="text-gray-600 dark:text-neutral-300 tabular-nums">2.14.1</span>
+          <span className="text-gray-600 dark:text-neutral-300 tabular-nums">42.3.3</span>
         </div>
         <div className="h-px bg-black/[0.04] dark:bg-white/[0.04]" />
         <div className="flex items-center justify-between text-[12px]">

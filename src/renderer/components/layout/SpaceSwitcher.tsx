@@ -2,7 +2,7 @@
 // Floating bar pill + popup for switching, creating, editing and deleting Spaces.
 // Sits between the AppMenu and the first divider in the floating controls bar.
 
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -16,6 +16,10 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
+import { clampPopoverLeft, getPopoverMotion } from '@/utils/popoverPosition'
+
+const SPACE_POPOVER_WIDTH = 280
+const SPACE_POPOVER_ESTIMATED_HEIGHT = 360
 
 
 // ─── Space Row ───────────────────────────────────────────────────────────────
@@ -312,10 +316,28 @@ function SpaceSwitcherInner(): React.JSX.Element {
     isOpen: s.isSpaceSwitcherOpen,
     setOpen: s.setSpaceSwitcherOpen,
   })))
-  const { disableAnimations, disableBlurEffects } = useSettingsStore(useShallow((s) => ({
+  const { disableAnimations, disableBlurEffects, uiLayout } = useSettingsStore(useShallow((s) => ({
     disableAnimations: s.disableAnimations,
     disableBlurEffects: s.disableBlurEffects,
+    uiLayout: s.uiLayout,
   })))
+  const popoverBelow = uiLayout === 'classic'
+  const { enterY, exitY } = getPopoverMotion(popoverBelow)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
+
+  useLayoutEffect(() => {
+    if (!isOpen || !triggerRef.current) {
+      setPopoverPos(null)
+      return
+    }
+    const rect = triggerRef.current.getBoundingClientRect()
+    const left = clampPopoverLeft(rect, SPACE_POPOVER_WIDTH)
+    const top = popoverBelow
+      ? rect.bottom + 8
+      : rect.top - SPACE_POPOVER_ESTIMATED_HEIGHT - 8
+    setPopoverPos({ left, top: Math.max(8, top) })
+  }, [isOpen, popoverBelow])
 
   const activeSpace = spaces[activeSpaceId]
   const activeHue = activeSpace?.hue ?? -1
@@ -376,7 +398,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
   )
 
   return (
-  <div className="relative">
+  <div className="relative" ref={triggerRef}>
     <motion.button
       onClick={handleToggle}
       aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
@@ -394,7 +416,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
           ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
           : undefined
       }
-      className="h-10 w-10 flex items-center justify-center leading-none rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+      className="h-9 w-9 flex items-center justify-center leading-none rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
     >
       <span
         className="flex items-center justify-center"
@@ -408,17 +430,17 @@ function SpaceSwitcherInner(): React.JSX.Element {
 
       {/* Popup */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && popoverPos && (
           <>
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
             <motion.div
-              className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-[100] min-w-[220px] max-w-[280px]"
-              style={{ originX: 0.5, originY: 1, perspective: 600 }}
-              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: 32, rotateX: -16 }}
+              className="fixed z-[100] min-w-[220px] max-w-[280px]"
+              style={{ left: popoverPos.left, top: popoverPos.top, originX: 0.5, originY: popoverBelow ? 0 : 1, perspective: 600 }}
+              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: enterY, rotateX: popoverBelow ? 16 : -16 }}
               animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: 28, rotateX: -10 }}
+              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: exitY, rotateX: popoverBelow ? 10 : -10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
               <div className={`rounded-xl shadow-sm overflow-hidden min-w-[280px] ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23]'}`}>

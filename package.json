@@ -7,6 +7,9 @@
   "build": {
     "appId": "com.chromium-browser.app",
     "productName": "Chromium Browser",
+    "electronDownload": {
+      "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
+    },
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -20,21 +23,18 @@
       "target": [
         "nsis",
         "portable"
-      ],
-      "icon": "build/icon.ico"
+      ]
     },
     "mac": {
       "target": [
         "dmg"
       ],
-      "icon": "build/icon.icns",
       "category": "public.app-category.utilities"
     },
     "linux": {
       "target": [
         "AppImage"
-      ],
-      "icon": "build/icons"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -72,10 +72,11 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "electron": "github:castlabs/electron-releases#v40.1.0+wvcus",
+    "electron": "github:castlabs/electron-releases#v42.3.3+wvcus",
     "electron-builder": "^25.0.0",
     "electron-vite": "^5.0.0",
     "jsdom": "^28.1.0",
+    "prettier": "3.8.4",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"

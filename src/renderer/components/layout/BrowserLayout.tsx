@@ -10,6 +10,8 @@ import React, {
 } from "react";
 import { AnimatePresence } from "motion/react";
 import { FloatingControls } from "@/components/layout/FloatingControls";
+import { ClassicBrowserChrome } from "@/components/layout/ClassicBrowserChrome";
+import { CLASSIC_CHROME_HEIGHT } from "@/components/layout/layoutConstants";
 import { WindowControls } from "@/components/layout/WindowControls";
 import { FindBar } from "@/components/browser/FindBar";
 import { SplitDivider } from "@/components/layout/SplitDivider";
@@ -139,6 +141,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   usePermissionRequests();
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const uiZoom = useSettingsStore((s) => s.uiZoom);
+  const uiLayout = useSettingsStore((s) => s.uiLayout);
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
   
@@ -153,9 +156,13 @@ function BrowserLayoutInner(): React.JSX.Element {
     isDownloadsOpen,
     isTabOverviewOpen,
     isSpaceSwitcherOpen,
+    isTabStripMenuOpen,
+    isDownloadPopoverOpen,
     setDropdownOpen: closeDropdown,
     setMenuOpen: closeMenu,
     setSpaceSwitcherOpen: closeSpaceSwitcher,
+    setTabStripMenuOpen: closeTabStripMenu,
+    setDownloadPopoverOpen: closeDownloadPopover,
   } = useUIStore(useShallow((s) => ({
     isDropdownOpen: s.isDropdownOpen,
     isMenuOpen: s.isMenuOpen,
@@ -166,9 +173,13 @@ function BrowserLayoutInner(): React.JSX.Element {
     isDownloadsOpen: s.isDownloadsOpen,
     isTabOverviewOpen: s.isTabOverviewOpen,
     isSpaceSwitcherOpen: s.isSpaceSwitcherOpen,
+    isTabStripMenuOpen: s.isTabStripMenuOpen,
+    isDownloadPopoverOpen: s.isDownloadPopoverOpen,
     setDropdownOpen: s.setDropdownOpen,
     setMenuOpen: s.setMenuOpen,
     setSpaceSwitcherOpen: s.setSpaceSwitcherOpen,
+    setTabStripMenuOpen: s.setTabStripMenuOpen,
+    setDownloadPopoverOpen: s.setDownloadPopoverOpen,
   })));
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
@@ -390,11 +401,16 @@ function BrowserLayoutInner(): React.JSX.Element {
         })}
       />
 
-      {/* Transparent drag region for window movement */}
-      <div className="fixed top-0 left-0 right-0 h-2.5 z-[60] [app-region:drag]" />
+      {/* Transparent drag region for window movement (floating layout only) */}
+      {uiLayout === 'floating' && (
+        <div className="fixed top-0 left-0 right-0 h-2.5 z-[60] [app-region:drag]" />
+      )}
 
-      {/* Web content — fills entire viewport; ErrorBoundary keeps shell usable on React errors */}
-      <div className="relative z-10 h-full">
+      {/* Web content — inset below classic chrome when applicable */}
+      <div
+        className="relative z-10 h-full"
+        style={uiLayout === 'classic' ? { paddingTop: CLASSIC_CHROME_HEIGHT } : undefined}
+      >
         <ErrorBoundary
           key={mainContentErrorKey}
           fallback={
@@ -408,8 +424,8 @@ function BrowserLayoutInner(): React.JSX.Element {
         </ErrorBoundary>
       </div>
 
-      {/* Floating controls overlay */}
-      <FloatingControls />
+      {/* Browser chrome */}
+      {uiLayout === 'floating' ? <FloatingControls /> : <ClassicBrowserChrome />}
 
       {/* AI Summary floating button (bottom-right) */}
       <AISummaryButton />
@@ -427,19 +443,21 @@ function BrowserLayoutInner(): React.JSX.Element {
       {isSplitView && <SplitDivider />}
 
       {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
-      {(isDropdownOpen || isMenuOpen || isSpaceSwitcherOpen) && (
+      {(isDropdownOpen || isMenuOpen || isSpaceSwitcherOpen || isTabStripMenuOpen || isDownloadPopoverOpen) && (
         <div
           className="fixed inset-0 z-[45]"
           onMouseDown={() => {
             closeDropdown(false);
             closeMenu(false);
             closeSpaceSwitcher(false);
+            closeTabStripMenu(false);
+            closeDownloadPopover(false);
           }}
         />
       )}
 
-      {/* Window controls */}
-      <WindowControls />
+      {/* Window controls (floating layout — classic embeds controls in chrome) */}
+      {uiLayout === 'floating' && <WindowControls />}
 
       {/* Toast notifications */}
       <ToastContainer />

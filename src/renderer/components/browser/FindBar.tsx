@@ -2,6 +2,8 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { useFocusedTabId } from '@/hooks/useTabSelector'
 import { useUIStore } from '@/store/uiStore'
+import { useSettingsStore } from '@/store/settingsStore'
+import { CLASSIC_CHROME_HEIGHT } from '@/components/layout/layoutConstants'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -13,6 +15,7 @@ import { SPRING_POPUP } from '@/utils/springs'
 
 function FindBarInner(): React.JSX.Element {
   const tabId = useFocusedTabId()
+  const uiLayout = useSettingsStore((s) => s.uiLayout)
   const closeFindBar = useUIStore((s) => s.closeFindBar)
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState('')
@@ -121,9 +124,12 @@ function FindBarInner(): React.JSX.Element {
     [handleClose, handleNext, handlePrev]
   )
 
+  const topOffset = uiLayout === 'classic' ? CLASSIC_CHROME_HEIGHT + 8 : 12
+
   return (
     <motion.div
-      className="fixed top-3 right-40 z-[25] [app-region:no-drag]"
+      className="fixed right-40 z-[90] [app-region:no-drag]"
+      style={{ top: topOffset }}
       initial={{ y: -40, opacity: 0, scale: 0.95 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
       exit={{ y: -40, opacity: 0, scale: 0.95 }}

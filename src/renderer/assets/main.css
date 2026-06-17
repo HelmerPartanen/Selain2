@@ -162,6 +162,10 @@ body,
 .glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.15); }
 .dark .glass-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
 
+/* Hide scrollbars while keeping scroll functionality */
+.scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* ─── Animations ──────────────────────────────────────────────────────────── */
 
 /* Aurora border rotation for AI panel — Apple Intelligence style */

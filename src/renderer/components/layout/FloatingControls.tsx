@@ -349,7 +349,9 @@ function FloatingControlsInner(): React.JSX.Element {
                 <DownloadPill />
 
                 {/* ── Tab Pod ── */}
-                <TabPill />
+                <div className="flex-shrink-0">
+                  <TabPill />
+                </div>
               </div>
             </div>
 

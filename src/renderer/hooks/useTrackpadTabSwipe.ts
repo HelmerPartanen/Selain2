@@ -5,8 +5,19 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 
 const SWIPE_THRESHOLD = 120
+const SWIPE_GESTURE_RESET_MS = 300
 let swipeDeltaAccumulator = 0
 let swipeTimeoutId = 0
+/** True after one action fires for the current continuous swipe; cleared on pause. */
+let swipeGestureConsumed = false
+
+function scheduleSwipeGestureReset(): void {
+  if (swipeTimeoutId) window.clearTimeout(swipeTimeoutId)
+  swipeTimeoutId = window.setTimeout(() => {
+    swipeDeltaAccumulator = 0
+    swipeGestureConsumed = false
+  }, SWIPE_GESTURE_RESET_MS)
+}
 
 export function handleTabSwipeDelta(deltaX: number, deltaY = 0, ctrlKey = false): void {
   // Overriden by pinch gesture? (trackpad pinch natively triggers wheel with ctrlKey)
@@ -28,70 +39,63 @@ export function handleTabSwipeDelta(deltaX: number, deltaY = 0, ctrlKey = false)
   const ui = useUIStore.getState()
   if (ui.isSettingsOpen || ui.isBookmarksOpen || ui.isHistoryOpen || ui.isDownloadsOpen) return
 
+  scheduleSwipeGestureReset()
+
+  // One continuous swipe → at most one tab switch or navigation
+  if (swipeGestureConsumed) return
+
   swipeDeltaAccumulator += deltaX
 
-  // Reset accumulator if the user pauses swiping
-  if (swipeTimeoutId) window.clearTimeout(swipeTimeoutId)
-  swipeTimeoutId = window.setTimeout(() => {
-    swipeDeltaAccumulator = 0
-  }, 300)
+  if (Math.abs(swipeDeltaAccumulator) < SWIPE_THRESHOLD) return
 
-  if (Math.abs(swipeDeltaAccumulator) >= SWIPE_THRESHOLD) {
-    const direction = swipeDeltaAccumulator > 0 ? 1 : -1 // + => right swipe, - => left swipe
+  const direction = swipeDeltaAccumulator > 0 ? 1 : -1 // + => right swipe, - => left swipe
+  swipeGestureConsumed = true
+  swipeDeltaAccumulator = 0
 
-    const twoFingerSwipeAction = useSettingsStore.getState().twoFingerSwipeAction
-    if (twoFingerSwipeAction === 'navigation') {
-      const { activeTabId } = useTabStore.getState()
-      if (!activeTabId) {
-        swipeDeltaAccumulator = 0
-        return
+  const twoFingerSwipeAction = useSettingsStore.getState().twoFingerSwipeAction
+  if (twoFingerSwipeAction === 'navigation') {
+    const { activeTabId } = useTabStore.getState()
+    if (!activeTabId) return
+
+    const webview = webviewRegistry.get(activeTabId)
+    const tab = useTabStore.getState().tabs[activeTabId]
+
+    // Swipe LEFT => back, RIGHT => forward
+    if (direction < 0) {
+      if (webview && webview.canGoBack()) {
+        webview.goBack()
+      } else if (tab?.virtualBackUrl) {
+        useTabStore.getState().updateTab(activeTabId, {
+          url: tab.virtualBackUrl,
+          virtualForwardUrl: tab.url,
+          virtualBackUrl: null,
+          canGoBack: false,
+          canGoForward: false,
+        })
       }
-
-      const webview = webviewRegistry.get(activeTabId)
-      const tab = useTabStore.getState().tabs[activeTabId]
-
-      // Swipe LEFT => back, RIGHT => forward
-      if (direction < 0) {
-        if (webview && webview.canGoBack()) {
-          webview.goBack()
-        } else if (tab?.virtualBackUrl) {
-          useTabStore.getState().updateTab(activeTabId, {
-            url: tab.virtualBackUrl,
-            virtualForwardUrl: tab.url,
-            virtualBackUrl: null,
-            canGoBack: false,
-            canGoForward: false,
-          })
-        }
+    } else {
+      // forward
+      if (tab && tab.url === 'browser://newtab' && tab.virtualForwardUrl) {
+        useTabStore.getState().updateTab(activeTabId, {
+          url: tab.virtualForwardUrl,
+          virtualBackUrl: tab.url,
+          virtualForwardUrl: null,
+        })
       } else {
-        // forward
-        if (tab && tab.url === 'browser://newtab' && tab.virtualForwardUrl) {
-          useTabStore.getState().updateTab(activeTabId, {
-            url: tab.virtualForwardUrl,
-            virtualBackUrl: tab.url,
-            virtualForwardUrl: null,
-          })
-        } else {
-          webview?.goForward()
-        }
+        webview?.goForward()
       }
+    }
+    return
+  }
 
-      swipeDeltaAccumulator = 0
-      return
-    }
+  // Default: switch tabs
+  const { tabOrder, activeTabId, setActiveTab } = useTabStore.getState()
+  if (!activeTabId || tabOrder.length <= 1) return
 
-    // Default: switch tabs
-    const { tabOrder, activeTabId, setActiveTab } = useTabStore.getState()
-    if (!activeTabId || tabOrder.length <= 1) {
-      swipeDeltaAccumulator = 0
-      return
-    }
-    const idx = tabOrder.indexOf(activeTabId)
-    const nextIdx = idx + direction
-    if (nextIdx >= 0 && nextIdx < tabOrder.length) {
-      setActiveTab(tabOrder[nextIdx]!)
-    }
-    swipeDeltaAccumulator = 0
+  const idx = tabOrder.indexOf(activeTabId)
+  const nextIdx = idx + direction
+  if (nextIdx >= 0 && nextIdx < tabOrder.length) {
+    setActiveTab(tabOrder[nextIdx]!)
   }
 }
 

@@ -7,6 +7,7 @@ import globeSvg from '@/assets/icons/Nature/Globe_2_Fill.svg?raw'
 import { showToast } from '@/components/ui/Toast'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { getPopoverMotion } from '@/utils/popoverPosition'
 import {
   getOriginFromUrl,
   SITE_PERMISSION_LABELS,
@@ -19,6 +20,8 @@ interface SiteInfoPopoverProps {
   onClose: () => void
   url: string
   isSecure: boolean
+  popoverDirection?: 'up' | 'down'
+  anchorLeft?: boolean
 }
 
 const EMPTY_PERMISSION_ENTRIES: SitePermissionEntry[] = []
@@ -28,6 +31,8 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
   onClose,
   url,
   isSecure,
+  popoverDirection = 'up',
+  anchorLeft = false,
 }: SiteInfoPopoverProps) {
   const [siteInfo, setSiteInfo] = useState<Awaited<ReturnType<typeof window.electronAPI.getSiteInfo>> | null>(null)
   const origin = useMemo(() => getOriginFromUrl(url), [url])
@@ -111,6 +116,9 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
     // ignore
   }
 
+  const popoverBelow = popoverDirection === 'down'
+  const { enterY, exitY } = getPopoverMotion(popoverBelow)
+
   return (
 
     <>
@@ -127,8 +135,8 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
 
       {/* Wrapper/animation: same direction/material primitives as AppMenu */}
       <motion.div
-        className="absolute bottom-full z-[100] min-w-[280px]"
-        style={{ originX: 0.5, originY: 1, x: '-50%', left: '50%' }}
+        className={`absolute z-[100] min-w-[280px] ${popoverBelow ? 'top-full mt-2' : 'bottom-full mb-2'} ${anchorLeft ? 'left-0' : 'left-1/2'}`}
+        style={{ originX: anchorLeft ? 0 : 0.5, originY: popoverBelow ? 0 : 1, x: anchorLeft ? 0 : '-50%' }}
 
         initial={
           disableAnimations
@@ -137,7 +145,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: enterY,
                 borderRadius: 40,
                 filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }
@@ -157,7 +165,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: exitY,
                 borderRadius: 40,
                 filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }

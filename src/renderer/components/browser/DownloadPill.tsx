@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState, useRef, useEffect } from 'react'
+import { memo, useCallback, useMemo, useRef, useEffect, useLayoutEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
@@ -8,9 +8,14 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useUIStore } from '@/store/uiStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { formatBytes } from '@/utils/formatUtils'
+import { clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition'
 
 import { SPRING_EXPAND, SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
+
+const DOWNLOAD_POPOVER_WIDTH = 300
+const DOWNLOAD_POPOVER_HEIGHT = 320
 
 const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }): React.JSX.Element {
   const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
@@ -110,9 +115,25 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
 
 function DownloadPillInner(): React.JSX.Element {
   const downloads = useDownloadStore((s) => s.downloads)
-  const [isOpen, setIsOpen] = useState(false)
+  const uiLayout = useSettingsStore((s) => s.uiLayout)
+  const popoverBelow = uiLayout === 'classic'
+  const { enterY, exitY } = getPopoverMotion(popoverBelow)
+  const isOpen = useUIStore((s) => s.isDownloadPopoverOpen)
+  const setDownloadPopoverOpen = useUIStore((s) => s.setDownloadPopoverOpen)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
   const autoHideRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useLayoutEffect(() => {
+    if (!isOpen || !containerRef.current) {
+      setPopoverPos(null)
+      return
+    }
+    const rect = containerRef.current.getBoundingClientRect()
+    const left = Math.max(8, Math.min(rect.right - DOWNLOAD_POPOVER_WIDTH, window.innerWidth - DOWNLOAD_POPOVER_WIDTH - 8))
+    const top = clampPopoverTop(rect, DOWNLOAD_POPOVER_HEIGHT, popoverBelow)
+    setPopoverPos({ left, top })
+  }, [isOpen, popoverBelow])
 
   const items = useMemo(
     () => Object.values(downloads).sort((a, b) => b.startTime - a.startTime),
@@ -154,13 +175,13 @@ function DownloadPillInner(): React.JSX.Element {
 
   const handleOpenPage = useCallback(() => {
     useUIStore.getState().toggleDownloads()
-    setIsOpen(false)
-  }, [])
+    setDownloadPopoverOpen(false)
+  }, [setDownloadPopoverOpen])
 
   // Close dropdown when all items are cleared
   useEffect(() => {
-    if (!hasItems) setIsOpen(false)
-  }, [hasItems])
+    if (!hasItems) setDownloadPopoverOpen(false)
+  }, [hasItems, setDownloadPopoverOpen])
 
   // Circular progress SVG params
   const radius = 7
@@ -178,7 +199,7 @@ function DownloadPillInner(): React.JSX.Element {
             exit={{ width: 0, opacity: 0 }}
             transition={{ ...SPRING_EXPAND, opacity: { duration: 0.15 } }}
             style={{ overflow: 'hidden', flexShrink: 0 }}
-            onClick={() => setIsOpen((v) => !v)}
+            onClick={() => setDownloadPopoverOpen(!isOpen)}
             aria-label="Downloads"
             className="h-10 rounded-full flex items-center justify-center glass px-3 gap-1.5 select-none hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-95 transition-colors duration-100"
           >
@@ -215,18 +236,15 @@ function DownloadPillInner(): React.JSX.Element {
       </AnimatePresence>
 
       <AnimatePresence>
-        {isOpen && hasItems && (
-          <>
-            {/* Click-away */}
-            <div className="fixed inset-0 z-[99]" onMouseDown={() => setIsOpen(false)} />
-            <motion.div
-              className="absolute bottom-full mb-2 right-0 z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden glass-heavy"
-              style={{ originY: 1, originX: 1 }}
-              initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: 8 }}
-              animate={{ scaleY: 1, scaleX: 1, opacity: 1, y: 0 }}
-              exit={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: 8 }}
-              transition={{ ...SPRING_POPUP, opacity: { duration: 0.12 } }}
-            >
+        {isOpen && hasItems && popoverPos && (
+          <motion.div
+            className="fixed z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden glass-heavy"
+            style={{ left: popoverPos.left, top: popoverPos.top, originY: popoverBelow ? 0 : 1, originX: 1 }}
+            initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: enterY }}
+            animate={{ scaleY: 1, scaleX: 1, opacity: 1, y: 0 }}
+            exit={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: exitY }}
+            transition={{ ...SPRING_POPUP, opacity: { duration: 0.12 } }}
+          >
               <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
                 <span className="text-xs font-semibold text-gray-500 dark:text-neutral-500 uppercase tracking-wide">
                   Downloads
@@ -244,7 +262,6 @@ function DownloadPillInner(): React.JSX.Element {
                 ))}
               </div>
             </motion.div>
-          </>
         )}
       </AnimatePresence>
     </div>

@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Desc, SectionHeader, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
-import { useSettingsStore, UI_ZOOM_OPTIONS } from "@/store/settingsStore";
+import { useSettingsStore, UI_ZOOM_OPTIONS, type UiLayout } from "@/store/settingsStore";
 import { SPRING_SNAPPY } from "@/utils/springs";
 import sunSvg from "@/assets/icons/Weather/Sun_1.svg?raw";
 import moonSvg from "@/assets/icons/Weather/Moon.svg?raw";
@@ -26,6 +26,26 @@ function AppearancePaneInner(): React.JSX.Element {
   const zoomCommitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoHideDelay = useSettingsStore((s) => s.autoHideDelay);
   const setAutoHideDelay = useSettingsStore((s) => s.setAutoHideDelay);
+  const uiLayout = useSettingsStore((s) => s.uiLayout);
+  const setUiLayout = useSettingsStore((s) => s.setUiLayout);
+
+  const renderLayoutButton = (layout: UiLayout, label: string) => {
+    const active = uiLayout === layout;
+    return (
+      <button
+        type="button"
+        onClick={() => setUiLayout(layout)}
+        className={[
+          "relative flex-1 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-150",
+          active
+            ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
+            : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
+        ].join(" ")}
+      >
+        {label}
+      </button>
+    );
+  };
 
 
   useEffect(() => {
@@ -105,10 +125,24 @@ function AppearancePaneInner(): React.JSX.Element {
       </div>
 
       <div>
+        <SectionHeader>Browser Layout</SectionHeader>
+        <Desc>
+          Choose between the floating toolbar or a classic browser layout with a tab strip and address bar.
+        </Desc>
+        <div className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]">
+          {renderLayoutButton("floating", "Floating")}
+          {renderLayoutButton("classic", "Classic")}
+        </div>
+      </div>
+
+      <div>
         <SectionHeader>Toolbar Auto-Hide</SectionHeader>
         <Desc>
-          How long the floating toolbar stays visible after inactivity.
+          {uiLayout === 'floating'
+            ? 'How long the floating toolbar stays visible after inactivity.'
+            : 'Auto-hide only applies to the floating layout.'}
         </Desc>
+        {uiLayout === 'floating' ? (
         <div className="flex items-center gap-3">
           <input
             type="range"
@@ -131,6 +165,11 @@ function AppearancePaneInner(): React.JSX.Element {
             {(autoHideDelay / 1000).toFixed(1)}s
           </span>
         </div>
+        ) : (
+          <p className="text-[12px] text-gray-400 dark:text-neutral-500">
+            Switch to the floating layout to configure auto-hide.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -46,7 +46,7 @@ const ContextMenuItem = memo(function ContextMenuItem({
   )
 })
 
-function TabContextMenu({ tabId, x, y, onClose }: {
+export function TabContextMenu({ tabId, x, y, onClose }: {
   tabId: string
   x: number
   y: number
@@ -118,7 +118,7 @@ function ActiveFavicon(): React.JSX.Element {
   return <SvgIcon svg={globeSvg} size={14} className="text-gray-400" />
 }
 
-const TabRow = memo(function TabRow({
+export const TabRow = memo(function TabRow({
   tabId,
   isActive,
   isSplitTarget,

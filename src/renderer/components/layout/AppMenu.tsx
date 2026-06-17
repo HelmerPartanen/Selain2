@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useShallow } from 'zustand/react/shallow';
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -17,6 +17,10 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
 import { normalizeURL, isValidHomepageUrl } from "@/utils/urlUtils";
 import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs';
+import { clampPopoverLeft, getPopoverMotion } from '@/utils/popoverPosition';
+
+const MENU_WIDTH = 280;
+const MENU_ESTIMATED_HEIGHT = 420;
 
 const menuItems = [
   { id: "new-tab", label: "New Tab", icon: plusSvg, shortcut: "Ctrl+T" },
@@ -48,6 +52,24 @@ function AppMenuInner(): React.JSX.Element {
   })));
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
+  const uiLayout = useSettingsStore((s) => s.uiLayout)
+  const popoverBelow = uiLayout === 'classic'
+  const { enterY, exitY } = getPopoverMotion(popoverBelow)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
+
+  useLayoutEffect(() => {
+    if (!isOpen || !triggerRef.current) {
+      setMenuPos(null)
+      return
+    }
+    const rect = triggerRef.current.getBoundingClientRect()
+    const left = clampPopoverLeft(rect, MENU_WIDTH)
+    const top = popoverBelow
+      ? rect.bottom + 8
+      : rect.top - MENU_ESTIMATED_HEIGHT - 8
+    setMenuPos({ left, top: Math.max(8, top) })
+  }, [isOpen, popoverBelow])
   const isPanelOpen =
     isSettingsOpen ||
     isBookmarksOpen ||
@@ -101,7 +123,7 @@ function AppMenuInner(): React.JSX.Element {
   const actionableItems = menuItems.filter((item) => !item.id.startsWith("divider"));
 
   return (
-    <div className="relative">
+    <div className="relative" ref={triggerRef}>
       <motion.button
         onClick={handleToggle}
         aria-label="Menu"
@@ -109,7 +131,7 @@ function AppMenuInner(): React.JSX.Element {
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        className="h-10 w-10 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+        className="h-9 w-9 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
           <motion.span
@@ -138,18 +160,18 @@ function AppMenuInner(): React.JSX.Element {
       </motion.button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && menuPos && (
           <>
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="absolute bottom-full left-1/2 z-[100] min-w-[280px]"
-              style={{ originX: 0.5, originY: 1, x: "-50%" }}
+              className="fixed z-[100] min-w-[280px]"
+              style={{ left: menuPos.left, top: menuPos.top, originX: 0.5, originY: popoverBelow ? 0 : 1 }}
               initial={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: enterY,
                 borderRadius: 40,
                 filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
@@ -165,7 +187,7 @@ function AppMenuInner(): React.JSX.Element {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
-                y: 10,
+                y: exitY,
                 borderRadius: 40,
                 filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
@@ -178,7 +200,7 @@ function AppMenuInner(): React.JSX.Element {
                 filter: { duration: 0.2 },
               }}
             >
-              <div className={`rounded-xl mb-2 shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+              <div className={`rounded-xl shadow-sm overflow-hidden ${popoverBelow ? 'mt-0' : 'mb-2'} ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
                 <div className="p-1 relative">
                   {actionableItems.map((item, idx) => {
                     const Icon = item.icon!;

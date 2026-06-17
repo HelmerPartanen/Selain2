@@ -38,6 +38,7 @@ interface ProfileBackup {
     enableAdblocker: boolean
     disableAnimations: boolean
     disableBlurEffects: boolean
+    uiLayout?: 'floating' | 'classic'
   }
 }
 
@@ -76,6 +77,7 @@ function PrivacyPaneInner(): React.JSX.Element {
         enableAdblocker: s.enableAdblocker,
         disableAnimations: s.disableAnimations,
         disableBlurEffects: s.disableBlurEffects,
+        uiLayout: s.uiLayout,
       },
     }
     const success = await window.electronAPI.exportProfileBackup(JSON.stringify(backup, null, 2))
@@ -118,6 +120,7 @@ function PrivacyPaneInner(): React.JSX.Element {
         if (typeof st.enableAdblocker === 'boolean') s.setEnableAdblocker(st.enableAdblocker)
         if (typeof st.disableAnimations === 'boolean') s.setDisableAnimations(st.disableAnimations)
         if (typeof st.disableBlurEffects === 'boolean') s.setDisableBlurEffects(st.disableBlurEffects)
+        if (st.uiLayout === 'floating' || st.uiLayout === 'classic') s.setUiLayout(st.uiLayout)
       }
 
       showToast({ message: 'Profile imported successfully', type: 'success' })

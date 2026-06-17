@@ -12,6 +12,7 @@ export type NewTabMode = 'bookmarks' | 'blank'
 export type PrivacyProfile = 'standard' | 'strict' | 'private'
 export type TabsButtonAction = 'overview' | 'menu'
 export type TwoFingerSwipeAction = 'tabs' | 'navigation'
+export type UiLayout = 'floating' | 'classic'
 
 export interface SettingsState {
   /** Restore previous session tabs on startup */
@@ -57,6 +58,9 @@ export interface SettingsState {
 
   /** What the tabs count button opens */
   tabsButtonAction: TabsButtonAction
+
+  /** Browser chrome layout: floating toolbar or classic tab strip + toolbar */
+  uiLayout: UiLayout
 }
 
 export interface SettingsActions {
@@ -81,6 +85,7 @@ export interface SettingsActions {
   setDisableBlurEffects: (v: boolean) => void
   setTwoFingerSwipeAction: (v: TwoFingerSwipeAction) => void
   setTabsButtonAction: (v: TabsButtonAction) => void
+  setUiLayout: (v: UiLayout) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -111,6 +116,7 @@ export const useSettingsStore = create<SettingsStore>()(
       disableBlurEffects: false,
       twoFingerSwipeAction: 'tabs' as TwoFingerSwipeAction,
       tabsButtonAction: 'overview' as TabsButtonAction,
+      uiLayout: 'floating' as UiLayout,
 
       // ── Actions ──
       setRestoreTabs: (v) => set({ restoreTabs: v }),
@@ -133,11 +139,20 @@ export const useSettingsStore = create<SettingsStore>()(
       setDisableBlurEffects: (v) => set({ disableBlurEffects: v }),
       setTwoFingerSwipeAction: (v) => set({ twoFingerSwipeAction: v }),
       setTabsButtonAction: (v) => set({ tabsButtonAction: v }),
+      setUiLayout: (v) => set({ uiLayout: v }),
     }),
-    { name: 'browser-settings', version: 1, storage: createIPCStorage<SettingsStore>({
+    { name: 'browser-settings', version: 2, storage: createIPCStorage<SettingsStore>({
         onParseError(name) {
           logger.error(`[settingsStore] Corrupted persisted data for '${name}' detected; using default settings`)
         }
-      }) }
+      }),
+      migrate: (persisted) => {
+        const state = persisted as Partial<SettingsState> | undefined
+        return {
+          ...state,
+          uiLayout: state?.uiLayout ?? 'floating',
+        } as SettingsState
+      },
+    }
   )
 )
