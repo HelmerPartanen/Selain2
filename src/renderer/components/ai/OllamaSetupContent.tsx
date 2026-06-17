@@ -8,6 +8,7 @@ import { useAIStore, type AIStatus } from '@/store/aiStore'
 import ollamaIcon from '@/assets/ollama/ollama-icon.svg'
 import { CONTENT_HEIGHT } from './constants'
 import boxSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
+import bookTextSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
 import { SvgIcon } from '../ui/SvgIcon'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -171,10 +172,10 @@ function ServiceDownScreen({ onRetry }: { onRetry: () => void }): React.JSX.Elem
   return (
     <SetupShell>
       <div
-        className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg"
+        className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
         style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
       >
-        ⚡
+        <SvgIcon svg={bookTextSvg} size={18} className="text-amber-500" />
       </div>
 
       <div className="space-y-1.5">

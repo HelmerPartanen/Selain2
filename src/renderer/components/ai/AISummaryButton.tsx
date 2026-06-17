@@ -165,7 +165,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
 
           {/* AI SUMMARY (INDEX 0) */}
           <motion.button
-            onClick={openAIFullscreen}
+            onClick={() => { openAIFullscreen(); handleToggle(); }}
             className={`${toolButtonClass} ${surfaceClass} absolute`}
             animate={{
               ...getOffset(0),
@@ -184,7 +184,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
 
           {/* READER MODE (INDEX 1) */}
           <motion.button
-            onClick={openReaderMode}
+            onClick={() => { openReaderMode(); handleToggle(); }}
             className={`${toolButtonClass} ${surfaceClass} absolute`}
             animate={{
               ...getOffset(1),
