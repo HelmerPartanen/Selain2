@@ -1,5 +1,4 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useShallow } from 'zustand/react/shallow';
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -55,14 +54,9 @@ function AppMenuInner(): React.JSX.Element {
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const uiLayout = useSettingsStore((s) => s.uiLayout)
   const popoverBelow = uiLayout === 'classic'
-  const { enterY, exitY } = getPopoverMotion(popoverBelow)
+const { enterY, exitY } = getPopoverMotion(popoverBelow)
   const triggerRef = useRef<HTMLDivElement>(null)
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useLayoutEffect(() => {
     if (!isOpen || !triggerRef.current) {
@@ -170,21 +164,20 @@ function AppMenuInner(): React.JSX.Element {
         </div>
       </motion.button>
 
-      {mounted && createPortal(
-        <AnimatePresence>
-          {isOpen && (
-            <>
-              {/* Click-away */}
-              <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
-              <motion.div
-                className="fixed z-[100] min-w-[280px]"
-                style={{
-                  left: menuPos?.left,
-                  top: menuPos?.top,
-                  originX: 0.5,
-                  originY: popoverBelow ? 0 : 1,
-                }}
-                initial={disableAnimations ? undefined : {
+      <AnimatePresence>
+        {isOpen && menuPos && (
+          <>
+            {/* Click-away */}
+            <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
+            <motion.div
+              className="fixed z-[100] min-w-[280px]"
+              style={{
+                left: menuPos?.left,
+                top: menuPos?.top,
+                originX: 0.5,
+                originY: popoverBelow ? 0 : 1,
+              }}
+              initial={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
                 opacity: 0,
