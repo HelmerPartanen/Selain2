@@ -39,10 +39,10 @@ function ReadingToolsButtonInner(): React.JSX.Element {
 
   const surfaceClass = disableBlurEffects
     ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
-    : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg border border-black/5 dark:border-white/5'
+    : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
 
   const toolButtonClass =
-    'h-11 w-11 rounded-xl flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none hover:bg-black/[0.04] dark:hover:bg-white/[0.06] shrink-0'
+    'h-11 w-11 rounded-xl flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none hover:brightness-90 dark:hover:brightness-120 shrink-0'
 
   // -------------------------
   // HOVER
@@ -89,7 +89,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
   // POSITIONING
   // -------------------------
   const getOffset = (index: number) => {
-    const spacing = 58
+    const spacing = 52
     return {
       x: expanded ? -(index + 1) * spacing : 0,
       y: 0,
@@ -177,7 +177,6 @@ function ReadingToolsButtonInner(): React.JSX.Element {
               delay: getDelay(0),
             }}
             style={{ zIndex: 20 }}
-            whileHover={{ scale: 1.08, y: -2 }}
             whileTap={{ scale: 0.85 }}
           >
             <SvgIcon svg={summarySvg} size={18} className="text-blue-400" />
@@ -197,7 +196,6 @@ function ReadingToolsButtonInner(): React.JSX.Element {
               delay: getDelay(1),
             }}
             style={{ zIndex: 10 }}
-            whileHover={{ scale: 1.08, y: -2 }}
             whileTap={{ scale: 0.85 }}
           >
             <SvgIcon svg={bookTextSvg} size={18} className="text-emerald-500" />
