@@ -202,7 +202,7 @@ function FloatingControlsInner(): React.JSX.Element {
           <AnimatePresence>
             {!isIdle && (
               <motion.div
-                className="absolute bottom-0 left-0 right-0 h-32 pointer-events-auto"
+                className="absolute bottom-0 left-0 right-0 h-2 pointer-events-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -218,8 +218,8 @@ function FloatingControlsInner(): React.JSX.Element {
               <motion.div
                 className="absolute bottom-2 pointer-events-auto [app-region:no-drag]"
                 initial={disableAnimations ? undefined : { opacity: 0, scaleX: 0.5 }}
-                animate={{ opacity: 1, scaleX: 1 }}
-                exit={disableAnimations ? undefined : { opacity: 0, scaleX: 0.5 }}
+              animate={{ opacity: 1, scaleX: 1 }}
+              exit={disableAnimations ? undefined : { opacity: 0, scaleX: 0.6 }}
                 transition={disableAnimations ? { duration: 0 } : { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
@@ -235,7 +235,7 @@ function FloatingControlsInner(): React.JSX.Element {
           {/* Floating controls — frosted glass surface with backdrop blur */}
           <motion.div
             layout
-            className={`absolute bottom-5 p-1 rounded-xl [app-region:no-drag] pointer-events-auto shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg border border-black/5 dark:border-white/5'}`}
+            className={`absolute bottom-2 p-1 rounded-xl [app-region:no-drag] pointer-events-auto shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg border border-black/5 dark:border-white/5'}`}
             initial={disableAnimations ? undefined : { y: 40, scale: 0.85, opacity: 0 }}
             animate={
               isIdle

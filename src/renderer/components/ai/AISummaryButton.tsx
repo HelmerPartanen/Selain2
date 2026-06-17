@@ -1,78 +1,212 @@
-import { memo, useCallback, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { memo, useEffect, useRef, useState } from 'react'
+import { motion } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import summarySvg from '@/assets/icons/Interface/Summary.svg?raw'
+import summarySvg from '@/assets/icons/Interface/Summary2.svg?raw'
+import bookTextSvg from '@/assets/icons/Objects/Book_Text.svg?raw'
+import bookMenuSvg from '@/assets/icons/Interface/ToolMenu.svg?raw'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING_SNAPPY } from '@/utils/springs'
-import { useAIStore } from '@/store/aiStore'
 
-// ── Main component ──────────────────────────────────────────────────────────
+const AUTOHIDE_DELAY = 650
+const CLOSE_MS = 220
 
-function AISummaryButtonInner(): React.JSX.Element {
-  const { isOpen, toggleAISummary, closeAISummary, openAIFullscreen } = useUIStore(useShallow((s) => ({
-    isOpen: s.isAISummaryOpen,
-    toggleAISummary: s.toggleAISummary,
-    closeAISummary: s.closeAISummary,
-    openAIFullscreen: s.openAIFullscreen,
-  })))
-  const aiStatus = useAIStore((s) => s.status)
-  const checkAIStatus = useAIStore((s) => s.checkStatus)
+function ReadingToolsButtonInner(): React.JSX.Element {
+  const { openAIFullscreen, openReaderMode } = useUIStore(
+    useShallow((s) => ({
+      openAIFullscreen: s.openAIFullscreen,
+      openReaderMode: s.openReaderMode,
+    }))
+  )
+
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
-  const isAIReady = aiStatus === 'ready'
-  const [isHovered, setIsHovered] = useState(false)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
-  // Open fullscreen instead of panel
-  const handleOpenFullscreen = useCallback(() => {
-    openAIFullscreen()
-  }, [openAIFullscreen])
+  const [hovered, setHovered] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [closing, setClosing] = useState(false)
+  const [tilt, setTilt] = useState(false)
 
-  // Check AI status on component mount
-  useEffect(() => {
-    if (aiStatus === 'idle') {
-      checkAIStatus()
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const transition = disableAnimations ? { duration: 0 } : SPRING_SNAPPY
+
+  const isOpen = open
+  const isClosing = closing
+  const isOpening = open && !closing
+  const expanded = hovered || open || closing
+
+  const surfaceClass = disableBlurEffects
+    ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
+    : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg border border-black/5 dark:border-white/5'
+
+  const toolButtonClass =
+    'h-11 w-11 rounded-xl flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none hover:bg-black/[0.04] dark:hover:bg-white/[0.06] shrink-0'
+
+  // -------------------------
+  // HOVER
+  // -------------------------
+  const handleEnter = () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    setHovered(true)
+  }
+
+  const handleLeave = () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+
+    hideTimer.current = setTimeout(() => {
+      setHovered(false)
+    }, AUTOHIDE_DELAY)
+  }
+
+  // -------------------------
+  // TOGGLE
+  // -------------------------
+  const handleToggle = () => {
+    if (open) {
+      setClosing(true)
+      setOpen(false)
+
+      setTimeout(() => setClosing(false), CLOSE_MS)
+    } else {
+      setOpen(true)
     }
-  }, [aiStatus, checkAIStatus])
+  }
+
+  const triggerTilt = () => {
+    setTilt(true)
+    setTimeout(() => setTilt(false), 200)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current)
+    }
+  }, [])
+
+  // -------------------------
+  // POSITIONING
+  // -------------------------
+  const getOffset = (index: number) => {
+    const spacing = 58
+    return {
+      x: expanded ? -(index + 1) * spacing : 0,
+      y: 0,
+    }
+  }
+
+  // -------------------------
+  // STAGGER LOGIC (KEY FIX)
+  // -------------------------
+  const getDelay = (index: number) => {
+    if (disableAnimations) return 0
+
+    // OPEN: AI first, Reader second
+    if (isOpening) return index * 0.05
+
+    // CLOSE: Reader first, AI second (REVERSED)
+    if (isClosing) return (1 - index) * 0.05
+
+    return 0
+  }
 
   return (
-    <>
-      {/* Bottom-right hover trigger zone */}
-      <div
-        className="fixed bottom-0 right-0 w-20 h-20 z-[95] [app-region:no-drag]"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      />
+    <div className="fixed inset-0 z-[95] pointer-events-none">
+      <div className="absolute inset-0 flex items-end justify-end p-2 pointer-events-none">
 
-      {/* Floating AI button */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            className="fixed bottom-5 right-5 z-[95] [app-region:no-drag]"
-            initial={{ scale: 0.5, opacity: 0, filter: 'blur(6px)' }}
-            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-            exit={{ scale: 0.5, opacity: 0, filter: 'blur(6px)' }}
-            transition={SPRING_SNAPPY}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+        {/* HOT ZONE */}
+        <div
+          className="absolute bottom-0 right-0 w-24 h-24 pointer-events-auto"
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+        />
+
+        {/* STACK */}
+        <motion.div
+          className="relative flex items-center pointer-events-auto"
+          animate={{
+            opacity: expanded ? 1 : 0,
+            y: expanded ? 0 : 20,
+            scale: expanded ? 1 : 0.95,
+          }}
+          transition={transition}
+        >
+
+          {/* TOOLBOX */}
+          <motion.button
+            aria-label="Toolbox"
+            onClick={() => {
+              handleToggle()
+              triggerTilt()
+            }}
+            className={`${toolButtonClass} ${surfaceClass} relative z-30`}
+            onMouseEnter={handleEnter}
+            onMouseLeave={handleLeave}
+            animate={{
+              rotate: open ? -18 : tilt ? -18 : 0,
+              scale: expanded ? 1 : 0.9,
+            }}
+            transition={transition}
           >
-            <div className={`relative rounded-full overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
-              {/* Trigger button - opens fullscreen AI page */}
-              <motion.button
-                onClick={handleOpenFullscreen}
-                aria-label="AI Summary - Fullscreen"
-                whileTap={{ scale: 0.82 }}
-                transition={SPRING_SNAPPY}
-                className={`h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xs border border-black/5 dark:border-white/5 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'}`}
-              >
-                <SvgIcon svg={summarySvg} size={18} className="text-blue-400 dark:text-blue-400" />
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+            <motion.div
+              animate={open || tilt ? { rotate: -25 } : { rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+            >
+        <div style={{ display: 'flex' }}>
+              <SvgIcon
+                svg={bookMenuSvg}
+                size={18}
+                className="text-violet-500 dark:text-violet-400"
+              />
+              </div>
+            </motion.div>
+          </motion.button>
+
+          {/* AI SUMMARY (INDEX 0) */}
+          <motion.button
+            onClick={openAIFullscreen}
+            className={`${toolButtonClass} ${surfaceClass} absolute`}
+            animate={{
+              ...getOffset(0),
+              opacity: isOpen ? 1 : 0,
+              scale: isOpen ? 1 : 0.7,
+            }}
+            transition={{
+              ...transition,
+              delay: getDelay(0),
+            }}
+            style={{ zIndex: 20 }}
+            whileHover={{ scale: 1.08, y: -2 }}
+            whileTap={{ scale: 0.85 }}
+          >
+            <SvgIcon svg={summarySvg} size={18} className="text-blue-400" />
+          </motion.button>
+
+          {/* READER MODE (INDEX 1) */}
+          <motion.button
+            onClick={openReaderMode}
+            className={`${toolButtonClass} ${surfaceClass} absolute`}
+            animate={{
+              ...getOffset(1),
+              opacity: isOpen ? 1 : 0,
+              scale: isOpen ? 1 : 0.7,
+            }}
+            transition={{
+              ...transition,
+              delay: getDelay(1),
+            }}
+            style={{ zIndex: 10 }}
+            whileHover={{ scale: 1.08, y: -2 }}
+            whileTap={{ scale: 0.85 }}
+          >
+            <SvgIcon svg={bookTextSvg} size={18} className="text-emerald-500" />
+          </motion.button>
+
+        </motion.div>
+      </div>
+    </div>
   )
 }
 
-export const AISummaryButton = memo(AISummaryButtonInner)
+export const AISummaryButton = memo(ReadingToolsButtonInner)

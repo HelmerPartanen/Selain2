@@ -39,6 +39,7 @@ import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { onSessionRestoreFailed } from "@/store/tabStore";
 import { AISummaryButton } from "@/components/ai/AISummaryButton";
 import { AIFullscreenPage } from "@/components/ai/AIFullscreenPage";
+import { ReaderModePage } from "@/components/reader/ReaderModePage";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useHistoryStore } from "@/store/historyStore";
 import { useDownloadStore } from "@/store/downloadStore";
@@ -415,6 +416,9 @@ function BrowserLayoutInner(): React.JSX.Element {
 
       {/* AI Fullscreen page */}
       <AIFullscreenPage />
+
+      {/* Reader mode overlay */}
+      <ReaderModePage />
 
       {/* Find bar */}
       <AnimatePresence>{isFindBarOpen && <FindBar />}</AnimatePresence>

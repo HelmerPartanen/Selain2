@@ -13,6 +13,7 @@ interface UIState {
   isAISummaryOpen: boolean
   isAIFullscreenOpen: boolean
   isAISummaryOverlayVisible: boolean
+  isReaderModeOpen: boolean
   splitRatio: number
   urlBarFocusRequested: boolean
 
@@ -38,6 +39,8 @@ interface UIState {
   openAIFullscreen: () => void
   closeAIFullscreen: () => void
   toggleAISummaryOverlay: () => void
+  openReaderMode: () => void
+  closeReaderMode: () => void
   setSplitRatio: (ratio: number) => void
   requestUrlBarFocus: () => void
   clearUrlBarFocus: () => void
@@ -52,6 +55,7 @@ const PANELS_CLOSED = {
   isTabOverviewOpen: false,
   isAISummaryOpen: false,
   isAIFullscreenOpen: false,
+  isReaderModeOpen: false,
 } as const
 
 export const useUIStore = create<UIState>((set) => ({
@@ -66,6 +70,7 @@ export const useUIStore = create<UIState>((set) => ({
   isAISummaryOpen: false,
   isAIFullscreenOpen: false,
   isAISummaryOverlayVisible: false,
+  isReaderModeOpen: false,
   isFindBarOpen: false,
   splitRatio: 0.5,
   urlBarFocusRequested: false,
@@ -95,6 +100,8 @@ export const useUIStore = create<UIState>((set) => ({
   openAIFullscreen: () => set((s) => ({ ...PANELS_CLOSED, isAIFullscreenOpen: true, isAISummaryOverlayVisible: false })),
   closeAIFullscreen: () => set({ isAIFullscreenOpen: false, isAISummaryOverlayVisible: false }),
   toggleAISummaryOverlay: () => set((s) => ({ isAISummaryOverlayVisible: !s.isAISummaryOverlayVisible })),
+  openReaderMode: () => set((s) => ({ ...PANELS_CLOSED, isReaderModeOpen: true })),
+  closeReaderMode: () => set({ isReaderModeOpen: false }),
   setSplitRatio: (ratio) => set({ splitRatio: Math.max(0.25, Math.min(0.75, ratio)) }),
   requestUrlBarFocus: () => set({ urlBarFocusRequested: true }),
   clearUrlBarFocus: () => set({ urlBarFocusRequested: false })
