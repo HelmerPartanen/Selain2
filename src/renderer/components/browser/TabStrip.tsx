@@ -151,7 +151,7 @@ const TabStripItem = memo(function TabStripItem({
         maxWidth: TAB_MAX_WIDTH,
       }}
       title={compactMode !== "full" ? title : undefined}
-      className={`group relative flex items-center h-9 rounded-lg text-left transition-colors duration-100 overflow-hidden flex-shrink ${
+      className={`group relative flex items-center h-8 rounded-lg text-left transition-colors duration-100 overflow-hidden flex-shrink focus:outline-none ${
         compactMode === "icon"
           ? "justify-center px-1 gap-0"
           : compactMode === "compact"
@@ -159,8 +159,8 @@ const TabStripItem = memo(function TabStripItem({
             : "px-3 gap-2"
       } ${
         isHighlighted
-          ? "bg-black/[0.08] dark:bg-white/[0.12] text-gray-900 dark:text-white"
-          : "bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-gray-600 dark:text-neutral-400"
+          ? "bg-white dark:bg-white/[0.12] text-gray-900 dark:text-white"
+          : "bg-black/[0.08] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-gray-600 dark:text-neutral-400 border border-transparent"
       }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
@@ -332,7 +332,7 @@ function TabStripInner(): React.JSX.Element {
   }, [setTabStripMenuOpen]);
 
   return (
-    <div className="flex items-end flex-1 min-w-0 gap-1">
+    <div className="flex items-center flex-1 min-w-0 gap-1">
       <div
         ref={tabsContainerRef}
         className="flex items-end flex-1 min-w-0 gap-0.5 overflow-hidden [app-region:no-drag]"
@@ -354,30 +354,15 @@ function TabStripInner(): React.JSX.Element {
       </div>
 
       <div
-        className={`flex items-center gap-0.5 flex-shrink-0 [app-region:no-drag] relative z-10 pl-1 ${trailingSurface}`}
+        className={`flex items-center gap-0.5 flex-shrink-0 [app-region:no-drag] relative z-10 pl-1`}
       >
         <button
           type="button"
           onClick={handleAddTab}
           aria-label="New tab"
-          className="h-7 w-7 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors"
+          className="h-8 w-8 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors"
         >
           <SvgIcon svg={plusSvg} size={14} />
-        </button>
-
-        <button
-          type="button"
-          onClick={handleTabOverview}
-          aria-label={tabsButtonAction === "menu" ? "Tab list" : "Tab overview"}
-          className="relative h-7 w-7 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors"
-        >
-          <SvgIcon svg={tabsSvg} size={14} />
-
-          {tabOrder.length > 1 && (
-            <span className="absolute -top-1 -right-1 min-w-[14px] h-3.5 bg-blue-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none pointer-events-none">
-              {tabOrder.length > 99 ? "99+" : tabOrder.length}
-            </span>
-          )}
         </button>
 
         <AnimatePresence>
@@ -421,20 +406,6 @@ function TabStripInner(): React.JSX.Element {
                   ))}
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence initial={false}>
-          {bgMediaPlaying && (
-            <motion.div
-              key="bg-audio-badge"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-sm"
-            >
-              <SvgIcon svg={soundFillSvg} size={11} className="text-white" />
             </motion.div>
           )}
         </AnimatePresence>

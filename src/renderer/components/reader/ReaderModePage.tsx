@@ -11,7 +11,6 @@ import { extractReaderContent, type ReaderArticle } from '@/utils/extractReaderC
 import { useFocusedTabId } from '@/hooks/useTabSelector'
 import { SPRING, SPRING_CONTENT, SPRING_SNAPPY } from '@/utils/springs'
 
-// Inject styles once at module level — never on re-render
 const READER_STYLE_ID = 'reader-mode-styles'
 if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)) {
   const style = document.createElement('style')
@@ -23,20 +22,17 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       font-size: 18.5px;
       line-height: 1.82;
       letter-spacing: 0.008em;
-      color: #1c1c1c;
+      color: inherit;
       -webkit-font-smoothing: antialiased;
       font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
       word-spacing: 0.01em;
     }
-    @media (prefers-color-scheme: dark) {
-      .reader-content { color: #d8d8d8; }
-    }
-    .dark .reader-content { color: #d8d8d8; }
 
     /* ─── Paragraphs ─────────────────────────────────────────────────── */
     .reader-content p {
       margin: 0 0 1.55em;
       hanging-punctuation: first last;
+      color: inherit;
     }
     .reader-content p + p { text-indent: 0; }
 
@@ -52,10 +48,6 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       color: #111111;
       margin: 2.6em 0 0.65em;
     }
-    .dark .reader-content h1,
-    .dark .reader-content h2,
-    .dark .reader-content h3,
-    .dark .reader-content h4 { color: #ededed; }
     .reader-content h1 { font-size: 1.65rem; }
     .reader-content h2 { font-size: 1.35rem; }
     .reader-content h3 { font-size: 1.12rem; letter-spacing: -0.01em; }
@@ -69,9 +61,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       text-underline-offset: 3px;
       transition: color 0.15s ease;
     }
-    .dark .reader-content a { color: #5b9ef5; }
     .reader-content a:hover { color: #0f4a99; }
-    .dark .reader-content a:hover { color: #82b8ff; }
 
     /* ─── Images ─────────────────────────────────────────────────────── */
     .reader-content img {
@@ -80,7 +70,6 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       border-radius: 5px;
       margin: 1.8em 0;
       display: block;
-      /* Prevent layout thrash while images load */
       content-visibility: auto;
     }
 
@@ -91,11 +80,10 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       font-size: 13px;
       line-height: 1.5;
       letter-spacing: 0.01em;
-      color: #888;
+      color: #6b6b6b;
       margin-top: 0.6em;
       text-align: center;
     }
-    .dark .reader-content figcaption { color: #666; }
 
     /* ─── Blockquotes ────────────────────────────────────────────────── */
     .reader-content blockquote {
@@ -103,11 +91,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       padding: 0.1em 0 0.1em 1.25em;
       border-left: 3px solid rgba(0,0,0,0.15);
       font-style: italic;
-      color: #3a3a3a;
-    }
-    .dark .reader-content blockquote {
-      border-left-color: rgba(255,255,255,0.18);
-      color: #b0b0b0;
+      color: #2a2a2a;
     }
     .reader-content blockquote p { font-size: 1.06em; line-height: 1.75; }
 
@@ -119,8 +103,8 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       border-radius: 3px;
       padding: 0.15em 0.38em;
       letter-spacing: -0.01em;
+      color: #1a1a1a;
     }
-    .dark .reader-content code { background: rgba(255,255,255,0.09); }
     .reader-content pre {
       background: rgba(0,0,0,0.04);
       border: 1px solid rgba(0,0,0,0.08);
@@ -129,23 +113,19 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       overflow-x: auto;
       margin: 1.5em 0;
     }
-    .dark .reader-content pre {
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.08);
-    }
     .reader-content pre code {
       background: none;
       padding: 0;
       font-size: 0.875em;
       line-height: 1.65;
+      color: inherit;
     }
 
     /* ─── Lists ──────────────────────────────────────────────────────── */
     .reader-content ul,
     .reader-content ol { margin: 0 0 1.55em; padding-left: 1.6em; }
-    .reader-content li { margin-bottom: 0.5em; padding-left: 0.15em; }
-    .reader-content li::marker { color: #999; }
-    .dark .reader-content li::marker { color: #666; }
+    .reader-content li { margin-bottom: 0.5em; padding-left: 0.15em; color: inherit; }
+    .reader-content li::marker { color: #888; }
 
     /* ─── Horizontal rules ───────────────────────────────────────────── */
     .reader-content hr {
@@ -154,7 +134,6 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       margin: 2.5em auto;
       width: 40%;
     }
-    .dark .reader-content hr { border-top-color: rgba(255,255,255,0.1); }
 
     /* ─── Tables ─────────────────────────────────────────────────────── */
     .reader-content table {
@@ -172,32 +151,23 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       text-transform: uppercase;
       border-bottom: 2px solid rgba(0,0,0,0.12);
       padding: 0.5em 0.75em 0.5em 0;
-      color: #555;
-    }
-    .dark .reader-content th {
-      border-bottom-color: rgba(255,255,255,0.12);
-      color: #888;
+      color: #444;
     }
     .reader-content td {
       border-bottom: 1px solid rgba(0,0,0,0.06);
       padding: 0.6em 0.75em 0.6em 0;
       vertical-align: top;
+      color: inherit;
     }
-    .dark .reader-content td { border-bottom-color: rgba(255,255,255,0.06); }
 
     /* ─── Selection ──────────────────────────────────────────────────── */
     .reader-content ::selection { background: rgba(26,107,204,0.18); }
-    .dark .reader-content ::selection { background: rgba(91,158,245,0.22); }
 
     /* ─── Scroll container ───────────────────────────────────────────── */
     .reader-scroll {
       overflow-y: auto;
-      /* Promote to its own compositor layer so scroll never triggers
-         a paint on the parent. This is the single biggest scroll fix. */
       will-change: scroll-position;
-      /* GPU-composited overscroll bounce on macOS/iOS */
       -webkit-overflow-scrolling: touch;
-      /* Contain layout/paint within this subtree */
       contain: strict;
     }
 
@@ -247,19 +217,14 @@ function ReaderLoadingState({ disableAnimations }: { disableAnimations: boolean 
   )
 }
 
-// Plain div wrapper for article body — keeps Framer Motion out of the scroll path.
-// Using a ref + direct DOM mutation means we never trigger a React re-render when
-// setting innerHTML, and Framer never observes this subtree for layout changes.
 const ArticleBody = memo(function ArticleBody({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.innerHTML = html
-    }
+    if (!ref.current) return
+    ref.current.innerHTML = html
   }, [html])
 
-  // eslint-disable-next-line react/no-danger -- intentional: set via ref, not prop
   return <div ref={ref} className="reader-content" />
 })
 
@@ -331,6 +296,9 @@ function ReaderModePageInner(): React.JSX.Element {
       {isOpen && (
         <motion.div
           className="fixed inset-0 z-[150] [app-region:no-drag]"
+          // ↓ This is the key fix — forces light color-scheme so `.dark` on
+          //   ancestor elements cannot bleed dark-mode text colors into the reader
+          style={{ colorScheme: 'light' }}
           initial={disableAnimations ? false : { clipPath: 'circle(0% at 96% 96%)' }}
           animate={{ clipPath: 'circle(150% at 96% 96%)' }}
           exit={disableAnimations ? undefined : { clipPath: 'circle(0% at 96% 96%)' }}
@@ -345,7 +313,6 @@ function ReaderModePageInner(): React.JSX.Element {
           />
 
           <div className="relative z-10 flex flex-col h-full">
-            {/* Toolbar — animates in once, then stays static */}
             <motion.div
               className="flex items-center justify-between px-6 py-3 shrink-0"
               initial={disableAnimations ? false : { opacity: 0, y: -16 }}
@@ -355,7 +322,7 @@ function ReaderModePageInner(): React.JSX.Element {
             >
               <div className="min-w-0">
                 {article && (
-                  <p className="text-[12px] tracking-[0.04em] uppercase font-medium text-gray-400 dark:text-neutral-500 truncate">
+                  <p className="text-[12px] tracking-[0.04em] font-medium text-gray-400 dark:text-neutral-500 truncate">
                     {article.siteName ?? getHostname(article.url)}
                   </p>
                 )}
@@ -371,14 +338,8 @@ function ReaderModePageInner(): React.JSX.Element {
               </motion.button>
             </motion.div>
 
-            {/*
-              Scroll area — plain div, NOT a motion component.
-              Framer Motion adds a ResizeObserver + transform tracking to every
-              motion element, which fires on every scroll tick and triggers
-              unnecessary paints. A regular div with `will-change: scroll-position`
-              (applied via .reader-scroll) is composited separately by the GPU.
-            */}
-            <div className="flex-1 min-h-0 reader-scroll px-6 pb-10">
+            {/* ↓ Explicit text color set here — reader-content inherits from this */}
+            <div className="flex-1 min-h-0 reader-scroll px-6 pb-10 text-[#1a1a1a]">
               {isLoading && <ReaderLoadingState disableAnimations={disableAnimations} />}
 
               {!isLoading && error && (
@@ -388,11 +349,11 @@ function ReaderModePageInner(): React.JSX.Element {
                   animate={{ opacity: 1, y: 0 }}
                   transition={contentSpring}
                 >
-                  <p className="text-sm text-gray-600 dark:text-neutral-300">{error}</p>
+                  <p className="text-sm text-gray-600">{error}</p>
                   {focusedTabId && (
                     <button
                       onClick={() => loadArticle(focusedTabId)}
-                      className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400"
+                      className="text-sm text-blue-500 hover:text-blue-600"
                     >
                       Try again
                     </button>
@@ -401,30 +362,23 @@ function ReaderModePageInner(): React.JSX.Element {
               )}
 
               {!isLoading && article && (
-                /*
-                  Article wrapper — fade+slide plays once on mount, then this node
-                  is never touched by Framer again. The heavy innerHTML lives in
-                  ArticleBody (a plain div), completely outside Framer's observation.
-                */
                 <motion.article
                   className="max-w-[42rem] mx-auto pt-6 pb-20"
                   initial={disableAnimations ? false : { opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ ...contentSpring, delay: disableAnimations ? 0 : 0.18 }}
                 >
-                  {/* Article header — single animation, no layout tracking needed */}
-                  <header className="mb-10 pb-8 border-b border-black/[0.08] dark:border-white/[0.08]">
-                    <h1 className="text-[1.9rem] font-bold leading-[1.22] tracking-[-0.022em] text-[#111111] dark:text-[#EBEBEB] mb-4">
+                  <header className="mb-10 pb-8 border-b border-black/[0.08]">
+                    <h1 className="text-[1.9rem] font-bold leading-[1.22] tracking-[-0.022em] text-[#111111] mb-4">
                       {article.title}
                     </h1>
                     {article.byline && (
-                      <p className="text-[12.5px] tracking-[0.05em] uppercase font-semibold text-gray-400 dark:text-neutral-500 mt-3">
+                      <p className="text-[12.5px] tracking-[0.05em] uppercase font-semibold text-gray-400 mt-3">
                         {article.byline}
                       </p>
                     )}
                   </header>
 
-                  {/* Article body — lives outside Framer's subtree entirely */}
                   <ArticleBody html={article.content} />
                 </motion.article>
               )}
