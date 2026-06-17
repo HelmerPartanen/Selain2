@@ -12,7 +12,7 @@ const execAsync = promisify(exec)
 
 export const OLLAMA_HOST = 'localhost'
 export const OLLAMA_PORT = 11434
-export const TARGET_MODEL = 'qwen2.5:3b'
+export const TARGET_MODEL = 'phi3:mini'
 
 let activePullRequest: http.ClientRequest | null = null
 
@@ -206,48 +206,23 @@ let activeSummaryRequest: http.ClientRequest | null = null
 export type SummarizeSource = 'webpage' | 'pdf'
 
 // ── System prompt ─────────────────────────────────────────────────────────────
-// Designed for Qwen2.5 3B. The output contract is intentionally strict so the
-// renderer always gets a well-structured document — even from a small model.
-//
-// Output skeleton (always follow this exact shape):
-//
-//   ## {Topic or title}              ← H2 headline, no leading emoji
-//   {1–2 sentence overview}         ← plain paragraph, no bullet
-//   ## Key points                    ← H2, ALWAYS present
-//   - {point 1}                      ← 3–6 bullets, each one line, **bold** the key term
-//   - {point 2}
-//   ...
-//   ## Takeaway                      ← H2, ALWAYS present
-//   {one sentence}                   ← a single decisive line
-//
-// Optional, only if present in the source:
-//   > {verbatim quote}               ← blockquote for a notable pull-quote
-//   ---                              ← horizontal rule before a "Source" / links block
-//   Source: {url}                    ← plain text, no bullet
-//
-// Hard rules:
-//   - Match the source language. If the page is Finnish, the summary is Finnish.
-//   - No preamble. No "Here is the summary:". Start with the `##` line.
-//   - No emojis, no exclamation marks, no marketing voice.
-//   - Never invent facts. If a number, date, or name is uncertain, drop it.
-//   - Bold only the key term inside a bullet (e.g. "- **React 19** ships..."), not whole sentences.
-//   - Keep total length 150–220 words. Stop as soon as the Takeaway is written.
-//   - If the page is thin or unreadable, output exactly: "## Summary\n\n*Not enough readable content to summarize.*"
-const SYSTEM_PROMPT = `You write tight, well-structured page summaries in markdown.
+const SYSTEM_PROMPT = `Designed for small local models. The output contract is intentionally strict so the renderer always gets a well-structured document.
 
-Output contract — always use this exact skeleton:
+You write tight, well-structured page summaries in markdown.
 
-## {Topic}
-{One or two sentences that state what this is and why it matters. No preamble.}
+Output contract — always use this structure, replacing the example text with source-specific content:
+
+## Concise source-specific title
+One or two sentences that state what this is and why it matters. No preamble.
 
 ## Key points
-- {point 1 — **bold** the key term at the start}
-- {point 2 — **bold** the key term}
-- {point 3 — **bold** the key term}
-- {4–6 bullets total, one line each, no nested lists}
+- **Key term** followed by the first concrete point.
+- **Key term** followed by the second concrete point.
+- **Key term** followed by the third concrete point.
+- Include 4–6 bullets total, one line each, no nested lists.
 
 ## Takeaway
-{One sentence — the single thing the reader should remember.}
+One sentence with the single thing the reader should remember.
 
 If the page contains a notable verbatim quote, place it directly after the overview as a blockquote:
 > "{exact quote}"
@@ -276,7 +251,7 @@ Content-type notes (use only what fits):
 - Report / paper / PDF: overview = document type and subject; bullets = key findings, methodology, conclusions.
 - Opinion / essay: overview states the thesis; bullets = the supporting arguments in order.
 
-Formatting: use exactly two ## headings (Topic, Key points, Takeaway). Do not use # or ###. Bullets are dash-space. Blockquote is >-space. Keep paragraphs single-line.`
+Formatting: use exactly three ## headings: the source-specific title, Key points, and Takeaway. Do not use # or ###. Bullets are dash-space. Blockquote is >-space. Keep paragraphs single-line.`
 
 // ── Context extraction ────────────────────────────────────────────────────────
 // A naive .slice(0, 6000) front-loads boilerplate (nav, cookie banners, hero

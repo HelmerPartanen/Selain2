@@ -45,7 +45,7 @@ function parseInline(text: string): React.ReactNode[] {
     if (m.index > last) nodes.push(text.slice(last, m.index))
     if (m[1] !== undefined) {
       nodes.push(
-        <strong key={k++} className="font-semibold text-gray-800 dark:text-neutral-200">
+        <strong key={k++} className="font-semibold text-gray-800 dark:text-neutral-100">
           {m[1]}
         </strong>
       )
@@ -205,7 +205,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
           return (
             <motion.h2
               key={i}
-              className="text-[24px] font-semibold text-gray-800 dark:text-neutral-150 leading-snug mt-2.5 mb-1"
+              className="text-[24px] font-semibold text-gray-800 dark:text-neutral-100 leading-snug mt-2.5 mb-1"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -267,7 +267,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               {block.items.map((item, j) => (
                 <motion.li
                   key={j}
-                  className="flex gap-3 text-[16px] leading-relaxed text-gray-600 dark:text-neutral-400"
+                  className="flex gap-3 text-[16px] leading-relaxed text-gray-600 dark:text-neutral-300"
                   initial={{ opacity: 0, x: -4 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.15, delay: (i + j) * 0.008 }}
@@ -291,7 +291,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               {block.items.map((item, j) => (
                 <motion.li
                   key={j}
-                  className="flex gap-3 text-[16px] leading-relaxed text-gray-600 dark:text-neutral-400"
+                  className="flex gap-3 text-[16px] leading-relaxed text-gray-600 dark:text-neutral-300"
                   initial={{ opacity: 0, x: -4 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.15, delay: (i + j) * 0.008 }}
@@ -308,7 +308,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
         return (
           <motion.p
             key={i}
-            className="text-[16px] leading-[1.8] text-gray-600 dark:text-neutral-400"
+            className="text-[16px] leading-[1.8] text-gray-600 dark:text-neutral-300"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
