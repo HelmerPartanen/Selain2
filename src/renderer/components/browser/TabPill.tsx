@@ -300,7 +300,9 @@ function TabPillInner(): React.JSX.Element {
           className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <div className="relative">
+        <div style={{ display: 'flex' }}>
             <SvgIcon svg={tabsSvg} size={16}/>
+            </div>
             {tabCount > 1 && (
               <span className="absolute -top-2 -right-2 min-w-[14px] h-3.5 bg-blue-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none pointer-events-none">
                 {tabCount > 99 ? '99+' : tabCount}
@@ -390,7 +392,7 @@ function TabPillInner(): React.JSX.Element {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={SPRING_FAST}
-            className="absolute -top-1 -right-1 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md pointer-events-none"
+            className="absolute -top-0.5 -right-0.5 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md pointer-events-none"
           >
             <SvgIcon svg={soundFillSvg} size={14} className="text-white" />
           </motion.div>
