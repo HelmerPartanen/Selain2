@@ -54,22 +54,27 @@ function AppMenuInner(): React.JSX.Element {
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const uiLayout = useSettingsStore((s) => s.uiLayout)
   const popoverBelow = uiLayout === 'classic'
-  const { enterY, exitY } = getPopoverMotion(popoverBelow)
+const { enterY, exitY } = getPopoverMotion(popoverBelow)
   const triggerRef = useRef<HTMLDivElement>(null)
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
 
   useLayoutEffect(() => {
-    if (!isOpen || !triggerRef.current) {
-      setMenuPos(null)
-      return
-    }
-    const rect = triggerRef.current.getBoundingClientRect()
+  if (!isOpen || !triggerRef.current) {
+    setMenuPos(null)
+    return
+  }
+  const rect = triggerRef.current.getBoundingClientRect()
+  if (!popoverBelow) {
+    // Bottom toolbar layout: anchor above trigger
     const left = clampPopoverLeft(rect, MENU_WIDTH)
-    const top = popoverBelow
-      ? rect.bottom + 8
-      : rect.top - MENU_ESTIMATED_HEIGHT - 8
+    const top = rect.top - MENU_ESTIMATED_HEIGHT - 8
     setMenuPos({ left, top: Math.max(8, top) })
-  }, [isOpen, popoverBelow])
+  } else {
+    // Classic (top toolbar) layout: pin to top-left corner
+    setMenuPos({ left: 2, top: 42 })
+  }
+}, [isOpen, popoverBelow])
+
   const isPanelOpen =
     isSettingsOpen ||
     isBookmarksOpen ||
