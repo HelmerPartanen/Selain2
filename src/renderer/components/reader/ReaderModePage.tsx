@@ -45,7 +45,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       font-weight: 700;
       line-height: 1.22;
       letter-spacing: -0.02em;
-      color: #111111;
+      color: inherit;
       margin: 2.6em 0 0.65em;
     }
     .reader-content h1 { font-size: 1.65rem; }
@@ -91,7 +91,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       padding: 0.1em 0 0.1em 1.25em;
       border-left: 3px solid rgba(0,0,0,0.15);
       font-style: italic;
-      color: #2a2a2a;
+      color: inherit;
     }
     .reader-content blockquote p { font-size: 1.06em; line-height: 1.75; }
 
@@ -103,7 +103,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       border-radius: 3px;
       padding: 0.15em 0.38em;
       letter-spacing: -0.01em;
-      color: #1a1a1a;
+      color: inherit;
     }
     .reader-content pre {
       background: rgba(0,0,0,0.04);
@@ -170,6 +170,24 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       -webkit-overflow-scrolling: touch;
       contain: strict;
     }
+
+    /* ─── Dark mode overrides ────────────────────────────────────────── */
+    .dark .reader-content a { color: #5b9cf6; }
+    .dark .reader-content a:hover { color: #85b5f8; }
+    .dark .reader-content figcaption { color: #8a8a8a; }
+    .dark .reader-content blockquote { border-left-color: rgba(255,255,255,0.15); }
+    .dark .reader-content hr { border-top-color: rgba(255,255,255,0.1); }
+    .dark .reader-content code { background: rgba(255,255,255,0.08); }
+    .dark .reader-content pre {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.08);
+    }
+    .dark .reader-content th {
+      border-bottom-color: rgba(255,255,255,0.12);
+      color: #aaa;
+    }
+    .dark .reader-content td { border-bottom-color: rgba(255,255,255,0.06); }
+    .dark .reader-content li::marker { color: #666; }
 
     /* ─── Reduced motion ─────────────────────────────────────────────── */
     @media (prefers-reduced-motion: reduce) {
@@ -296,9 +314,6 @@ function ReaderModePageInner(): React.JSX.Element {
       {isOpen && (
         <motion.div
           className="fixed inset-0 z-[150] [app-region:no-drag]"
-          // ↓ This is the key fix — forces light color-scheme so `.dark` on
-          //   ancestor elements cannot bleed dark-mode text colors into the reader
-          style={{ colorScheme: 'light' }}
           initial={disableAnimations ? false : { clipPath: 'circle(0% at 96% 96%)' }}
           animate={{ clipPath: 'circle(150% at 96% 96%)' }}
           exit={disableAnimations ? undefined : { clipPath: 'circle(0% at 96% 96%)' }}
@@ -338,8 +353,7 @@ function ReaderModePageInner(): React.JSX.Element {
               </motion.button>
             </motion.div>
 
-            {/* ↓ Explicit text color set here — reader-content inherits from this */}
-            <div className="flex-1 min-h-0 reader-scroll px-6 pb-10 text-[#1a1a1a]">
+            <div className="flex-1 min-h-0 reader-scroll px-6 pb-10 text-[#1a1a1a] dark:text-[#e8e8e6]">
               {isLoading && <ReaderLoadingState disableAnimations={disableAnimations} />}
 
               {!isLoading && error && (
@@ -349,11 +363,11 @@ function ReaderModePageInner(): React.JSX.Element {
                   animate={{ opacity: 1, y: 0 }}
                   transition={contentSpring}
                 >
-                  <p className="text-sm text-gray-600">{error}</p>
+                  <p className="text-sm text-gray-600 dark:text-neutral-400">{error}</p>
                   {focusedTabId && (
                     <button
                       onClick={() => loadArticle(focusedTabId)}
-                      className="text-sm text-blue-500 hover:text-blue-600"
+                      className="text-sm text-blue-500 hover:text-blue-400"
                     >
                       Try again
                     </button>
@@ -368,12 +382,12 @@ function ReaderModePageInner(): React.JSX.Element {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ ...contentSpring, delay: disableAnimations ? 0 : 0.18 }}
                 >
-                  <header className="mb-10 pb-8 border-b border-black/[0.08]">
-                    <h1 className="text-[1.9rem] font-bold leading-[1.22] tracking-[-0.022em] text-[#111111] mb-4">
+                  <header className="mb-10 pb-8 border-b border-black/[0.08] dark:border-white/[0.08]">
+                    <h1 className="text-[1.9rem] font-bold leading-[1.22] tracking-[-0.022em] text-[#111111] dark:text-[#f0f0ee] mb-4">
                       {article.title}
                     </h1>
                     {article.byline && (
-                      <p className="text-[12.5px] tracking-[0.05em] uppercase font-semibold text-gray-400 mt-3">
+                      <p className="text-[12.5px] tracking-[0.05em] uppercase font-semibold text-gray-400 dark:text-neutral-500 mt-3">
                         {article.byline}
                       </p>
                     )}
