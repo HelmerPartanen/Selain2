@@ -323,6 +323,11 @@ function SpaceSwitcherInner(): React.JSX.Element {
   })))
 const popoverBelow = uiLayout === 'classic'
   const { enterY, exitY } = getPopoverMotion(popoverBelow)
+  const popoverSurface = popoverBelow
+    ? 'bg-gray-200 dark:bg-neutral-800 border border-black/5 dark:border-white/5'
+    : disableBlurEffects
+      ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
+      : 'bg-white dark:bg-[#1D1F23]'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
 
@@ -461,7 +466,7 @@ const popoverBelow = uiLayout === 'classic'
               exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: exitY, rotateX: popoverBelow ? 10 : -10 }}
               transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
             >
-              <div className={`rounded-xl shadow-sm overflow-hidden min-w-[280px] ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23]'}`}>
+              <div className={`rounded-xl shadow-sm overflow-hidden min-w-[280px] ${popoverSurface}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   {editingId && spaces[editingId] ? (
                             <motion.div

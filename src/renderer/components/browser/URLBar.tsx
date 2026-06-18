@@ -408,6 +408,16 @@ function URLBarInner({
 
   const isClassic = layout === 'classic'
   const dropdownBelow = popoverDirection === 'down'
+  const dropdownOffsetClass = dropdownBelow
+    ? isClassic
+      ? 'top-full mt-1'
+      : 'top-full mt-2.5'
+    : 'bottom-full mb-2.5'
+  const autocompleteSurface = isClassic
+    ? 'bg-gray-200 dark:bg-neutral-800 border border-black/5 dark:border-white/5'
+    : disableBlurEffects
+      ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
+      : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
 
   return (
     <div className={`relative ${isClassic ? 'w-full min-w-0' : ''}`}>
@@ -598,8 +608,8 @@ className={`relative flex items-center will-change-[width] ${isClassic ? 'w-full
       <AnimatePresence>
         {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
-            className={`absolute p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'} ${
-              dropdownBelow ? 'top-full mt-2.5' : 'bottom-full mb-2.5'
+            className={`absolute p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] shadow-sm ${autocompleteSurface} ${
+              dropdownOffsetClass
             }`}
             style={{ originY: dropdownBelow ? 0 : 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}

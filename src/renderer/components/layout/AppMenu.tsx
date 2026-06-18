@@ -55,6 +55,11 @@ function AppMenuInner(): React.JSX.Element {
   const uiLayout = useSettingsStore((s) => s.uiLayout)
   const popoverBelow = uiLayout === 'classic'
 const { enterY, exitY } = getPopoverMotion(popoverBelow)
+  const menuSurface = popoverBelow
+    ? 'bg-gray-200 dark:bg-neutral-800 border border-black/5 dark:border-white/5'
+    : disableBlurEffects
+      ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
+      : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
 
@@ -210,7 +215,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                 filter: { duration: 0.2 },
               }}
             >
-              <div className={`rounded-xl shadow-sm overflow-hidden ${popoverBelow ? 'mt-0' : 'mb-2'} ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+              <div className={`rounded-xl shadow-sm overflow-hidden ${popoverBelow ? 'mt-0' : 'mb-2'} ${menuSurface}`}>
                 <div className="p-1 relative">
                   {actionableItems.map((item, idx) => {
                     const Icon = item.icon!;
