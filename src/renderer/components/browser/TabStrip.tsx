@@ -160,7 +160,7 @@ const TabStripItem = memo(function TabStripItem({
       } ${
         isHighlighted
           ? "bg-white dark:bg-white/[0.12] text-gray-900 dark:text-white"
-          : "bg-black/[0.08] hover:bg-black/[0.04] dark:bg-transparent dark:hover:bg-white/[0.06] text-gray-600 dark:text-neutral-400"
+          : "bg-transparent hover:bg-black/[0.04] dark:bg-transparent dark:hover:bg-white/[0.06] text-gray-600 dark:text-neutral-400"
       }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
