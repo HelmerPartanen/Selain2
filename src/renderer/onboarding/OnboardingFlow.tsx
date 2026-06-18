@@ -9,7 +9,7 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { SvgIcon, SQUARE_SVG, CARDS_SVG } from '@/components/ui/SvgIcon'
+import { SvgIcon } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { WALLPAPER_PRESETS, PRESET_PREFIX } from '@/theme/presets'
@@ -18,8 +18,10 @@ import shieldSvg from '@/assets/icons/Objects/Shield.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import chevronRightSvg from '@/assets/icons/Arrows/Chevron_Right.svg?raw'
 import chevronLeftSvg from '@/assets/icons/Arrows/Chevron_Left.svg?raw'
-import minusSvg from '@/assets/icons/Maths/Minus.svg?raw'
-import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import closeSvg from '@/assets/icons/Window/Close.svg?raw'
+import maximizeSvg from '@/assets/icons/Window/Maximize.svg?raw'
+import minusSvg from '@/assets/icons/Window/Minimize.svg?raw'
+import windowedSvg from '@/assets/icons/Window/Windowed.svg?raw'
 
 // ─── Motion Constants ────────────────────────────────────────────────────────
 // Core spring matches SettingsPanel: { stiffness: 400, damping: 28, mass: 0.8 }
@@ -634,7 +636,7 @@ function OnboardingWindowControls(): React.JSX.Element {
             />
           )}
           <span className="relative z-10">
-            {isMaximized ? <SvgIcon svg={CARDS_SVG} size={12} /> : <SvgIcon svg={SQUARE_SVG} size={10} />}
+            {isMaximized ? <SvgIcon svg={windowedSvg} size={12} /> : <SvgIcon svg={maximizeSvg} size={10} />}
           </span>
         </button>
         <button
@@ -644,7 +646,7 @@ function OnboardingWindowControls(): React.JSX.Element {
           onMouseLeave={() => setHoveredIdx(null)}
           className="relative w-7 h-7 rounded-full flex items-center justify-center
             text-gray-600 dark:text-neutral-400
-            hover:bg-red-200 hover:text-red-500 dark:hover:bg-red-900/50 dark:hover:text-red-400
+            hover:bg-gray-100 dark:hover:bg-neutral-800
             transition-all duration-75 active:scale-85"
         >
           {hoveredIdx === 2 && (

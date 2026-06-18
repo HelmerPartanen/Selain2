@@ -4,11 +4,15 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { useSettingsStore } from "@/store/settingsStore";
 
-import { SvgIcon, SQUARE_SVG, CARDS_SVG } from "@/components/ui/SvgIcon";
+import { SvgIcon } from "@/components/ui/SvgIcon";
 
-import minusSvg from "@/assets/icons/Maths/Minus.svg?raw";
+import maximizeSvg from "@/assets/icons/Window/Maximize.svg?raw";
 
-import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
+import windowedSvg from "@/assets/icons/Window/Windowed.svg?raw";
+
+import minusSvg from "@/assets/icons/Window/Minimize.svg?raw";
+
+import closeSvg from "@/assets/icons/Window/Close.svg?raw";
 
 import { SPRING_FAST, SPRING_SNAPPY } from "@/utils/springs";
 
@@ -41,7 +45,7 @@ function Win11ControlButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`w-[46px] h-10 flex items-center justify-center text-black/70 dark:text-white/70 transition-colors duration-75 ${hoverClass}`}
+      className={`w-[46px] h-10 flex items-center justify-center text-black dark:text-white transition-colors duration-75 ${hoverClass}`}
     >
       {children}
     </button>
@@ -120,9 +124,9 @@ function WindowControlsInner({
             label={isMaximized ? "Restore" : "Maximize"}
           >
             {isMaximized ? (
-              <SvgIcon svg={CARDS_SVG} size={16} />
+              <SvgIcon svg={windowedSvg} size={16} />
             ) : (
-              <SvgIcon svg={SQUARE_SVG} size={16} />
+              <SvgIcon svg={maximizeSvg} size={16} />
             )}
           </Win11ControlButton>
 
@@ -212,9 +216,9 @@ function WindowControlsInner({
               hoverText="hover:text-gray-600 dark:hover:text-gray-300"
             >
               {isMaximized ? (
-                <SvgIcon svg={CARDS_SVG} size={12} />
+                <SvgIcon svg={windowedSvg} size={12} />
               ) : (
-                <SvgIcon svg={SQUARE_SVG} size={12} />
+                <SvgIcon svg={maximizeSvg} size={12} />
               )}
             </ControlButton>
 
