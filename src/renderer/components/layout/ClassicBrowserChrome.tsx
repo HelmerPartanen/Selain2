@@ -57,7 +57,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
   const toolbarSurface = disableBlurEffects
     ? "bg-white dark:bg-[#1D1F23] border-black/10 dark:border-white/10"
-    : "bg-white/95 dark:bg-[#1D1F23]/95 backdrop-blur-md border-black/5 dark:border-white/5";
+    : "bg-white dark:bg-[#1D1F23] border-black/5 dark:border-white/5";
 
   return (
     <div

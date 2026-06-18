@@ -8,7 +8,6 @@ import { useTabStore } from '@/store/tabStore'
 import { useAIStore } from '@/store/aiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { extractPageContentForSummary, isLikelyPdfUrl } from '@/utils/extractPageContent'
-import { RainbowEdgeLoading } from './RainbowEdgeLoading'
 import { SummaryContent } from './SummaryContent'
 import { OllamaSetupContent } from './OllamaSetupContent'
 import { LOADING_DURATION } from './constants'
@@ -17,7 +16,7 @@ import { LOADING_DURATION } from './constants'
  * AIFullscreenPage
  * A full-screen AI experience with:
  * - Original website visible in background
- * - Rainbow edge animation during loading
+ * - Browser content insets during loading
  * - Summary overlay that animates in from top to bottom
  * - Toggle button to switch between summary and original view
  */
@@ -59,10 +58,10 @@ function AIFullscreenPageInner(): React.JSX.Element {
   const cancelSummary = useAIStore((s) => s.cancelSummary)
   const resetSummary = useAIStore((s) => s.resetSummary)
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const isAIReady = aiStatus === 'ready'
   const isLoading = isSummarizing
   const isPdfThinking = summarySource === 'pdf' && isOpen && !isSummaryOverlayVisible
-  const isThinking = isLoading || isPdfThinking
   const [summaryKey, setSummaryKey] = useState(0)
   const [copied, setCopied] = useState(false)
 
@@ -154,27 +153,18 @@ function AIFullscreenPageInner(): React.JSX.Element {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Loading phase: rainbow edges (websites and PDFs) */}
-          <AnimatePresence>
-            {isThinking && <RainbowEdgeLoading />}
-          </AnimatePresence>
-
-{/* PDF-only label during thinking */}
-{isPdfThinking && (
-  <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[152] pointer-events-none rounded-xl bg-white dark:bg-[#1D1F23] shadow-sm">
-    <div className="
-  px-4 py-2 text-sm font-medium
-  bg-gradient-to-r 
-  from-neutral-700 via-neutral-500 to-neutral-700
-  dark:from-neutral-600 dark:via-white dark:to-neutral-600
-  bg-[length:200%_100%] 
-  bg-clip-text text-transparent 
-  animate-shimmer
-">
-  Summarizing PDF…
-</div>
-  </div>
-)}
+          {isPdfThinking && (
+            <div className="fixed bottom-20 left-1/2 z-[152] flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-black/10 bg-white/80 px-3 py-2 shadow-sm dark:border-white/10 dark:bg-[#1D1F23]/85">
+              {[0, 1, 2].map((dot) => (
+                <motion.span
+                  key={dot}
+                  className="h-1.5 w-1.5 rounded-full bg-blue-500/75 dark:bg-blue-300/80"
+                  animate={disableAnimations ? undefined : { opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: dot * 0.15 }}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Content area - original website remains visible in background */}
           <div className="relative w-full h-full flex items-center justify-center">

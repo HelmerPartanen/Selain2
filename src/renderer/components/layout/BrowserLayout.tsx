@@ -27,6 +27,7 @@ import { useIsDark } from "@/hooks/useIsDark";
 import { useTabStore } from "@/store/tabStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useUIStore } from "@/store/uiStore";
+import { useAIStore } from "@/store/aiStore";
 import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
 import { logger } from "@/utils/logger";
 import {
@@ -142,8 +143,10 @@ function BrowserLayoutInner(): React.JSX.Element {
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const uiZoom = useSettingsStore((s) => s.uiZoom);
   const uiLayout = useSettingsStore((s) => s.uiLayout);
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations);
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
+  const isAISummarizing = useAIStore((s) => s.isSummarizing);
   
   // Consolidate all UIStore selectors into single subscription to reduce re-renders
   const {
@@ -158,6 +161,7 @@ function BrowserLayoutInner(): React.JSX.Element {
     isSpaceSwitcherOpen,
     isTabStripMenuOpen,
     isDownloadPopoverOpen,
+    isAIFullscreenOpen,
     setDropdownOpen: closeDropdown,
     setMenuOpen: closeMenu,
     setSpaceSwitcherOpen: closeSpaceSwitcher,
@@ -175,12 +179,14 @@ function BrowserLayoutInner(): React.JSX.Element {
     isSpaceSwitcherOpen: s.isSpaceSwitcherOpen,
     isTabStripMenuOpen: s.isTabStripMenuOpen,
     isDownloadPopoverOpen: s.isDownloadPopoverOpen,
+    isAIFullscreenOpen: s.isAIFullscreenOpen,
     setDropdownOpen: s.setDropdownOpen,
     setMenuOpen: s.setMenuOpen,
     setSpaceSwitcherOpen: s.setSpaceSwitcherOpen,
     setTabStripMenuOpen: s.setTabStripMenuOpen,
     setDownloadPopoverOpen: s.setDownloadPopoverOpen,
   })));
+  const isSummaryFrameActive = isAIFullscreenOpen && isAISummarizing;
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
 
@@ -411,17 +417,59 @@ function BrowserLayoutInner(): React.JSX.Element {
         className="relative z-10 h-full"
         style={uiLayout === 'classic' ? { paddingTop: CLASSIC_CHROME_HEIGHT } : undefined}
       >
-        <ErrorBoundary
-          key={mainContentErrorKey}
-          fallback={
-            <MainContentErrorFallback
-              onRetry={handleMainContentErrorRetry}
-              onNewTab={handleMainContentErrorNewTab}
-            />
-          }
+        {isSummaryFrameActive && (
+          <style>{`
+            @keyframes summary-underlay-spin {
+              to { transform: rotate(360deg); }
+            }
+            @keyframes summary-underlay-in {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+          `}</style>
+        )}
+        <div
+          className="relative isolate h-full bg-gray-100 dark:bg-neutral-900 transition-[padding] duration-300 ease-out"
+          style={{ padding: isSummaryFrameActive ? 14 : 0 }}
         >
-          <WebViewManager />
-        </ErrorBoundary>
+          {isSummaryFrameActive && (
+            <div
+              className="absolute inset-0 z-0 overflow-hidden rounded-[10px]"
+              style={{
+                animation: disableAnimations ? undefined : 'summary-underlay-in 0.18s ease-out 0.24s both',
+                padding: 14,
+                maskImage: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                WebkitMaskImage: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                maskComposite: 'exclude',
+                WebkitMaskComposite: 'xor',
+              }}
+            >
+              <div
+                className="absolute -inset-[26%] rounded-[16px]"
+                style={{
+                  background:
+                    'conic-gradient(from 0deg, rgba(59,130,246,0.08), rgba(59,130,246,0.95), rgba(255,255,255,0.0), rgba(59,130,246,0.0), rgba(59,130,246,0))',
+                  filter: 'blur(18px)',
+                  opacity: 0.95,
+                  animation: disableAnimations ? undefined : 'summary-underlay-spin 2.6s linear infinite',
+                }}
+              />
+            </div>
+          )}
+          <div className="relative z-10 h-full overflow-hidden rounded-[10px]">
+            <ErrorBoundary
+              key={mainContentErrorKey}
+              fallback={
+                <MainContentErrorFallback
+                  onRetry={handleMainContentErrorRetry}
+                  onNewTab={handleMainContentErrorNewTab}
+                />
+              }
+            >
+              <WebViewManager />
+            </ErrorBoundary>
+          </div>
+        </div>
       </div>
 
       {/* Browser chrome */}

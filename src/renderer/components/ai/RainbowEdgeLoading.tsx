@@ -1,210 +1,49 @@
-import { useEffect, useRef, useState } from 'react'
 import { useSettingsStore } from '@/store/settingsStore'
+import { CLASSIC_CHROME_HEIGHT } from '@/components/layout/layoutConstants'
 
 /**
- * RainbowEdgeLoading
- * A soft rainbow glow that "explodes" outward from the bottom-right
- * corner of the screen, accompanied by a shockwave ring that briefly
- * blurs whatever it passes over, then settles into a slow ambient
- * rotation — like the corner is the source of the light.
+ * Full-browser summarizing indicator.
+ * Adds a blurred rotating conic glow behind the inset browser area.
  */
-
-const RAINBOW_GRADIENT =
-  'conic-gradient(from 90deg, #FFE066, #FF8FB1, #FF6FD8, #C77DFF, #6FA8FF, #6FE3C9, #C8F06F, #FFE066)'
-
-const GLOW_OVERLAY =
-  'radial-gradient(circle at 100% 100%, rgba(255,255,255,0.18) 0%, rgba(125,211,252,0.12) 24%, rgba(192,132,252,0.10) 48%, transparent 72%)'
-
-// How long the shockwave takes to travel from the corner past the
-// far edge of the screen.
-const SHOCKWAVE_DURATION = 850
-// Thickness of the blurred ring, as a percentage of the screen
-// diagonal (the ring spans roughly +/- this value around its radius).
-const SHOCKWAVE_BAND = 11
-
 export function RainbowEdgeLoading(): React.JSX.Element {
-  // Toggle the "exploded" class shortly after mount so the CSS
-  // animation reliably runs (avoids edge cases where an animation
-  // starting at mount time gets skipped by the browser).
-  const [exploded, setExploded] = useState(false)
-  const shockRef = useRef<HTMLDivElement>(null)
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setExploded(true))
-    return () => cancelAnimationFrame(id)
-  }, [])
-
-  // Drive the shockwave ring's radius via rAF so it sweeps smoothly
-  // from the bottom-right corner across the whole screen and fades
-  // out once it's off-screen.
-  useEffect(() => {
-    const el = shockRef.current
-    if (!el) return
-
-    let start: number | null = null
-    let raf = 0
-
-    const tick = (t: number) => {
-      if (start === null) start = t
-      const elapsed = t - start
-      const progress = Math.min(elapsed / SHOCKWAVE_DURATION, 1)
-      // ease-out cubic, so it starts fast (the "blast") and slows
-      // as it dissipates
-      const eased = 1 - Math.pow(1 - progress, 3)
-      const radius = eased * (100 + SHOCKWAVE_BAND * 2)
-
-      el.style.setProperty('--shock-r', `${radius}%`)
-      el.style.opacity = progress < 1 ? '1' : '0'
-
-      if (progress < 1) {
-        raf = requestAnimationFrame(tick)
-      }
-    }
-
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
-  const shockwaveMask = `radial-gradient(circle at 100% 100%, transparent calc(var(--shock-r) - ${SHOCKWAVE_BAND}%), rgba(0,0,0,1) var(--shock-r), transparent calc(var(--shock-r) + ${SHOCKWAVE_BAND}%))`
+  const uiLayout = useSettingsStore((s) => s.uiLayout)
+  const top = uiLayout === 'classic' ? CLASSIC_CHROME_HEIGHT : 0
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-[151] pointer-events-none p-3.5"
+      style={{ top }}
+    >
       <style>{`
-        @keyframes rainbow-burst {
-          0% {
-            transform: translate(50%, 50%) scale(0.05);
-            opacity: 0;
-          }
-          12% {
-            opacity: 1;
-          }
-          55% {
-            transform: translate(50%, 50%) scale(1.18);
-          }
-          100% {
-            transform: translate(50%, 50%) scale(1);
-          }
+        @keyframes summary-glow-spin {
+          to { transform: rotate(360deg); }
         }
-
-        @keyframes rainbow-drift {
-          0% {
-            transform: rotate(0deg) scale(1);
-          }
-          50% {
-            transform: rotate(180deg) scale(1.08);
-          }
-          100% {
-            transform: rotate(360deg) scale(1);
-          }
-        }
-
-        @keyframes rainbow-pulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 0.35;
-          }
-          50% {
-            transform: scale(1.04);
-            opacity: 0.55;
-          }
-        }
-
-        .rainbow-burst-layer {
-          animation: rainbow-burst 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-          will-change: transform, opacity;
-        }
-
-        .rainbow-drift-layer {
-          animation: rainbow-drift 52s linear infinite;
-          animation-delay: 1.05s;
-          will-change: transform;
-        }
-
-        .rainbow-pulse-layer {
-          animation: rainbow-pulse 9s ease-in-out infinite;
-          will-change: transform, opacity;
+        @keyframes summary-border-enter {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
       `}</style>
 
-      {/* Blurred wrapper, slightly oversized so the heavy blur never
-          shows a hard edge at the screen boundary. */}
-      <div
-        className="absolute -inset-[20%]"
-        style={{ filter: disableBlurEffects ? 'none' : 'blur(86px)' }}
-      >
-        {/* Burst layer: scales up from a point at the bottom-right
-            corner with a slight overshoot, then holds. */}
+      <div className="relative h-full w-full rounded-[10px]">
         <div
-          className={exploded && !disableAnimations ? 'rainbow-burst-layer' : ''}
+          className="absolute inset-0 overflow-hidden rounded-[10px]"
           style={{
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-            width: '180vmax',
-            height: '180vmax',
-            transformOrigin: '100% 100%',
-            transform: exploded ? undefined : 'translate(50%, 50%) scale(0.05)',
-            opacity: exploded ? undefined : 0,
-            mixBlendMode: 'screen',
+            animation: disableAnimations ? undefined : 'summary-border-enter 0.18s ease-out 0.24s both',
           }}
         >
           <div
-            className={exploded && !disableAnimations ? 'rainbow-pulse-layer' : ''}
+            className="absolute -inset-[26%] rounded-[16px]"
             style={{
-              position: 'absolute',
-              inset: '-8%',
-              borderRadius: '50%',
-              background: GLOW_OVERLAY,
-              opacity: 0.35,
-              filter: 'blur(10px)',
-            }}
-          />
-          {/* Drift layer: once settled, slowly rotates/breathes so the
-              glow feels alive without being distracting. */}
-          <div
-            className={exploded && !disableAnimations ? 'rainbow-drift-layer' : ''}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '50%',
-              background: RAINBOW_GRADIENT,
-              opacity: 0.1,
+              background:
+                'conic-gradient(from 0deg, rgba(59,130,246,0.08), rgba(59,130,246,0.95), rgba(255,255,255,0.75), rgba(59,130,246,0.95), rgba(59,130,246,0.08))',
+              filter: 'blur(18px)',
+              opacity: 0.95,
+              animation: disableAnimations ? undefined : 'summary-glow-spin 2.6s linear infinite',
             }}
           />
         </div>
       </div>
-
-      {/* Subtle white wash to keep the center calm and push the color
-          toward the edges/corner, matching the reference clip. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(circle at 30% 30%, rgba(255, 0, 240, 0.1) 0%, transparent 55%)',
-        }}
-      />
-
-      {/* Shockwave: a ring-shaped blur that travels from the
-          bottom-right corner outward across the screen, briefly
-          softening everything underneath it as it passes. */}
-      {!disableAnimations && (
-        <div
-          ref={shockRef}
-          className="absolute inset-0"
-          style={
-            {
-              '--shock-r': '0%',
-              backdropFilter: 'blur(2px) saturate(1.5) brightness(1.05)',
-              WebkitBackdropFilter: 'blur(2px) saturate(1.2) brightness(1.05)',
-              maskImage: shockwaveMask,
-              WebkitMaskImage: shockwaveMask,
-              transition: 'opacity 0.25s ease-out',
-            } as React.CSSProperties
-          }
-        />
-      )}
     </div>
   )
 }
