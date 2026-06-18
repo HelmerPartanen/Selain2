@@ -23,6 +23,7 @@ import { useDownloadListener } from "@/hooks/useDownloadListener";
 import { useAISetup } from "@/hooks/useAISetup";
 import { usePermissionRequests } from "@/hooks/usePermissionRequests";
 import { useTrackpadTabSwipe } from "@/hooks/useTrackpadTabSwipe";
+import { useFocusedTabUrl } from "@/hooks/useTabSelector";
 import { useIsDark } from "@/hooks/useIsDark";
 import { useTabStore } from "@/store/tabStore";
 import { useThemeStore } from "@/store/themeStore";
@@ -147,6 +148,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   const clearOnExit = useSettingsStore((s) => s.clearOnExit);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
   const isAISummarizing = useAIStore((s) => s.isSummarizing);
+  const focusedTabUrl = useFocusedTabUrl();
   
   // Consolidate all UIStore selectors into single subscription to reduce re-renders
   const {
@@ -187,6 +189,7 @@ function BrowserLayoutInner(): React.JSX.Element {
     setDownloadPopoverOpen: s.setDownloadPopoverOpen,
   })));
   const isSummaryFrameActive = isAIFullscreenOpen && isAISummarizing;
+  const isFocusedNewTab = focusedTabUrl === 'browser://newtab';
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
 
@@ -439,7 +442,9 @@ function BrowserLayoutInner(): React.JSX.Element {
   )}
 
   <div
-    className="relative isolate h-full bg-gray-100 dark:bg-neutral-900 transition-[padding] duration-250 bezier-cubic-out"
+    className={`relative isolate h-full transition-[padding] duration-250 bezier-cubic-out ${
+      isFocusedNewTab ? '' : 'bg-gray-100 dark:bg-neutral-900'
+    }`}
     style={{
       padding: isSummaryFrameActive ? 3 : 0,
     }}
