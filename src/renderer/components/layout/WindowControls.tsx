@@ -109,7 +109,7 @@ function WindowControlsInner({
 
   if (embedded) {
     return (
-      <div className="flex items-start [app-region:no-drag] -mr-1 §-mt-px">
+      <div className="flex items-start [app-region:no-drag] -mr-1 -mt-px">
         <div className="flex items-center">
           <Win11ControlButton onClick={handleMinimize} label="Minimize">
             <SvgIcon svg={minusSvg} size={16} />
