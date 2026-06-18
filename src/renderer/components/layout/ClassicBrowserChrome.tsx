@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 
 import { AnimatePresence, motion } from "motion/react";
 
@@ -50,6 +50,8 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);
 
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects);
+
+  const [isUrlBarFocused, setIsUrlBarFocused] = useState(false);
 
   const chromeSurface = disableBlurEffects
     ? "bg-gray-100 dark:bg-neutral-900 border-black/10 dark:border-white/10"
@@ -110,8 +112,18 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
         </div>
 
         <div className="flex-1 min-w-0 flex items-center">
-          <div className="w-full min-w-0 rounded-lg bg-black/[0.08] hover:bg-black/[0.04] dark:bg-white/[0.06] dark:hover:bg-white/[0.08]">
-            <URLBar layout="classic" popoverDirection="down" />
+          <div
+            className={`w-full min-w-0 rounded-lg bg-black/[0.08] dark:bg-white/[0.06] ${
+              isUrlBarFocused
+                ? ""
+                : "hover:bg-black/[0.04] dark:hover:bg-white/[0.08]"
+            }`}
+          >
+            <URLBar
+              layout="classic"
+              popoverDirection="down"
+              onFocusChange={setIsUrlBarFocused}
+            />
           </div>
         </div>
 

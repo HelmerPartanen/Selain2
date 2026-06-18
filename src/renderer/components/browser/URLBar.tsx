@@ -418,11 +418,14 @@ function URLBarInner({
     : disableBlurEffects
       ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
       : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
+  const classicFocusBg = isClassic && isFocused
+    ? 'bg-black/[0.06] dark:bg-white/[0.10]'
+    : ''
 
   return (
     <div className={`relative ${isClassic ? 'w-full min-w-0' : ''}`}>
       <motion.div
-className={`relative flex items-center will-change-[width] ${isClassic ? 'w-full pr-1 h-9 pl-1' : 'h-10 pl-2'}`}        animate={
+className={`relative flex items-center will-change-[width] transition-colors duration-150 ${classicFocusBg} ${isClassic ? 'w-full pr-1 h-9 pl-1 rounded-lg' : 'h-10 pl-2'}`}        animate={
           isClassic
             ? undefined
             : { width: isFocused ? Math.min(500, typeof window !== 'undefined' ? window.innerWidth - 160 : 500) : 320 }
