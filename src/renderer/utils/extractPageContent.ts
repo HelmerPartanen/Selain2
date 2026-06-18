@@ -143,7 +143,7 @@ const EXTRACT_WEBPAGE_TEXT_SCRIPT = `
     root.querySelector('[role="main"]') ||
     root;
 
-  const selectors = 'h1, h2, h3, p, li, blockquote';
+  const selectors = 'h1, h2, h3, p, blockquote';
   Array.from(container.querySelectorAll(selectors)).forEach((el) => {
     if (!isVisible(el)) return;
     if (el.closest('a')) return;
@@ -154,7 +154,7 @@ const EXTRACT_WEBPAGE_TEXT_SCRIPT = `
     }
     const tag = el.tagName.toLowerCase();
     const text = clean(el.innerText || el.textContent);
-    if ((tag === 'li' || tag === 'h2' || tag === 'h3') && linkDensity(el) > 0.35) return;
+    if ((tag === 'h2' || tag === 'h3') && linkDensity(el) > 0.35) return;
     if (tag === 'h1') pushUnique(parts, seen, 'Heading', text);
     else if (tag === 'h2' || tag === 'h3') pushUnique(parts, seen, 'Section', text);
     else pushUnique(parts, seen, '', text);
@@ -168,7 +168,7 @@ const EXTRACT_WEBPAGE_TEXT_SCRIPT = `
 })()
 `
 
-const WEB_SUMMARY_CHAR_BUDGET = 4200
+const WEB_SUMMARY_CHAR_BUDGET = 2200
 
 function compactWhitespace(text: string): string {
   return text.replace(/[ \t\r\f\v]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim()
@@ -178,7 +178,7 @@ function fitSummaryBudget(text: string, budget = WEB_SUMMARY_CHAR_BUDGET): strin
   const compact = compactWhitespace(text)
   if (compact.length <= budget) return compact
 
-  const headSize = Math.floor(budget * 0.78)
+  const headSize = Math.floor(budget * 0.85)
   const tailSize = budget - headSize - 7
   return `${compact.slice(0, headSize).trim()}\n\n[...]\n\n${compact.slice(-tailSize).trim()}`
 }

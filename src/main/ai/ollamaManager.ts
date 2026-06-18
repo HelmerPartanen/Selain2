@@ -206,38 +206,20 @@ let activeSummaryRequest: http.ClientRequest | null = null
 export type SummarizeSource = 'webpage' | 'pdf'
 
 // ── System prompt ─────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You write fast, clean markdown summaries from extracted webpage or PDF text.
-
-## Concise source-specific title
-One sentence stating the main point. No preamble.
-
-## Key points
-- **Key term** followed by the first concrete point.
-- **Key term** followed by the second concrete point.
-- **Key term** followed by the third concrete point.
-- Include 3–5 bullets total, one line each, no nested lists.
-
-## Takeaway
-One sentence with the single thing the reader should remember.
-
-Hard rules:
-- Match the language of the page. Non-English page → non-English summary.
-- Start with the first ## line. No "Here is the summary". No filler.
-- Never wrap the title or headings in braces, brackets, or quotes.
-- No emojis, no exclamation marks, no hype words ("amazing", "incredible").
-- Never invent facts. If a number, date, or name is not in the source, omit it.
-- Bold only the key term in a bullet, not the whole sentence.
-- 90–150 words total. Stop as soon as Takeaway is written.
-- If the page text is too thin to summarize, output exactly:
-  ## Summary
-
-  *Not enough readable content to summarize.*
-
-Formatting: use exactly three ## headings: the source-specific title, Key points, and Takeaway. Do not use # or ###. Bullets are dash-space. Blockquote is >-space. Keep paragraphs single-line.`
+const SYSTEM_PROMPT = `Summarize the supplied text in the same language.
+Return only markdown.
+Use exactly:
+1. A real title line starting with ##
+2. One short overview sentence
+3. ## Key points
+4. Three dash bullets with concrete facts from the text
+5. ## Takeaway
+6. One short takeaway sentence
+No preamble. No placeholders. No "Key term:" labels. No braces around headings.`
 
 // ── Context extraction ────────────────────────────────────────────────────────
-const WEB_CONTEXT_BUDGET = 3600
-const PDF_CONTEXT_BUDGET = 6500
+const WEB_CONTEXT_BUDGET = 1800
+const PDF_CONTEXT_BUDGET = 4500
 
 function compactContext(raw: string): string {
   return raw
@@ -249,7 +231,7 @@ function compactContext(raw: string): string {
 
 function fitContextBudget(text: string, budget: number): string {
   if (text.length <= budget) return text
-  const headSize = Math.floor(budget * 0.75)
+  const headSize = Math.floor(budget * 0.85)
   const tailSize = budget - headSize - 7
   return `${text.slice(0, headSize).trim()}\n\n[...]\n\n${text.slice(-tailSize).trim()}`
 }
@@ -299,9 +281,9 @@ export function summarizePage(pageText: string, source: SummarizeSource = 'webpa
     options: {
       temperature: 0.1,
       top_p: 0.9,
-      num_ctx: source === 'pdf' ? 4096 : 2048,
-      num_predict: 280,
-      repeat_penalty: 1.1,
+      num_ctx: source === 'pdf' ? 3072 : 1536,
+      num_predict: source === 'pdf' ? 220 : 160,
+      repeat_penalty: 1.08,
     },
   })
 
@@ -317,9 +299,9 @@ export function summarizePage(pageText: string, source: SummarizeSource = 'webpa
   }
 
   // Preamble stripping: buffer the first PREAMBLE_BUFFER_SIZE chars, then stream freely.
-  // 96 chars gives the model room to settle into a `##` heading even if it
+  // 48 chars gives the model room to settle into a `##` heading even if it
   // tries a short preamble first; the regex strips it before forwarding.
-  const PREAMBLE_BUFFER_SIZE = 96
+  const PREAMBLE_BUFFER_SIZE = 48
   let preambleBuffer = ''
   let preambleStripped = false
   // Track whether we've sent at least one chunk — for the end-flush guard

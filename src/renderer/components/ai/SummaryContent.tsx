@@ -92,7 +92,15 @@ type Block =
   | { kind: 'gap' }
 
 function cleanHeadingText(text: string): string {
-  return text.trim().replace(/^\{(.+)\}$/, '$1').trim()
+  return text
+    .trim()
+    .replace(/^#+\s*/, '')
+    .replace(/^\{(.+)\}$/, '$1')
+    .trim()
+}
+
+function cleanListItemText(text: string): string {
+  return text.trim().replace(/^key\s*term\s*:\s*/i, '')
 }
 
 function parseBlocks(raw: string): Block[] {
@@ -117,15 +125,22 @@ function parseBlocks(raw: string): Block[] {
     const mH3 = line.match(/^###\s+(.*)/)
     const mH2 = line.match(/^##\s+(.*)/)
     const mH1 = line.match(/^#\s+(.*)/)
+    const mHx = line.match(/^#{4,6}\s+(.*)/)
     const mUL = line.match(/^[\t ]*[-*]\s+(.*)/)
     const mOL = line.match(/^[\t ]*\d+\.\s+(.*)/)
+    const mKeyTerm = line.match(/^\s*key\s*term\s*:\s*(.+)/i)
     const mBQ = line.match(/^>\s+(.*)/)
     const mCB = line.match(/^```(\w*)/)
 
-    if (mH1 || mH2 || mH3) {
+    if (/^summary$/i.test(line.trim())) {
+      i++
+      continue
+    }
+
+    if (mH1 || mH2 || mH3 || mHx) {
       flushList()
-      const t = mH3?.[1] ?? mH2?.[1] ?? mH1?.[1] ?? ''
-      blocks.push({ kind: mH3 ? 'h3' : mH2 ? 'h2' : 'h1', text: cleanHeadingText(t as string) })
+      const t = mHx?.[1] ?? mH3?.[1] ?? mH2?.[1] ?? mH1?.[1] ?? ''
+      blocks.push({ kind: mH2 || mHx ? 'h2' : mH3 ? 'h3' : 'h1', text: cleanHeadingText(t as string) })
     } else if (mCB) {
       flushList()
       const lang = mCB[1] || ''
@@ -151,10 +166,13 @@ function parseBlocks(raw: string): Block[] {
       continue
     } else if (mUL) {
       if (listKind !== 'ul') { flushList(); listKind = 'ul' }
-      listItems.push(mUL[1]!)
+      listItems.push(cleanListItemText(mUL[1]!))
     } else if (mOL) {
       if (listKind !== 'ol') { flushList(); listKind = 'ol' }
-      listItems.push(mOL[1]!)
+      listItems.push(cleanListItemText(mOL[1]!))
+    } else if (mKeyTerm) {
+      if (listKind !== 'ul') { flushList(); listKind = 'ul' }
+      listItems.push(cleanListItemText(mKeyTerm[1]!))
     } else if (line.trim() === '') {
       flushList()
       if (blocks.length > 0) {
