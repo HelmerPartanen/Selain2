@@ -113,10 +113,10 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
         <div className="flex-1 min-w-0 flex items-center">
           <div
-            className={`w-full min-w-0 rounded-lg bg-black/[0.08] dark:bg-white/[0.06] ${
+            className={`w-full min-w-0 rounded-lg bg-black/[0.06] dark:bg-white/[0.06] ${
               isUrlBarFocused
                 ? ""
-                : "hover:bg-black/[0.04] dark:hover:bg-white/[0.08]"
+                : ""
             }`}
           >
             <URLBar

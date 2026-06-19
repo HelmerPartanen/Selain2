@@ -442,11 +442,11 @@ function BrowserLayoutInner(): React.JSX.Element {
   )}
 
   <div
-    className={`relative isolate h-full transition-[padding] duration-250 bezier-cubic-out ${
+    className={`relative isolate h-full transition-[padding] duration-150 bezier-cubic-out ${
       isFocusedNewTab ? '' : 'bg-gray-100 dark:bg-neutral-900'
     }`}
     style={{
-      padding: isSummaryFrameActive ? 3 : 0,
+      padding: isSummaryFrameActive ? 10 : 0,
     }}
   >
     {isSummaryFrameActive && (
@@ -458,7 +458,7 @@ function BrowserLayoutInner(): React.JSX.Element {
             : 'summary-underlay-in 0.18s ease-out 0.24s both',
 
           // Creates the hollow border region
-          padding: 3,
+          padding: 10,
 
           maskImage:
             'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
@@ -480,8 +480,8 @@ function BrowserLayoutInner(): React.JSX.Element {
                 from 0deg,
                 transparent 0deg,
                 transparent 300deg,
-                rgba(59,130,246,0.15) 320deg,
-                rgba(59,130,246,0.95) 340deg,
+                rgba(230,59,246,0.15) 320deg,
+                rgba(230, 59, 246, 0.95) 340deg,
                 rgba(96,165,250,1) 350deg,
                 rgba(59,130,246,0.95) 360deg
               )
