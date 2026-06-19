@@ -151,7 +151,11 @@ const TabStripItem = memo(function TabStripItem({
         maxWidth: TAB_MAX_WIDTH,
       }}
       title={compactMode !== "full" ? title : undefined}
+<<<<<<< HEAD
       className={`group relative flex items-center h-8 rounded-lg text-left transition-all duration-150 overflow-hidden flex-shrink focus:outline-none [app-region:no-drag] ${
+=======
+      className={`group relative flex items-center h-8 rounded-lg text-left transition-colors duration-100 overflow-hidden flex-shrink focus:outline-none [app-region:no-drag] ${
+>>>>>>> 909256bb339932e93e5de8a4820dd9e6f8ecc497
         compactMode === "icon"
           ? "justify-center px-1 gap-0"
           : compactMode === "compact"
