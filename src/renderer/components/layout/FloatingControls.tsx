@@ -23,6 +23,7 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { SPRING, SPRING_GENTLE, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs';
 
 const THROTTLE_MS = 100;
+const FLOATING_CONTROL_HEIGHT = 42;
 
 function useIdleVisibility(isActive: boolean): boolean {
   const [isIdle, setIsIdle] = useState(false);
@@ -245,26 +246,26 @@ function FloatingControlsInner(): React.JSX.Element {
             transition={disableAnimations ? { duration: 0 } : isIdle ? SPRING_GENTLE : SPRING}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            style={{ willChange: "transform, opacity" }}
+            style={{ height: FLOATING_CONTROL_HEIGHT, willChange: "transform, opacity" }}
           >
             {/* Glass surface container with blur */}
-            <div className="">
+            <div className="h-full">
               {/* Pod constellation — separate glass pills with liquid morphing */}
-              <div className="flex items-center gap-1.5 max-w-[calc(100vw-40px)]">
+              <div className="flex items-center gap-1.5 h-full max-w-[calc(100vw-40px)]">
 
                 {/* ── Menu + Spaces Pod ── */}
-                <div className="flex items-center rounded-full gap-0.5">
+                <div className="flex items-center h-full rounded-full gap-0.5">
                   <AppMenu />
                   <SpaceSwitcher />
                 </div>
 
                 {/* ── Nav Pod ── */}
                 {/* Keep reflow-based expansion/shrink (no width:auto transitions). */}
-                <motion.div className="flex items-center" style={{ overflow: "hidden" }}>
+                <motion.div className="flex items-center h-full" style={{ overflow: "hidden" }}>
                   {/* Back button slot (40px wide) */}
                   <motion.div
                     layout={false}
-                    animate={{ width: canGoBack ? 40 : 0 }}
+                    animate={{ width: canGoBack ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
                     transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                     style={{ overflow: "hidden" }}
                   >
@@ -280,7 +281,7 @@ function FloatingControlsInner(): React.JSX.Element {
                         filter: canGoBack ? "blur(0px)" : "blur(4px)",
                       }}
                       transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
-                      className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
+                      className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
                     >
                       <SvgIcon svg={chevronLeftSvg} size={16} />
                     </motion.button>
@@ -289,7 +290,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   {/* Forward button slot (40px wide) */}
                   <motion.div
                     layout={false}
-                    animate={{ width: canGoForward ? 40 : 0 }}
+                    animate={{ width: canGoForward ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
                     transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                     style={{ overflow: "hidden" }}
                   >
@@ -305,7 +306,7 @@ function FloatingControlsInner(): React.JSX.Element {
                         filter: canGoForward ? "blur(0px)" : "blur(4px)",
                       }}
                       transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
-                      className="h-10 w-10 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
+                      className="h-full aspect-square rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
                     >
                       <SvgIcon svg={chevronRightSvg} size={16} />
                     </motion.button>
@@ -313,7 +314,7 @@ function FloatingControlsInner(): React.JSX.Element {
                 </motion.div>
 
                 {/* ── URL Pod ── */}
-                <div className="flex items-center rounded-full min-w-0 flex-shrink">
+                <div className="flex items-center h-full rounded-full min-w-0 flex-shrink">
                   <URLBar onFocusChange={handleFocusChange} />
                 </div>
 
@@ -322,7 +323,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   {isSplit && (
                     <motion.div
                       key="unsplit-pod"
-                      className="flex items-center rounded-full"
+                      className="flex items-center h-full rounded-full"
                       initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                       animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
                       exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
@@ -337,7 +338,7 @@ function FloatingControlsInner(): React.JSX.Element {
                         animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
                         exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
                         transition={SPRING_EXPAND}
-                        className="h-10 w-10 rounded-full flex items-center justify-center text-blue-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
+                        className="h-full aspect-square rounded-lg flex items-center justify-center text-blue-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
                       >
                         <SvgIcon svg={unsplitSvg} size={15} />
                       </motion.button>
@@ -349,7 +350,7 @@ function FloatingControlsInner(): React.JSX.Element {
                 <DownloadPill />
 
                 {/* ── Tab Pod ── */}
-                <div className="flex-shrink-0">
+                <div className="h-full flex-shrink-0">
                   <TabPill />
                 </div>
               </div>

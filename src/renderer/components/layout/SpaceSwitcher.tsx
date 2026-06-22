@@ -407,7 +407,7 @@ const popoverBelow = uiLayout === 'classic'
   )
 
   return (
-  <div className="relative" ref={triggerRef}>
+  <div className={`relative ${popoverBelow ? '' : 'h-full'}`} ref={triggerRef}>
     <motion.button
       onClick={handleToggle}
       aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
@@ -425,7 +425,7 @@ const popoverBelow = uiLayout === 'classic'
           ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
           : undefined
       }
-      className="h-9 w-9 flex items-center justify-center leading-none rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+      className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} flex items-center justify-center leading-none rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none`}
     >
       <span
         className="flex items-center justify-center"
@@ -445,7 +445,7 @@ const popoverBelow = uiLayout === 'classic'
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
             <motion.div
-              className={`${popoverBelow ? 'fixed' : 'absolute left-1/2 bottom-[45px] -translate-x-1/2'} z-[100] min-w-[220px] max-w-[280px]`}
+              className={`${popoverBelow ? 'fixed' : 'absolute left-1/2 bottom-full mb-2 -translate-x-1/2'} z-[100] min-w-[220px] max-w-[280px]`}
               style={
                 popoverBelow
                   ? {

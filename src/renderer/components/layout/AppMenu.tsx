@@ -133,7 +133,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
   const actionableItems = menuItems.filter((item) => !item.id.startsWith("divider"));
 
   return (
-    <div className="relative" ref={triggerRef}>
+    <div className={`relative ${popoverBelow ? '' : 'h-full'}`} ref={triggerRef}>
       <motion.button
         onClick={handleToggle}
         aria-label="Menu"
@@ -141,7 +141,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        className="h-9 w-9 rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none"
+        className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none`}
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
           <motion.span
@@ -175,13 +175,20 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
             <motion.div
-              className="fixed z-[100] min-w-[280px]"
-              style={{
-                left: menuPos?.left,
-                top: menuPos?.top,
-                originX: 0.5,
-                originY: popoverBelow ? 0 : 1,
-              }}
+              className={`${popoverBelow ? 'fixed' : 'absolute left-1/2 bottom-full mb-2 -translate-x-1/2'} z-[100] min-w-[280px]`}
+              style={
+                popoverBelow
+                  ? {
+                      left: menuPos?.left,
+                      top: menuPos?.top,
+                      originX: 0.5,
+                      originY: 0,
+                    }
+                  : {
+                      originX: 0.5,
+                      originY: 1,
+                    }
+              }
               initial={disableAnimations ? undefined : {
                 scaleX: 0.15,
                 scaleY: 0.04,
