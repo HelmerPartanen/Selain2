@@ -42,7 +42,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
     : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
 
   const toolButtonClass =
-    'h-11 w-11 rounded-xl flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none hover:brightness-90 dark:hover:brightness-120 shrink-0'
+    'h-[42px] w-[42px] rounded-xl flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none hover:brightness-90 dark:hover:brightness-120 shrink-0'
 
   // -------------------------
   // HOVER
