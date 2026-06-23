@@ -251,14 +251,14 @@ function TabPillInner(): React.JSX.Element {
   const [contextMenu, setContextMenu] = useState<{ tabId: string; x: number; y: number } | null>(null)
 
   return (
-    <div className="relative">
-      <div className="flex items-center rounded-full">
+    <div className="relative h-full">
+      <div className="flex items-center h-full rounded-full">
         <motion.button
           onClick={handleAddTab}
           aria-label="New tab"
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
+          className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <SvgIcon svg={plusSvg} size={14} />
         </motion.button>
@@ -274,7 +274,7 @@ function TabPillInner(): React.JSX.Element {
           aria-label={tabsButtonAction === 'menu' ? 'Tab list' : 'Tab overview'}
           whileTap={{ scale: 0.82 }}
           transition={SPRING_SNAPPY}
-          className="h-10 w-10 flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
+          className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <div className="relative">
         <div style={{ display: 'flex' }}>
