@@ -1,12 +1,10 @@
 // ─── Appearance Settings Pane ────────────────────────────────────────────────
 
 import { memo, useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Desc, SectionHeader, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
 import { useSettingsStore, UI_ZOOM_OPTIONS, type UiLayout } from "@/store/settingsStore";
-import { SPRING_SNAPPY } from "@/utils/springs";
 import sunSvg from "@/assets/icons/Weather/Sun_1.svg?raw";
 import moonSvg from "@/assets/icons/Weather/Moon.svg?raw";
 import displaySvg from "@/assets/icons/Devices/Display.svg?raw";
@@ -28,6 +26,8 @@ function AppearancePaneInner(): React.JSX.Element {
   const setAutoHideDelay = useSettingsStore((s) => s.setAutoHideDelay);
   const uiLayout = useSettingsStore((s) => s.uiLayout);
   const setUiLayout = useSettingsStore((s) => s.setUiLayout);
+  const enableAutoHide = useSettingsStore((s) => s.enableAutoHide);
+  const setEnableAutoHide = useSettingsStore((s) => s.setEnableAutoHide);
 
   const renderLayoutButton = (layout: UiLayout, label: string) => {
     const active = uiLayout === layout;
@@ -133,6 +133,18 @@ function AppearancePaneInner(): React.JSX.Element {
           {renderLayoutButton("floating", "Floating")}
           {renderLayoutButton("classic", "Classic")}
         </div>
+        <SettingGroup className="mt-4">
+          <SettingRow
+            label="Hide UI automatically"
+            desc="The floating control bar will hide when inactive and reappear on hover or keyboard activity."
+          >
+            <Toggle
+              checked={enableAutoHide}
+              onChange={setEnableAutoHide}
+              label="Auto-hide UI"
+            />
+          </SettingRow>
+        </SettingGroup>
       </div>
 
       <div>
