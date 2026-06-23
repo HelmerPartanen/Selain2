@@ -3,8 +3,9 @@
 // wallpaper persistence, and settings store persistence.
 
 import { app, dialog, ipcMain, nativeImage, session, shell, webContents, net } from 'electron'
-import { readFile, writeFile, unlink } from 'fs/promises'
-import { join } from 'path'
+import { mkdir, readFile, rename, writeFile, unlink } from 'fs/promises'
+import { basename, join } from 'path'
+import { fileURLToPath, pathToFileURL } from 'url'
 import { existsSync, writeFileSync } from 'fs'
 import { logger } from './logger'
 import { getMainWindow } from './state'
@@ -23,6 +24,13 @@ const storePerf = {
 }
 
 const savedStoreCache = new Map<string, string>()
+
+interface CustomWallpaper {
+  id: string
+  name: string
+  url: string
+  createdAt: number
+}
 
 function startPerfLogging(): void {
   if (!PERF_LOGS) return
@@ -227,8 +235,79 @@ export function setupIPC(): void {
     return clearSiteData(safeOrigin)
   })
 
-  // ── Image picker dialog ──────────────────────────────────────────────────
-  ipcMain.handle('open-image-dialog', async () => {
+  // ── Wallpaper persistence ────────────────────────────────────────────────
+  const wallpaperPath = join(app.getPath('userData'), 'wallpaper.dat')
+  const wallpaperDir = join(app.getPath('userData'), 'wallpapers')
+  const customWallpaperIndexPath = join(wallpaperDir, 'custom-wallpapers.json')
+
+  async function writeTextAtomic(filePath: string, data: string): Promise<void> {
+    const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}`
+    await writeFile(tempPath, data, 'utf-8')
+    await rename(tempPath, filePath)
+  }
+
+  async function loadCustomWallpapers(): Promise<CustomWallpaper[]> {
+    try {
+      if (!existsSync(customWallpaperIndexPath)) return []
+      const parsed = JSON.parse(await readFile(customWallpaperIndexPath, 'utf-8')) as unknown
+      if (!Array.isArray(parsed)) return []
+      return parsed.filter((item): item is CustomWallpaper => {
+        const candidate = item as Partial<CustomWallpaper>
+        if (
+          typeof candidate.id === 'string' &&
+          typeof candidate.name === 'string' &&
+          typeof candidate.url === 'string' &&
+          typeof candidate.createdAt === 'number'
+        ) {
+          try {
+            return existsSync(fileURLToPath(candidate.url))
+          } catch {
+            return false
+          }
+        }
+        return false
+      })
+    } catch (err) {
+      logger.warn('Failed to load custom wallpaper index:', err)
+      return []
+    }
+  }
+
+  async function saveCustomWallpapers(items: CustomWallpaper[]): Promise<void> {
+    await mkdir(wallpaperDir, { recursive: true })
+    await writeTextAtomic(customWallpaperIndexPath, JSON.stringify(items, null, 2))
+  }
+
+  async function saveSelectedWallpaper(value: string | null): Promise<boolean> {
+    try {
+      if (value === null) {
+        if (existsSync(wallpaperPath)) await unlink(wallpaperPath)
+        return true
+      }
+
+      if (
+        typeof value !== 'string' ||
+        (
+          !value.startsWith('data:image/') &&
+          !value.startsWith('bundled:') &&
+          !value.startsWith('preset:') &&
+          !value.startsWith('file://') &&
+          value.length > 0
+        )
+      ) {
+        logger.warn('Invalid wallpaper data')
+        return false
+      }
+
+      await writeTextAtomic(wallpaperPath, value)
+      return true
+    } catch (err) {
+      logger.warn('Failed to save wallpaper:', err)
+      return false
+    }
+  }
+
+  async function importWallpaperFromDialog(): Promise<CustomWallpaper | null> {
     const win = getMainWindow()
     if (!win) return null
 
@@ -242,42 +321,77 @@ export function setupIPC(): void {
     const filePath = result.filePaths[0]!
     const buffer = await readFile(filePath)
 
-    // Resize to max 1920px width to reduce memory usage
+    // Resize to a sensible display size to keep startup and CSS painting fast.
     let img = nativeImage.createFromBuffer(buffer)
     const size = img.getSize()
-    const MAX_WIDTH = 1920
-    if (size.width > MAX_WIDTH) {
-      const ratio = MAX_WIDTH / size.width
-      img = img.resize({ width: MAX_WIDTH, height: Math.round(size.height * ratio), quality: 'good' })
+    if (img.isEmpty() || size.width <= 0 || size.height <= 0) {
+      logger.warn('Selected wallpaper could not be decoded')
+      return null
     }
 
-    // Always output JPEG for wallpapers (smaller than PNG)
-    const resizedBuffer = img.toJPEG(85)
-    return `data:image/jpeg;base64,${resizedBuffer.toString('base64')}`
+    const MAX_EDGE = 2560
+    const longest = Math.max(size.width, size.height)
+    if (longest > MAX_EDGE) {
+      const ratio = MAX_EDGE / longest
+      img = img.resize({
+        width: Math.round(size.width * ratio),
+        height: Math.round(size.height * ratio),
+        quality: 'good'
+      })
+    }
+
+    await mkdir(wallpaperDir, { recursive: true })
+    const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const outputPath = join(wallpaperDir, `${id}.jpg`)
+    const tempPath = `${outputPath}.tmp`
+    await writeFile(tempPath, img.toJPEG(88))
+    await rename(tempPath, outputPath)
+
+    const item: CustomWallpaper = {
+      id,
+      name: basename(filePath).replace(/\.[^.]+$/, ''),
+      url: pathToFileURL(outputPath).toString(),
+      createdAt: Date.now()
+    }
+
+    const existing = await loadCustomWallpapers()
+    await saveCustomWallpapers([item, ...existing])
+    await saveSelectedWallpaper(item.url)
+    return item
+  }
+
+  // Legacy API: keep returning just the URL for older renderer call sites.
+  ipcMain.handle('open-image-dialog', async () => {
+    const item = await importWallpaperFromDialog()
+    return item?.url ?? null
   })
 
-  // ── Wallpaper persistence ────────────────────────────────────────────────
-  const wallpaperPath = join(app.getPath('userData'), 'wallpaper.dat')
+  ipcMain.handle('import-wallpaper', async () => {
+    return importWallpaperFromDialog()
+  })
+
+  ipcMain.handle('list-custom-wallpapers', async () => {
+    return loadCustomWallpapers()
+  })
+
+  ipcMain.handle('delete-custom-wallpaper', async (_event, id: unknown) => {
+    if (typeof id !== 'string' || !id.startsWith('custom-')) return false
+    const existing = await loadCustomWallpapers()
+    const item = existing.find((wp) => wp.id === id)
+    if (!item) return false
+
+    await saveCustomWallpapers(existing.filter((wp) => wp.id !== id))
+    const filePath = join(wallpaperDir, `${id}.jpg`)
+    try {
+      if (existsSync(filePath)) await unlink(filePath)
+    } catch (err) {
+      logger.warn('Failed to delete custom wallpaper file:', err)
+    }
+    return true
+  })
 
   ipcMain.handle('save-wallpaper', async (_event, dataUrl: string | null) => {
-    try {
-      if (dataUrl === null) {
-        if (existsSync(wallpaperPath)) await unlink(wallpaperPath)
-      } else {
-        if (
-          typeof dataUrl !== 'string' ||
-          (!dataUrl.startsWith('data:image/') && !dataUrl.startsWith('bundled:') && dataUrl.length > 0)
-        ) {
-          logger.warn('Invalid wallpaper data: not a data URL or bundled identifier')
-          return false
-        }
-        await writeFile(wallpaperPath, dataUrl, 'utf-8')
-      }
-      return true
-    } catch (err) {
-      logger.warn('Failed to save wallpaper:', err)
-      return false
-    }
+    return saveSelectedWallpaper(dataUrl)
   })
 
   ipcMain.handle('load-wallpaper', async () => {

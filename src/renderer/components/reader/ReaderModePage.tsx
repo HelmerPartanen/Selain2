@@ -18,7 +18,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
   style.textContent = `
     /* ─── Base prose ─────────────────────────────────────────────────── */
     .reader-content {
-      font-family: 'Georgia', 'Charter', 'Palatino Linotype', 'Book Antiqua', serif;
+      font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
       font-size: 18.5px;
       line-height: 1.82;
       letter-spacing: 0.008em;
@@ -41,7 +41,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
     .reader-content h2,
     .reader-content h3,
     .reader-content h4 {
-      font-family: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
+      font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
       font-weight: 700;
       line-height: 1.22;
       letter-spacing: -0.02em;
@@ -76,7 +76,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
     /* ─── Figures ────────────────────────────────────────────────────── */
     .reader-content figure { margin: 2em 0; }
     .reader-content figcaption {
-      font-family: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
+      font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
       font-size: 13px;
       line-height: 1.5;
       letter-spacing: 0.01em;
@@ -141,7 +141,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       border-collapse: collapse;
       font-size: 0.9em;
       margin: 1.75em 0;
-      font-family: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
+      font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
     }
     .reader-content th {
       text-align: left;

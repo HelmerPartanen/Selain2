@@ -1,5 +1,5 @@
 // ─── Theme Store ─────────────────────────────────────────────────────────────
-// Persists theme mode to localStorage and wallpaper to IndexedDB.
+// Persists theme mode to app storage and wallpaper selection to the main process.
 // Supports light, dark, and system theme modes.
 
 import { create } from 'zustand'
@@ -21,12 +21,14 @@ interface ThemeState {
 
 interface ThemeActions {
   setThemeMode: (mode: ThemeMode) => void
-  setWallpaper: (wallpaper: string | null) => void
-  /** Hydrate wallpaper from IndexedDB on startup */
+  setWallpaper: (wallpaper: string | null) => Promise<boolean>
+  /** Hydrate wallpaper selection on startup */
   hydrateWallpaper: () => Promise<void>
 }
 
 type ThemeStore = ThemeState & ThemeActions
+
+let wallpaperSelectionVersion = 0
 
 export const useThemeStore = create<ThemeStore>()(
   devtools(
@@ -41,10 +43,15 @@ export const useThemeStore = create<ThemeStore>()(
         setThemeMode: (mode: ThemeMode) => {
           set({ themeMode: mode })
         },
-        setWallpaper: (wallpaper: string | null) => {
+        setWallpaper: async (wallpaper: string | null) => {
+          const version = ++wallpaperSelectionVersion
+          const previous = useThemeStore.getState().wallpaper
           set({ wallpaper })
-          // Persist to disk (bundled keys like "bundled:file.jpg" or data URLs)
-          saveWallpaper(wallpaper)
+          const saved = await saveWallpaper(wallpaper)
+          if (!saved && version === wallpaperSelectionVersion) {
+            set({ wallpaper: previous })
+          }
+          return saved
         },
         hydrateWallpaper: async () => {
           const wallpaper = await loadWallpaper()
@@ -58,7 +65,7 @@ export const useThemeStore = create<ThemeStore>()(
             logger.error(`[themeStore] Corrupted persisted data for '${name}' detected; using system theme`)
           }
         }),
-        // Only persist themeMode — wallpaper goes to filesystem via wallpaperDB
+        // Only persist themeMode; wallpaper selection is managed by wallpaperDB.
         partialize: (state) => ({
           themeMode: state.themeMode
         }) as ThemeStore
@@ -68,5 +75,5 @@ export const useThemeStore = create<ThemeStore>()(
   )
 )
 
-// Hydrate wallpaper from IndexedDB on module load
+// Hydrate wallpaper selection on module load.
 useThemeStore.getState().hydrateWallpaper()

@@ -22,11 +22,17 @@ export interface ElectronAPI {
   closeWindow(): void
   toggleMaximizeWindow(): void
   onMaximizeChange(callback: (isMaximized: boolean) => void): () => void
-  /** Opens a native file dialog to pick an image; returns a data URL or null */
+  /** Opens a native file dialog to pick an image; returns the selected wallpaper URL or null */
   openImageDialog(): Promise<string | null>
-  /** Persist wallpaper data URL to disk (null to clear) */
+  /** Imports a custom wallpaper into app storage and returns its library entry */
+  importWallpaper(): Promise<CustomWallpaper | null>
+  /** Lists custom wallpapers stored by the app */
+  listCustomWallpapers(): Promise<CustomWallpaper[]>
+  /** Deletes a custom wallpaper from app storage */
+  deleteCustomWallpaper(id: string): Promise<boolean>
+  /** Persist wallpaper selection to disk (null to clear) */
   saveWallpaper(dataUrl: string | null): Promise<boolean>
-  /** Load persisted wallpaper data URL from disk */
+  /** Load persisted wallpaper selection from disk */
   loadWallpaper(): Promise<string | null>
   /** Listen for keyboard shortcuts forwarded from the main process (for webview-focused shortcuts) */
   onShortcutPressed(callback: (shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }) => void): () => void
@@ -90,6 +96,13 @@ export interface ElectronAPI {
   onAISummaryChunk(callback: (token: string) => void): () => void
   /** Receive summarization completion signal */
   onAISummaryDone(callback: (data: { success: boolean; error?: string }) => void): () => void
+}
+
+export interface CustomWallpaper {
+  id: string
+  name: string
+  url: string
+  createdAt: number
 }
 
 declare global {

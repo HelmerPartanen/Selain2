@@ -21,6 +21,13 @@ import { useIsDark } from "@/hooks/useIsDark";
 import uploadSvg from "@/assets/icons/Objects/Tray_Arrow_Up.svg?raw";
 import trashSvg from "@/assets/icons/Objects/Trash.svg?raw";
 
+interface CustomWallpaper {
+  id: string;
+  name: string;
+  url: string;
+  createdAt: number;
+}
+
 // --- Computed constants -------------------------------------------------------
 
 const solidBaseColors: string[] = SOLID_COLOR_PRESETS.map((c) => c.hex);
@@ -199,47 +206,139 @@ const GradientThumb = memo(function GradientThumb({
   );
 });
 
+const CustomThumb = memo(function CustomThumb({
+  item,
+  isActive,
+  onSelect,
+  onRemove,
+}: {
+  item: CustomWallpaper;
+  isActive: boolean;
+  onSelect: (url: string) => void;
+  onRemove: (item: CustomWallpaper) => void;
+}): React.JSX.Element {
+  return (
+    <div
+      className={`${THUMB_BASE_CLASS} ${
+        isActive ? THUMB_RING_ACTIVE : THUMB_RING_INACTIVE
+      }`}
+    >
+      <button
+        type="button"
+        onClick={() => onSelect(item.url)}
+        aria-label={`Select custom wallpaper: ${item.name}`}
+        aria-pressed={isActive}
+        className="absolute inset-0"
+      >
+        <img
+          src={item.url}
+          alt=""
+          aria-hidden
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover select-none"
+        />
+      </button>
+      <button
+        type="button"
+        onClick={() => onRemove(item)}
+        aria-label={`Remove custom wallpaper: ${item.name}`}
+        className="absolute top-2 right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md transition-colors duration-150 hover:bg-black/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+      >
+        <SvgIcon svg={trashSvg} size={13} />
+      </button>
+    </div>
+  );
+});
+
 // --- Wallpaper Pane ----------------------------------------------------------
 
 function WallpaperPaneInner(): React.JSX.Element {
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const setWallpaper = useThemeStore((s) => s.setWallpaper);
   const isDark = useIsDark();
+  const [customWallpapers, setCustomWallpapers] = useState<CustomWallpaper[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSelectPreset = useCallback(
-    (dataUrl: string) => setWallpaper(dataUrl),
+    (dataUrl: string) => {
+      void setWallpaper(dataUrl);
+    },
     [setWallpaper],
   );
 
   const handleSelectGradient = useCallback(
-    (presetId: string) => setWallpaper(`${PRESET_PREFIX}${presetId}`),
+    (presetId: string) => {
+      void setWallpaper(`${PRESET_PREFIX}${presetId}`);
+    },
     [setWallpaper],
   );
 
   const handleSelectSolid = useCallback(
     (hex: string) => {
       const dataUrl = SOLID_DATA_URL_MAP.get(hex);
-      if (dataUrl) setWallpaper(dataUrl);
+      if (dataUrl) void setWallpaper(dataUrl);
     },
     [setWallpaper],
   );
 
-  const handleCustomImage = useCallback(async () => {
+  const refreshCustomWallpapers = useCallback(async () => {
     try {
-      const dataUrl = await window.electronAPI.openImageDialog();
-      if (dataUrl) {
-        setWallpaper(dataUrl);
+      setCustomWallpapers(await window.electronAPI.listCustomWallpapers());
+    } catch (err) {
+      logger.warn("Failed to list custom wallpapers:", err);
+      setCustomWallpapers([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshCustomWallpapers();
+  }, [refreshCustomWallpapers]);
+
+  const handleCustomImage = useCallback(async () => {
+    if (isUploading) return;
+    setIsUploading(true);
+    try {
+      const item = await window.electronAPI.importWallpaper();
+      if (item) {
+        setCustomWallpapers((items) => [item, ...items.filter((wp) => wp.id !== item.id)]);
+        const saved = await setWallpaper(item.url);
+        if (!saved) {
+          showToast({ message: "Wallpaper could not be saved", type: "error" });
+          return;
+        }
         showToast({ message: "Wallpaper updated", type: "success" });
       }
     } catch (err) {
       logger.error("Failed to open image dialog:", err)
       showToast({ message: "Failed to set wallpaper", type: "error" });
+    } finally {
+      setIsUploading(false);
     }
-  }, [setWallpaper]);
+  }, [isUploading, setWallpaper]);
 
-  const handleClear = useCallback(() => {
-    setWallpaper(null);
-    showToast({ message: "Wallpaper removed", type: "info" });
+  const handleRemoveCustom = useCallback(async (item: CustomWallpaper) => {
+    const deleted = await window.electronAPI.deleteCustomWallpaper(item.id);
+    if (!deleted) {
+      showToast({ message: "Failed to remove wallpaper", type: "error" });
+      return;
+    }
+
+    setCustomWallpapers((items) => items.filter((wp) => wp.id !== item.id));
+    if (wallpaper === item.url) {
+      const cleared = await setWallpaper(null);
+      if (cleared) showToast({ message: "Wallpaper removed", type: "info" });
+    }
+  }, [setWallpaper, wallpaper]);
+
+  const handleClear = useCallback(async () => {
+    const saved = await setWallpaper(null);
+    if (saved) {
+      showToast({ message: "Wallpaper removed", type: "info" });
+    } else {
+      showToast({ message: "Failed to remove wallpaper", type: "error" });
+    }
   }, [setWallpaper]);
 
   // Note: we intentionally do NOT clear the bundled or preset thumbnail
@@ -317,15 +416,37 @@ function WallpaperPaneInner(): React.JSX.Element {
         </div>
       </div>
 
+      {customWallpapers.length > 0 && (
+        <div>
+          <SectionHeader className="mb-3">Custom</SectionHeader>
+          <div
+            className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 glass-scroll"
+            role="listbox"
+            aria-label="Custom wallpapers"
+          >
+            {customWallpapers.map((item) => (
+              <CustomThumb
+                key={item.id}
+                item={item}
+                isActive={wallpaper === item.url}
+                onSelect={handleSelectPreset}
+                onRemove={handleRemoveCustom}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-2.5">
         <button
           type="button"
           onClick={handleCustomImage}
+          disabled={isUploading}
           aria-label="Upload custom wallpaper image"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97] disabled:cursor-wait disabled:opacity-60"
         >
           <SvgIcon svg={uploadSvg} size={14} />
-          Upload Image
+          {isUploading ? "Importing..." : "Upload Image"}
         </button>
         <button
           type="button"

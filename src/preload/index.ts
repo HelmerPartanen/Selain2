@@ -20,6 +20,9 @@ const api: ElectronAPI = {
     }
   },
   openImageDialog: () => ipcRenderer.invoke('open-image-dialog'),
+  importWallpaper: () => ipcRenderer.invoke('import-wallpaper'),
+  listCustomWallpapers: () => ipcRenderer.invoke('list-custom-wallpapers'),
+  deleteCustomWallpaper: (id: string) => ipcRenderer.invoke('delete-custom-wallpaper', id),
   saveWallpaper: (dataUrl: string | null) => ipcRenderer.invoke('save-wallpaper', dataUrl),
   loadWallpaper: () => ipcRenderer.invoke('load-wallpaper'),
   onShortcutPressed: (callback: (shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }) => void) => {

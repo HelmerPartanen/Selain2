@@ -4,13 +4,23 @@
 
 import { logger } from '@/utils/logger'
 
-/** Save a wallpaper data URL (or null) to disk via main process */
-export async function saveWallpaper(dataUrl: string | null): Promise<void> {
-  try {
-    await window.electronAPI.saveWallpaper(dataUrl)
-  } catch (err) {
-    logger.warn('Failed to save wallpaper:', err)
-  }
+let saveQueue: Promise<void> = Promise.resolve()
+
+/** Save a wallpaper value (or null) to disk via main process */
+export async function saveWallpaper(dataUrl: string | null): Promise<boolean> {
+  const saveTask = saveQueue.then(async () => {
+    try {
+      return await window.electronAPI.saveWallpaper(dataUrl)
+    } catch (err) {
+      logger.warn('Failed to save wallpaper:', err)
+      return false
+    }
+  })
+  saveQueue = saveTask.then(
+    () => undefined,
+    () => undefined,
+  )
+  return saveTask
 }
 
 /** Load the wallpaper data URL from disk via main process */
