@@ -142,8 +142,8 @@ function SettingsPanelInner(): React.JSX.Element {
   return (
     <PanelModal
       onClose={closeSettings}
-      width="900px"
-      height="600px"
+      width="1100px"
+      height="700px"
       role="dialog"
       aria-label="Settings"
       aria-modal={true}

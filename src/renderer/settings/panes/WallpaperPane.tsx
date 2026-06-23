@@ -419,10 +419,10 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
                   <SvgIcon svg={chevronDownSvg} size={12} className={`transition-transform duration-150 ${isMenuOpen ? "rotate-180" : ""}`} />
                 </button>
                 {isMenuOpen && (
-                  <div
-                    role="menu"
-                    className="absolute left-0 top-[calc(100%+6px)] z-20 min-w-36 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
-                  >
+              <div
+                role="menu"
+                className="absolute left-0 top-[calc(100%+6px)] z-20 flex min-w-36 flex-col gap-1 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
+              >
                     {DYNAMIC_MODE_OPTIONS.map((option) => (
                       <button
                         key={option.mode}
@@ -451,7 +451,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
             </>
           ) : (
             <p className="text-[11px] text-gray-400 dark:text-neutral-500 leading-relaxed max-w-sm">
-              Select the dynamic wallpaper to choose automatic, light, or dark behavior.
+              Select a dynamic wallpaper to choose automatic, light, or dark behavior.
             </p>
           )}
         </div>
