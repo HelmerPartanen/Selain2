@@ -37,11 +37,9 @@ import {
   resolveWallpaperUrl,
 } from "@/theme/bundledWallpapers";
 import {
-  getDynamicWallpaperDevHourOverride,
   getDynamicWallpaperLayers,
   getDynamicWallpaperMode,
   isDynamicWallpaperKey,
-  subscribeDynamicWallpaperDevHourOverride,
   subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
@@ -214,9 +212,6 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isDark = useIsDark();
   const isDynamicWallpaper = !!wallpaper && isDynamicWallpaperKey(wallpaper);
   const [dynamicWallpaperNow, setDynamicWallpaperNow] = useState(() => new Date());
-  const [dynamicWallpaperDevHour, setDynamicWallpaperDevHour] = useState<number | null>(() =>
-    getDynamicWallpaperDevHourOverride(),
-  );
   const [dynamicWallpaperMode, setDynamicWallpaperModeState] = useState(() =>
     getDynamicWallpaperMode(),
   );
@@ -229,12 +224,6 @@ function BrowserLayoutInner(): React.JSX.Element {
     }, 60000);
     return () => window.clearInterval(id);
   }, [isDynamicWallpaper]);
-
-  useEffect(() => {
-    return subscribeDynamicWallpaperDevHourOverride(() => {
-      setDynamicWallpaperDevHour(getDynamicWallpaperDevHourOverride());
-    });
-  }, []);
 
   useEffect(() => {
     return subscribeDynamicWallpaperMode(() => {
@@ -292,10 +281,10 @@ function BrowserLayoutInner(): React.JSX.Element {
   const dynamicWallpaperLayers = useMemo(() => {
     if (!isDynamicWallpaper) return [];
     return getDynamicWallpaperLayers(
-      dynamicWallpaperDevHour ?? dynamicWallpaperNow,
+      dynamicWallpaperNow,
       dynamicWallpaperMode,
     );
-  }, [isDynamicWallpaper, dynamicWallpaperNow, dynamicWallpaperDevHour, dynamicWallpaperMode]);
+  }, [isDynamicWallpaper, dynamicWallpaperNow, dynamicWallpaperMode]);
 
   // Revoke old blob URLs after new one is rendered, preventing accumulation
   useEffect(() => {
@@ -455,7 +444,7 @@ function BrowserLayoutInner(): React.JSX.Element {
                 opacity: layer.opacity,
                 transition: disableAnimations
                   ? undefined
-                  : dynamicWallpaperDevHour === null && dynamicWallpaperMode === "dynamic"
+                  : dynamicWallpaperMode === "dynamic"
                     ? "opacity 70s linear"
                     : "opacity 220ms ease-out",
               }}

@@ -20,16 +20,11 @@ import {
 import {
   DYNAMIC_WALLPAPER_KEY,
   type DynamicWallpaperMode,
-  formatDynamicWallpaperHour,
-  getDynamicWallpaperDevHourOverride,
-  getDynamicWallpaperHour,
   getDynamicWallpaperLayers,
   getDynamicWallpaperMode,
   isDynamicWallpaperKey,
   resolveDynamicWallpaperUrls,
-  setDynamicWallpaperDevHourOverride,
   setDynamicWallpaperMode,
-  subscribeDynamicWallpaperDevHourOverride,
   subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
 import { getPresetThumbnailUrl } from "@/theme/presetThumbnails";
@@ -39,6 +34,7 @@ import { useIsDark } from "@/hooks/useIsDark";
 import uploadSvg from "@/assets/icons/Objects/Tray_Arrow_Up.svg?raw";
 import trashSvg from "@/assets/icons/Objects/Trash.svg?raw";
 import chevronDownSvg from "@/assets/icons/Arrows/Chevron_Down.svg?raw";
+import dynamicSvg from "@/assets/icons/Weather/Dynamic.svg?raw";
 
 interface CustomWallpaper {
   id: string;
@@ -73,7 +69,6 @@ const THUMB_RING_ACTIVE =
   "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900";
 const THUMB_RING_INACTIVE =
   "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]";
-const SHOW_DYNAMIC_WALLPAPER_DEV_PANEL = import.meta.env.DEV;
 const DYNAMIC_MODE_OPTIONS: Array<{ mode: DynamicWallpaperMode; label: string }> = [
   { mode: "dynamic", label: "Dynamic" },
   { mode: "light", label: "Light" },
@@ -205,12 +200,17 @@ const DynamicThumb = memo(function DynamicThumb({
   }, []);
 
   return (
-    <LazyThumb
-      alt="Select dynamic wallpaper"
-      src={thumbUrl}
-      isActive={isActive}
-      onSelect={() => onSelect(DYNAMIC_WALLPAPER_KEY)}
-    />
+    <div className="relative flex-shrink-0">
+      <LazyThumb
+        alt="Select dynamic wallpaper"
+        src={thumbUrl}
+        isActive={isActive}
+        onSelect={() => onSelect(DYNAMIC_WALLPAPER_KEY)}
+      />
+      <div className="pointer-events-none absolute left-2 top-2 z-10 flex items-center gap-1.5 rounded-full bg-white/85 px-2 py-1 text-[10px] font-medium text-gray-700 shadow-sm ring-1 ring-black/[0.06] backdrop-blur-md dark:bg-[#1D1F23]/80 dark:text-neutral-200 dark:ring-white/[0.08]">
+        <SvgIcon svg={dynamicSvg} size={16} />
+      </div>
+    </div>
   );
 });
 
@@ -318,13 +318,11 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
   wallpaper,
   isDark,
   dynamicMode,
-  dynamicDevHour,
   onDynamicModeChange,
 }: {
   wallpaper: string | null;
   isDark: boolean;
   dynamicMode: DynamicWallpaperMode;
-  dynamicDevHour: number | null;
   onDynamicModeChange: (mode: DynamicWallpaperMode) => void;
 }): React.JSX.Element {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -373,8 +371,8 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
 
   const dynamicLayers = useMemo(() => {
     if (!isDynamic) return [];
-    return getDynamicWallpaperLayers(dynamicDevHour ?? new Date(), dynamicMode);
-  }, [isDynamic, dynamicMode, dynamicDevHour]);
+    return getDynamicWallpaperLayers(new Date(), dynamicMode);
+  }, [isDynamic, dynamicMode]);
 
   return (
     <div className="space-y-3">
@@ -462,74 +460,6 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
   );
 });
 
-const DynamicWallpaperDevPanel = memo(function DynamicWallpaperDevPanel({
-  isDynamicSelected,
-}: {
-  isDynamicSelected: boolean;
-}): React.JSX.Element {
-  const [overrideHour, setOverrideHour] = useState<number | null>(() =>
-    getDynamicWallpaperDevHourOverride(),
-  );
-  const currentHour = getDynamicWallpaperHour();
-  const displayHour = overrideHour ?? currentHour;
-
-  useEffect(() => {
-    return subscribeDynamicWallpaperDevHourOverride(() => {
-      setOverrideHour(getDynamicWallpaperDevHourOverride());
-    });
-  }, []);
-
-  const handleHourChange = useCallback((value: number) => {
-    setOverrideHour(value);
-    setDynamicWallpaperDevHourOverride(value);
-  }, []);
-
-  const handleReset = useCallback(() => {
-    setOverrideHour(null);
-    setDynamicWallpaperDevHourOverride(null);
-  }, []);
-
-  return (
-    <div className="rounded-xl bg-black/[0.04] dark:bg-white/[0.05] px-3.5 py-3 space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-[13px] font-normal text-gray-700 dark:text-neutral-200">
-            Dynamic wallpaper time
-          </div>
-          <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5 leading-relaxed">
-            {isDynamicSelected
-              ? "Preview the time-based blend without changing your system clock."
-              : "Select the dynamic wallpaper tile to preview this override."}
-          </div>
-        </div>
-        <div className="text-[12px] font-medium tabular-nums text-gray-500 dark:text-neutral-400">
-          {formatDynamicWallpaperHour(displayHour)}
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <input
-          type="range"
-          min={0}
-          max={23.75}
-          step={0.25}
-          value={displayHour}
-          onChange={(event) => handleHourChange(Number(event.target.value))}
-          aria-label="Dynamic wallpaper preview time"
-          className="flex-1 h-1 rounded-full appearance-none bg-black/[0.12] dark:bg-white/[0.14] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-1 [&::-webkit-slider-thumb]:ring-black/[0.08] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb:hover]:scale-115 [&::-webkit-slider-thumb:active]:scale-110 dark:[&::-webkit-slider-thumb]:bg-neutral-200 dark:[&::-webkit-slider-thumb]:ring-white/[0.1]"
-        />
-        <button
-          type="button"
-          onClick={handleReset}
-          disabled={overrideHour === null}
-          className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-white/70 dark:bg-white/[0.06] transition-colors duration-150 hover:bg-white dark:hover:bg-white/[0.10] disabled:opacity-45 disabled:cursor-default"
-        >
-          Live
-        </button>
-      </div>
-    </div>
-  );
-});
-
 // --- Wallpaper Pane ----------------------------------------------------------
 
 function WallpaperPaneInner(): React.JSX.Element {
@@ -540,9 +470,6 @@ function WallpaperPaneInner(): React.JSX.Element {
   const [isUploading, setIsUploading] = useState(false);
   const [dynamicMode, setDynamicModeState] = useState<DynamicWallpaperMode>(() =>
     getDynamicWallpaperMode(),
-  );
-  const [dynamicDevHour, setDynamicDevHour] = useState<number | null>(() =>
-    getDynamicWallpaperDevHourOverride(),
   );
 
   const handleSelectPreset = useCallback(
@@ -583,12 +510,6 @@ function WallpaperPaneInner(): React.JSX.Element {
   useEffect(() => {
     return subscribeDynamicWallpaperMode(() => {
       setDynamicModeState(getDynamicWallpaperMode());
-    });
-  }, []);
-
-  useEffect(() => {
-    return subscribeDynamicWallpaperDevHourOverride(() => {
-      setDynamicDevHour(getDynamicWallpaperDevHourOverride());
     });
   }, []);
 
@@ -652,7 +573,6 @@ function WallpaperPaneInner(): React.JSX.Element {
         wallpaper={wallpaper}
         isDark={isDark}
         dynamicMode={dynamicMode}
-        dynamicDevHour={dynamicDevHour}
         onDynamicModeChange={handleDynamicModeChange}
       />
 
@@ -677,10 +597,6 @@ function WallpaperPaneInner(): React.JSX.Element {
           ))}
         </div>
       </div>
-
-      {SHOW_DYNAMIC_WALLPAPER_DEV_PANEL && (
-        <DynamicWallpaperDevPanel isDynamicSelected={wallpaper === DYNAMIC_WALLPAPER_KEY} />
-      )}
 
       <div>
         <SectionHeader className="mb-3">Gradients</SectionHeader>
