@@ -291,6 +291,7 @@ export function setupIPC(): void {
           !value.startsWith('data:image/') &&
           !value.startsWith('bundled:') &&
           !value.startsWith('preset:') &&
+          !value.startsWith('dynamic:') &&
           !value.startsWith('file://') &&
           value.length > 0
         )

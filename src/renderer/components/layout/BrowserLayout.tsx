@@ -36,6 +36,10 @@ import {
   resolveBundledWallpaperUrl,
   resolveWallpaperUrl,
 } from "@/theme/bundledWallpapers";
+import {
+  getDynamicWallpaperLayers,
+  isDynamicWallpaperKey,
+} from "@/theme/dynamicWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
 import { useShallow } from 'zustand/react/shallow';
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
@@ -204,6 +208,17 @@ function BrowserLayoutInner(): React.JSX.Element {
 
   // Resolve theme-aware wallpapers — preset gradients adapt to dark/light.
   const isDark = useIsDark();
+  const isDynamicWallpaper = !!wallpaper && isDynamicWallpaperKey(wallpaper);
+  const [dynamicWallpaperNow, setDynamicWallpaperNow] = useState(() => new Date());
+
+  useEffect(() => {
+    if (!isDynamicWallpaper) return;
+    setDynamicWallpaperNow(new Date());
+    const id = window.setInterval(() => {
+      setDynamicWallpaperNow(new Date());
+    }, 60000);
+    return () => window.clearInterval(id);
+  }, [isDynamicWallpaper]);
 
   // Bundled wallpapers are lazy-loaded; cache the resolved URL so we don't re-import every frame.
   const [bundledResolvedUrl, setBundledResolvedUrl] = useState<string | null>(null);
@@ -228,12 +243,12 @@ function BrowserLayoutInner(): React.JSX.Element {
 
   // Track all issued blob URLs to prevent accumulation
   const blobUrlsRef = useRef<Set<string>>(new Set());
-  const prevBlobRef = useRef<string | null>(null);
 
   // Convert data URLs to blob URLs for efficient CSS rendering.
   // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
   const wallpaperUrl = useMemo(() => {
     if (!wallpaper) return null;
+    if (isDynamicWallpaperKey(wallpaper)) return null;
     // Resolve preset keys (e.g. "preset:ready_bloom") to theme-appropriate SVG
     if (isPresetKey(wallpaper)) return resolvePresetUrl(wallpaper, isDark);
     // Bundled keys: use async-resolved URL (may be null until loaded)
@@ -251,6 +266,11 @@ function BrowserLayoutInner(): React.JSX.Element {
     }
     return resolved;
   }, [wallpaper, isDark, bundledResolvedUrl]);
+
+  const dynamicWallpaperLayers = useMemo(() => {
+    if (!isDynamicWallpaper) return [];
+    return getDynamicWallpaperLayers(dynamicWallpaperNow);
+  }, [isDynamicWallpaper, dynamicWallpaperNow]);
 
   // Revoke old blob URLs after new one is rendered, preventing accumulation
   useEffect(() => {
@@ -399,16 +419,31 @@ function BrowserLayoutInner(): React.JSX.Element {
   return (
     <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
       {/* Wallpaper layer — fixed behind everything */}
-      <div
-        className={`
-        fixed inset-0 z-0 transition-opacity duration-500
-        bg-gray-100 dark:bg-neutral-900
-        ${wallpaperUrl ? "bg-cover bg-center bg-no-repeat" : ""}
-      `}
-        {...(wallpaperUrl && {
-          style: { backgroundImage: `url(${wallpaperUrl})` },
-        })}
-      />
+      <div className="fixed inset-0 z-0 bg-gray-100 dark:bg-neutral-900">
+        {isDynamicWallpaper ? (
+          dynamicWallpaperLayers.map((layer) => (
+            <div
+              key={layer.url}
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: `url(${layer.url})`,
+                opacity: layer.opacity,
+                transition: disableAnimations ? undefined : "opacity 70s linear",
+              }}
+            />
+          ))
+        ) : (
+          <div
+            className={`
+            absolute inset-0 transition-opacity duration-500
+            ${wallpaperUrl ? "bg-cover bg-center bg-no-repeat" : ""}
+          `}
+            {...(wallpaperUrl && {
+              style: { backgroundImage: `url(${wallpaperUrl})` },
+            })}
+          />
+        )}
+      </div>
 
       {/* Transparent drag region for window movement (floating layout only) */}
       {uiLayout === 'floating' && (

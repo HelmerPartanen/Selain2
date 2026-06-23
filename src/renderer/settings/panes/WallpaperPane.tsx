@@ -14,6 +14,10 @@ import {
   generateThumbnail,
   resolveBundledWallpaperUrl,
 } from "@/theme/bundledWallpapers";
+import {
+  DYNAMIC_WALLPAPER_KEY,
+  resolveDynamicWallpaperUrls,
+} from "@/theme/dynamicWallpapers";
 import { getPresetThumbnailUrl } from "@/theme/presetThumbnails";
 import { showToast } from "@/components/ui/Toast";
 import { logger } from "@/utils/logger";
@@ -148,6 +152,39 @@ const BundledThumb = memo(function BundledThumb({
       src={thumbUrl}
       isActive={isActive}
       onSelect={() => onSelect(storageKey)}
+    />
+  );
+});
+
+const DynamicThumb = memo(function DynamicThumb({
+  isActive,
+  onSelect,
+}: {
+  isActive: boolean;
+  onSelect: (key: string) => void;
+}): React.JSX.Element {
+  const [thumbUrl, setThumbUrl] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    generateThumbnail(resolveDynamicWallpaperUrls().base)
+      .then((thumb) => {
+        if (!cancelled) setThumbUrl(thumb);
+      })
+      .catch((err) => {
+        logger.warn("Failed to load dynamic wallpaper thumb:", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <LazyThumb
+      alt="Select dynamic wallpaper"
+      src={thumbUrl}
+      isActive={isActive}
+      onSelect={() => onSelect(DYNAMIC_WALLPAPER_KEY)}
     />
   );
 });
@@ -354,6 +391,10 @@ function WallpaperPaneInner(): React.JSX.Element {
           role="listbox"
           aria-label="Bundled wallpapers"
         >
+          <DynamicThumb
+            isActive={wallpaper === DYNAMIC_WALLPAPER_KEY}
+            onSelect={handleSelectPreset}
+          />
           {BUNDLED_WALLPAPERS.map((wp) => (
             <BundledThumb
               key={wp.filename}
