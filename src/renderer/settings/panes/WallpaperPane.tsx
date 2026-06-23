@@ -378,74 +378,85 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <SectionHeader className="mb-0">Current Wallpaper</SectionHeader>
-        {isDynamic && (
-          <div ref={menuRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setIsMenuOpen((open) => !open)}
-              aria-haspopup="menu"
-              aria-expanded={isMenuOpen}
-              className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
-            >
-              <span>{dynamicModeLabel(dynamicMode)}</span>
-              <SvgIcon svg={chevronDownSvg} size={12} className={`transition-transform duration-150 ${isMenuOpen ? "rotate-180" : ""}`} />
-            </button>
-            {isMenuOpen && (
+      <SectionHeader className="mb-0">Current Wallpaper</SectionHeader>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative w-full sm:w-[260px] flex-shrink-0 aspect-[16/10] overflow-hidden rounded-xl bg-black/[0.06] dark:bg-white/[0.06] ring-1 ring-black/[0.06] dark:ring-white/[0.08]">
+          {isDynamic ? (
+            dynamicLayers.map((layer) => (
               <div
-                role="menu"
-                className="absolute right-0 top-[calc(100%+6px)] z-20 min-w-36 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
-              >
-                {DYNAMIC_MODE_OPTIONS.map((option) => (
-                  <button
-                    key={option.mode}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={dynamicMode === option.mode}
-                    onClick={() => {
-                      onDynamicModeChange(option.mode);
-                      setIsMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-[12px] font-normal transition-all duration-150 ${
-                      dynamicMode === option.mode
-                        ? "text-gray-700 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
-                        : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="relative aspect-[16/8] overflow-hidden rounded-xl bg-black/[0.06] dark:bg-white/[0.06] ring-1 ring-black/[0.06] dark:ring-white/[0.08]">
-        {isDynamic ? (
-          dynamicLayers.map((layer) => (
-            <div
-              key={layer.url}
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: `url(${layer.url})`,
-                opacity: layer.opacity,
-                transition: "opacity 220ms ease-out",
-              }}
+                key={layer.url}
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style={{
+                  backgroundImage: `url(${layer.url})`,
+                  opacity: layer.opacity,
+                  transition: "opacity 220ms ease-out",
+                }}
+              />
+            ))
+          ) : previewUrl ? (
+            <img
+              src={previewUrl}
+              alt=""
+              aria-hidden
+              draggable={false}
+              className="absolute inset-0 h-full w-full object-cover"
             />
-          ))
-        ) : previewUrl ? (
-          <img
-            src={previewUrl}
-            alt=""
-            aria-hidden
-            draggable={false}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gray-100 dark:bg-neutral-900" />
-        )}
+          ) : (
+            <div className="absolute inset-0 bg-gray-100 dark:bg-neutral-900" />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1 flex flex-col justify-center gap-2">
+          {isDynamic ? (
+            <>
+              <div ref={menuRef} className="relative self-start">
+                <button
+                  type="button"
+                  onClick={() => setIsMenuOpen((open) => !open)}
+                  aria-haspopup="menu"
+                  aria-expanded={isMenuOpen}
+                  className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+                >
+                  <span>{dynamicModeLabel(dynamicMode)}</span>
+                  <SvgIcon svg={chevronDownSvg} size={12} className={`transition-transform duration-150 ${isMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+                {isMenuOpen && (
+                  <div
+                    role="menu"
+                    className="absolute left-0 top-[calc(100%+6px)] z-20 min-w-36 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
+                  >
+                    {DYNAMIC_MODE_OPTIONS.map((option) => (
+                      <button
+                        key={option.mode}
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={dynamicMode === option.mode}
+                        onClick={() => {
+                          onDynamicModeChange(option.mode);
+                          setIsMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-[12px] font-normal transition-all duration-150 ${
+                          dynamicMode === option.mode
+                            ? "text-gray-700 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
+                            : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <p className="text-[11px] text-gray-400 dark:text-neutral-500 leading-relaxed max-w-sm">
+                Dynamic mode blends between morning, daylight, evening, and night wallpapers based on the current time.
+              </p>
+            </>
+          ) : (
+            <p className="text-[11px] text-gray-400 dark:text-neutral-500 leading-relaxed max-w-sm">
+              Select the dynamic wallpaper to choose automatic, light, or dark behavior.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
