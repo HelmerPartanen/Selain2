@@ -207,7 +207,7 @@ const DynamicThumb = memo(function DynamicThumb({
         isActive={isActive}
         onSelect={() => onSelect(DYNAMIC_WALLPAPER_KEY)}
       />
-      <div className="pointer-events-none absolute left-2 top-2 z-10 flex items-center gap-1.5 rounded-full bg-white/85 px-2 py-1 text-[10px] font-medium text-gray-700 shadow-sm ring-1 ring-black/[0.06] backdrop-blur-md dark:bg-[#1D1F23]/80 dark:text-neutral-200 dark:ring-white/[0.08]">
+      <div className="pointer-events-none absolute right-1 top-1 z-10 flex items-center gap-1.5 rounded-lg bg-white/85 px-2 py-1 text-[10px] font-medium text-gray-700 backdrop-blur-sm dark:bg-black/70 dark:text-neutral-200">
         <SvgIcon svg={dynamicSvg} size={16} />
       </div>
     </div>
