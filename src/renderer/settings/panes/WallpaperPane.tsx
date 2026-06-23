@@ -19,11 +19,12 @@ import {
 } from "@/theme/bundledWallpapers";
 import {
   DYNAMIC_WALLPAPER_KEY,
+  DYNAMIC_WALLPAPERS,
+  type DynamicWallpaperSet,
   type DynamicWallpaperMode,
   getDynamicWallpaperLayers,
   getDynamicWallpaperMode,
   isDynamicWallpaperKey,
-  resolveDynamicWallpaperUrls,
   setDynamicWallpaperMode,
   subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
@@ -69,14 +70,20 @@ const THUMB_RING_ACTIVE =
   "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900";
 const THUMB_RING_INACTIVE =
   "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]";
-const DYNAMIC_MODE_OPTIONS: Array<{ mode: DynamicWallpaperMode; label: string }> = [
+const DYNAMIC_MODE_OPTIONS: Array<{
+  mode: DynamicWallpaperMode;
+  label: string;
+}> = [
   { mode: "dynamic", label: "Dynamic" },
   { mode: "light", label: "Light" },
   { mode: "dark", label: "Dark" },
 ];
 
 function dynamicModeLabel(mode: DynamicWallpaperMode): string {
-  return DYNAMIC_MODE_OPTIONS.find((option) => option.mode === mode)?.label ?? "Dynamic";
+  return (
+    DYNAMIC_MODE_OPTIONS.find((option) => option.mode === mode)?.label ??
+    "Dynamic"
+  );
 }
 
 // --- Lazy Wallpaper Thumbnail ------------------------------------------------
@@ -177,9 +184,11 @@ const BundledThumb = memo(function BundledThumb({
 });
 
 const DynamicThumb = memo(function DynamicThumb({
+  wallpaper,
   isActive,
   onSelect,
 }: {
+  wallpaper: DynamicWallpaperSet;
   isActive: boolean;
   onSelect: (key: string) => void;
 }): React.JSX.Element {
@@ -187,7 +196,7 @@ const DynamicThumb = memo(function DynamicThumb({
 
   useEffect(() => {
     let cancelled = false;
-    generateThumbnail(resolveDynamicWallpaperUrls().base)
+    generateThumbnail(wallpaper.base)
       .then((thumb) => {
         if (!cancelled) setThumbUrl(thumb);
       })
@@ -197,15 +206,15 @@ const DynamicThumb = memo(function DynamicThumb({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [wallpaper.base]);
 
   return (
     <div className="relative flex-shrink-0">
       <LazyThumb
-        alt="Select dynamic wallpaper"
+        alt={`Select dynamic wallpaper: ${wallpaper.name}`}
         src={thumbUrl}
         isActive={isActive}
-        onSelect={() => onSelect(DYNAMIC_WALLPAPER_KEY)}
+        onSelect={() => onSelect(wallpaper.storageKey)}
       />
       <div className="pointer-events-none absolute right-1 top-1 z-10 flex items-center gap-1.5 rounded-lg bg-white/85 px-2 py-1 text-[10px] font-medium text-gray-700 backdrop-blur-sm dark:bg-black/70 dark:text-neutral-200">
         <SvgIcon svg={dynamicSvg} size={16} />
@@ -371,8 +380,8 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
 
   const dynamicLayers = useMemo(() => {
     if (!isDynamic) return [];
-    return getDynamicWallpaperLayers(new Date(), dynamicMode);
-  }, [isDynamic, dynamicMode]);
+    return getDynamicWallpaperLayers(wallpaper, new Date(), dynamicMode);
+  }, [isDynamic, wallpaper, dynamicMode]);
 
   return (
     <div className="space-y-3">
@@ -416,13 +425,17 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
                   className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                 >
                   <span>{dynamicModeLabel(dynamicMode)}</span>
-                  <SvgIcon svg={chevronDownSvg} size={12} className={`transition-transform duration-150 ${isMenuOpen ? "rotate-180" : ""}`} />
+                  <SvgIcon
+                    svg={chevronDownSvg}
+                    size={12}
+                    className={`transition-transform duration-150 ${isMenuOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
                 {isMenuOpen && (
-              <div
-                role="menu"
-                className="absolute left-0 top-[calc(100%+6px)] z-20 flex min-w-36 flex-col gap-1 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
-              >
+                  <div
+                    role="menu"
+                    className="absolute left-0 top-[calc(100%+6px)] z-20 flex min-w-36 flex-col gap-1 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
+                  >
                     {DYNAMIC_MODE_OPTIONS.map((option) => (
                       <button
                         key={option.mode}
@@ -446,12 +459,14 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
                 )}
               </div>
               <p className="text-[11px] text-gray-400 dark:text-neutral-500 leading-relaxed max-w-sm">
-                Dynamic mode blends between morning, daylight, evening, and night wallpapers based on the current time.
+                Dynamic mode blends between morning, daylight, evening, and
+                night wallpapers based on the current time.
               </p>
             </>
           ) : (
             <p className="text-[11px] text-gray-400 dark:text-neutral-500 leading-relaxed max-w-sm">
-              Select a dynamic wallpaper to choose automatic, light, or dark behavior.
+              Select a dynamic wallpaper to choose automatic, light, or dark
+              behavior.
             </p>
           )}
         </div>
@@ -466,10 +481,12 @@ function WallpaperPaneInner(): React.JSX.Element {
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const setWallpaper = useThemeStore((s) => s.setWallpaper);
   const isDark = useIsDark();
-  const [customWallpapers, setCustomWallpapers] = useState<CustomWallpaper[]>([]);
+  const [customWallpapers, setCustomWallpapers] = useState<CustomWallpaper[]>(
+    [],
+  );
   const [isUploading, setIsUploading] = useState(false);
-  const [dynamicMode, setDynamicModeState] = useState<DynamicWallpaperMode>(() =>
-    getDynamicWallpaperMode(),
+  const [dynamicMode, setDynamicModeState] = useState<DynamicWallpaperMode>(
+    () => getDynamicWallpaperMode(),
   );
 
   const handleSelectPreset = useCallback(
@@ -524,7 +541,10 @@ function WallpaperPaneInner(): React.JSX.Element {
     try {
       const item = await window.electronAPI.importWallpaper();
       if (item) {
-        setCustomWallpapers((items) => [item, ...items.filter((wp) => wp.id !== item.id)]);
+        setCustomWallpapers((items) => [
+          item,
+          ...items.filter((wp) => wp.id !== item.id),
+        ]);
         const saved = await setWallpaper(item.url);
         if (!saved) {
           showToast({ message: "Wallpaper could not be saved", type: "error" });
@@ -533,26 +553,29 @@ function WallpaperPaneInner(): React.JSX.Element {
         showToast({ message: "Wallpaper updated", type: "success" });
       }
     } catch (err) {
-      logger.error("Failed to open image dialog:", err)
+      logger.error("Failed to open image dialog:", err);
       showToast({ message: "Failed to set wallpaper", type: "error" });
     } finally {
       setIsUploading(false);
     }
   }, [isUploading, setWallpaper]);
 
-  const handleRemoveCustom = useCallback(async (item: CustomWallpaper) => {
-    const deleted = await window.electronAPI.deleteCustomWallpaper(item.id);
-    if (!deleted) {
-      showToast({ message: "Failed to remove wallpaper", type: "error" });
-      return;
-    }
+  const handleRemoveCustom = useCallback(
+    async (item: CustomWallpaper) => {
+      const deleted = await window.electronAPI.deleteCustomWallpaper(item.id);
+      if (!deleted) {
+        showToast({ message: "Failed to remove wallpaper", type: "error" });
+        return;
+      }
 
-    setCustomWallpapers((items) => items.filter((wp) => wp.id !== item.id));
-    if (wallpaper === item.url) {
-      const cleared = await setWallpaper(null);
-      if (cleared) showToast({ message: "Wallpaper removed", type: "info" });
-    }
-  }, [setWallpaper, wallpaper]);
+      setCustomWallpapers((items) => items.filter((wp) => wp.id !== item.id));
+      if (wallpaper === item.url) {
+        const cleared = await setWallpaper(null);
+        if (cleared) showToast({ message: "Wallpaper removed", type: "info" });
+      }
+    },
+    [setWallpaper, wallpaper],
+  );
 
   const handleClear = useCallback(async () => {
     const saved = await setWallpaper(null);
@@ -583,10 +606,18 @@ function WallpaperPaneInner(): React.JSX.Element {
           role="listbox"
           aria-label="Bundled wallpapers"
         >
-          <DynamicThumb
-            isActive={wallpaper === DYNAMIC_WALLPAPER_KEY}
-            onSelect={handleSelectPreset}
-          />
+          {DYNAMIC_WALLPAPERS.map((dynamicWallpaper) => (
+            <DynamicThumb
+              key={dynamicWallpaper.storageKey}
+              wallpaper={dynamicWallpaper}
+              isActive={
+                wallpaper === dynamicWallpaper.storageKey ||
+                (wallpaper === "dynamic:day-cycle" &&
+                  dynamicWallpaper.storageKey === DYNAMIC_WALLPAPER_KEY)
+              }
+              onSelect={handleSelectPreset}
+            />
+          ))}
           {BUNDLED_WALLPAPERS.map((wp) => (
             <BundledThumb
               key={wp.filename}
@@ -638,9 +669,7 @@ function WallpaperPaneInner(): React.JSX.Element {
                 aria-label={`Select color: ${color.name}`}
                 aria-pressed={isActive}
                 className={`relative aspect-square rounded-full overflow-hidden transition-all duration-150 ${
-                  isActive
-                    ? THUMB_RING_ACTIVE
-                    : THUMB_RING_INACTIVE
+                  isActive ? THUMB_RING_ACTIVE : THUMB_RING_INACTIVE
                 }`}
                 style={{ backgroundColor: solidBaseColors[i] }}
               />

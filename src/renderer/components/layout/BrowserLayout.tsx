@@ -43,7 +43,7 @@ import {
   subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
-import { useShallow } from 'zustand/react/shallow';
+import { useShallow } from "zustand/react/shallow";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { onSessionRestoreFailed } from "@/store/tabStore";
@@ -98,7 +98,7 @@ function PanelLoadingFallback(): React.JSX.Element {
         aria-hidden
       />
     </div>
-  )
+  );
 }
 
 function MainContentErrorFallback({
@@ -155,7 +155,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
   const isAISummarizing = useAIStore((s) => s.isSummarizing);
   const focusedTabUrl = useFocusedTabUrl();
-  
+
   // Consolidate all UIStore selectors into single subscription to reduce re-renders
   const {
     isDropdownOpen,
@@ -175,27 +175,29 @@ function BrowserLayoutInner(): React.JSX.Element {
     setSpaceSwitcherOpen: closeSpaceSwitcher,
     setTabStripMenuOpen: closeTabStripMenu,
     setDownloadPopoverOpen: closeDownloadPopover,
-  } = useUIStore(useShallow((s) => ({
-    isDropdownOpen: s.isDropdownOpen,
-    isMenuOpen: s.isMenuOpen,
-    isSettingsOpen: s.isSettingsOpen,
-    isBookmarksOpen: s.isBookmarksOpen,
-    isFindBarOpen: s.isFindBarOpen,
-    isHistoryOpen: s.isHistoryOpen,
-    isDownloadsOpen: s.isDownloadsOpen,
-    isTabOverviewOpen: s.isTabOverviewOpen,
-    isSpaceSwitcherOpen: s.isSpaceSwitcherOpen,
-    isTabStripMenuOpen: s.isTabStripMenuOpen,
-    isDownloadPopoverOpen: s.isDownloadPopoverOpen,
-    isAIFullscreenOpen: s.isAIFullscreenOpen,
-    setDropdownOpen: s.setDropdownOpen,
-    setMenuOpen: s.setMenuOpen,
-    setSpaceSwitcherOpen: s.setSpaceSwitcherOpen,
-    setTabStripMenuOpen: s.setTabStripMenuOpen,
-    setDownloadPopoverOpen: s.setDownloadPopoverOpen,
-  })));
+  } = useUIStore(
+    useShallow((s) => ({
+      isDropdownOpen: s.isDropdownOpen,
+      isMenuOpen: s.isMenuOpen,
+      isSettingsOpen: s.isSettingsOpen,
+      isBookmarksOpen: s.isBookmarksOpen,
+      isFindBarOpen: s.isFindBarOpen,
+      isHistoryOpen: s.isHistoryOpen,
+      isDownloadsOpen: s.isDownloadsOpen,
+      isTabOverviewOpen: s.isTabOverviewOpen,
+      isSpaceSwitcherOpen: s.isSpaceSwitcherOpen,
+      isTabStripMenuOpen: s.isTabStripMenuOpen,
+      isDownloadPopoverOpen: s.isDownloadPopoverOpen,
+      isAIFullscreenOpen: s.isAIFullscreenOpen,
+      setDropdownOpen: s.setDropdownOpen,
+      setMenuOpen: s.setMenuOpen,
+      setSpaceSwitcherOpen: s.setSpaceSwitcherOpen,
+      setTabStripMenuOpen: s.setTabStripMenuOpen,
+      setDownloadPopoverOpen: s.setDownloadPopoverOpen,
+    })),
+  );
   const isSummaryFrameActive = isAIFullscreenOpen && isAISummarizing;
-  const isFocusedNewTab = focusedTabUrl === 'browser://newtab';
+  const isFocusedNewTab = focusedTabUrl === "browser://newtab";
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
 
@@ -211,7 +213,9 @@ function BrowserLayoutInner(): React.JSX.Element {
   // Resolve theme-aware wallpapers — preset gradients adapt to dark/light.
   const isDark = useIsDark();
   const isDynamicWallpaper = !!wallpaper && isDynamicWallpaperKey(wallpaper);
-  const [dynamicWallpaperNow, setDynamicWallpaperNow] = useState(() => new Date());
+  const [dynamicWallpaperNow, setDynamicWallpaperNow] = useState(
+    () => new Date(),
+  );
   const [dynamicWallpaperMode, setDynamicWallpaperModeState] = useState(() =>
     getDynamicWallpaperMode(),
   );
@@ -232,7 +236,9 @@ function BrowserLayoutInner(): React.JSX.Element {
   }, []);
 
   // Bundled wallpapers are lazy-loaded; cache the resolved URL so we don't re-import every frame.
-  const [bundledResolvedUrl, setBundledResolvedUrl] = useState<string | null>(null);
+  const [bundledResolvedUrl, setBundledResolvedUrl] = useState<string | null>(
+    null,
+  );
   useEffect(() => {
     if (!wallpaper || !isBundledKey(wallpaper)) {
       setBundledResolvedUrl(null);
@@ -245,7 +251,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       },
       () => {
         if (!cancelled) setBundledResolvedUrl(null);
-      }
+      },
     );
     return () => {
       cancelled = true;
@@ -281,30 +287,36 @@ function BrowserLayoutInner(): React.JSX.Element {
   const dynamicWallpaperLayers = useMemo(() => {
     if (!isDynamicWallpaper) return [];
     return getDynamicWallpaperLayers(
+      wallpaper,
       dynamicWallpaperNow,
       dynamicWallpaperMode,
     );
-  }, [isDynamicWallpaper, dynamicWallpaperNow, dynamicWallpaperMode]);
+  }, [
+    isDynamicWallpaper,
+    wallpaper,
+    dynamicWallpaperNow,
+    dynamicWallpaperMode,
+  ]);
 
   // Revoke old blob URLs after new one is rendered, preventing accumulation
   useEffect(() => {
     // Revoke all blob URLs except the current one
-    const toRevoke: string[] = []
-    const currentUrl = wallpaperUrl
-    
+    const toRevoke: string[] = [];
+    const currentUrl = wallpaperUrl;
+
     for (const url of blobUrlsRef.current) {
       if (url !== currentUrl) {
-        toRevoke.push(url)
+        toRevoke.push(url);
       }
     }
-    
+
     // Revoke synchronously and remove from tracking
     for (const url of toRevoke) {
       try {
-        URL.revokeObjectURL(url)
-        blobUrlsRef.current.delete(url)
+        URL.revokeObjectURL(url);
+        blobUrlsRef.current.delete(url);
       } catch (err) {
-        logger.warn("Failed to revoke blob URL:", err)
+        logger.warn("Failed to revoke blob URL:", err);
       }
     }
 
@@ -312,13 +324,13 @@ function BrowserLayoutInner(): React.JSX.Element {
       // On unmount, revoke all remaining blob URLs
       for (const url of blobUrlsRef.current) {
         try {
-          URL.revokeObjectURL(url)
+          URL.revokeObjectURL(url);
         } catch (err) {
-          logger.warn("Failed to revoke blob URL on unmount:", err)
+          logger.warn("Failed to revoke blob URL on unmount:", err);
         }
       }
-      blobUrlsRef.current.clear()
-    }
+      blobUrlsRef.current.clear();
+    };
   }, [wallpaperUrl]);
 
   // ── Apply UI zoom scale via Electron webFrame ──
@@ -354,17 +366,17 @@ function BrowserLayoutInner(): React.JSX.Element {
   useEffect(() => {
     function ensureTab(): void {
       if (useTabStore.getState().tabOrder.length === 0) {
-        useTabStore.getState().addTab()
+        useTabStore.getState().addTab();
       }
     }
 
     if (useTabStore.persist.hasHydrated()) {
-      ensureTab()
+      ensureTab();
     } else {
       const unsub = useTabStore.persist.onFinishHydration(() => {
-        ensureTab()
-        unsub()
-      })
+        ensureTab();
+        unsub();
+      });
     }
   }, []);
 
@@ -389,20 +401,20 @@ function BrowserLayoutInner(): React.JSX.Element {
 
   // ── Toast notification on download completion ──
   useEffect(() => {
-    const prevStates = new Map<string, string>()
+    const prevStates = new Map<string, string>();
     return useDownloadStore.subscribe((state) => {
       for (const [id, dl] of Object.entries(state.downloads)) {
-        const prev = prevStates.get(id)
-        prevStates.set(id, dl.state)
-        if (prev === 'progressing' && dl.state === 'completed') {
-          showToast({ message: `Downloaded: ${dl.filename}`, type: 'success' })
+        const prev = prevStates.get(id);
+        prevStates.set(id, dl.state);
+        if (prev === "progressing" && dl.state === "completed") {
+          showToast({ message: `Downloaded: ${dl.filename}`, type: "success" });
         }
       }
       for (const id of prevStates.keys()) {
-        if (!state.downloads[id]) prevStates.delete(id)
+        if (!state.downloads[id]) prevStates.delete(id);
       }
-    })
-  }, [])
+    });
+  }, []);
 
   // ── Preload heavy modal chunks after first paint (reduces first-open lag) ──
   useEffect(() => {
@@ -415,7 +427,10 @@ function BrowserLayoutInner(): React.JSX.Element {
     };
 
     const ric = window as Window & {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      requestIdleCallback?: (
+        cb: () => void,
+        opts?: { timeout: number },
+      ) => number;
       cancelIdleCallback?: (id: number) => void;
     };
 
@@ -464,16 +479,20 @@ function BrowserLayoutInner(): React.JSX.Element {
       </div>
 
       {/* Transparent drag region for window movement (floating layout only) */}
-      {uiLayout === 'floating' && (
+      {uiLayout === "floating" && (
         <div className="fixed top-0 left-0 right-0 h-2.5 z-[60] [app-region:drag]" />
       )}
-{/* Web content — inset below classic chrome when applicable */}
-<div
-  className="relative z-10 h-full"
-  style={uiLayout === 'classic' ? { paddingTop: CLASSIC_CHROME_HEIGHT } : undefined}
->
-  {isSummaryFrameActive && (
-    <style>{`
+      {/* Web content — inset below classic chrome when applicable */}
+      <div
+        className="relative z-10 h-full"
+        style={
+          uiLayout === "classic"
+            ? { paddingTop: CLASSIC_CHROME_HEIGHT }
+            : undefined
+        }
+      >
+        {isSummaryFrameActive && (
+          <style>{`
       @keyframes summary-underlay-spin {
         from {
           transform: translate(-50%, -50%) rotate(0deg);
@@ -492,43 +511,43 @@ function BrowserLayoutInner(): React.JSX.Element {
         }
       }
     `}</style>
-  )}
+        )}
 
-  <div
-    className={`relative isolate h-full transition-[padding] duration-150 bezier-cubic-out ${
-      isFocusedNewTab ? '' : 'bg-gray-100 dark:bg-neutral-900'
-    }`}
-    style={{
-      padding: isSummaryFrameActive ? 10 : 0,
-    }}
-  >
-    {isSummaryFrameActive && (
-      <div
-        className="absolute inset-0 z-0 overflow-hidden rounded-[10px]"
-        style={{
-          animation: disableAnimations
-            ? undefined
-            : 'summary-underlay-in 0.18s ease-out 0.24s both',
-
-          // Creates the hollow border region
-          padding: 10,
-
-          maskImage:
-            'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-          WebkitMaskImage:
-            'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-
-          maskComposite: 'exclude',
-          WebkitMaskComposite: 'xor',
-        }}
-      >
-        {/* Rotating glow */}
         <div
-          className="absolute left-1/2 top-1/2 aspect-square rounded-full"
+          className={`relative isolate h-full transition-[padding] duration-150 bezier-cubic-out ${
+            isFocusedNewTab ? "" : "bg-gray-100 dark:bg-neutral-900"
+          }`}
           style={{
-            width: '180%',
+            padding: isSummaryFrameActive ? 10 : 0,
+          }}
+        >
+          {isSummaryFrameActive && (
+            <div
+              className="absolute inset-0 z-0 overflow-hidden rounded-[10px]"
+              style={{
+                animation: disableAnimations
+                  ? undefined
+                  : "summary-underlay-in 0.18s ease-out 0.24s both",
 
-            background: `
+                // Creates the hollow border region
+                padding: 10,
+
+                maskImage:
+                  "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+                WebkitMaskImage:
+                  "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+
+                maskComposite: "exclude",
+                WebkitMaskComposite: "xor",
+              }}
+            >
+              {/* Rotating glow */}
+              <div
+                className="absolute left-1/2 top-1/2 aspect-square rounded-full"
+                style={{
+                  width: "180%",
+
+                  background: `
               conic-gradient(
                 from 0deg,
                 transparent 0deg,
@@ -540,41 +559,45 @@ function BrowserLayoutInner(): React.JSX.Element {
               )
             `,
 
-            filter: 'blur(22px)',
-            opacity: 1,
+                  filter: "blur(22px)",
+                  opacity: 1,
 
-            transform: 'translate(-50%, -50%)',
-            transformOrigin: '50% 50%',
-            willChange: 'transform',
+                  transform: "translate(-50%, -50%)",
+                  transformOrigin: "50% 50%",
+                  willChange: "transform",
 
-            animation: disableAnimations
-              ? undefined
-              : 'summary-underlay-spin 2.8s linear infinite',
-          }}
-        />
+                  animation: disableAnimations
+                    ? undefined
+                    : "summary-underlay-spin 2.8s linear infinite",
+                }}
+              />
+            </div>
+          )}
+
+          <div
+            className="relative z-10 h-full overflow-hidden"
+            style={{ borderRadius: isSummaryFrameActive ? 10 : 0 }}
+          >
+            <ErrorBoundary
+              key={mainContentErrorKey}
+              fallback={
+                <MainContentErrorFallback
+                  onRetry={handleMainContentErrorRetry}
+                  onNewTab={handleMainContentErrorNewTab}
+                />
+              }
+            >
+              <WebViewManager />
+            </ErrorBoundary>
+          </div>
+        </div>
       </div>
-    )}
-
-<div
-  className="relative z-10 h-full overflow-hidden"
-  style={{ borderRadius: isSummaryFrameActive ? 10 : 0 }}
->
-      <ErrorBoundary
-        key={mainContentErrorKey}
-        fallback={
-          <MainContentErrorFallback
-            onRetry={handleMainContentErrorRetry}
-            onNewTab={handleMainContentErrorNewTab}
-          />
-        }
-      >
-        <WebViewManager />
-      </ErrorBoundary>
-    </div>
-  </div>
-</div>
       {/* Browser chrome */}
-      {uiLayout === 'floating' ? <FloatingControls /> : <ClassicBrowserChrome />}
+      {uiLayout === "floating" ? (
+        <FloatingControls />
+      ) : (
+        <ClassicBrowserChrome />
+      )}
 
       {/* AI Summary floating button (bottom-right) */}
       <AISummaryButton />
@@ -592,7 +615,11 @@ function BrowserLayoutInner(): React.JSX.Element {
       {isSplitView && <SplitDivider />}
 
       {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
-      {(isDropdownOpen || isMenuOpen || isSpaceSwitcherOpen || isTabStripMenuOpen || isDownloadPopoverOpen) && (
+      {(isDropdownOpen ||
+        isMenuOpen ||
+        isSpaceSwitcherOpen ||
+        isTabStripMenuOpen ||
+        isDownloadPopoverOpen) && (
         <div
           className="fixed inset-0 z-[45]"
           onMouseDown={() => {
@@ -606,7 +633,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       )}
 
       {/* Window controls (floating layout — classic embeds controls in chrome) */}
-      {uiLayout === 'floating' && <WindowControls />}
+      {uiLayout === "floating" && <WindowControls />}
 
       {/* Toast notifications */}
       <ToastContainer />
