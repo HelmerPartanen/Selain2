@@ -37,8 +37,12 @@ import {
   resolveWallpaperUrl,
 } from "@/theme/bundledWallpapers";
 import {
+  getDynamicWallpaperDevHourOverride,
   getDynamicWallpaperLayers,
+  getDynamicWallpaperMode,
   isDynamicWallpaperKey,
+  subscribeDynamicWallpaperDevHourOverride,
+  subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
 import { isPresetKey, resolvePresetUrl } from "@/theme/presets";
 import { useShallow } from 'zustand/react/shallow';
@@ -210,6 +214,12 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isDark = useIsDark();
   const isDynamicWallpaper = !!wallpaper && isDynamicWallpaperKey(wallpaper);
   const [dynamicWallpaperNow, setDynamicWallpaperNow] = useState(() => new Date());
+  const [dynamicWallpaperDevHour, setDynamicWallpaperDevHour] = useState<number | null>(() =>
+    getDynamicWallpaperDevHourOverride(),
+  );
+  const [dynamicWallpaperMode, setDynamicWallpaperModeState] = useState(() =>
+    getDynamicWallpaperMode(),
+  );
 
   useEffect(() => {
     if (!isDynamicWallpaper) return;
@@ -219,6 +229,18 @@ function BrowserLayoutInner(): React.JSX.Element {
     }, 60000);
     return () => window.clearInterval(id);
   }, [isDynamicWallpaper]);
+
+  useEffect(() => {
+    return subscribeDynamicWallpaperDevHourOverride(() => {
+      setDynamicWallpaperDevHour(getDynamicWallpaperDevHourOverride());
+    });
+  }, []);
+
+  useEffect(() => {
+    return subscribeDynamicWallpaperMode(() => {
+      setDynamicWallpaperModeState(getDynamicWallpaperMode());
+    });
+  }, []);
 
   // Bundled wallpapers are lazy-loaded; cache the resolved URL so we don't re-import every frame.
   const [bundledResolvedUrl, setBundledResolvedUrl] = useState<string | null>(null);
@@ -269,8 +291,11 @@ function BrowserLayoutInner(): React.JSX.Element {
 
   const dynamicWallpaperLayers = useMemo(() => {
     if (!isDynamicWallpaper) return [];
-    return getDynamicWallpaperLayers(dynamicWallpaperNow);
-  }, [isDynamicWallpaper, dynamicWallpaperNow]);
+    return getDynamicWallpaperLayers(
+      dynamicWallpaperDevHour ?? dynamicWallpaperNow,
+      dynamicWallpaperMode,
+    );
+  }, [isDynamicWallpaper, dynamicWallpaperNow, dynamicWallpaperDevHour, dynamicWallpaperMode]);
 
   // Revoke old blob URLs after new one is rendered, preventing accumulation
   useEffect(() => {
@@ -428,7 +453,11 @@ function BrowserLayoutInner(): React.JSX.Element {
               style={{
                 backgroundImage: `url(${layer.url})`,
                 opacity: layer.opacity,
-                transition: disableAnimations ? undefined : "opacity 70s linear",
+                transition: disableAnimations
+                  ? undefined
+                  : dynamicWallpaperDevHour === null && dynamicWallpaperMode === "dynamic"
+                    ? "opacity 70s linear"
+                    : "opacity 220ms ease-out",
               }}
             />
           ))

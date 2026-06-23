@@ -1,6 +1,6 @@
 // ─── Wallpaper Settings Pane ─────────────────────────────────────────────────
 
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { SectionHeader } from "@/settings/components/SettingsShared";
 import { useThemeStore } from "@/store/themeStore";
@@ -8,15 +8,29 @@ import {
   WALLPAPER_PRESETS,
   SOLID_COLOR_PRESETS,
   PRESET_PREFIX,
+  isPresetKey,
+  resolvePresetUrl,
 } from "@/theme/presets";
 import {
   BUNDLED_WALLPAPERS,
   generateThumbnail,
+  isBundledKey,
   resolveBundledWallpaperUrl,
 } from "@/theme/bundledWallpapers";
 import {
   DYNAMIC_WALLPAPER_KEY,
+  type DynamicWallpaperMode,
+  formatDynamicWallpaperHour,
+  getDynamicWallpaperDevHourOverride,
+  getDynamicWallpaperHour,
+  getDynamicWallpaperLayers,
+  getDynamicWallpaperMode,
+  isDynamicWallpaperKey,
   resolveDynamicWallpaperUrls,
+  setDynamicWallpaperDevHourOverride,
+  setDynamicWallpaperMode,
+  subscribeDynamicWallpaperDevHourOverride,
+  subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
 import { getPresetThumbnailUrl } from "@/theme/presetThumbnails";
 import { showToast } from "@/components/ui/Toast";
@@ -24,6 +38,7 @@ import { logger } from "@/utils/logger";
 import { useIsDark } from "@/hooks/useIsDark";
 import uploadSvg from "@/assets/icons/Objects/Tray_Arrow_Up.svg?raw";
 import trashSvg from "@/assets/icons/Objects/Trash.svg?raw";
+import chevronDownSvg from "@/assets/icons/Arrows/Chevron_Down.svg?raw";
 
 interface CustomWallpaper {
   id: string;
@@ -58,6 +73,16 @@ const THUMB_RING_ACTIVE =
   "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900";
 const THUMB_RING_INACTIVE =
   "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]";
+const SHOW_DYNAMIC_WALLPAPER_DEV_PANEL = import.meta.env.DEV;
+const DYNAMIC_MODE_OPTIONS: Array<{ mode: DynamicWallpaperMode; label: string }> = [
+  { mode: "dynamic", label: "Dynamic" },
+  { mode: "light", label: "Light" },
+  { mode: "dark", label: "Dark" },
+];
+
+function dynamicModeLabel(mode: DynamicWallpaperMode): string {
+  return DYNAMIC_MODE_OPTIONS.find((option) => option.mode === mode)?.label ?? "Dynamic";
+}
 
 // --- Lazy Wallpaper Thumbnail ------------------------------------------------
 //
@@ -289,6 +314,211 @@ const CustomThumb = memo(function CustomThumb({
   );
 });
 
+const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
+  wallpaper,
+  isDark,
+  dynamicMode,
+  dynamicDevHour,
+  onDynamicModeChange,
+}: {
+  wallpaper: string | null;
+  isDark: boolean;
+  dynamicMode: DynamicWallpaperMode;
+  dynamicDevHour: number | null;
+  onDynamicModeChange: (mode: DynamicWallpaperMode) => void;
+}): React.JSX.Element {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const isDynamic = !!wallpaper && isDynamicWallpaperKey(wallpaper);
+
+  useEffect(() => {
+    if (!wallpaper || isDynamicWallpaperKey(wallpaper)) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    if (isPresetKey(wallpaper)) {
+      setPreviewUrl(resolvePresetUrl(wallpaper, isDark));
+      return;
+    }
+
+    if (isBundledKey(wallpaper)) {
+      let cancelled = false;
+      resolveBundledWallpaperUrl(wallpaper)
+        .then((url) => {
+          if (!cancelled) setPreviewUrl(url);
+        })
+        .catch((err) => {
+          logger.warn("Failed to resolve current wallpaper preview:", err);
+          if (!cancelled) setPreviewUrl(null);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setPreviewUrl(wallpaper);
+  }, [wallpaper, isDark]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handlePointerDown = (event: PointerEvent): void => {
+      if (menuRef.current?.contains(event.target as Node)) return;
+      setIsMenuOpen(false);
+    };
+    window.addEventListener("pointerdown", handlePointerDown);
+    return () => window.removeEventListener("pointerdown", handlePointerDown);
+  }, [isMenuOpen]);
+
+  const dynamicLayers = useMemo(() => {
+    if (!isDynamic) return [];
+    return getDynamicWallpaperLayers(dynamicDevHour ?? new Date(), dynamicMode);
+  }, [isDynamic, dynamicMode, dynamicDevHour]);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <SectionHeader className="mb-0">Current Wallpaper</SectionHeader>
+        {isDynamic && (
+          <div ref={menuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen((open) => !open)}
+              aria-haspopup="menu"
+              aria-expanded={isMenuOpen}
+              className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+            >
+              <span>{dynamicModeLabel(dynamicMode)}</span>
+              <SvgIcon svg={chevronDownSvg} size={12} className={`transition-transform duration-150 ${isMenuOpen ? "rotate-180" : ""}`} />
+            </button>
+            {isMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 top-[calc(100%+6px)] z-20 min-w-36 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
+              >
+                {DYNAMIC_MODE_OPTIONS.map((option) => (
+                  <button
+                    key={option.mode}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={dynamicMode === option.mode}
+                    onClick={() => {
+                      onDynamicModeChange(option.mode);
+                      setIsMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-[12px] font-normal transition-all duration-150 ${
+                      dynamicMode === option.mode
+                        ? "text-gray-700 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
+                        : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="relative aspect-[16/8] overflow-hidden rounded-xl bg-black/[0.06] dark:bg-white/[0.06] ring-1 ring-black/[0.06] dark:ring-white/[0.08]">
+        {isDynamic ? (
+          dynamicLayers.map((layer) => (
+            <div
+              key={layer.url}
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: `url(${layer.url})`,
+                opacity: layer.opacity,
+                transition: "opacity 220ms ease-out",
+              }}
+            />
+          ))
+        ) : previewUrl ? (
+          <img
+            src={previewUrl}
+            alt=""
+            aria-hidden
+            draggable={false}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-100 dark:bg-neutral-900" />
+        )}
+      </div>
+    </div>
+  );
+});
+
+const DynamicWallpaperDevPanel = memo(function DynamicWallpaperDevPanel({
+  isDynamicSelected,
+}: {
+  isDynamicSelected: boolean;
+}): React.JSX.Element {
+  const [overrideHour, setOverrideHour] = useState<number | null>(() =>
+    getDynamicWallpaperDevHourOverride(),
+  );
+  const currentHour = getDynamicWallpaperHour();
+  const displayHour = overrideHour ?? currentHour;
+
+  useEffect(() => {
+    return subscribeDynamicWallpaperDevHourOverride(() => {
+      setOverrideHour(getDynamicWallpaperDevHourOverride());
+    });
+  }, []);
+
+  const handleHourChange = useCallback((value: number) => {
+    setOverrideHour(value);
+    setDynamicWallpaperDevHourOverride(value);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setOverrideHour(null);
+    setDynamicWallpaperDevHourOverride(null);
+  }, []);
+
+  return (
+    <div className="rounded-xl bg-black/[0.04] dark:bg-white/[0.05] px-3.5 py-3 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[13px] font-normal text-gray-700 dark:text-neutral-200">
+            Dynamic wallpaper time
+          </div>
+          <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5 leading-relaxed">
+            {isDynamicSelected
+              ? "Preview the time-based blend without changing your system clock."
+              : "Select the dynamic wallpaper tile to preview this override."}
+          </div>
+        </div>
+        <div className="text-[12px] font-medium tabular-nums text-gray-500 dark:text-neutral-400">
+          {formatDynamicWallpaperHour(displayHour)}
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <input
+          type="range"
+          min={0}
+          max={23.75}
+          step={0.25}
+          value={displayHour}
+          onChange={(event) => handleHourChange(Number(event.target.value))}
+          aria-label="Dynamic wallpaper preview time"
+          className="flex-1 h-1 rounded-full appearance-none bg-black/[0.12] dark:bg-white/[0.14] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-1 [&::-webkit-slider-thumb]:ring-black/[0.08] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb:hover]:scale-115 [&::-webkit-slider-thumb:active]:scale-110 dark:[&::-webkit-slider-thumb]:bg-neutral-200 dark:[&::-webkit-slider-thumb]:ring-white/[0.1]"
+        />
+        <button
+          type="button"
+          onClick={handleReset}
+          disabled={overrideHour === null}
+          className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-gray-600 dark:text-neutral-300 bg-white/70 dark:bg-white/[0.06] transition-colors duration-150 hover:bg-white dark:hover:bg-white/[0.10] disabled:opacity-45 disabled:cursor-default"
+        >
+          Live
+        </button>
+      </div>
+    </div>
+  );
+});
+
 // --- Wallpaper Pane ----------------------------------------------------------
 
 function WallpaperPaneInner(): React.JSX.Element {
@@ -297,6 +527,12 @@ function WallpaperPaneInner(): React.JSX.Element {
   const isDark = useIsDark();
   const [customWallpapers, setCustomWallpapers] = useState<CustomWallpaper[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [dynamicMode, setDynamicModeState] = useState<DynamicWallpaperMode>(() =>
+    getDynamicWallpaperMode(),
+  );
+  const [dynamicDevHour, setDynamicDevHour] = useState<number | null>(() =>
+    getDynamicWallpaperDevHourOverride(),
+  );
 
   const handleSelectPreset = useCallback(
     (dataUrl: string) => {
@@ -332,6 +568,23 @@ function WallpaperPaneInner(): React.JSX.Element {
   useEffect(() => {
     void refreshCustomWallpapers();
   }, [refreshCustomWallpapers]);
+
+  useEffect(() => {
+    return subscribeDynamicWallpaperMode(() => {
+      setDynamicModeState(getDynamicWallpaperMode());
+    });
+  }, []);
+
+  useEffect(() => {
+    return subscribeDynamicWallpaperDevHourOverride(() => {
+      setDynamicDevHour(getDynamicWallpaperDevHourOverride());
+    });
+  }, []);
+
+  const handleDynamicModeChange = useCallback((mode: DynamicWallpaperMode) => {
+    setDynamicModeState(mode);
+    setDynamicWallpaperMode(mode);
+  }, []);
 
   const handleCustomImage = useCallback(async () => {
     if (isUploading) return;
@@ -384,6 +637,14 @@ function WallpaperPaneInner(): React.JSX.Element {
 
   return (
     <div className="space-y-6">
+      <CurrentWallpaperPanel
+        wallpaper={wallpaper}
+        isDark={isDark}
+        dynamicMode={dynamicMode}
+        dynamicDevHour={dynamicDevHour}
+        onDynamicModeChange={handleDynamicModeChange}
+      />
+
       <div>
         <SectionHeader className="mb-3">Wallpapers</SectionHeader>
         <div
@@ -405,6 +666,10 @@ function WallpaperPaneInner(): React.JSX.Element {
           ))}
         </div>
       </div>
+
+      {SHOW_DYNAMIC_WALLPAPER_DEV_PANEL && (
+        <DynamicWallpaperDevPanel isDynamicSelected={wallpaper === DYNAMIC_WALLPAPER_KEY} />
+      )}
 
       <div>
         <SectionHeader className="mb-3">Gradients</SectionHeader>
