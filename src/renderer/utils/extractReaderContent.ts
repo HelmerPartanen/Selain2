@@ -54,9 +54,7 @@ export async function extractReaderContent(tabId: string): Promise<ReaderArticle
     // Readability also produces a pre-stripped textContent we can hand to the
     // AI without re-walking the HTML. Collapse runs of whitespace so the prompt
     // doesn't get bloated by indentation/newlines from the parsed DOM.
-    const text = (article.textContent ?? '')
-      .replace(/\s+/g, ' ')
-      .trim()
+    const text = (article.textContent ?? '').replace(/\s+/g, ' ').trim()
 
     return {
       title: article.title?.trim() || tab?.title || 'Article',
@@ -65,7 +63,7 @@ export async function extractReaderContent(tabId: string): Promise<ReaderArticle
       byline: article.byline ?? null,
       siteName: article.siteName ?? null,
       excerpt: article.excerpt ?? null,
-      length: article.length,
+      length: article.length ?? text.length,
       url,
     }
   } catch {

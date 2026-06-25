@@ -15,7 +15,7 @@ import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
-import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
+import { useHistoryStore } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useSpaceStore } from '@/store/spaceStore'
 import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
@@ -37,7 +37,7 @@ const LoadingProgressBar = memo(function LoadingProgressBar() {
         initial={false}
         animate={{
           scaleX: loadProgress > 0 ? loadProgress : 0,
-          opacity: loadProgress > 0 && loadProgress < 1 ? 1 : 0
+          opacity: loadProgress > 0 && loadProgress < 1 ? 1 : 0,
         }}
         transition={loadProgress === 0 ? { duration: 0.3 } : SPRING_EXPAND}
         style={{ transformOrigin: 'left' }}
@@ -46,7 +46,14 @@ const LoadingProgressBar = memo(function LoadingProgressBar() {
   )
 })
 
-type Suggestion = HistoryEntry & {
+type Suggestion = {
+  id: string
+  url: string
+  title: string
+  favicon: string
+  timestamp: number
+  visitCount: number
+  lastVisit?: number
   type?: 'history' | 'search' | 'bookmark' | 'command' | 'tab' | 'space' | 'settings'
   action?: () => void
 }
@@ -144,12 +151,35 @@ function URLBarInner({
           .filter(Boolean)
           .filter((tab) => !term || tab!.title.toLowerCase().includes(term) || tab!.url.toLowerCase().includes(term))
           .slice(0, 8)
-          .map((tab) => makeCommandSuggestion(`tab-${tab!.id}`, `Switch to ${tab!.title || simplifyUrl(tab!.url)}`, () => tabStore.setActiveTab(tab!.id), 'tab'))
+          .map((tab) =>
+            makeCommandSuggestion(`tab-${tab!.id}`, `Switch to ${tab!.title || simplifyUrl(tab!.url)}`, () => tabStore.setActiveTab(tab!.id), 'tab'),
+          )
       }
-      if (scope === 'history') return useHistoryStore.getState().search(term || raw).map((entry) => ({ ...entry, type: 'history' as const }))
-      if (scope === 'bookmarks') return useBookmarkStore.getState().search(term).slice(0, 8).map((b) => ({
-        id: `bookmark-${b.id}`, url: b.url, title: b.title, favicon: b.favicon ?? '', visitCount: 0, lastVisit: 0, timestamp: b.createdAt, type: 'bookmark' as const
-      }))
+      if (scope === 'history') {
+        return useHistoryStore
+          .getState()
+          .search(term || raw)
+          .map((entry) => ({
+            ...entry,
+            id: `history-${entry.url}`,
+            type: 'history' as const,
+          }))
+      }
+      if (scope === 'bookmarks')
+        return useBookmarkStore
+          .getState()
+          .search(term)
+          .slice(0, 8)
+          .map((b) => ({
+            id: `bookmark-${b.id}`,
+            url: b.url,
+            title: b.title,
+            favicon: b.favicon ?? '',
+            visitCount: 0,
+            lastVisit: 0,
+            timestamp: b.createdAt,
+            type: 'bookmark' as const,
+          }))
       if (scope === 'spaces') {
         return spaces.spaceOrder
           .map((id) => spaces.spaces[id])
@@ -158,9 +188,9 @@ function URLBarInner({
           .map((space) => makeCommandSuggestion(`space-${space!.id}`, `Switch to Space: ${space!.name}`, () => spaces.switchSpace(space!.id), 'space'))
       }
       if (scope === 'settings') {
-        return ['General', 'Privacy', 'Search Engine', 'Shortcuts', 'Appearance'].filter((name) => !term || name.toLowerCase().includes(term)).map((name) =>
-          makeCommandSuggestion(`settings-${name}`, `Open ${name} settings`, () => useUIStore.getState().toggleSettings(), 'settings')
-        )
+        return ['General', 'Privacy', 'Search Engine', 'Shortcuts', 'Appearance']
+          .filter((name) => !term || name.toLowerCase().includes(term))
+          .map((name) => makeCommandSuggestion(`settings-${name}`, `Open ${name} settings`, () => useUIStore.getState().toggleSettings(), 'settings'))
       }
       if (scope === 'site' && activeTab) {
         const domain = getTabDomain(activeTab.url)
@@ -195,13 +225,13 @@ function URLBarInner({
     const historyResults = useHistoryStore
       .getState()
       .search(query)
-      .map(r => ({ ...r, type: 'history' as const }))
+      .map((r) => ({ ...r, id: `history-${r.url}`, type: 'history' as const }))
 
     const bookmarkResults = useBookmarkStore
       .getState()
       .search(query)
       .slice(0, 6)
-      .map(b => ({
+      .map((b) => ({
         id: `bookmark-${b.id}`,
         url: b.url,
         title: b.title,
@@ -209,7 +239,7 @@ function URLBarInner({
         visitCount: 0,
         lastVisit: 0,
         timestamp: b.createdAt,
-        type: 'bookmark' as const
+        type: 'bookmark' as const,
       }))
 
     const seedMap = new Map<string, Suggestion>()
@@ -234,10 +264,10 @@ function URLBarInner({
         return
       }
 
-      let searchResults: (HistoryEntry & { type: 'search' })[] = []
+      let searchResults: Suggestion[] = []
       try {
         const liveSuggestions = await fetchSearchSuggestions(query, controller.signal)
-        searchResults = liveSuggestions.map(phrase => ({
+        searchResults = liveSuggestions.map((phrase) => ({
           id: `search-${phrase}`,
           url: normalizeURL(phrase),
           title: phrase,
@@ -245,7 +275,7 @@ function URLBarInner({
           lastVisit: 0,
           timestamp: Date.now(),
           favicon: '',
-          type: 'search' as const
+          type: 'search' as const,
         }))
       } catch (e) {
         if (!(e instanceof DOMException && e.name === 'AbortError') && suggestionRequestIdRef.current === requestId && !controller.signal.aborted) {
@@ -291,7 +321,7 @@ function URLBarInner({
       setSuggestions([])
       setSelectedIndex(-1)
     },
-    [tabId, updateTab]
+    [tabId, updateTab],
   )
 
   const handleKeyDown = useCallback(
@@ -336,14 +366,14 @@ function URLBarInner({
         }
       }
     },
-    [inputValue, navigate, url, suggestions]
+    [inputValue, navigate, url, suggestions],
   )
 
   const handleFocus = useCallback(() => {
     setIsFocused(true)
     onFocusChange?.(true)
     setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
-    requestAnimationFrame(() => inputRef.current?.select())
+    inputRef.current?.select()
   }, [url, onFocusChange])
 
   const handleBlur = useCallback(() => {
@@ -362,7 +392,7 @@ function URLBarInner({
       navigate(suggestionUrl)
       inputRef.current?.blur()
     },
-    [navigate]
+    [navigate],
   )
 
   const handleReloadOrStop = useCallback(() => {
@@ -392,7 +422,7 @@ function URLBarInner({
 
   // PiP state
   const isPlayingMedia = useFocusedTabMediaPlaying()
-  const isMuted = useTabStore((s) => tabId ? (s.tabs[tabId]?.isMuted ?? false) : false)
+  const isMuted = useTabStore((s) => (tabId ? (s.tabs[tabId]?.isMuted ?? false) : false))
   const handleToggleMute = useCallback(() => {
     if (tabId) useTabStore.getState().toggleMute(tabId)
   }, [tabId])
@@ -408,27 +438,24 @@ function URLBarInner({
 
   const isClassic = layout === 'classic'
   const dropdownBelow = popoverDirection === 'down'
-  const dropdownOffsetClass = dropdownBelow
-    ? isClassic
-      ? 'top-full mt-1'
-      : 'top-full mt-2.5'
-    : 'bottom-full mb-2.5'
+  const dropdownOffsetClass = dropdownBelow ? (isClassic ? 'top-full mt-1' : 'top-full mt-2.5') : 'bottom-full mb-2.5'
   const autocompleteSurface = isClassic
     ? 'bg-gray-200 dark:bg-neutral-800 border border-black/5 dark:border-white/5'
     : disableBlurEffects
       ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
       : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
-  const classicFocusBg = isClassic && isFocused
-    ? 'bg-black/[0.04] dark:bg-white/[0.08] transition-colors duration-150'
-    : ''
+  const classicFocusBg = isClassic && isFocused ? 'bg-black/[0.04] dark:bg-white/[0.08] transition-colors duration-150' : ''
 
   return (
     <div className={`relative ${isClassic ? 'w-full min-w-0' : ''}`}>
       <motion.div
-className={`relative flex items-center will-change-[width] transition-colors duration-150 ${classicFocusBg} ${isClassic ? 'w-full pr-1 h-8 pl-1 rounded-lg' : 'h-10 pl-2'}`}        animate={
+        className={`relative flex items-center will-change-[width] transition-colors duration-150 ${classicFocusBg} ${isClassic ? 'w-full pr-1 h-8 pl-1 rounded-lg' : 'h-10 pl-2'}`}
+        animate={
           isClassic
             ? undefined
-            : { width: isFocused ? Math.min(500, typeof window !== 'undefined' ? window.innerWidth - 160 : 500) : 320 }
+            : {
+                width: isFocused ? Math.min(500, typeof window !== 'undefined' ? window.innerWidth - 160 : 500) : 320,
+              }
         }
         transition={isClassic ? undefined : SPRING_EXPAND}
       >
@@ -453,7 +480,8 @@ className={`relative flex items-center will-change-[width] transition-colors dur
           <div className="absolute left-1.5 z-10 flex items-center justify-center">
             <div
               className={iconKey === 'search' ? 'pointer-events-none opacity-80' : 'cursor-pointer'}
-              aria-label="Site information"
+              aria-hidden={iconKey === 'search' ? true : undefined}
+              aria-label={iconKey === 'search' ? undefined : 'Site information'}
               role={iconKey === 'search' ? undefined : 'button'}
               tabIndex={iconKey === 'search' ? undefined : 0}
               onMouseDown={(e) => {
@@ -469,10 +497,9 @@ className={`relative flex items-center will-change-[width] transition-colors dur
                 }
               }}
             >
-
-                  {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />}
-                  {iconKey === 'globe' && <SvgIcon svg={globeSvg} size={14} />}
-                  {iconKey === 'search' && <SvgIcon svg={searchSvg} size={14} />}
+              {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />}
+              {iconKey === 'globe' && <SvgIcon svg={globeSvg} size={14} />}
+              {iconKey === 'search' && <SvgIcon svg={searchSvg} size={14} />}
             </div>
           </div>
 
@@ -569,12 +596,7 @@ className={`relative flex items-center will-change-[width] transition-colors dur
               transition={SPRING_FAST}
               className="flex-shrink-0 flex items-center justify-center overflow-hidden ml-1"
             >
-              <Button
-                variant="icon"
-                onClick={handlePiP}
-                aria-label="Picture in Picture"
-                className="flex-shrink-0 text-gray-400 dark:text-neutral-500"
-              >
+              <Button variant="icon" onClick={handlePiP} aria-label="Picture in Picture" className="flex-shrink-0 text-gray-400 dark:text-neutral-500">
                 <SvgIcon svg={PIP_SVG} size={15} />
               </Button>
             </motion.div>
@@ -611,9 +633,7 @@ className={`relative flex items-center will-change-[width] transition-colors dur
       <AnimatePresence>
         {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
           <motion.div
-            className={`absolute p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] shadow-sm ${autocompleteSurface} ${
-              dropdownOffsetClass
-            }`}
+            className={`absolute p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] shadow-sm ${autocompleteSurface} ${dropdownOffsetClass}`}
             style={{ originY: dropdownBelow ? 0 : 1 }}
             initial={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
             animate={{ scaleY: 1, opacity: 1, y: 0 }}
@@ -631,9 +651,11 @@ className={`relative flex items-center will-change-[width] transition-colors dur
                   }}
                   onMouseEnter={() => setHoveredIdx(i)}
                   onMouseLeave={() => setHoveredIdx(null)}
-                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-lg text-left transition-colors duration-75 ${isActive
-                    ? 'text-gray-900 dark:text-white'
-                    : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.08]'}
+                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-lg text-left transition-colors duration-75 ${
+                    isActive
+                      ? 'text-gray-900 dark:text-white'
+                      : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.08]'
+                  }
                     }`}
                 >
                   <span className="relative z-10 flex items-center gap-2.5 w-full">
@@ -646,18 +668,21 @@ className={`relative flex items-center will-change-[width] transition-colors dur
                     )}
                     <span className="flex-1 text-[13px] truncate">{entry.title || simplifyUrl(entry.url)}</span>
                     {(entry.type === 'history' || entry.type === 'bookmark') && (
-                      <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">
-                        {simplifyUrl(entry.url)}
-                      </span>
+                      <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">{simplifyUrl(entry.url)}</span>
                     )}
                     {entry.type && entry.type !== 'search' && entry.type !== 'command' && (
                       <span className="flex-shrink-0 text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-600 ml-1">
-                        {entry.type === 'history' ? 'History'
-                          : entry.type === 'bookmark' ? 'Bookmark'
-                          : entry.type === 'tab' ? 'Tab'
-                          : entry.type === 'space' ? 'Space'
-                          : entry.type === 'settings' ? 'Settings'
-                          : null}
+                        {entry.type === 'history'
+                          ? 'History'
+                          : entry.type === 'bookmark'
+                            ? 'Bookmark'
+                            : entry.type === 'tab'
+                              ? 'Tab'
+                              : entry.type === 'space'
+                                ? 'Space'
+                                : entry.type === 'settings'
+                                  ? 'Settings'
+                                  : null}
                       </span>
                     )}
                   </span>
@@ -665,13 +690,8 @@ className={`relative flex items-center will-change-[width] transition-colors dur
               )
             })}
             {suggestionsUnavailable && (
-              <div
-                className="px-3 py-2 text-[11px] text-gray-500 dark:text-neutral-400 border-t border-black/5 dark:border-white/5 mt-1"
-                role="status"
-              >
-                {suggestionsUnavailable === 'offline'
-                  ? 'You\'re offline — live suggestions unavailable.'
-                  : 'Suggestions temporarily unavailable.'}
+              <div className="px-3 py-2 text-[11px] text-gray-500 dark:text-neutral-400 border-t border-black/5 dark:border-white/5 mt-1" role="status">
+                {suggestionsUnavailable === 'offline' ? "You're offline — live suggestions unavailable." : 'Suggestions temporarily unavailable.'}
               </div>
             )}
           </motion.div>

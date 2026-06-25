@@ -17,7 +17,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
     useShallow((s) => ({
       openAIFullscreen: s.openAIFullscreen,
       openReaderMode: s.openReaderMode,
-    }))
+    })),
   )
 
   const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
@@ -114,13 +114,8 @@ function ReadingToolsButtonInner(): React.JSX.Element {
   return (
     <div className="fixed inset-0 z-[95] pointer-events-none">
       <div className="absolute inset-0 flex items-end justify-end p-2 pointer-events-none">
-
         {/* HOT ZONE */}
-        <div
-          className="absolute bottom-0 right-0 w-24 h-24 pointer-events-auto"
-          onMouseEnter={handleEnter}
-          onMouseLeave={handleLeave}
-        />
+        <div className="absolute bottom-0 right-0 w-24 h-24 pointer-events-auto" onMouseEnter={handleEnter} onMouseLeave={handleLeave} />
 
         {/* STACK */}
         <motion.div
@@ -132,7 +127,6 @@ function ReadingToolsButtonInner(): React.JSX.Element {
           }}
           transition={transition}
         >
-
           {/* TOOLBOX */}
           <motion.button
             aria-label="Toolbox"
@@ -149,23 +143,22 @@ function ReadingToolsButtonInner(): React.JSX.Element {
             }}
             transition={transition}
           >
-            <motion.div
-              animate={open || tilt ? { rotate: -25 } : { rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 18 }}
-            >
-        <div style={{ display: 'flex' }}>
-              <SvgIcon
-                svg={bookMenuSvg}
-                size={18}
-                className="text-violet-500 dark:text-violet-400"
-              />
+            <motion.div animate={open || tilt ? { rotate: -25 } : { rotate: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 18 }}>
+              <div style={{ display: 'flex' }}>
+                <SvgIcon svg={bookMenuSvg} size={18} className="text-violet-500 dark:text-violet-400" />
               </div>
             </motion.div>
           </motion.button>
 
           {/* AI SUMMARY (INDEX 0) */}
           <motion.button
-            onClick={() => { openAIFullscreen(); handleToggle(); }}
+            onClick={() => {
+              openAIFullscreen()
+              handleToggle()
+            }}
+            aria-label="Open AI summary"
+            aria-hidden={!isOpen}
+            tabIndex={isOpen ? 0 : -1}
             className={`${toolButtonClass} ${surfaceClass} absolute`}
             animate={{
               ...getOffset(0),
@@ -184,7 +177,13 @@ function ReadingToolsButtonInner(): React.JSX.Element {
 
           {/* READER MODE (INDEX 1) */}
           <motion.button
-            onClick={() => { openReaderMode(); handleToggle(); }}
+            onClick={() => {
+              openReaderMode()
+              handleToggle()
+            }}
+            aria-label="Open reader mode"
+            aria-hidden={!isOpen}
+            tabIndex={isOpen ? 0 : -1}
             className={`${toolButtonClass} ${surfaceClass} absolute`}
             animate={{
               ...getOffset(1),
@@ -200,7 +199,6 @@ function ReadingToolsButtonInner(): React.JSX.Element {
           >
             <SvgIcon svg={bookTextSvg} size={18} className="text-emerald-500" />
           </motion.button>
-
         </motion.div>
       </div>
     </div>

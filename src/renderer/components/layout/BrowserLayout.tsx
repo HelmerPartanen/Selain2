@@ -48,8 +48,6 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { onSessionRestoreFailed } from "@/store/tabStore";
 import { AISummaryButton } from "@/components/ai/AISummaryButton";
-import { AIFullscreenPage } from "@/components/ai/AIFullscreenPage";
-import { ReaderModePage } from "@/components/reader/ReaderModePage";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useHistoryStore } from "@/store/historyStore";
 import { useDownloadStore } from "@/store/downloadStore";
@@ -76,6 +74,16 @@ const DownloadsPanel = lazy(() =>
 const TabOverview = lazy(() =>
   import("@/components/browser/TabOverview").then((m) => ({
     default: m.TabOverview,
+  })),
+);
+const AIFullscreenPage = lazy(() =>
+  import("@/components/ai/AIFullscreenPage").then((m) => ({
+    default: m.AIFullscreenPage,
+  })),
+);
+const ReaderModePage = lazy(() =>
+  import("@/components/reader/ReaderModePage").then((m) => ({
+    default: m.ReaderModePage,
   })),
 );
 const OnboardingFlow = lazy(() =>
@@ -170,6 +178,7 @@ function BrowserLayoutInner(): React.JSX.Element {
     isTabStripMenuOpen,
     isDownloadPopoverOpen,
     isAIFullscreenOpen,
+    isReaderModeOpen,
     setDropdownOpen: closeDropdown,
     setMenuOpen: closeMenu,
     setSpaceSwitcherOpen: closeSpaceSwitcher,
@@ -189,6 +198,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       isTabStripMenuOpen: s.isTabStripMenuOpen,
       isDownloadPopoverOpen: s.isDownloadPopoverOpen,
       isAIFullscreenOpen: s.isAIFullscreenOpen,
+      isReaderModeOpen: s.isReaderModeOpen,
       setDropdownOpen: s.setDropdownOpen,
       setMenuOpen: s.setMenuOpen,
       setSpaceSwitcherOpen: s.setSpaceSwitcherOpen,
@@ -416,14 +426,28 @@ function BrowserLayoutInner(): React.JSX.Element {
     });
   }, []);
 
-  // ── Preload heavy modal chunks after first paint (reduces first-open lag) ──
+  // Preload heavy modal chunks after startup settles.
   useEffect(() => {
+    if (
+      isSettingsOpen ||
+      isBookmarksOpen ||
+      isHistoryOpen ||
+      isDownloadsOpen ||
+      isTabOverviewOpen ||
+      isAIFullscreenOpen ||
+      isReaderModeOpen
+    ) {
+      return;
+    }
+
     const preload = (): void => {
       void import("@/settings/SettingsPanel");
       void import("@/bookmarks/BookmarksPage");
       void import("@/history/HistoryPage");
       void import("@/downloads/DownloadsPage");
       void import("@/components/browser/TabOverview");
+      void import("@/components/ai/AIFullscreenPage");
+      void import("@/components/reader/ReaderModePage");
     };
 
     const ric = window as Window & {
@@ -435,15 +459,29 @@ function BrowserLayoutInner(): React.JSX.Element {
     };
 
     if (ric.requestIdleCallback) {
-      const id = ric.requestIdleCallback(preload, { timeout: 1200 });
+      let idleId: number | undefined;
+      const timer = window.setTimeout(() => {
+        idleId = ric.requestIdleCallback?.(preload, { timeout: 2000 });
+      }, 10000);
       return () => {
-        if (ric.cancelIdleCallback) ric.cancelIdleCallback(id);
+        window.clearTimeout(timer);
+        if (ric.cancelIdleCallback && idleId !== undefined) {
+          ric.cancelIdleCallback(idleId);
+        }
       };
     }
 
-    const timer = window.setTimeout(preload, 450);
+    const timer = window.setTimeout(preload, 10000);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [
+    isSettingsOpen,
+    isBookmarksOpen,
+    isHistoryOpen,
+    isDownloadsOpen,
+    isTabOverviewOpen,
+    isAIFullscreenOpen,
+    isReaderModeOpen,
+  ]);
 
   return (
     <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
@@ -603,10 +641,22 @@ function BrowserLayoutInner(): React.JSX.Element {
       <AISummaryButton />
 
       {/* AI Fullscreen page */}
-      <AIFullscreenPage />
+      <AnimatePresence>
+        {isAIFullscreenOpen && (
+          <Suspense fallback={<PanelLoadingFallback />}>
+            <AIFullscreenPage />
+          </Suspense>
+        )}
+      </AnimatePresence>
 
       {/* Reader mode overlay */}
-      <ReaderModePage />
+      <AnimatePresence>
+        {isReaderModeOpen && (
+          <Suspense fallback={<PanelLoadingFallback />}>
+            <ReaderModePage />
+          </Suspense>
+        )}
+      </AnimatePresence>
 
       {/* Find bar */}
       <AnimatePresence>{isFindBarOpen && <FindBar />}</AnimatePresence>
@@ -683,11 +733,15 @@ function BrowserLayoutInner(): React.JSX.Element {
       </AnimatePresence>
 
       {/* Tab overview (Ctrl+Shift+A) */}
-      <ErrorBoundary>
-        <Suspense fallback={<PanelLoadingFallback />}>
-          <TabOverview />
-        </Suspense>
-      </ErrorBoundary>
+      <AnimatePresence>
+        {isTabOverviewOpen && (
+          <ErrorBoundary>
+            <Suspense fallback={<PanelLoadingFallback />}>
+              <TabOverview />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </AnimatePresence>
 
       {/* Onboarding — shown once for first-run users */}
       <AnimatePresence>

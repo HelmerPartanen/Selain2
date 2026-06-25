@@ -141,10 +141,13 @@ export const useSettingsStore = create<SettingsStore>()(
       setTabsButtonAction: (v) => set({ tabsButtonAction: v }),
       setUiLayout: (v) => set({ uiLayout: v }),
     }),
-    { name: 'browser-settings', version: 2, storage: createIPCStorage<SettingsStore>({
+    {
+      name: 'browser-settings',
+      version: 2,
+      storage: createIPCStorage<SettingsState>({
         onParseError(name) {
           logger.error(`[settingsStore] Corrupted persisted data for '${name}' detected; using default settings`)
-        }
+        },
       }),
       migrate: (persisted) => {
         const state = persisted as Partial<SettingsState> | undefined
@@ -153,6 +156,6 @@ export const useSettingsStore = create<SettingsStore>()(
           uiLayout: state?.uiLayout ?? 'floating',
         } as SettingsState
       },
-    }
-  )
+    },
+  ),
 )
