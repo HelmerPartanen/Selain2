@@ -2,6 +2,8 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { motion, AnimatePresence } from "motion/react";
 
+import { Button } from "@/components/ui/Button";
+
 import { SvgIcon, SPINNER_SVG } from "@/components/ui/SvgIcon";
 
 import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
@@ -135,8 +137,9 @@ const TabStripItem = memo(function TabStripItem({
   );
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="none"
       onClick={handleClick}
       onContextMenu={(e) => {
         e.preventDefault();
@@ -151,7 +154,7 @@ const TabStripItem = memo(function TabStripItem({
         maxWidth: TAB_MAX_WIDTH,
       }}
       title={compactMode !== "full" ? title : undefined}
-      className={`group relative flex items-center h-8 rounded-lg text-left transition-colors duration-100 overflow-hidden flex-shrink focus:outline-none [app-region:no-drag] ${
+      className={`group relative flex h-8 items-center overflow-hidden rounded-lg text-left transition-colors duration-100 flex-shrink [app-region:no-drag] ${
         compactMode === "icon"
           ? "justify-center px-1 gap-0"
           : compactMode === "compact"
@@ -241,7 +244,7 @@ const TabStripItem = memo(function TabStripItem({
           <SvgIcon svg={closeSvg} size={10} />
         </div>
       )}
-    </button>
+    </Button>
   );
 });
 
@@ -353,14 +356,16 @@ function TabStripInner(): React.JSX.Element {
     ))}
 
     {/* Inside the container so it follows the last tab naturally */}
-    <button
-      type="button"
+    <Button
+      variant="icon"
+      size="icon-md"
+      rounded="rounded-md"
       onClick={handleAddTab}
       aria-label="New tab"
-      className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-md text-gray-600 dark:text-neutral-400 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition-colors [app-region:no-drag]"
+      className="h-8 w-8 flex-shrink-0 [app-region:no-drag]"
     >
       <SvgIcon svg={plusSvg} size={14} />
-    </button>
+    </Button>
   </div>
 
 

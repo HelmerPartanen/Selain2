@@ -2,6 +2,8 @@ import { memo, useState } from "react";
 
 import { AnimatePresence, motion } from "motion/react";
 
+import { Button } from "@/components/ui/Button";
+
 import { SvgIcon } from "@/components/ui/SvgIcon";
 
 import chevronLeftSvg from "@/assets/icons/Arrows/Chevron_Left.svg?raw";
@@ -90,25 +92,25 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
         </div>
 
         <div className="flex items-center flex-shrink-0">
-          <button
-            type="button"
+          <Button
+            variant="icon"
+            size="icon-md"
             onClick={handleGoBack}
             disabled={!canGoBack}
             aria-label="Go back"
-            className="h-9 w-9 flex items-center justify-center rounded-lg text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-40 disabled:pointer-events-none transition-colors"
           >
             <SvgIcon svg={chevronLeftSvg} size={16} />
-          </button>
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant="icon"
+            size="icon-md"
             onClick={handleGoForward}
             disabled={!canGoForward}
             aria-label="Go forward"
-            className="h-9 w-9 flex items-center justify-center rounded-lg text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-40 disabled:pointer-events-none transition-colors"
           >
             <SvgIcon svg={chevronRightSvg} size={16} />
-          </button>
+          </Button>
         </div>
 
         <div className="flex-1 min-w-0 flex items-center">
@@ -129,19 +131,20 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
         <AnimatePresence initial={false}>
           {isSplit && (
-            <motion.button
+            <Button
+              variant="icon"
+              size="icon-md"
               key="unsplit"
-              type="button"
               onClick={handleUnsplit}
               aria-label="Exit split view"
               initial={disableAnimations ? undefined : { width: 0, opacity: 0 }}
               animate={{ width: 36, opacity: 1 }}
               exit={disableAnimations ? undefined : { width: 0, opacity: 0 }}
               transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
-              className="h-9 w-9 flex items-center justify-center rounded-lg text-blue-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] overflow-hidden flex-shrink-0"
+              className="flex-shrink-0 overflow-hidden text-blue-500"
             >
               <SvgIcon svg={unsplitSvg} size={15} />
-            </motion.button>
+            </Button>
           )}
         </AnimatePresence>
 

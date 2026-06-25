@@ -1,4 +1,7 @@
 import { Component, type ReactNode } from 'react'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Text } from '@/components/ui/Text'
 import { logger } from '@/utils/logger'
 
 interface Props {
@@ -35,21 +38,18 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40">
-          <div className="bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10 shadow-sm rounded-xl p-8 max-w-sm text-center">
-            <div className="text-3xl mb-3">⚠️</div>
-            <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-2">
+          <Card variant="elevated" padding="lg" className="max-w-sm text-center">
+            <div className="mb-3 text-3xl">!</div>
+            <Text as="h3" size="title" tone="primary" className="mb-2">
               Something went wrong
-            </h3>
-            <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-5">
+            </Text>
+            <Text size="body" tone="muted" className="mb-5">
               {this.state.error?.message || 'An unexpected error occurred.'}
-            </p>
-            <button
-              onClick={this.handleRetry}
-              className="px-5 py-2 rounded-xl text-[13px] font-medium text-white bg-blue-500 hover:bg-blue-600 active:scale-[0.97] transition-all duration-150"
-            >
+            </Text>
+            <Button variant="primary" size="md" onClick={this.handleRetry}>
               Try Again
-            </button>
-          </div>
+            </Button>
+          </Card>
         </div>
       )
     }

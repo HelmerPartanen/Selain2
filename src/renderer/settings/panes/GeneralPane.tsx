@@ -8,6 +8,10 @@ import {
   SettingRow,
   Toggle,
 } from "@/settings/components/SettingsShared";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { TextInput } from "@/components/ui/Input";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useSettingsStore, type NewTabMode, type TabsButtonAction } from "@/store/settingsStore";
 import { useTabStore } from "@/store/tabStore";
 import {
@@ -116,30 +120,15 @@ function GeneralPaneInner(): React.JSX.Element {
       <div>
         <SectionHeader>New Tab</SectionHeader>
         <Desc>Choose what appears when you open a new tab.</Desc>
-        <div
-          className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]"
-          role="radiogroup"
+        <SegmentedControl<NewTabMode>
+          value={newTabMode}
+          onChange={setNewTabMode}
           aria-label="New tab page mode"
-        >
-          {(["bookmarks", "blank"] as NewTabMode[]).map((mode) => {
-            const isActive = newTabMode === mode;
-            const label = mode === "bookmarks" ? "Bookmarks" : "Blank Page";
-            return (
-              <button
-                key={mode}
-                role="radio"
-                aria-checked={isActive}
-                onClick={() => setNewTabMode(mode)}
-                className={`relative flex-1 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-150 ${isActive
-                  ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
-                  : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-                  }`}
-              >
-                <span className="relative">{label}</span>
-              </button>
-            );
-          })}
-        </div>
+          options={[
+            { value: "bookmarks", label: "Bookmarks" },
+            { value: "blank", label: "Blank Page" },
+          ]}
+        />
         <SettingGroup className="mt-4">
           <SettingRow
             label="Continue where you left off"
@@ -172,29 +161,15 @@ function GeneralPaneInner(): React.JSX.Element {
             label="Tabs button action"
             desc="Choose what the tab count button in the toolbar opens."
           >
-            <div
-              className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]"
-              role="radiogroup"
+            <SegmentedControl<TabsButtonAction>
+              value={tabsButtonAction}
+              onChange={setTabsButtonAction}
               aria-label="Tabs button action"
-            >
-              {([['overview', 'Overview'], ['menu', 'List']] as [TabsButtonAction, string][]).map(([value, label]) => {
-                const isActive = tabsButtonAction === value;
-                return (
-                  <button
-                    key={value}
-                    role="radio"
-                    aria-checked={isActive}
-                    onClick={() => setTabsButtonAction(value)}
-                    className={`relative px-3 py-1.5 rounded-lg text-[12px] font-normal transition-all duration-150 ${isActive
-                      ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
-                      : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+              options={[
+                { value: "overview", label: "Overview" },
+                { value: "menu", label: "List" },
+              ]}
+            />
           </SettingRow>
           <SettingRow
             label="Group similar sites"
@@ -225,7 +200,7 @@ function GeneralPaneInner(): React.JSX.Element {
           URL to navigate when clicking the home button. Leave empty to disable.
         </Desc>
         <div className="space-y-1.5">
-          <input
+          <TextInput
             type="text"
             value={urlDraft}
             onChange={(e) => {
@@ -239,28 +214,28 @@ function GeneralPaneInner(): React.JSX.Element {
             aria-invalid={!!homepageError}
             aria-describedby={homepageError ? "homepage-error" : undefined}
             spellCheck={false}
-            className={`w-full px-3.5 py-2.5 rounded-xl bg-black/[0.08] dark:bg-white/[0.10] ring-1 border text-[13px] font-normal text-gray-800 dark:text-neutral-200 placeholder-gray-400 dark:placeholder-neutral-500 outline-none transition-all duration-200 ${
-              homepageError
-                ? "ring-red-500/50 dark:ring-red-400/50 border-red-500/30 dark:border-red-400/30"
-                : "ring-transparent dark:ring-transparent border-transparent focus:border-blue-500/30 dark:focus:border-blue-400/30 focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
-            }`}
+            invalid={!!homepageError}
           />
           {homepageError && (
-            <p
+            <Text
+              as="p"
               id="homepage-error"
-              className="text-[12px] text-red-600 dark:text-red-400 px-1"
+              size="caption"
+              tone="danger"
+              className="px-1"
             >
               {homepageError}
-            </p>
+            </Text>
           )}
           {canUseCurrentPage && (
-            <button
-              type="button"
+            <Button
+              variant="link"
+              size="xs"
               onClick={handleUseCurrentPage}
-              className="text-[12px] text-blue-600 dark:text-blue-400 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded px-1"
+              className="justify-start px-1"
             >
               Use current page
-            </button>
+            </Button>
           )}
         </div>
       </div>

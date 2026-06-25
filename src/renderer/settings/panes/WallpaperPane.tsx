@@ -1,7 +1,9 @@
 // ─── Wallpaper Settings Pane ─────────────────────────────────────────────────
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { SvgIcon } from "@/components/ui/SvgIcon";
+import { Text } from "@/components/ui/Text";
 import { SectionHeader } from "@/settings/components/SettingsShared";
 import { useThemeStore } from "@/store/themeStore";
 import {
@@ -111,8 +113,9 @@ const LazyThumb = memo(function LazyThumb({
   className = "",
 }: LazyThumbProps): React.JSX.Element {
   return (
-    <button
-      type="button"
+    <Button
+      size="none"
+      variant="ghost"
       onClick={onSelect}
       aria-label={alt}
       aria-pressed={isActive}
@@ -133,7 +136,7 @@ const LazyThumb = memo(function LazyThumb({
       ) : (
         <div className="absolute inset-0 bg-neutral-800" />
       )}
-    </button>
+    </Button>
   );
 });
 
@@ -294,8 +297,9 @@ const CustomThumb = memo(function CustomThumb({
         isActive ? THUMB_RING_ACTIVE : THUMB_RING_INACTIVE
       }`}
     >
-      <button
-        type="button"
+      <Button
+        size="none"
+        variant="ghost"
         onClick={() => onSelect(item.url)}
         aria-label={`Select custom wallpaper: ${item.name}`}
         aria-pressed={isActive}
@@ -310,15 +314,17 @@ const CustomThumb = memo(function CustomThumb({
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover select-none"
         />
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        variant="icon"
+        size="icon-sm"
+        rounded="rounded-full"
         onClick={() => onRemove(item)}
         aria-label={`Remove custom wallpaper: ${item.name}`}
-        className="absolute top-2 right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md transition-colors duration-150 hover:bg-black/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+        className="absolute right-2 top-2 z-10 bg-black/45 text-white backdrop-blur-md hover:bg-black/65"
       >
         <SvgIcon svg={trashSvg} size={13} />
-      </button>
+      </Button>
     </div>
   );
 });
@@ -417,12 +423,12 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
           {isDynamic ? (
             <>
               <div ref={menuRef} className="relative self-start">
-                <button
-                  type="button"
+                <Button
+                  variant="solid"
+                  size="sm"
                   onClick={() => setIsMenuOpen((open) => !open)}
                   aria-haspopup="menu"
                   aria-expanded={isMenuOpen}
-                  className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                 >
                   <span>{dynamicModeLabel(dynamicMode)}</span>
                   <SvgIcon
@@ -430,44 +436,45 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
                     size={12}
                     className={`transition-transform duration-150 ${isMenuOpen ? "rotate-180" : ""}`}
                   />
-                </button>
+                </Button>
                 {isMenuOpen && (
                   <div
                     role="menu"
                     className="absolute left-0 top-[calc(100%+6px)] z-20 flex min-w-36 flex-col gap-1 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
                   >
                     {DYNAMIC_MODE_OPTIONS.map((option) => (
-                      <button
+                      <Button
                         key={option.mode}
-                        type="button"
+                        variant="ghost"
+                        size="sm"
                         role="menuitemradio"
                         aria-checked={dynamicMode === option.mode}
                         onClick={() => {
                           onDynamicModeChange(option.mode);
                           setIsMenuOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-[12px] font-normal transition-all duration-150 ${
+                        className={`w-full justify-start text-left ${
                           dynamicMode === option.mode
                             ? "text-gray-700 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
                             : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
                         }`}
                       >
                         {option.label}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
               </div>
-              <p className="text-[11px] text-gray-400 dark:text-neutral-500 leading-relaxed max-w-sm">
+              <Text size="caption" tone="muted" className="max-w-sm">
                 Dynamic mode blends between morning, daylight, evening, and
                 night wallpapers based on the current time.
-              </p>
+              </Text>
             </>
           ) : (
-            <p className="text-[11px] text-gray-400 dark:text-neutral-500 leading-relaxed max-w-sm">
+            <Text size="caption" tone="muted" className="max-w-sm">
               Select a dynamic wallpaper to choose automatic, light, or dark
               behavior.
-            </p>
+            </Text>
           )}
         </div>
       </div>
@@ -662,9 +669,10 @@ function WallpaperPaneInner(): React.JSX.Element {
             const dataUrl = SOLID_DATA_URL_MAP.get(color.hex)!;
             const isActive = wallpaper === dataUrl;
             return (
-              <button
+              <Button
                 key={color.hex}
-                type="button"
+                size="none"
+                variant="ghost"
                 onClick={() => handleSelectSolid(color.hex)}
                 aria-label={`Select color: ${color.name}`}
                 aria-pressed={isActive}
@@ -700,25 +708,27 @@ function WallpaperPaneInner(): React.JSX.Element {
       )}
 
       <div className="flex gap-2.5">
-        <button
-          type="button"
+        <Button
+          variant="solid"
+          size="md"
           onClick={handleCustomImage}
           disabled={isUploading}
           aria-label="Upload custom wallpaper image"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white active:scale-[0.97] disabled:cursor-wait disabled:opacity-60"
+          className="flex-1"
         >
           <SvgIcon svg={uploadSvg} size={14} />
           {isUploading ? "Importing..." : "Upload Image"}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="danger"
+          size="md"
           onClick={handleClear}
           aria-label="Remove current wallpaper"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-medium text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] transition-all duration-150 hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14] active:scale-[0.97]"
+          className="flex-1"
         >
           <SvgIcon svg={trashSvg} size={14} />
           Remove
-        </button>
+        </Button>
       </div>
     </div>
   );

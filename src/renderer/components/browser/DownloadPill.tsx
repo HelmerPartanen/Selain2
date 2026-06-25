@@ -1,5 +1,6 @@
 import { memo, useCallback, useMemo, useRef, useEffect, useLayoutEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { Button } from '@/components/ui/Button'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
@@ -12,7 +13,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { formatBytes } from '@/utils/formatUtils'
 import { clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition'
 
-import { SPRING_EXPAND, SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
+import { SPRING_EXPAND, SPRING_POPUP } from '@/utils/springs'
 
 const DOWNLOAD_POPOVER_WIDTH = 300
 const DOWNLOAD_POPOVER_HEIGHT = 320
@@ -61,52 +62,71 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
 
       <div className="flex items-center gap-0.5 flex-shrink-0">
         {item.state === 'progressing' && (
-          <button
+          <Button
+            variant="icon"
+            size="xs"
+            rounded="rounded-full"
             onClick={() => pauseDownload(item.id)}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
+            aria-label="Pause"
           >
             <SvgIcon svg={PAUSE_SVG} size={11} />
-          </button>
+          </Button>
         )}
         {item.state === 'paused' && (
-          <button
+          <Button
+            variant="icon"
+            size="xs"
+            rounded="rounded-full"
             onClick={() => resumeDownload(item.id)}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
+            aria-label="Resume"
           >
             <SvgIcon svg={playSvg} size={11} />
-          </button>
+          </Button>
         )}
         {isActive && (
-          <button
+          <Button
+            variant="danger"
+            size="xs"
+            rounded="rounded-full"
             onClick={() => cancelDownload(item.id)}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors duration-75"
+            aria-label="Cancel"
           >
             <SvgIcon svg={closeSvg} size={11} />
-          </button>
+          </Button>
         )}
         {item.state === 'completed' && (
           <>
-            <button
+            <Button
+              variant="icon"
+              size="xs"
+              rounded="rounded-full"
               onClick={() => openDownload(item.id)}
-              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
+              aria-label="Open download"
             >
               <SvgIcon svg={downloadSvg} size={11} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="icon"
+              size="xs"
+              rounded="rounded-full"
               onClick={() => showInFolder(item.id)}
-              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-75"
+              aria-label="Show in folder"
             >
               <SvgIcon svg={folderSvg} size={11} />
-            </button>
+            </Button>
           </>
         )}
         {(item.state === 'completed' || item.state === 'failed' || item.state === 'cancelled') && (
-          <button
+          <Button
+            variant="danger"
+            size="xs"
+            rounded="rounded-full"
             onClick={() => removeDownload(item.id)}
-            className="w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-75"
+            className="opacity-0 transition-opacity group-hover:opacity-100"
+            aria-label="Remove download"
           >
             <SvgIcon svg={closeSvg} size={11} />
-          </button>
+          </Button>
         )}
       </div>
     </div>
@@ -192,7 +212,9 @@ function DownloadPillInner(): React.JSX.Element {
     <div ref={containerRef} className="relative">
       <AnimatePresence>
         {hasItems && (
-          <motion.button
+          <Button
+            variant="solid"
+            size="none"
             key="download-pill"
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 'auto', opacity: 1 }}
@@ -231,7 +253,7 @@ function DownloadPillInner(): React.JSX.Element {
             {activeCount > 0 && (
               <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
             )}
-          </motion.button>
+          </Button>
         )}
       </AnimatePresence>
 
@@ -249,12 +271,13 @@ function DownloadPillInner(): React.JSX.Element {
                 <span className="text-xs font-semibold text-gray-500 dark:text-neutral-500 uppercase tracking-wide">
                   Downloads
                 </span>
-                <button
+                <Button
+                  variant="link"
+                  size="xs"
                   onClick={handleOpenPage}
-                  className="text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors duration-75"
                 >
                   See all
-                </button>
+                </Button>
               </div>
               <div className="overflow-y-auto max-h-[270px] px-1 pb-1 glass-scroll">
                 {items.slice(0, 10).map((item) => (

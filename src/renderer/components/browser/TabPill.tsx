@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { Button } from '@/components/ui/Button'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
@@ -30,19 +31,19 @@ const ContextMenuItem = memo(function ContextMenuItem({
   danger?: boolean
 }) {
   return (
-    <button
+    <Button
+      variant={danger ? 'danger' : 'ghost'}
+      size="none"
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
-      className={`w-full flex items-center gap-2.5 px-3.5 h-9 rounded-lg text-left text-[13px] font-light transition-colors duration-100 ${
+      className={`h-9 w-full justify-start gap-2.5 rounded-lg px-3.5 text-left text-[13px] font-light ${
         disabled
           ? 'opacity-40 cursor-not-allowed text-gray-700 dark:text-neutral-300'
-          : danger
-          ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40'
           : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
       }`}
     >
       {children}
-    </button>
+    </Button>
   )
 })
 
@@ -155,10 +156,12 @@ export const TabRow = memo(function TabRow({
   const isHighlighted = isActive || isSplitTarget
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="none"
       onClick={handleClick}
       onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e) }}
-      className={`relative group flex items-center gap-3 w-full px-3.5 h-10 rounded-lg text-left transition-all duration-150 font-light ${
+      className={`relative group flex h-10 w-full items-center justify-start gap-3 rounded-lg px-3.5 text-left font-light transition-all duration-150 ${
         isHighlighted
           ? 'text-gray-900 dark:text-white bg-black/[0.04] dark:bg-white/[0.06]'
           : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
@@ -220,7 +223,7 @@ export const TabRow = memo(function TabRow({
       >
         <SvgIcon svg={closeSvg} size={11} />
       </div>
-    </button>
+    </Button>
   )
 })
 
@@ -253,17 +256,19 @@ function TabPillInner(): React.JSX.Element {
   return (
     <div className="relative h-full">
       <div className="flex items-center h-full rounded-full">
-        <motion.button
+        <Button
+          variant="ghost"
+          size="none"
           onClick={handleAddTab}
           aria-label="New tab"
-          whileTap={{ scale: 0.82 }}
-          transition={SPRING_SNAPPY}
           className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <SvgIcon svg={plusSvg} size={14} />
-        </motion.button>
+        </Button>
 
-        <motion.button
+        <Button
+          variant="ghost"
+          size="none"
           onClick={() => {
             if (tabsButtonAction === 'menu') {
               setDropdownOpen(!isExpanded)
@@ -272,8 +277,6 @@ function TabPillInner(): React.JSX.Element {
             }
           }}
           aria-label={tabsButtonAction === 'menu' ? 'Tab list' : 'Tab overview'}
-          whileTap={{ scale: 0.82 }}
-          transition={SPRING_SNAPPY}
           className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <div className="relative">
@@ -286,7 +289,7 @@ function TabPillInner(): React.JSX.Element {
               </span>
             )}
           </div>
-        </motion.button>
+        </Button>
       </div>
 
       {/* Dropdown */}

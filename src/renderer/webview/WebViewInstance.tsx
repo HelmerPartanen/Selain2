@@ -5,6 +5,8 @@ import { logger } from '@/utils/logger'
 import { webviewRegistry } from './webviewRegistry'
 import { handleTabSwipeDelta } from '@/hooks/useTrackpadTabSwipe'
 import { isSpecialPage } from '@/utils/urlUtils'
+import { Button } from '@/components/ui/Button'
+import { Text } from '@/components/ui/Text'
 
 /** Scrollbar CSS injected into every webview (module-level constant to avoid re-allocation) */
 const SCROLLBAR_CSS = `
@@ -362,19 +364,22 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       />
       {errorState && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white dark:bg-neutral-950 select-none px-8">
-          <span className="text-6xl font-thin text-gray-200 dark:text-neutral-800 tabular-nums">{errorState.code}</span>
-          <h2 className="text-base font-semibold text-gray-800 dark:text-neutral-200">
+          <Text as="span" className="text-6xl font-thin text-gray-200 dark:text-neutral-800 tabular-nums">{errorState.code}</Text>
+          <Text as="h2" size="title" tone="primary" className="text-base font-semibold text-gray-800 dark:text-neutral-200">
             This page can&apos;t be reached
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-neutral-500 max-w-xs text-center leading-relaxed">
+          </Text>
+          <Text size="body" tone="muted" className="max-w-xs text-center text-sm">
             {errorState.description}
-          </p>
-          <button
+          </Text>
+          <Button
+            variant="primary"
+            size="md"
+            rounded="rounded-full"
             onClick={() => { webviewRef.current?.reload(); setErrorState(null) }}
-            className="mt-1 px-5 py-2 rounded-full text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-150"
+            className="mt-1"
           >
             Try again
-          </button>
+          </Button>
         </div>
       )}
     </div>

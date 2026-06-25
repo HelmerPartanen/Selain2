@@ -1,5 +1,6 @@
 import { memo, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
+import { Button } from '@/components/ui/Button'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
@@ -11,7 +12,7 @@ import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useUIStore } from '@/store/uiStore'
 import { formatBytes } from '@/utils/formatUtils'
-import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
+import { SPRING_LIST } from '@/utils/springs'
 
 function formatSpeed(bytesPerSec: number): string {
   return `${formatBytes(bytesPerSec)}/s`
@@ -88,58 +89,67 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
 
       <div className="flex items-center gap-1 flex-shrink-0 z-10">
         {item.state === 'progressing' && (
-          <button
+          <Button
+            variant="icon"
+            rounded="rounded-full"
             onClick={() => pauseDownload(item.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
             aria-label="Pause"
           >
             <SvgIcon svg={PAUSE_SVG} size={13} />
-          </button>
+          </Button>
         )}
         {item.state === 'paused' && (
-          <button
+          <Button
+            variant="icon"
+            rounded="rounded-full"
             onClick={() => resumeDownload(item.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
             aria-label="Resume"
           >
             <SvgIcon svg={playSvg} size={13} />
-          </button>
+          </Button>
         )}
         {isActive && (
-          <button
+          <Button
+            variant="danger"
+            size="icon-sm"
+            rounded="rounded-full"
             onClick={() => cancelDownload(item.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-100"
             aria-label="Cancel"
           >
             <SvgIcon svg={closeSvg} size={13} />
-          </button>
+          </Button>
         )}
         {item.state === 'completed' && (
           <>
-            <button
+            <Button
+              variant="icon"
+              rounded="rounded-full"
               onClick={() => openDownload(item.id)}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
               aria-label="Open"
             >
               <SvgIcon svg={downloadSvg} size={13} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="icon"
+              rounded="rounded-full"
               onClick={() => showInFolder(item.id)}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
               aria-label="Show in folder"
             >
               <SvgIcon svg={folderSvg} size={13} />
-            </button>
+            </Button>
           </>
         )}
         {(item.state === 'completed' || item.state === 'failed' || item.state === 'cancelled') && (
-          <button
+          <Button
+            variant="danger"
+            size="icon-sm"
+            rounded="rounded-full"
             onClick={() => removeDownload(item.id)}
-            className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-100"
+            className="opacity-0 transition-opacity group-hover:opacity-100"
             aria-label="Remove from list"
           >
             <SvgIcon svg={closeSvg} size={13} />
-          </button>
+          </Button>
         )}
       </div>
     </motion.div>
@@ -163,15 +173,14 @@ function DownloadsPanelInner(): React.JSX.Element {
           <SvgIcon svg={downloadSvg} size={16} />
           Downloads
         </h2>
-        <motion.button
+        <Button
+          variant="icon"
+          rounded="rounded-full"
           onClick={closeDownloads}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.9 }}
-          transition={SPRING_SNAPPY}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+          aria-label="Close downloads"
         >
           <SvgIcon svg={closeSvg} size={13} />
-        </motion.button>
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-3 glass-scroll">

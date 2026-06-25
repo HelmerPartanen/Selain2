@@ -1,6 +1,7 @@
 import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useShallow } from 'zustand/react/shallow';
+import { Button } from "@/components/ui/Button";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import homeSvg from "@/assets/icons/Interface/Home_2.svg?raw";
 import bookmarkSvg from "@/assets/icons/Objects/Bookmark.svg?raw";
@@ -134,7 +135,9 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
 
   return (
     <div className={`relative ${popoverBelow ? '' : 'h-full'}`} ref={triggerRef}>
-      <motion.button
+      <Button
+        variant="ghost"
+        size="none"
         onClick={handleToggle}
         aria-label="Menu"
         aria-expanded={isOpen}
@@ -167,7 +170,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
             <SvgIcon svg={closeSvg} size={18} />
           </motion.span>
         </div>
-      </motion.button>
+      </Button>
 
       <AnimatePresence>
         {isOpen && menuPos && (
@@ -228,10 +231,12 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                     const Icon = item.icon!;
 
                     return (
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="none"
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
-                        className="w-full rounded-lg flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150 relative [app-region:no-drag]"
+                        className="relative h-10 w-full justify-start gap-3 rounded-lg px-3.5 text-[13px] font-light text-gray-700 [app-region:no-drag] dark:text-neutral-300"
                         style={disableAnimations
                           ? { opacity: 1, animation: 'none' }
                           : {
@@ -248,7 +253,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                             </span>
                           )}
                         </span>
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>

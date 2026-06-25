@@ -2,6 +2,9 @@
 
 import { memo, useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Text } from "@/components/ui/Text";
 import {
   Desc,
   SectionHeader,
@@ -17,7 +20,6 @@ import { useBookmarkStore } from "@/store/bookmarkStore";
 import type { BookmarkEntry } from "@/store/bookmarkStore";
 import { SITE_PERMISSION_LABELS, useSitePermissionsStore } from "@/store/sitePermissionsStore";
 import { showToast } from "@/components/ui/Toast";
-import { SPRING_SNAPPY } from "@/utils/springs";
 
 interface ProfileBackup {
   version: 1
@@ -193,18 +195,30 @@ function PrivacyPaneInner(): React.JSX.Element {
             ['strict', 'Strict', 'Prefer blocking and asking before access.'],
             ['private', 'Private', 'Minimize retained data where possible.'],
           ] as Array<[PrivacyProfile, string, string]>).map(([id, label, desc]) => (
-            <button
+            <Card
               key={id}
+              role="button"
+              tabIndex={0}
               onClick={() => setPrivacyProfile(id)}
-              className={`rounded-xl p-3 text-left transition-colors ${
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setPrivacyProfile(id);
+                }
+              }}
+              className={`cursor-pointer text-left transition-colors ${
                 privacyProfile === id
                   ? 'bg-green-500/10 dark:bg-green-400/10 hover:bg-green-500/15 dark:hover:bg-green-400/15 text-green-600 dark:text-green-300'
                   : 'text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]'
               }`}
             >
-              <div className="text-[13px] font-medium">{label}</div>
-              <div className="text-[11px] opacity-70 mt-1 leading-relaxed">{desc}</div>
-            </button>
+              <Text as="div" size="label" className="text-inherit">
+                {label}
+              </Text>
+              <Text as="div" size="caption" className="mt-1 text-inherit opacity-70">
+                {desc}
+              </Text>
+            </Card>
           ))}
         </div>
       </div>
@@ -259,15 +273,17 @@ function PrivacyPaneInner(): React.JSX.Element {
                   label={entry.origin}
                   desc={`${SITE_PERMISSION_LABELS[entry.permission] ?? entry.permission}: ${entry.decision}`}
                 >
-                  <button
+                  <Button
+                    variant="danger"
+                    size="xs"
+                    rounded="rounded-full"
                     onClick={() => {
                       resetOrigin(entry.origin)
                       showToast({ message: 'Site permissions reset', type: 'success' })
                     }}
-                    className="px-3 py-1.5 rounded-full text-[11px] text-red-500 bg-red-500/[0.08] hover:bg-red-500/[0.14]"
                   >
                     Reset
-                  </button>
+                  </Button>
                 </SettingRow>
               ))}
               {permissionEntries.length > 12 && (
@@ -284,22 +300,22 @@ function PrivacyPaneInner(): React.JSX.Element {
         <SectionHeader>Profile Backup</SectionHeader>
         <Desc>Export your bookmarks and settings to a file, or restore them from a previous backup.</Desc>
         <div className="flex gap-2">
-          <motion.button
+          <Button
+            variant="solid"
+            size="md"
             onClick={handleExportProfile}
-            whileTap={{ scale: 0.97 }}
-            transition={SPRING_SNAPPY}
-            className="flex-1 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
+            className="flex-1"
           >
             Export Profile
-          </motion.button>
-          <motion.button
+          </Button>
+          <Button
+            variant="solid"
+            size="md"
             onClick={handleImportProfile}
-            whileTap={{ scale: 0.97 }}
-            transition={SPRING_SNAPPY}
-            className="flex-1 px-4 py-2.5 rounded-lg text-[12px] font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] transition-all duration-150 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
+            className="flex-1"
           >
             Import Profile
-          </motion.button>
+          </Button>
         </div>
       </div>
 
@@ -310,8 +326,16 @@ function PrivacyPaneInner(): React.JSX.Element {
           {actions.map((action) => {
             const isConfirming = confirmAction === action.id;
             return (
-              <motion.button
+              <Button
                 key={action.id}
+                variant={
+                  isConfirming
+                    ? "primary"
+                    : action.destructive
+                      ? "danger"
+                      : "solid"
+                }
+                size="md"
                 aria-label={
                   isConfirming
                     ? `Confirm ${action.label.toLowerCase()}`
@@ -329,14 +353,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                     );
                   }
                 }}
-                whileTap={{ scale: 0.97 }}
-                transition={SPRING_SNAPPY}
-                className={`px-4 py-2.5 rounded-lg text-[12px] font-medium transition-all duration-150 ${isConfirming
-                    ? "bg-red-500 text-white shadow-sm"
-                    : action.destructive
-                      ? "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] hover:bg-red-500/[0.1] dark:hover:bg-red-400/[0.14]"
-                      : "text-gray-700 dark:text-neutral-300 bg-white dark:bg-white/[0.04] hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
-                  }`}
+                className={isConfirming ? "bg-red-500 hover:bg-red-600" : ""}
               >
                 <AnimatePresence mode="wait">
                   <motion.span
@@ -349,7 +366,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                     {isConfirming ? "Confirm?" : action.label}
                   </motion.span>
                 </AnimatePresence>
-              </motion.button>
+              </Button>
             );
           })}
         </div>

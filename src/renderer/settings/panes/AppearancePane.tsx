@@ -1,6 +1,10 @@
 // ─── Appearance Settings Pane ────────────────────────────────────────────────
 
 import { memo, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { RangeInput } from "@/components/ui/Input";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { Text } from "@/components/ui/Text";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Desc, SectionHeader, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
@@ -28,25 +32,6 @@ function AppearancePaneInner(): React.JSX.Element {
   const setUiLayout = useSettingsStore((s) => s.setUiLayout);
   const enableAutoHide = useSettingsStore((s) => s.enableAutoHide);
   const setEnableAutoHide = useSettingsStore((s) => s.setEnableAutoHide);
-
-  const renderLayoutButton = (layout: UiLayout, label: string) => {
-    const active = uiLayout === layout;
-    return (
-      <button
-        type="button"
-        onClick={() => setUiLayout(layout)}
-        className={[
-          "relative flex-1 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-150",
-          active
-            ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
-            : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-        ].join(" ")}
-      >
-        {label}
-      </button>
-    );
-  };
-
 
   useEffect(() => {
     setSelectedUiZoom(uiZoom);
@@ -76,20 +61,20 @@ function AppearancePaneInner(): React.JSX.Element {
           {THEME_MODES.map(({ mode, label, icon }) => {
             const isActive = themeMode === mode;
             return (
-              <button
+              <Button
                 key={mode}
+                variant="subtle"
+                size="lg"
                 role="radio"
                 aria-checked={isActive}
                 aria-label={`${label} theme`}
                 onClick={() => setThemeMode(mode)}
-                className={`relative flex-1 flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-150 ${isActive
-                    ? "text-gray-700 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
-                    : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-                  }`}
+                active={isActive}
+                className={`relative h-auto flex-1 flex-col gap-2 p-4 ${isActive ? "bg-black/[0.08] dark:bg-white/[0.10]" : "bg-transparent"}`}
               >
                 <span className="relative"><SvgIcon svg={icon} size={22} /></span>
                 <span className="relative text-[12px] font-medium">{label}</span>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -98,30 +83,16 @@ function AppearancePaneInner(): React.JSX.Element {
       <div>
         <SectionHeader>Interface Scale</SectionHeader>
         <Desc>Scale the browser UI. Does not affect web page content.</Desc>
-        <div
-          className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]"
-          role="radiogroup"
+        <SegmentedControl<number>
+          value={selectedUiZoom}
+          onChange={handleUiZoomSelect}
           aria-label="Interface scale"
-        >
-          {UI_ZOOM_OPTIONS.map((z) => {
-            const isActive = selectedUiZoom === z;
-            return (
-              <button
-                key={z}
-                role="radio"
-                aria-checked={isActive}
-                aria-label={`${z}% zoom`}
-                onClick={() => handleUiZoomSelect(z)}
-                className={`relative flex-1 px-3 py-2 rounded-lg text-[13px] font-normal transition-all duration-150 ${isActive
-                    ? "text-gray-700 dark:text-white bg-white dark:bg-white/[0.10]"
-                    : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200"
-                  }`}
-              >
-                <span className="relative">{z}%</span>
-              </button>
-            );
-          })}
-        </div>
+          options={UI_ZOOM_OPTIONS.map((z) => ({
+            value: z,
+            label: `${z}%`,
+            ariaLabel: `${z}% zoom`,
+          }))}
+        />
       </div>
 
       <div>
@@ -129,10 +100,15 @@ function AppearancePaneInner(): React.JSX.Element {
         <Desc>
           Choose between the floating toolbar or a classic browser layout with a tab strip and address bar.
         </Desc>
-        <div className="flex gap-1 p-1 rounded-xl bg-black/[0.08] dark:bg-white/[0.10]">
-          {renderLayoutButton("floating", "Floating")}
-          {renderLayoutButton("classic", "Classic")}
-        </div>
+        <SegmentedControl<UiLayout>
+          value={uiLayout}
+          onChange={setUiLayout}
+          aria-label="Browser layout"
+          options={[
+            { value: "floating", label: "Floating" },
+            { value: "classic", label: "Classic" },
+          ]}
+        />
         <SettingGroup className="mt-4">
           <SettingRow
             label="Hide UI automatically"
@@ -156,8 +132,7 @@ function AppearancePaneInner(): React.JSX.Element {
         </Desc>
         {uiLayout === 'floating' ? (
         <div className="flex items-center gap-3">
-          <input
-            type="range"
+          <RangeInput
             min={1000}
             max={5000}
             step={250}
@@ -168,7 +143,6 @@ function AppearancePaneInner(): React.JSX.Element {
             aria-valuemax={5000}
             aria-valuenow={autoHideDelay}
             aria-valuetext={`${(autoHideDelay / 1000).toFixed(1)} seconds`}
-            className="flex-1 h-1 rounded-full appearance-none bg-black/[0.08] dark:bg-white/[0.1] cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:ring-1 [&::-webkit-slider-thumb]:ring-black/[0.08] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb:hover]:scale-115 [&::-webkit-slider-thumb:active]:scale-110 dark:[&::-webkit-slider-thumb]:bg-neutral-200 dark:[&::-webkit-slider-thumb]:ring-white/[0.1]"
           />
           <span
             className="text-[12px] font-normal text-gray-400 dark:text-neutral-500 w-10 text-right tabular-nums"
@@ -178,9 +152,9 @@ function AppearancePaneInner(): React.JSX.Element {
           </span>
         </div>
         ) : (
-          <p className="text-[12px] text-gray-400 dark:text-neutral-500">
+          <Text size="caption" tone="muted">
             Switch to the floating layout to configure auto-hide.
-          </p>
+          </Text>
         )}
       </div>
     </div>

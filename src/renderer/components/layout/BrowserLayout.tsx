@@ -32,6 +32,9 @@ import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
 import { logger } from "@/utils/logger";
 import { useShallow } from "zustand/react/shallow";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Text } from "@/components/ui/Text";
 import { showToast, ToastContainer } from "@/components/ui/Toast";
 import { onSessionRestoreFailed } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
@@ -124,31 +127,31 @@ function MainContentErrorFallback({
 }): React.JSX.Element {
   return (
     <div className="absolute inset-0 z-[90] flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-700 p-8 max-w-sm text-center">
+      <Card variant="elevated" padding="lg" className="max-w-sm text-center">
         <div className="text-3xl mb-3">âš ï¸</div>
-        <h3 className="text-[15px] font-medium text-gray-900 dark:text-white mb-2">
+        <Text as="h3" size="title" tone="primary" className="mb-2">
           Something went wrong
-        </h3>
-        <p className="text-[13px] text-gray-500 dark:text-neutral-400 mb-5">
+        </Text>
+        <Text size="body" tone="muted" className="mb-5">
           The tab area had a problem. Try again or open a new tab.
-        </p>
+        </Text>
         <div className="flex gap-2 justify-center">
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="md"
             onClick={onRetry}
-            className="px-5 py-2 rounded-xl text-[13px] font-medium text-white bg-blue-500 hover:bg-blue-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           >
             Try Again
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="subtle"
+            size="md"
             onClick={onNewTab}
-            className="px-5 py-2 rounded-xl text-[13px] font-medium text-gray-700 dark:text-neutral-200 bg-gray-200 dark:bg-neutral-700 hover:bg-gray-300 dark:hover:bg-neutral-600 active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
           >
             New tab
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

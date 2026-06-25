@@ -5,6 +5,8 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
+import { Button } from '@/components/ui/Button'
+import { TextInput } from '@/components/ui/Input'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import boxSvg from '@/assets/icons/Interface/Menu_Points_3.svg?raw'
@@ -62,9 +64,11 @@ function SpaceRow({
   const accentColor = hasTint ? `hsl(${space.hue} 55% 55%)` : undefined
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="none"
       onClick={onSelect}
-      className={`group flex items-center gap-1 w-full pr-0.5 pl-2.5 h-10 rounded-lg text-left transition-colors duration-75 ${
+      className={`group flex items-center justify-start gap-1 w-full pr-0.5 pl-2.5 h-10 rounded-lg text-left transition-colors duration-75 ${
         isActive
           ? hasTint
             ? ''
@@ -128,7 +132,7 @@ function SpaceRow({
           <SvgIcon svg={trashSvg} size={14} />
         </div>
       )}
-    </button>
+    </Button>
   )
 }
 
@@ -156,7 +160,7 @@ function NewSpaceForm({
 
   return (
     <div className="p-2.5 space-y-3">
-      <input
+      <TextInput
         ref={inputRef}
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -165,12 +169,15 @@ function NewSpaceForm({
           if (e.key === 'Escape') onCancel()
         }}
         placeholder="Space name…"
-        className="w-full h-8 p-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-[12px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-neutral-500 outline-none focus-visible:ring-1 focus-visible:ring-transparent"
+        inputSize="sm"
       />
 
       {/* Color picker */}
       <div className="flex items-center gap-1.5 px-0.5">
-        <button
+        <Button
+          variant="ghost"
+          size="none"
+          rounded="rounded-full"
           onClick={() => setSelectedHue(-1)}
           className={`w-6 h-6 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
             selectedHue === -1
@@ -182,9 +189,12 @@ function NewSpaceForm({
           <svg width="10" height="10" viewBox="0 0 10 10" className="text-gray-400 dark:text-neutral-500">
             <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-        </button>
+        </Button>
         {SPACE_PRESET_HUES.filter((p) => p.hue >= 0).map((preset) => (
-          <button
+          <Button
+            variant="ghost"
+            size="none"
+            rounded="rounded-full"
             key={preset.hue}
             onClick={() => setSelectedHue(preset.hue)}
             className={`w-6 h-6 rounded-full transition-all duration-100 ${
@@ -200,19 +210,22 @@ function NewSpaceForm({
 
       {/* Actions */}
       <div className="flex items-center gap-1.5 pt-0.5">
-        <button
+        <Button
+          variant="subtle"
+          size="sm"
           onClick={handleSubmit}
           disabled={!name.trim()}
-          className="flex-1 h-8 rounded-lg bg-black/[0.1] dark:bg-white/[0.12] text-gray-700 dark:text-gray-300 text-[11px] font-medium hover:opacity-90 disabled:opacity-40 transition-opacity duration-100"
+          className="flex-1"
         >
           Create
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onCancel}
-          className="h-8 px-3 rounded-lg text-[11px] text-gray-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
         >
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -247,7 +260,7 @@ function EditSpaceForm({
 
   return (
     <div className="p-2.5 space-y-2.5">
-      <input
+      <TextInput
         ref={inputRef}
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -255,12 +268,15 @@ function EditSpaceForm({
           if (e.key === 'Enter') handleSave()
           if (e.key === 'Escape') onDone()
         }}
-        className="w-full h-8 px-2.5 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] text-xs text-gray-900 dark:text-white outline-none focus-visible:ring-1 focus-visible:ring-gray-300 dark:focus-visible:ring-neutral-600"
+        inputSize="sm"
       />
 
       {/* Color picker — include "None" option */}
       <div className="flex items-center gap-1.5 px-0.5">
-        <button
+        <Button
+          variant="ghost"
+          size="none"
+          rounded="rounded-full"
           onClick={() => setSelectedHue(-1)}
           className={`w-5 h-5 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
             selectedHue === -1
@@ -272,9 +288,12 @@ function EditSpaceForm({
           <svg width="10" height="10" viewBox="0 0 10 10" className="text-gray-400 dark:text-neutral-500">
             <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-        </button>
+        </Button>
         {SPACE_PRESET_HUES.filter((p) => p.hue >= 0).map((preset) => (
-          <button
+          <Button
+            variant="ghost"
+            size="none"
+            rounded="rounded-full"
             key={preset.hue}
             onClick={() => setSelectedHue(preset.hue)}
             className={`w-5 h-5 rounded-full transition-all duration-100 ${
@@ -288,12 +307,14 @@ function EditSpaceForm({
         ))}
       </div>
 
-      <button
+      <Button
+        variant="primary"
+        size="sm"
         onClick={handleSave}
-        className="w-full h-7 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[11px] font-medium hover:opacity-90 transition-opacity duration-100"
+        className="w-full"
       >
         Save
-      </button>
+      </Button>
     </div>
   )
 }
@@ -408,7 +429,9 @@ const popoverBelow = uiLayout === 'classic'
 
   return (
   <div className={`relative ${popoverBelow ? '' : 'h-full'}`} ref={triggerRef}>
-    <motion.button
+    <Button
+      variant="ghost"
+      size="none"
       onClick={handleToggle}
       aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
       whileTap={disableAnimations ? undefined : { scale: 0.88 }}
@@ -435,7 +458,7 @@ const popoverBelow = uiLayout === 'classic'
           <SvgIcon svg={boxSvg} size={16} />
         </div>
       </span>
-    </motion.button>
+    </Button>
 
       {/* Popup */}
       <AnimatePresence>
@@ -528,13 +551,15 @@ const popoverBelow = uiLayout === 'classic'
 
                     {/* New Space button */}
                     <div className="p-1">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="md"
                         onClick={() => setIsCreating(true)}
-                        className="flex items-center gap-3 w-full px-2.5 h-10 rounded-xl text-left text-gray-500 dark:text-neutral-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-700 dark:hover:text-neutral-300 transition-colors duration-75"
+                        className="h-10 w-full justify-start gap-3 rounded-xl px-2.5 text-left text-gray-500 dark:text-neutral-500"
                       >
                         <SvgIcon svg={plusSvg} size={14} />
                         <span className="text-[13px]">New Space</span>
-                      </button>
+                      </Button>
                     </div>
                     </motion.div>
                   )}

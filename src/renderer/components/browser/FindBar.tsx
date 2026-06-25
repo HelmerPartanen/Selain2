@@ -6,6 +6,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { CLASSIC_CHROME_HEIGHT } from '@/components/layout/layoutConstants'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
+import { TextInput } from '@/components/ui/Input'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import chevronUpSvg from '@/assets/icons/Arrows/Chevron_Up.svg?raw'
@@ -136,7 +137,7 @@ function FindBarInner(): React.JSX.Element {
       transition={SPRING_POPUP}
     >
       <div className="flex items-center gap-1 rounded-xl h-9 px-2 glass-heavy">
-        <input
+        <TextInput
           ref={inputRef}
           type="text"
           value={query}
@@ -145,7 +146,8 @@ function FindBarInner(): React.JSX.Element {
           placeholder="Find in page"
           spellCheck={false}
           autoComplete="off"
-          className="w-40 h-full text-xs text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-inset"
+          inputSize="sm"
+          className="h-full w-40 border-transparent bg-transparent px-1 text-xs ring-0 focus:border-transparent focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-inset focus-visible:ring-offset-0"
         />
 
         {query.length > 0 && (
@@ -154,18 +156,17 @@ function FindBarInner(): React.JSX.Element {
           </span>
         )}
 
-        <button
+        <Button
+          variant={matchCase ? 'primary' : 'icon'}
+          size="icon-sm"
+          rounded="rounded-md"
           onClick={() => setMatchCase((v) => !v)}
           aria-label="Match case"
           aria-pressed={matchCase}
-          className={`w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-semibold transition-colors duration-100 ${
-            matchCase
-              ? 'bg-blue-500/20 text-blue-500 dark:text-blue-400'
-              : 'text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
-          }`}
+          className={matchCase ? 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/25 dark:text-blue-400' : 'text-[11px] font-semibold'}
         >
           Aa
-        </button>
+        </Button>
         <Button variant="icon" onClick={handlePrev} aria-label="Previous match">
           <SvgIcon svg={chevronUpSvg} size={13} />
         </Button>

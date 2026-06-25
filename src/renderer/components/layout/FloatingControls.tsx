@@ -7,6 +7,7 @@ import {
   useIsSplitView,
 } from "@/hooks/useTabSelector";
 import { SvgIcon } from "@/components/ui/SvgIcon";
+import { Button } from "@/components/ui/Button";
 import chevronLeftSvg from "@/assets/icons/Arrows/Chevron_Left.svg?raw";
 import chevronRightSvg from "@/assets/icons/Arrows/Chevron_Right.svg?raw";
 import unsplitSvg from "@/assets/icons/Arrows/Triangle_Merge.svg?raw";
@@ -276,7 +277,9 @@ function FloatingControlsInner(): React.JSX.Element {
                     transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                     style={{ overflow: "hidden" }}
                   >
-                    <motion.button
+                    <Button
+                      variant="icon"
+                      size="none"
                       onClick={handleGoBack}
                       disabled={!canGoBack}
                       aria-label="Go back"
@@ -291,7 +294,7 @@ function FloatingControlsInner(): React.JSX.Element {
                       className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
                     >
                       <SvgIcon svg={chevronLeftSvg} size={16} />
-                    </motion.button>
+                    </Button>
                   </motion.div>
 
                   {/* Forward button slot (40px wide) */}
@@ -301,7 +304,9 @@ function FloatingControlsInner(): React.JSX.Element {
                     transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                     style={{ overflow: "hidden" }}
                   >
-                    <motion.button
+                    <Button
+                      variant="icon"
+                      size="none"
                       onClick={handleGoForward}
                       aria-label="Go forward"
                       whileTap={{ scale: 0.86 }}
@@ -316,7 +321,7 @@ function FloatingControlsInner(): React.JSX.Element {
                       className="h-full aspect-square rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
                     >
                       <SvgIcon svg={chevronRightSvg} size={16} />
-                    </motion.button>
+                    </Button>
                   </motion.div>
                 </motion.div>
 
@@ -337,7 +342,9 @@ function FloatingControlsInner(): React.JSX.Element {
                       transition={SPRING_EXPAND}
                       style={{ overflow: 'hidden' }}
                     >
-                      <motion.button
+                      <Button
+                        variant="icon"
+                        size="none"
                         onClick={handleUnsplit}
                         aria-label="Exit split view"
                         whileTap={{ scale: 0.85 }}
@@ -348,7 +355,7 @@ function FloatingControlsInner(): React.JSX.Element {
                         className="h-full aspect-square rounded-lg flex items-center justify-center text-blue-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
                       >
                         <SvgIcon svg={unsplitSvg} size={15} />
-                      </motion.button>
+                      </Button>
                     </motion.div>
                   )}
                 </AnimatePresence>

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { useSettingsStore } from "@/store/settingsStore";
 
+import { Button } from "@/components/ui/Button";
+
 import { SvgIcon } from "@/components/ui/SvgIcon";
 
 import maximizeSvg from "@/assets/icons/Window/Maximize.svg?raw";
@@ -41,14 +43,15 @@ function Win11ControlButton({
       : "hover:bg-[#E5E5E5] dark:hover:bg-[#3B3B3B]";
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="none"
       onClick={onClick}
       aria-label={label}
       className={`w-[46px] h-10 flex items-center justify-center text-black dark:text-white transition-colors duration-75 ${hoverClass}`}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -259,14 +262,16 @@ function ControlButton({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <motion.button
+    <Button
+      variant="ghost"
+      size="none"
       onClick={onClick}
       aria-label={label}
       transition={SPRING_SNAPPY}
       className={`relative w-9 h-9 flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100 ${hoverBg} ${hoverText}`}
     >
       <span className="relative z-10">{children}</span>
-    </motion.button>
+    </Button>
   );
 }
 

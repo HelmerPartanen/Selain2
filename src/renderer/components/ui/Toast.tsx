@@ -1,11 +1,13 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { Button } from '@/components/ui/Button'
+import { Text } from '@/components/ui/Text'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import warnSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
 import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
-import { SPRING, SPRING_SNAPPY } from '@/utils/springs'
+import { SPRING } from '@/utils/springs'
 
 export interface Toast {
   id: string
@@ -90,29 +92,32 @@ function ToastContainerInner(): React.JSX.Element {
                 }
               />
             </div>
-            <span className="flex-1 text-[13px] font-normal text-gray-800 dark:text-neutral-200 break-words line-clamp-3">
+            <Text as="span" size="body" tone="secondary" className="line-clamp-3 flex-1 break-words">
               {toast.message}
-            </span>
+            </Text>
             {toast.action && (
-              <button
+              <Button
+                variant="link"
+                size="xs"
                 onClick={() => {
                   toast.action!.onClick()
                   handleDismiss(toast.id)
                 }}
-                className="text-[12px] font-medium text-blue-500 hover:text-blue-600 flex-shrink-0 transition-colors"
+                className="flex-shrink-0"
               >
                 {toast.action.label}
-              </button>
+              </Button>
             )}
-            <motion.button
+            <Button
+              variant="icon"
+              size="none"
+              rounded="rounded-full"
               onClick={() => handleDismiss(toast.id)}
-              whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.85 }}
-              transition={SPRING_SNAPPY}
               className="w-5 h-5 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-white flex-shrink-0 transition-colors"
+              aria-label="Dismiss notification"
             >
               <SvgIcon svg={closeSvg} size={10} />
-            </motion.button>
+            </Button>
           </motion.div>
         ))}
       </AnimatePresence>

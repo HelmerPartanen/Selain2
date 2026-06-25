@@ -1,7 +1,10 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
+import { Button } from '@/components/ui/Button'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
+import { TextInput } from '@/components/ui/Input'
+import { Text } from '@/components/ui/Text'
 import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
@@ -12,7 +15,7 @@ import { useTabStore, type ClosedTab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
-import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
+import { SPRING_LIST } from '@/utils/springs'
 
 const SEARCH_DEBOUNCE_MS = 200
 
@@ -78,16 +81,19 @@ const HistoryRow = memo(function HistoryRow({
       <span className="flex-shrink-0 text-[11px] text-gray-400 dark:text-neutral-600 z-10">
         {formatTime(entry.timestamp)}
       </span>
-      <button
+      <Button
+        variant="danger"
+        size="icon-sm"
+        rounded="rounded-full"
         onClick={(e) => {
           e.stopPropagation()
           onRemove(entry.url)
         }}
-        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 z-10"
+        className="z-10 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
         aria-label="Remove"
       >
         <SvgIcon svg={trashSvg} size={14} />
-      </button>
+      </Button>
     </motion.div>
   )
 })
@@ -212,27 +218,30 @@ function HistoryPanelInner(): React.JSX.Element {
   const clearButton = entries.length > 0 ? (
     confirmingClear ? (
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-gray-500 dark:text-neutral-400">Clear all history?</span>
-        <button
+        <Text as="span" size="caption" tone="muted">Clear all history?</Text>
+        <Button
+          variant="danger"
+          size="xs"
           onClick={() => { clearAll(); setConfirmingClear(false) }}
-          className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-100"
         >
           Confirm
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="xs"
           onClick={() => setConfirmingClear(false)}
-          className="text-xs text-gray-500 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100"
         >
           Cancel
-        </button>
+        </Button>
       </div>
     ) : (
-      <button
+      <Button
+        variant="danger"
+        size="xs"
         onClick={() => setConfirmingClear(true)}
-        className="text-xs text-gray-500 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-300 transition-colors duration-100 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
       >
         Clear all
-      </button>
+      </Button>
     )
   ) : undefined
 
@@ -250,15 +259,14 @@ function HistoryPanelInner(): React.JSX.Element {
         </h2>
         <div className="flex items-center gap-2">
           {clearButton}
-          <motion.button
+          <Button
+            variant="icon"
+            rounded="rounded-full"
             onClick={closeHistory}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.9 }}
-            transition={SPRING_SNAPPY}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150"
+            aria-label="Close history"
           >
             <SvgIcon svg={closeSvg} size={13} />
-          </motion.button>
+          </Button>
         </div>
       </div>
 
@@ -266,13 +274,13 @@ function HistoryPanelInner(): React.JSX.Element {
         <div className="px-6 pt-4 pb-2 flex-shrink-0">
           <div className="relative">
             <SvgIcon svg={searchSvg} size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" />
-            <input
+            <TextInput
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search history..."
               autoFocus
-              className="w-full h-9 pl-9 pr-3 rounded-full bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-all duration-150"
+              className="rounded-full pl-9"
             />
           </div>
         </div>

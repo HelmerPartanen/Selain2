@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
+import { Button } from '@/components/ui/Button'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_2_Fill.svg?raw'
@@ -269,34 +270,42 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-3">
-                  <button
+                  <Button
+                    variant="subtle"
+                    size="sm"
                     onClick={handleClearSiteData}
-                    className="px-3 py-2 rounded-xl text-[12px] bg-black/[0.04] dark:bg-white/[0.06] text-gray-700 dark:text-neutral-200 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]"
+                    className="h-auto whitespace-normal px-3 py-2"
                     style={{ transition: 'none' }}
                   >
                     Clear data
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="subtle"
+                    size="sm"
                     onClick={handleResetPermissions}
-                    className="px-3 py-2 rounded-xl text-[12px] bg-black/[0.04] dark:bg-white/[0.06] text-gray-700 dark:text-neutral-200 hover:bg-black/[0.07] dark:hover:bg-white/[0.1]"
+                    className="h-auto whitespace-normal px-3 py-2"
                     style={{ transition: 'none' }}
                   >
                     Reset permissions
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
                     onClick={handleForgetSite}
-                    className="px-3 py-2 rounded-xl text-[12px] bg-red-500/[0.08] text-red-500 hover:bg-red-500/[0.14]"
+                    className="h-auto whitespace-normal px-3 py-2"
                     style={{ transition: 'none' }}
                   >
                     Forget site
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
                     onClick={handleOpenPrivacySettings}
-                    className="px-3 py-2 rounded-xl text-[12px] bg-blue-500/[0.08] text-blue-500 hover:bg-blue-500/[0.14]"
+                    className="h-auto whitespace-normal bg-blue-500/[0.08] px-3 py-2 text-blue-500 hover:bg-blue-500/[0.14] dark:bg-blue-500/[0.08] dark:text-blue-400"
                     style={{ transition: 'none' }}
                   >
                     Privacy settings
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -306,4 +315,3 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
     </>
   )
 })
-

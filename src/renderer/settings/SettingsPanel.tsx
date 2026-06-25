@@ -4,10 +4,13 @@
 
 import { memo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Button } from "@/components/ui/Button";
 import { PanelModal } from "@/components/ui/PanelModal";
 import { SvgIcon } from "@/components/ui/SvgIcon";
+import { Text } from "@/components/ui/Text";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
+import componentsSvg from "@/assets/icons/Objects/Wrench.svg?raw";
 import brushSvg from "@/assets/icons/News/Camera_Macro.svg?raw";
 import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
 import displaySvg from "@/assets/icons/Human/Person_Circle.svg?raw";
@@ -27,12 +30,15 @@ import { HotkeysPane } from "@/settings/panes/HotkeysPane";
 import { GesturesPane } from "@/settings/panes/GesturesPane";
 import { AccessibilityPane } from "./panes/AccessibilityPane";
 import { AboutPane } from "@/settings/panes/AboutPane";
-import { SPRING_CONTENT, SPRING_SNAPPY } from "@/utils/springs";
+import { UIComponentsPane } from "@/settings/panes/UIComponentsPane";
+import { SPRING_CONTENT } from "@/utils/springs";
+import { cn } from "@/utils/classNames";
 
 // --- Sidebar Categories -------------------------------------------------------
 
 type SettingsCategory =
   | "general"
+  | "components"
   | "appearance"
   | "wallpaper"
   | "accessibility"
@@ -51,6 +57,7 @@ interface CategoryItem {
 
 const CATEGORIES: CategoryItem[] = [
   { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-slate-100 text-slate-700 dark:bg-slate-700/10 dark:text-slate-200" },
+  { id: "components", label: "Components", icon: componentsSvg, colorClass: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300" },
   { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-300" },
   { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300" },
   { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300" },
@@ -71,6 +78,8 @@ function SettingsContent({
   switch (category) {
     case "general":
       return <GeneralPane />;
+    case "components":
+      return <UIComponentsPane />;
     case "appearance":
       return <AppearancePane />;
     case "wallpaper":
@@ -99,29 +108,31 @@ function Sidebar({
   activeCategory: SettingsCategory;
   onSelect: (id: SettingsCategory) => void;
 }): React.JSX.Element {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-
   return (
     <nav aria-label="Settings categories" className="flex flex-col gap-1">
-      {CATEGORIES.map(({ id, label, icon, colorClass }, idx) => {
+      {CATEGORIES.map(({ id, label, icon, colorClass }) => {
         const isActive = activeCategory === id
         return (
-          <button
+          <Button
             key={id}
+            variant="ghost"
+            size="md"
             onClick={() => onSelect(id)}
-            onMouseEnter={() => setHoveredIdx(idx)}
-            onMouseLeave={() => setHoveredIdx(null)}
             aria-current={isActive ? "page" : undefined}
-            className={`relative flex items-center gap-3 p-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${isActive
-              ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10] shadow-sm"
-              : "text-gray-600 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
-              }`}
+            active={isActive}
+            className={cn(
+              "relative h-auto w-full justify-start gap-3 rounded-xl p-2.5",
+              isActive &&
+                "bg-black/[0.08] text-gray-900 shadow-sm dark:bg-white/[0.10] dark:text-white",
+            )}
           >
             <span className={`w-9 h-9 flex items-center justify-center rounded-xl shrink-0 transition-all duration-150 ${colorClass}`}>
               <SvgIcon svg={icon} size={18} />
             </span>
-            <span className="text-left truncate">{label}</span>
-          </button>
+            <Text as="span" size="body" tone="secondary" className="truncate text-left font-medium">
+              {label}
+            </Text>
+          </Button>
         )
       })}
     </nav>
@@ -177,16 +188,14 @@ function SettingsPanelInner(): React.JSX.Element {
                 {categoryLabel}
               </motion.h3>
             </AnimatePresence>
-            <motion.button
+            <Button
+              variant="icon"
               onClick={closeSettings}
               aria-label="Close settings"
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.9 }}
-              transition={SPRING_SNAPPY}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+              rounded="rounded-full"
             >
               <SvgIcon svg={closeSvg} size={13} />
-            </motion.button>
+            </Button>
           </div>
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 glass-scroll">
             <AnimatePresence mode="wait">

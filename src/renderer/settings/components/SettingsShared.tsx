@@ -1,42 +1,45 @@
-// ─── Shared Settings UI Components ───────────────────────────────────────────
-// Reusable primitives used across all settings panes.
-// Extracted from SettingsPanel to enforce single-responsibility and reduce
-// duplication. Each component is intentionally minimal.
-
 import { motion } from "motion/react";
+import { Card } from "@/components/ui/Card";
+import { Text } from "@/components/ui/Text";
 import { SPRING_SNAPPY } from "@/utils/springs";
+import { cn } from "@/utils/classNames";
 
-/** Primary section heading used in every settings pane */
 export function SectionHeader({
   children,
-  className = ""
+  className = "",
 }: {
-  children: React.ReactNode
-  className?: string
+  children: React.ReactNode;
+  className?: string;
 }): React.JSX.Element {
   return (
-    <h3
-      className={`text-[13px] font-medium text-gray-900 dark:text-white mb-1 ${className}`}
-    >
+    <Text as="h3" size="label" tone="primary" className={cn("mb-1", className)}>
       {children}
-    </h3>
-  )
+    </Text>
+  );
 }
 
-export function Desc({ children }: { children: React.ReactNode }): React.JSX.Element {
+export function Desc({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}): React.JSX.Element {
   return (
-    <p className="text-[11px] text-gray-400 dark:text-neutral-500 mb-4 leading-relaxed">{children}</p>
-  )
+    <Text size="caption" tone="muted" className={cn("mb-4", className)}>
+      {children}
+    </Text>
+  );
 }
 
 export function Toggle({
   checked,
   onChange,
-  label
+  label,
 }: {
-  checked: boolean
-  onChange: (v: boolean) => void
-  label?: string
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label?: string;
 }): React.JSX.Element {
   return (
     <button
@@ -44,52 +47,63 @@ export function Toggle({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative w-[42px] h-[22px] rounded-full flex-shrink-0 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 ${
+      className={cn(
+        "relative h-[22px] w-[42px] flex-shrink-0 rounded-full transition-colors duration-200",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900",
         checked
-          ? 'bg-blue-500/70 dark:bg-blue-400/70'
-          : 'bg-gray-300 dark:bg-neutral-600'
-      }`}
+          ? "bg-blue-500/70 dark:bg-blue-400/70"
+          : "bg-gray-300 dark:bg-neutral-600",
+      )}
     >
       <motion.span
-        className="absolute top-[2px] left-[2px] w-[24px] h-[18px] rounded-full bg-gradient-to-b from-white/90 to-white/80 border border-white shadow-sm"
+        className="absolute left-[2px] top-[2px] h-[18px] w-[24px] rounded-full border border-white bg-gradient-to-b from-white/90 to-white/80 shadow-sm"
         animate={{ x: checked ? 14 : 0 }}
         transition={SPRING_SNAPPY}
       />
     </button>
-  )
+  );
 }
 
 export function SettingRow({
   label,
   desc,
-  children
+  children,
 }: {
-  label: string
-  desc?: string
-  children: React.ReactNode
+  label: string;
+  desc?: string;
+  children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 px-3.5 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-150">
+    <Card
+      variant="interactive"
+      padding="md"
+      className="flex items-center justify-between gap-4"
+    >
       <div className="min-w-0">
-        <div className="text-[13px] font-normal text-gray-700 dark:text-neutral-200">{label}</div>
-        {desc && <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5 leading-relaxed">{desc}</div>}
+        <Text size="body" tone="secondary" className="font-normal">
+          {label}
+        </Text>
+        {desc && (
+          <Text size="caption" tone="muted" className="mt-0.5">
+            {desc}
+          </Text>
+        )}
       </div>
       <div className="flex-shrink-0">{children}</div>
-    </div>
-  )
+    </Card>
+  );
 }
 
-/** Grouped card surface for related settings */
 export function SettingGroup({
   children,
-  className = ""
+  className = "",
 }: {
-  children: React.ReactNode
-  className?: string
+  children: React.ReactNode;
+  className?: string;
 }): React.JSX.Element {
   return (
-    <div className={`rounded-xl ${className}`}>
+    <div className={cn("rounded-xl", className)}>
       {children}
     </div>
-  )
+  );
 }

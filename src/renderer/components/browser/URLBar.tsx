@@ -23,6 +23,7 @@ import { logger } from '@/utils/logger'
 import { fetchSearchSuggestions } from '@/utils/searchUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
+import { TextInput } from '@/components/ui/Input'
 import { getTabDomain } from '@/utils/tabAnalysis'
 
 import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
@@ -508,7 +509,7 @@ function URLBarInner({
             </div>
           </div>
 
-          <input
+          <TextInput
             ref={inputRef}
             type="text"
             value={inputValue}
@@ -519,7 +520,7 @@ function URLBarInner({
             placeholder="Search or enter URL"
             spellCheck={false}
             autoComplete="off"
-            className="w-full h-full pl-[36px] pr-[36px] text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-none"
+            className="h-full w-full border-transparent bg-transparent pl-[36px] pr-[36px] text-sm ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
           />
 
           {/* Clear input button */}
@@ -648,15 +649,17 @@ function URLBarInner({
             {suggestions.map((entry, i) => {
               const isActive = selectedIndex === i
               return (
-                <button
+                <Button
                   key={entry.url}
+                  variant="ghost"
+                  size="none"
                   onMouseDown={(e) => {
                     e.preventDefault()
                     handleSuggestionClick(entry.url)
                   }}
                   onMouseEnter={() => setHoveredIdx(i)}
                   onMouseLeave={() => setHoveredIdx(null)}
-                  className={`relative flex items-center gap-2.5 w-full px-3 h-9 rounded-lg text-left transition-colors duration-75 ${
+                  className={`relative flex h-9 w-full items-center justify-start gap-2.5 rounded-lg px-3 text-left ${
                     isActive
                       ? 'text-gray-900 dark:text-white'
                       : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.08]'
@@ -691,7 +694,7 @@ function URLBarInner({
                       </span>
                     )}
                   </span>
-                </button>
+                </Button>
               )
             })}
             {suggestionsUnavailable && (

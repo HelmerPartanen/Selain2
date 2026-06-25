@@ -1,5 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
+import { Button } from '@/components/ui/Button'
+import { TextInput } from '@/components/ui/Input'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
@@ -13,7 +15,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
-import { SPRING_SNAPPY, SPRING_LIST } from '@/utils/springs'
+import { SPRING_LIST } from '@/utils/springs'
 import { showToast } from '@/components/ui/Toast'
 
 const SEARCH_DEBOUNCE_MS = 200
@@ -75,16 +77,18 @@ const BookmarkRow = memo(function BookmarkRow({
           {simplifyUrl(entry.url)}
         </div>
       </div>
-      <button
+      <Button
+        variant="danger"
+        size="icon-md"
         onClick={(e) => {
           e.stopPropagation()
           onRemove(entry.url)
         }}
-        className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-500/[0.08] dark:hover:bg-red-500/[0.08] transition-all duration-150 z-10"
+        className="z-10 h-10 w-10 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
         aria-label="Remove bookmark"
       >
         <SvgIcon svg={trashSvg} size={16} />
-      </button>
+      </Button>
     </motion.div>
   )
 })
@@ -194,37 +198,38 @@ function BookmarksPanelInner(): React.JSX.Element {
           Bookmarks
         </h2>
         <div className="flex items-center gap-1">
-          <button
+          <Button
+            variant="ghost"
+            size="xs"
             onClick={handleBookmarkAll}
-            className="px-2.5 py-1 rounded-lg text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
             title="Bookmark all open tabs"
           >
             Bookmark all
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="xs"
             onClick={handleImport}
-            className="px-2.5 py-1 rounded-lg text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
             title="Import bookmarks from HTML"
           >
             Import
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="xs"
             onClick={handleExport}
             disabled={bookmarks.length === 0}
-            className="px-2.5 py-1 rounded-lg text-[11px] text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-40 disabled:pointer-events-none transition-colors duration-150"
             title="Export bookmarks to HTML"
           >
             Export
-          </button>
-          <motion.button
+          </Button>
+          <Button
+            variant="icon"
             onClick={closeBookmarks}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.9 }}
-            transition={SPRING_SNAPPY}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 dark:text-neutral-500 hover:text-gray-700 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150"
+            aria-label="Close bookmarks"
           >
             <SvgIcon svg={closeSvg} size={16} />
-          </motion.button>
+          </Button>
         </div>
       </div>
 
@@ -233,13 +238,13 @@ function BookmarksPanelInner(): React.JSX.Element {
         <div className="px-4 pt-4 pb-2 flex-shrink-0">
           <div className="relative">
             <SvgIcon svg={searchSvg} size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" />
-            <input
+            <TextInput
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search bookmarks..."
               autoFocus
-              className="w-full h-9 pl-9 pr-3 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none border border-transparent focus:border-blue-500/30 transition-all duration-150"
+              className="pl-9"
             />
           </div>
         </div>

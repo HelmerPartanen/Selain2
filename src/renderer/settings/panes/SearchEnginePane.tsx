@@ -1,14 +1,14 @@
 // ─── Search Engine Settings Pane ─────────────────────────────────────────────
 
-import { memo, useState } from "react";
-import { motion } from "motion/react";
+import { memo } from "react";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Desc, SectionHeader, SettingGroup } from "@/settings/components/SettingsShared";
 import {
   useSearchEngineStore,
   SEARCH_ENGINES,
 } from "@/store/searchEngineStore";
-import { SPRING_SNAPPY } from "@/utils/springs";
 import checkSvg from "@/assets/icons/Interface/Check.svg?raw";
 import googleImg from "@/assets/searchengines/Google.svg";
 import duckduckgoImg from "@/assets/searchengines/DuckDuckGo.svg";
@@ -27,7 +27,6 @@ const ENGINE_ICONS: Record<string, string> = {
 };
 
 function SearchEnginePaneInner(): React.JSX.Element {
-  const [hoveredEngineId, setHoveredEngineId] = useState<string | null>(null)
   const engineId = useSearchEngineStore((s) => s.engineId);
   const setEngine = useSearchEngineStore((s) => s.setEngine);
 
@@ -47,20 +46,16 @@ function SearchEnginePaneInner(): React.JSX.Element {
             {SEARCH_ENGINES.map((engine) => {
               const isActive = engineId === engine.id;
               return (
-                <button
+                <Button
                   key={engine.id}
+                  variant="ghost"
+                  size="md"
                   role="radio"
                   aria-checked={isActive}
                   aria-label={`${engine.name} search engine`}
                   onClick={() => setEngine(engine.id)}
-                  onMouseEnter={() => setHoveredEngineId(engine.id)}
-                  onMouseLeave={() => setHoveredEngineId(null)}
-                  onFocus={() => setHoveredEngineId(engine.id)}
-                  onBlur={() => setHoveredEngineId(null)}
-                  className={`relative w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-150 ${isActive
-                      ? "text-gray-900 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
-                      : "text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] hover:dark:bg-white/[0.06]"
-                    }`}
+                  active={isActive}
+                  className={`relative h-auto w-full justify-start gap-3 rounded-xl px-3.5 py-3 ${isActive ? "bg-black/[0.08] text-gray-900 dark:bg-white/[0.10] dark:text-white" : ""}`}
                 >
                   <div className="relative w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
                     {ENGINE_ICONS[engine.id] ? (
@@ -69,13 +64,15 @@ function SearchEnginePaneInner(): React.JSX.Element {
                       <span className="text-[11px] font-medium">{engine.icon}</span>
                     )}
                   </div>
-                  <span className="relative text-[13px] font-normal">{engine.name}</span>
+                  <Text as="span" size="body" className="relative text-inherit">
+                    {engine.name}
+                  </Text>
                   {isActive && (
                     <span className="relative ml-auto">
                       <SvgIcon svg={checkSvg} size={18} className="text-blue-500 dark:text-blue-400" />
                     </span>
                   )}
-                </button>
+                </Button>
               );
             })}
           </div>
