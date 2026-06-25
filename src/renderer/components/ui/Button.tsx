@@ -34,29 +34,29 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   ghost:
-    "text-gray-600 dark:text-neutral-300 bg-transparent hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white",
+    "text-gray-600 dark:text-neutral-300 bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/[0.03]",
   solid:
-    "text-gray-900 dark:text-neutral-100 bg-white dark:bg-white/[0.04] hover:bg-black/[0.04] dark:hover:bg-white/[0.06]",
+    "text-blue-500 dark:text-blue-400 bg-blue-500/20 hover:bg-blue-600 dark:bg-blue-400/20 dark:hover:bg-blue-400/10",
   subtle:
-    "text-gray-700 dark:text-neutral-300 bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.07] dark:hover:bg-white/[0.09]",
+    "text-gray-700 dark:text-neutral-300 bg-black/[0.04] dark:bg-white/15 hover:bg-black/[0.07] dark:hover:bg-white/10",
   primary:
-    "text-white bg-blue-500 hover:bg-blue-600 dark:bg-blue-500 dark:hover:bg-blue-400",
+    "text-white bg-blue-500 hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500",
   danger:
-    "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/[0.08] hover:bg-red-500/[0.12] dark:hover:bg-red-400/[0.14]",
+    "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/15 hover:bg-red-500/10 dark:hover:bg-red-400/10",
   icon:
-    "text-gray-500 dark:text-neutral-400 bg-transparent hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white",
+    "text-gray-600 dark:text-neutral-300 bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/[0.03]",
   link:
-    "text-blue-600 dark:text-blue-400 bg-transparent hover:underline",
+    "text-blue-500 dark:text-blue-400 bg-transparent hover:underline",
   segment:
-    "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 data-[active=true]:text-gray-700 data-[active=true]:dark:text-white data-[active=true]:bg-white data-[active=true]:dark:bg-white/[0.10]",
+    "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-400 data-[active=true]:text-gray-700 data-[active=true]:dark:text-white data-[active=true]:bg-white data-[active=true]:dark:bg-white/15",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
   none: "",
-  xs: "h-7 px-2 text-[11px]",
-  sm: "h-8 px-3 text-[12px]",
-  md: "h-9 px-4 text-[13px]",
-  lg: "h-10 px-5 text-sm",
+  xs: "h-6 px-2 text-[11px]",
+  sm: "h-7 px-3 text-[12px]",
+  md: "h-8 px-4 text-[13px]",
+  lg: "h-9 px-5 text-sm",
   "icon-sm": "h-7 w-7 text-[12px]",
   "icon-md": "h-9 w-9 text-sm",
 };
@@ -82,8 +82,6 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        whileTap={disabled ? undefined : { scale: 0.96 }}
-        transition={SPRING_SNAPPY}
         disabled={disabled}
         type={type}
         data-active={active ? "true" : "false"}

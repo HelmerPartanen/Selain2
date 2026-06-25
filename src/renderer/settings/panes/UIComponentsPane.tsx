@@ -191,13 +191,12 @@ function UIComponentsPaneInner(): React.JSX.Element {
         <SectionHeader>Buttons</SectionHeader>
         <Desc>Action, icon, danger, link, and segmented button variants.</Desc>
         <div className="flex flex-wrap gap-2">
-          <Button variant="primary">Primary</Button>
-          <Button variant="solid">Solid</Button>
-          <Button variant="subtle">Subtle</Button>
-          <Button variant="ghost">Ghost</Button>
+          <Button variant="primary">Label</Button>
+          <Button variant="solid">Label</Button>
+          <Button variant="subtle">Label</Button>
+          <Button variant="ghost">Label</Button>
           <Button variant="danger">
-            <SvgIcon svg={trashSvg} size={13} />
-            Danger
+            Label
           </Button>
           <Button variant="link">Link</Button>
           <Button variant="icon" aria-label="Search">

@@ -12,11 +12,11 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const variants: Record<CardVariant, string> = {
   plain: "bg-transparent",
   surface:
-    "bg-white dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06]",
+    "bg-white dark:bg-[#242629]",
   interactive:
     "bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-150",
   elevated:
-    "bg-white dark:bg-[#1D1F23] border border-black/[0.06] dark:border-white/[0.06] shadow-sm",
+    "bg-white dark:bg-[#2F3134] shadow-md",
 };
 
 const paddings: Record<CardPadding, string> = {
