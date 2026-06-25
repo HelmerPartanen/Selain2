@@ -102,6 +102,15 @@ export function resolveDynamicWallpaperSet(
   );
 }
 
+export function getDynamicWallpaperVariantUrls(
+  storageKey: string | null,
+): string[] {
+  const wallpaper =
+    resolveDynamicWallpaperSet(storageKey) ?? DYNAMIC_WALLPAPERS[0];
+  if (!wallpaper) return [];
+  return [wallpaper.dark, wallpaper.base, wallpaper.light];
+}
+
 function smoothstep(value: number): number {
   const t = Math.max(0, Math.min(1, value));
   return t * t * (3 - 2 * t);
@@ -157,20 +166,8 @@ export function getDynamicWallpaperLayers(
     resolveDynamicWallpaperSet(storageKey) ?? DYNAMIC_WALLPAPERS[0];
   if (!wallpaper) return [];
 
-  if (mode === "dark") {
-    return [
-      { url: wallpaper.dark, opacity: 1 },
-      { url: wallpaper.base, opacity: 0 },
-      { url: wallpaper.light, opacity: 0 },
-    ];
-  }
-  if (mode === "light") {
-    return [
-      { url: wallpaper.dark, opacity: 0 },
-      { url: wallpaper.base, opacity: 0 },
-      { url: wallpaper.light, opacity: 1 },
-    ];
-  }
+  if (mode === "dark") return [{ url: wallpaper.dark, opacity: 1 }];
+  if (mode === "light") return [{ url: wallpaper.light, opacity: 1 }];
 
   const hour =
     typeof time === "number"
@@ -211,5 +208,5 @@ export function getDynamicWallpaperLayers(
     { url: wallpaper.dark, opacity: dark },
     { url: wallpaper.base, opacity: base },
     { url: wallpaper.light, opacity: light },
-  ];
+  ].filter((layer) => layer.opacity > 0.001);
 }

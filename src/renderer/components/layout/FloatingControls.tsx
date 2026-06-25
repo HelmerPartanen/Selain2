@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   useFocusedTabId,
@@ -15,15 +15,21 @@ import { URLBar } from "@/components/browser/URLBar";
 import { AppMenu } from "@/components/layout/AppMenu";
 import { SpaceSwitcher } from "@/components/layout/SpaceSwitcher";
 import { TabPill } from "@/components/browser/TabPill";
-import { DownloadPill } from "@/components/browser/DownloadPill";
 import { useUIStore } from "@/store/uiStore";
 import { useShallow } from 'zustand/react/shallow';
 import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useDownloadStore } from "@/store/downloadStore";
 import { SPRING, SPRING_GENTLE, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs';
 
 const THROTTLE_MS = 100;
 const FLOATING_CONTROL_HEIGHT = 42;
+
+const DownloadPill = lazy(() =>
+  import("@/components/browser/DownloadPill").then((module) => ({
+    default: module.DownloadPill,
+  }))
+);
 
 function useIdleVisibility(isActive: boolean): boolean {
   const [isIdle, setIsIdle] = useState(false);
@@ -107,6 +113,7 @@ function FloatingControlsInner(): React.JSX.Element {
   const { canGoBack, canGoForward } = useFocusedTabCanNavigate();
   const isSplit = useIsSplitView();
   const focusedPanel = useTabStore((s) => s.focusedPanel);
+  const downloadCount = useDownloadStore((s) => Object.keys(s.downloads).length);
   const tabId = focusedTabId;
 
   const isActive =
@@ -347,7 +354,11 @@ function FloatingControlsInner(): React.JSX.Element {
                 </AnimatePresence>
 
                 {/* ── Download Pill (self-contained, already glass-styled) ── */}
-                <DownloadPill />
+                {downloadCount > 0 && (
+                  <Suspense fallback={null}>
+                    <DownloadPill />
+                  </Suspense>
+                )}
 
                 {/* ── Tab Pod ── */}
                 <div className="h-full flex-shrink-0">
