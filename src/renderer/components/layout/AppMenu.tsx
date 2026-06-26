@@ -8,6 +8,7 @@ import bookmarkSvg from "@/assets/icons/Objects/Bookmark.svg?raw";
 import counterclockwiseSvg from "@/assets/icons/Arrows/Counterclockwise.svg?raw";
 import downloadSvg from "@/assets/icons/Objects/Tray_Arrow_Down.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
+import componentsSvg from "@/assets/icons/Objects/Wrench.svg?raw";
 import menuPointsSvg from "@/assets/icons/Interface/Menu_burger.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
@@ -38,6 +39,7 @@ const menuItems = [
   { id: "bookmarks", label: "Bookmarks", icon: bookmarkSvg, shortcut: "Ctrl+B" },
   { id: "history", label: "History", icon: counterclockwiseSvg, shortcut: "Ctrl+H" },
   { id: "downloads", label: "Downloads", icon: downloadSvg, shortcut: "" },
+  { id: "ui-kit", label: "UI Kit", icon: componentsSvg, shortcut: "" },
   { id: "divider3", label: "", icon: null, shortcut: "" },
   { id: "settings", label: "Settings", icon: settingsSvg, shortcut: "Ctrl+," },
 ] as const;
@@ -120,6 +122,14 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
         useUIStore.getState().toggleHistory();
       } else if (action === "downloads") {
         useUIStore.getState().toggleDownloads();
+      } else if (action === "ui-kit") {
+        const tabStore = useTabStore.getState();
+        const activeId = tabStore.activeTabId;
+        if (activeId && tabStore.tabs[activeId]) {
+          tabStore.updateTab(activeId, { url: "browser://uikit", title: "UI Kit" });
+        } else {
+          tabStore.addTab("browser://uikit");
+        }
       } else if (action === "find") {
         useUIStore.getState().toggleFindBar();
       } else if (action === "tab-overview") {

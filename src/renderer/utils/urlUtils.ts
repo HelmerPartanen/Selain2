@@ -4,7 +4,7 @@ import { useSearchEngineStore } from '@/store/searchEngineStore'
 
 /** Returns true for internal browser pages that are not rendered as webviews. */
 export function isSpecialPage(url: string): boolean {
-  return url === 'browser://newtab'
+  return url === 'browser://newtab' || url === 'browser://uikit'
 }
 
 // ─── Homepage validation ───────────────────────────────────────────────────

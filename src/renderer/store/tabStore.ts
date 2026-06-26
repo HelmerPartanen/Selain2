@@ -85,15 +85,16 @@ export function onSessionRestoreFailed(handler: () => void): () => void {
 }
 
 function isSpecialPage(url: string): boolean {
-  return url === 'browser://newtab'
+  return url === 'browser://newtab' || url === 'browser://uikit'
 }
 
 function createTab(url: string): Tab {
   const now = Date.now()
+  const title = url === 'browser://uikit' ? 'UI Kit' : 'New Tab'
   return {
     id: crypto.randomUUID(),
     url,
-    title: 'New Tab',
+    title,
     favicon: '',
     isLoading: false,
     isPlayingMedia: false,

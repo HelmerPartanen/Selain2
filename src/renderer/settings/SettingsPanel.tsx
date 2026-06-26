@@ -10,7 +10,6 @@ import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Text } from "@/components/ui/Text";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
-import componentsSvg from "@/assets/icons/Objects/Wrench.svg?raw";
 import brushSvg from "@/assets/icons/News/Camera_Macro.svg?raw";
 import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
 import displaySvg from "@/assets/icons/Human/Person_Circle.svg?raw";
@@ -30,7 +29,6 @@ import { HotkeysPane } from "@/settings/panes/HotkeysPane";
 import { GesturesPane } from "@/settings/panes/GesturesPane";
 import { AccessibilityPane } from "./panes/AccessibilityPane";
 import { AboutPane } from "@/settings/panes/AboutPane";
-import { UIComponentsPane } from "@/settings/panes/UIComponentsPane";
 import { SPRING_CONTENT } from "@/utils/springs";
 import { cn } from "@/utils/classNames";
 
@@ -38,7 +36,6 @@ import { cn } from "@/utils/classNames";
 
 type SettingsCategory =
   | "general"
-  | "components"
   | "appearance"
   | "wallpaper"
   | "accessibility"
@@ -57,7 +54,6 @@ interface CategoryItem {
 
 const CATEGORIES: CategoryItem[] = [
   { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-slate-100 text-slate-700 dark:bg-slate-700/10 dark:text-slate-200" },
-  { id: "components", label: "Components", icon: componentsSvg, colorClass: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300" },
   { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-300" },
   { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300" },
   { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300" },
@@ -78,8 +74,6 @@ function SettingsContent({
   switch (category) {
     case "general":
       return <GeneralPane />;
-    case "components":
-      return <UIComponentsPane />;
     case "appearance":
       return <AppearancePane />;
     case "wallpaper":

@@ -3,6 +3,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { WebViewInstance } from './WebViewInstance'
 import { NewTabPage } from '@/newtab/NewTabPage'
+import { UIKitPage } from '@/uikit/UIKitPage'
 import { isSpecialPage } from '@/utils/urlUtils'
 
 interface WebViewEntry {
@@ -12,6 +13,7 @@ interface WebViewEntry {
 
 function SpecialPage({ url }: { url: string }): React.JSX.Element | null {
   if (url === 'browser://newtab') return <NewTabPage />
+  if (url === 'browser://uikit') return <UIKitPage />
   return null
 }
 

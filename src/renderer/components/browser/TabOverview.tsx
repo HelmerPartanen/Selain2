@@ -2,11 +2,12 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { Button } from '@/components/ui/Button'
+import { SearchInput } from '@/components/ui/Search'
 import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
-import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import tabsSvg from '@/assets/icons/Interface/Tabs.svg?raw'
 import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
 import bedSvg from '@/assets/icons/Objects/Bed.svg?raw'
@@ -147,7 +148,9 @@ const TabCard = memo(function TabCard({
 
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 dark:group-hover:bg-white/5 transition-colors duration-150" />
-          <button
+          <Button
+            variant="ghost"
+            size="none"
             onClick={(e) => {
               // If user is not in select-mode, keep old behavior (toggle selection, but don’t activate/close)
               e.stopPropagation()
@@ -159,7 +162,7 @@ const TabCard = memo(function TabCard({
             aria-label={isSelected ? 'Deselect tab' : 'Select tab'}
           >
             {isSelected && <SvgIcon svg={checkSvg} size={14} className="text-white" />}
-          </button>
+          </Button>
           <div className="absolute top-2 right-2 flex gap-1">
             {preview.pinned && <span className="px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[9px]">Pinned</span>}
             {preview.isDuplicate && <span className="px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[9px]">Duplicate</span>}
@@ -172,7 +175,9 @@ const TabCard = memo(function TabCard({
       {/* Close button — only shown when the tab can be closed */}
       {canClose && (
         <div className="absolute top-2 right-2 z-10">
-          <button
+          <Button
+            variant="ghost"
+            size="none"
             onClick={onClose}
             className="w-6 h-6 rounded-lg bg-gray-800/80 dark:bg-neutral-600/90
               flex items-center justify-center text-white
@@ -181,7 +186,7 @@ const TabCard = memo(function TabCard({
             aria-label={`Close ${title}`}
           >
             <SvgIcon svg={closeSvg} size={12} />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -466,16 +471,17 @@ function TabOverviewInner(): React.JSX.Element {
                 className={`mt-4 h-[42px] flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 border border-black/5 dark:border-white/5'}`}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="relative flex items-center h-full w-72 max-w-[calc(100vw-72px)] min-w-0">
-                  <SvgIcon svg={searchSvg} size={14} className="absolute left-3 text-gray-500 dark:text-neutral-400 pointer-events-none" />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search tabs"
-                    className="w-full h-full rounded-full bg-transparent pl-9 pr-3 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none"
-                  />
-                </div>
-                <motion.button
+                <SearchInput
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search tabs"
+                  containerClassName="h-full w-72 max-w-[calc(100vw-72px)]"
+                  clearable
+                  onClear={() => setQuery('')}
+                />
+                <Button
+                  variant="ghost"
+                  size="none"
                   onClick={toggleSelecting}
                   whileTap={{ scale: 0.96 }}
                   className="h-full px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
@@ -489,27 +495,33 @@ function TabOverviewInner(): React.JSX.Element {
                     <SvgIcon svg={checkSvg} size={14} className={isSelecting ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-neutral-300'} />
                   </span>
                   <span className="text-[12px] font-medium">Select</span>
-                </motion.button>
+                </Button>
                 {selectedIds.size > 0 && (
                   <>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="none"
                       onClick={handleSleepSelected}
                       className="h-full px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
                       title={`Sleep ${selectedIds.size} selected`}
                     >
                       <SvgIcon svg={bedSvg} size={14} />
                       <span className="text-[12px]">Sleep {selectedIds.size}</span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="none"
                       onClick={handleCloseSelected}
                       className="h-full px-3 rounded-lg flex items-center gap-2 text-red-500 hover:bg-red-500/[0.08] transition-[background-color] duration-150 select-none"
                       title={`Close ${selectedIds.size} selected`}
                     >
                       <SvgIcon svg={trashSvg} size={14} />
                       <span className="text-[12px]">Close {selectedIds.size}</span>
-                    </button>
+                    </Button>
                     <div className="relative">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="none"
                         onClick={() => setIsMoveMenuOpen((open) => !open)}
                         className="h-[32px] px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
                         title="Move selected tabs to space"
@@ -521,7 +533,7 @@ function TabOverviewInner(): React.JSX.Element {
                         <span className="flex h-4 w-4 items-center justify-center">
                           <SvgIcon svg={chevronDownSvg} size={11} />
                         </span>
-                      </button>
+                      </Button>
                       <AnimatePresence>
                         {isMoveMenuOpen && (
                           <>
@@ -566,7 +578,9 @@ function TabOverviewInner(): React.JSX.Element {
                               <div className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
                                 <div className="p-0 relative">
                                   {moveSpaceOptions.map((space, idx) => (
-                                    <button
+                                    <Button
+                                      variant="ghost"
+                                      size="none"
                                       key={space.id}
                                       onClick={() => handleMoveSelectedToSpace(space.id)}
                                       onMouseEnter={() => setHoveredMoveSpaceIdx(idx)}
@@ -583,7 +597,7 @@ function TabOverviewInner(): React.JSX.Element {
                                         <SvgIcon svg={folderSvg} size={16} />
                                         <span className="flex-1 text-left truncate">{space.name}</span>
                                       </span>
-                                    </button>
+                                    </Button>
                                   ))}
                                   {moveSpaceOptions.length === 0 && (
                                     <div className="px-3.5 h-full flex items-center text-[13px] text-gray-500 dark:text-neutral-400">
@@ -600,14 +614,16 @@ function TabOverviewInner(): React.JSX.Element {
                   </>
                 )}
                 {previews.some((preview) => preview.isDuplicate) && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="none"
                     onClick={handleCloseDuplicates}
                     className="h-full px-3 rounded-lg flex items-center gap-2 text-[12px] text-amber-600 dark:text-amber-400 hover:bg-amber-500/[0.1] transition-[background-color] duration-150 select-none"
                     title="Close duplicate tabs"
                   >
                     <SvgIcon svg={tabsSvg} size={14} />
                     Close duplicates
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -655,7 +671,9 @@ function TabOverviewInner(): React.JSX.Element {
 
               {/* New tab card */}
               <div className="tab-overview-card" style={{ animationDelay: disableAnimations ? undefined : `${previews.length * 40}ms` }}>
-                <button
+                <Button
+                  variant="ghost"
+                  size="none"
                   onClick={handleNewTab}
                   className="w-full rounded-lg overflow-hidden
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
@@ -665,7 +683,7 @@ function TabOverviewInner(): React.JSX.Element {
                     <SvgIcon svg={plusSvg} size={22} className="text-neutral-700 dark:text-neutral-400" />
                     <span className="text-[13px] font-medium text-neutral-700 dark:text-neutral-400">New Tab</span>
                   </div>
-                </button>
+                </Button>
               </div>
             </div>
           </motion.div>

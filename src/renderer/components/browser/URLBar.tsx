@@ -23,6 +23,7 @@ import { logger } from '@/utils/logger'
 import { fetchSearchSuggestions } from '@/utils/searchUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
+import { SearchInput } from '@/components/ui/Search'
 import { SiteInfoPopover } from './SiteInfoPopover'
 import { getTabDomain } from '@/utils/tabAnalysis'
 
@@ -47,6 +48,8 @@ const LoadingProgressBar = memo(function LoadingProgressBar() {
 })
 
 type Suggestion = HistoryEntry & {
+  id?: string
+  lastVisit?: number
   type?: 'history' | 'search' | 'bookmark' | 'command' | 'tab' | 'space' | 'settings'
   action?: () => void
 }
@@ -484,14 +487,33 @@ function URLBarInner({
           </span>
         </Button>
 
-        <div className="relative flex h-full min-w-0 flex-1 items-center">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex w-7 items-center justify-center">
-            {iconKey === 'search' ? (
+        <SearchInput
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder="Search or enter URL"
+          spellCheck={false}
+          autoComplete="off"
+          clearable
+          clearVisible={isFocused && inputValue.length > 0 && !isLoading}
+          clearLabel="Clear input"
+          onClear={() => {
+            setInputValue('')
+            inputRef.current?.focus()
+          }}
+          leadingSlot={
+            iconKey === 'search' ? (
               <span className="flex items-center justify-center text-gray-500 opacity-80 dark:text-neutral-400">
                 <SvgIcon svg={searchSvg} size={14} />
               </span>
             ) : (
-              <button
+              <Button
+                variant="icon"
+                size="none"
                 type="button"
                 className="pointer-events-auto flex h-6 w-6 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-black/[0.05] hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:text-neutral-400 dark:hover:bg-white/[0.08] dark:hover:text-white"
                 aria-label="Site information"
@@ -505,53 +527,10 @@ function URLBarInner({
                 ) : (
                   <SvgIcon svg={globeSvg} size={14} />
                 )}
-              </button>
-            )}
-          </div>
-
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            placeholder="Search or enter URL"
-            spellCheck={false}
-            autoComplete="off"
-            className="h-full min-w-0 flex-1 bg-transparent pl-7 pr-0 text-[13px] text-gray-900 outline-none placeholder:text-gray-400 focus:ring-0 dark:text-gray-100 dark:placeholder:text-neutral-500"
-          />
-
-          <AnimatePresence initial={false}>
-            {isFocused && inputValue.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={SPRING_FAST}
-                className="absolute inset-y-0 right-0 z-10 flex w-8 items-center justify-center"
-              >
-                <Button
-                  variant="icon"
-                  onMouseDown={(e) => {
-                    e.preventDefault()
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setInputValue('')
-                    inputRef.current?.focus()
-                  }}
-                  className="!h-6 !w-6 !min-w-[24px] !p-0 text-gray-500 dark:text-neutral-400"
-                  aria-label="Clear input"
-                >
-                  <SvgIcon svg={closeSvg} size={13} />
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </Button>
+            )
+          }
+        />
 
         <div className="flex shrink-0 items-center gap-0.5">
           <AnimatePresence initial={false}>
@@ -663,7 +642,9 @@ function URLBarInner({
                 const isHovered = hoveredIdx === i
 
                 return (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="none"
                     type="button"
                     key={entry.url}
                     onMouseDown={(e) => {
@@ -725,7 +706,7 @@ function URLBarInner({
                                     : null}
                         </span>
                       )}
-                  </button>
+                  </Button>
                 )
               })}
 

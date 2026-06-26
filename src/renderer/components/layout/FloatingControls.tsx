@@ -272,6 +272,7 @@ function FloatingControlsInner(): React.JSX.Element {
                 <motion.div className="flex items-center h-full" style={{ overflow: "hidden" }}>
                   {/* Back button slot (40px wide) */}
                   <motion.div
+                    className="h-full"
                     layout={false}
                     animate={{ width: canGoBack ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
                     transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
@@ -299,6 +300,7 @@ function FloatingControlsInner(): React.JSX.Element {
 
                   {/* Forward button slot (40px wide) */}
                   <motion.div
+                    className="h-full"
                     layout={false}
                     animate={{ width: canGoForward ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
                     transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
