@@ -6,12 +6,13 @@ import { RangeInput } from "@/components/ui/Input";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Text } from "@/components/ui/Text";
 import { SvgIcon } from "@/components/ui/SvgIcon";
-import { GroupBox, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
+import { Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
 import { useSettingsStore, UI_ZOOM_OPTIONS, type UiLayout } from "@/store/settingsStore";
 import sunSvg from "@/assets/icons/Weather/Sun_2_Fill.svg?raw";
 import moonSvg from "@/assets/icons/Weather/Moon_Fill.svg?raw";
 import displaySvg from "@/assets/icons/Devices/Display.svg?raw";
+import { GroupBox } from "@/components/ui/GroupBox";
 
 const THEME_MODES: { mode: ThemeMode; label: string; icon: string }[] = [
   { mode: "light", label: "Light", icon: sunSvg },

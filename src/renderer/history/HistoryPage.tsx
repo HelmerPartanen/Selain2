@@ -5,6 +5,7 @@ import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import { TextInput } from '@/components/ui/Input'
 import { Text } from '@/components/ui/Text'
+import { GroupBox } from '@/components/ui/GroupBox'
 import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
@@ -236,7 +237,7 @@ function HistoryPanelInner(): React.JSX.Element {
       </div>
     ) : (
       <Button
-        variant="danger"
+        variant="ghost"
         size="xs"
         onClick={() => setConfirmingClear(true)}
       >
@@ -315,41 +316,31 @@ function HistoryPanelInner(): React.JSX.Element {
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {recentlyClosed.length > 0 && (
-              <div>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-600 mb-2 px-3">
-                  Recently Closed
-                </h2>
-                <div className="space-y-0.5">
-                  {recentlyClosed.slice(0, 8).map((tab, i) => (
-                    <RecentlyClosedRow
-                      key={`rc-${i}-${tab.url}`}
-                      tab={tab}
-                      index={i}
-                      onReopen={() => { reopenClosedAt(i); closeHistory() }}
-                    />
-                  ))}
-                </div>
-              </div>
+              <GroupBox title="Recently Closed" contentClassName="space-y-0.5">
+                {recentlyClosed.slice(0, 8).map((tab, i) => (
+                  <RecentlyClosedRow
+                    key={`rc-${i}-${tab.url}`}
+                    tab={tab}
+                    index={i}
+                    onReopen={() => { reopenClosedAt(i); closeHistory() }}
+                  />
+                ))}
+              </GroupBox>
             )}
             {visibleGrouped.map((group) => (
-              <div key={group.label}>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-neutral-600 mb-2 px-3">
-                  {group.label}
-                </h2>
-                <div className="space-y-0.5">
-                  {group.entries.map((entry, i) => (
-                    <HistoryRow
-                      key={`${entry.url}-${entry.timestamp}`}
-                      entry={entry}
-                      onNavigate={handleNavigate}
-                      onRemove={handleRemove}
-                      index={i}
-                    />
-                  ))}
-                </div>
-              </div>
+              <GroupBox key={group.label} title={group.label} contentClassName="space-y-0.5">
+                {group.entries.map((entry, i) => (
+                  <HistoryRow
+                    key={`${entry.url}-${entry.timestamp}`}
+                    entry={entry}
+                    onNavigate={handleNavigate}
+                    onRemove={handleRemove}
+                    index={i}
+                  />
+                ))}
+              </GroupBox>
             ))}
             {hasMoreHistory && (
               <div className="px-3 py-2 text-xs text-gray-500 dark:text-neutral-500 text-center">

@@ -99,37 +99,33 @@ export const useHistoryStore = create<HistoryState>()(
         const now = new Date()
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
         const startOfYesterday = startOfToday - 86400000
-        // Anchor the week to Monday regardless of locale
-        const dayOfWeek = now.getDay() // 0 = Sun, 1 = Mon, ..., 6 = Sat
-        const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-        const startOfWeek = startOfToday - daysSinceMonday * 86400000
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
 
-        const groups: Record<string, HistoryEntry[]> = {
-          Today: [],
-          Yesterday: [],
-          'This Week': [],
-          'This Month': [],
-          Older: []
-        }
+        const groups = new Map<string, HistoryEntry[]>()
 
         for (const entry of entries) {
-          if (entry.timestamp >= startOfToday) {
-            groups['Today']!.push(entry)
-          } else if (entry.timestamp >= startOfYesterday) {
-            groups['Yesterday']!.push(entry)
-          } else if (entry.timestamp >= startOfWeek) {
-            groups['This Week']!.push(entry)
-          } else if (entry.timestamp >= startOfMonth) {
-            groups['This Month']!.push(entry)
+          const date = new Date(entry.timestamp)
+          const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
+          const label =
+            dayStart >= startOfToday
+              ? 'Today'
+              : dayStart >= startOfYesterday
+                ? 'Yesterday'
+                : date.toLocaleDateString([], {
+                    weekday: 'long',
+                    month: 'short',
+                    day: 'numeric',
+                    year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric'
+                  })
+
+          const group = groups.get(label)
+          if (group) {
+            group.push(entry)
           } else {
-            groups['Older']!.push(entry)
+            groups.set(label, [entry])
           }
         }
 
-        return Object.entries(groups)
-          .filter(([, entries]) => entries.length > 0)
-          .map(([label, entries]) => ({ label, entries }))
+        return Array.from(groups, ([label, entries]) => ({ label, entries }))
       }
     }),
     { name: 'browser-history', version: 1, storage: createIPCStorage<HistoryState>({

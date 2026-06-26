@@ -2,7 +2,8 @@
 
 import { memo } from 'react'
 import { Text } from '@/components/ui/Text'
-import { GroupBox, SettingGroup, SettingRow } from '@/settings/components/SettingsShared'
+import { SettingGroup, SettingRow } from '@/settings/components/SettingsShared'
+import { GroupBox } from "@/components/ui/GroupBox";
 
 function AboutPaneInner(): React.JSX.Element {
   const ua = navigator.userAgent

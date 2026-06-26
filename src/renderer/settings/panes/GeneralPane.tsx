@@ -1,18 +1,14 @@
 // ─── General Settings Pane ───────────────────────────────────────────────────
 
 import { memo, useCallback, useEffect, useState } from "react";
-import {
-  GroupBox,
-  SettingGroup,
-  SettingRow,
-  Toggle,
-} from "@/settings/components/SettingsShared";
+import { SettingGroup, SettingRow, Toggle } from "@/settings/components/SettingsShared";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import { TextInput } from "@/components/ui/Input";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useSettingsStore, type NewTabMode, type TabsButtonAction } from "@/store/settingsStore";
 import { useTabStore } from "@/store/tabStore";
+import { GroupBox } from "@/components/ui/GroupBox";
 import {
   isValidHomepageUrl,
   normalizeHomepageUrl,

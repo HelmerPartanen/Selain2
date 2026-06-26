@@ -89,45 +89,6 @@ export function SettingRow({
   );
 }
 
-export function GroupBox({
-  title,
-  desc,
-  children,
-  className = "",
-  contentClassName = "",
-}: {
-  title?: React.ReactNode;
-  desc?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-  contentClassName?: string;
-}): React.JSX.Element {
-  return (
-    <section
-      className={cn(
-        "rounded-xl bg-[var(--app-grouped-bg-secondary)] p-3",
-        className,
-      )}
-    >
-      {(title || desc) && (
-        <div className="px-1 pb-3">
-          {title && (
-            <Text as="h3" size="label" tone="primary" className="mb-1">
-              {title}
-            </Text>
-          )}
-          {desc && (
-            <Text size="caption" tone="muted">
-              {desc}
-            </Text>
-          )}
-        </div>
-      )}
-      <div className={contentClassName}>{children}</div>
-    </section>
-  );
-}
-
 export function SettingGroup({
   children,
   className = "",

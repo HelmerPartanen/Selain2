@@ -1,7 +1,8 @@
 import { memo, useState } from "react";
 import { m } from "motion/react";
 import { SPRING_SNAPPY, SPRING_LIST } from "@/utils/springs";
-import { GroupBox, SettingGroup } from "@/settings/components/SettingsShared";
+import { SettingGroup } from "@/settings/components/SettingsShared";
+import { GroupBox } from "@/components/ui/GroupBox";
 
 const ShortcutRow = memo(function ShortcutRow({
     description,

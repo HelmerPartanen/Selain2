@@ -53,10 +53,10 @@ const variantStyles: Record<ButtonVariant, string> = {
 
 const sizeStyles: Record<ButtonSize, string> = {
   none: "",
-  xs: "h-6 px-1 text-[11px]",
-  sm: "h-7 px-2 text-[12px]",
-  md: "h-8 px-3 text-[13px]",
-  lg: "h-9 px-4 text-sm",
+  xs: "h-6 px-2 text-[11px]",
+  sm: "h-7 px-3 text-[12px]",
+  md: "h-8 px-4 text-[13px]",
+  lg: "h-9 px-5 text-sm",
   "icon-sm": "h-7 w-7 text-[12px]",
   "icon-md": "h-9 w-9 text-sm",
 };

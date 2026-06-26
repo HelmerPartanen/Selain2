@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Text } from "@/components/ui/Text";
-import { GroupBox } from "@/settings/components/SettingsShared";
+
 import { useThemeStore } from "@/store/themeStore";
 import {
   WALLPAPER_PRESETS,
@@ -38,6 +38,7 @@ import uploadSvg from "@/assets/icons/Objects/Tray_Arrow_Up.svg?raw";
 import trashSvg from "@/assets/icons/Objects/Trash.svg?raw";
 import chevronDownSvg from "@/assets/icons/Arrows/Chevron_Down.svg?raw";
 import dynamicSvg from "@/assets/icons/Weather/Dynamic.svg?raw";
+import { GroupBox } from "@/components/ui/GroupBox";
 
 interface CustomWallpaper {
   id: string;

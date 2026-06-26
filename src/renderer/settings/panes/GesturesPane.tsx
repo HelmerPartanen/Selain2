@@ -2,8 +2,9 @@ import { memo } from "react";
 import { m, type Transition } from "motion/react";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Text } from "@/components/ui/Text";
-import { GroupBox, SettingGroup, SettingRow } from "@/settings/components/SettingsShared";
+import { SettingGroup, SettingRow } from "@/settings/components/SettingsShared";
 import { useSettingsStore, type TwoFingerSwipeAction } from "@/store/settingsStore";
+import { GroupBox } from "@/components/ui/GroupBox";
 
 function GestureVisualization({
   title,

@@ -1,6 +1,7 @@
 import { memo } from "react";
-import { GroupBox, Toggle, SettingGroup, SettingRow } from "@/settings/components/SettingsShared";
+import { Toggle, SettingGroup, SettingRow } from "@/settings/components/SettingsShared";
 import { useSettingsStore } from "@/store/settingsStore";
+import { GroupBox } from "@/components/ui/GroupBox";
 
 function AccessibilityPaneInner(): React.JSX.Element {
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);

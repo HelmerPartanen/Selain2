@@ -4,12 +4,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { m, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
-import {
-  GroupBox,
-  SettingGroup,
-  SettingRow,
-  Toggle,
-} from "@/settings/components/SettingsShared";
+import { SettingGroup, SettingRow, Toggle } from "@/settings/components/SettingsShared";
 import { useSettingsStore } from "@/store/settingsStore";
 import type { PrivacyProfile } from "@/store/settingsStore";
 import { useHistoryStore } from "@/store/historyStore";
@@ -18,6 +13,7 @@ import { useBookmarkStore } from "@/store/bookmarkStore";
 import type { BookmarkEntry } from "@/store/bookmarkStore";
 import { SITE_PERMISSION_LABELS, useSitePermissionsStore } from "@/store/sitePermissionsStore";
 import { showToast } from "@/components/ui/Toast";
+import { GroupBox } from "@/components/ui/GroupBox";
 
 interface ProfileBackup {
   version: 1

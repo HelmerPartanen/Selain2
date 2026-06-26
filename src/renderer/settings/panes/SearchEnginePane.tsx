@@ -4,7 +4,7 @@ import { memo } from "react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import { SvgIcon } from "@/components/ui/SvgIcon";
-import { GroupBox, SettingGroup } from "@/settings/components/SettingsShared";
+import { SettingGroup } from "@/settings/components/SettingsShared";
 import {
   useSearchEngineStore,
   SEARCH_ENGINES,
@@ -16,6 +16,7 @@ import bingImg from "@/assets/searchengines/Bing.svg";
 import yahooImg from "@/assets/searchengines/Yahoo.svg";
 import braveImg from "@/assets/searchengines/Brave.svg";
 import startpageImg from "@/assets/searchengines/Startpage.svg";
+import { GroupBox } from "@/components/ui/GroupBox";
 
 const ENGINE_ICONS: Record<string, string> = {
   google: googleImg,
