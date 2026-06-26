@@ -1,7 +1,7 @@
 // ─── App Entry Point ────────────────────────────────────────────────────────
 // App lifecycle only. All subsystems live in their own modules.
 
-import { app, BrowserWindow, components, session } from 'electron'
+import { app, BrowserWindow, session } from 'electron'
 import { readFileSync, existsSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
@@ -12,17 +12,8 @@ import { setupIPC } from './ipc'
 import { setupPermissions, setupCSP } from './permissions'
 import { initBenchmarkPerfMonitor, writeBenchmarkPerfReport } from './perfMonitor'
 
-// Castlabs specific: Bypass Widevine VMP signature check since we are not officially signed by Google
-app.commandLine.appendSwitch('no-vmp')
 
 app.whenReady().then(() => {
-  // Start CDM init in background — don't block window creation
-  void components.whenReady().then(() => {
-    logger.log('Widevine CDM ready:', components.status())
-  }).catch((err) => {
-    logger.warn('Widevine CDM init failed (DRM may be unavailable):', err)
-  })
-
   setupIPC()
   setupPermissions()
 

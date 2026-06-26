@@ -23,9 +23,6 @@ function AboutPaneInner(): React.JSX.Element {
           <SettingRow label="Electron">
             <Text as="span" size="caption" tone="secondary" className="tabular-nums">{electronVersion}</Text>
           </SettingRow>
-          <SettingRow label="DRM">
-            <Text as="span" size="caption" tone="secondary">Widevine</Text>
-          </SettingRow>
         </SettingGroup>
       </GroupBox>
     </div>

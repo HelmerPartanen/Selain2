@@ -77,12 +77,6 @@ const AISummaryButton = lazy(() =>
     default: m.AISummaryButton,
   })),
 );
-const OnboardingFlow = lazy(() =>
-  import("@/onboarding/OnboardingFlow").then((m) => ({
-    default: m.OnboardingFlow,
-  })),
-);
-
 function PanelLoadingFallback(): React.JSX.Element {
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
@@ -137,7 +131,6 @@ function BrowserLayoutInner(): React.JSX.Element {
 
   const uiLayout = useSettingsStore((s) => s.uiLayout);
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);
-  const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
   const isAISummarizing = useAIStore((s) => s.isSummarizing);
   const focusedTabUrl = useFocusedTabUrl();
 
@@ -454,14 +447,6 @@ function BrowserLayoutInner(): React.JSX.Element {
         )}
       </AnimatePresence>
 
-      {/* Onboarding — shown once for first-run users */}
-      <AnimatePresence>
-        {!onboardingCompleted && (
-          <Suspense fallback={<PanelLoadingFallback />}>
-            <OnboardingFlow />
-          </Suspense>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

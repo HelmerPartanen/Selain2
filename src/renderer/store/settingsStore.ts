@@ -31,9 +31,6 @@ export interface SettingsState {
   clearOnExit: boolean
   /** Default privacy behavior for browsing contexts */
   privacyProfile: PrivacyProfile
-  /** Whether the user has completed the onboarding flow */
-  onboardingCompleted: boolean
-
   /** Group tabs by domain automatically when navigating */
   autoGroupTabsByDomain: boolean
   /** Show gentle suggestions to clean up long-lived/background tabs */
@@ -70,8 +67,6 @@ export interface SettingsActions {
   setEnableAutoHide: (v: boolean) => void
   setClearOnExit: (v: boolean) => void
   setPrivacyProfile: (v: PrivacyProfile) => void
-  setOnboardingCompleted: (v: boolean) => void
-
   setAutoGroupTabsByDomain: (v: boolean) => void
   setShowTabCleanupSuggestions: (v: boolean) => void
   setSmartUrlBarFocus: (v: boolean) => void
@@ -101,7 +96,6 @@ export const useSettingsStore = create<SettingsStore>()(
       enableAutoHide: true,
       clearOnExit: false,
       privacyProfile: 'standard',
-      onboardingCompleted: false,
       autoGroupTabsByDomain: false,
       showTabCleanupSuggestions: true,
       smartUrlBarFocus: true,
@@ -123,7 +117,6 @@ export const useSettingsStore = create<SettingsStore>()(
       setEnableAutoHide: (v) => set({ enableAutoHide: v }),
       setClearOnExit: (v) => set({ clearOnExit: v }),
       setPrivacyProfile: (v) => set({ privacyProfile: v }),
-      setOnboardingCompleted: (v) => set({ onboardingCompleted: v }),
       setAutoGroupTabsByDomain: (v) => set({ autoGroupTabsByDomain: v }),
       setShowTabCleanupSuggestions: (v) => set({ showTabCleanupSuggestions: v }),
       setSmartUrlBarFocus: (v) => set({ smartUrlBarFocus: v }),

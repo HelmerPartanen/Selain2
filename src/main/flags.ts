@@ -26,7 +26,6 @@ app.commandLine.appendSwitch('enable-quic')
 
 // ── Privacy: disable telemetry, translation, crash reporting ──
 app.commandLine.appendSwitch('disable-breakpad')
-// Note: component-update is needed for Widevine CDM installation via castlabs ECS
 app.commandLine.appendSwitch('disable-domain-reliability')
 app.commandLine.appendSwitch('disable-features',
   'AutofillServerCommunication,TranslateUI,SpareRendererForSitePerProcess'

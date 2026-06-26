@@ -7,9 +7,6 @@
   "build": {
     "appId": "com.dott.app",
     "productName": "Dott Browser",
-    "electronDownload": {
-      "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
-    },
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -72,7 +69,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "electron": "github:castlabs/electron-releases#v42.3.3+wvcus",
+    "electron": "^42.5.0",
     "electron-builder": "^25.0.0",
     "electron-vite": "^5.0.0",
     "jsdom": "^28.1.0",
