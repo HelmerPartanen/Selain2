@@ -14,6 +14,7 @@ export interface Toast {
   message: string
   type: 'success' | 'info' | 'error'
   action?: { label: string; onClick: () => void }
+  persistent?: boolean
 }
 
 // Simple external store for toasts (avoids prop drilling)
@@ -28,6 +29,7 @@ export function showToast(toast: Omit<Toast, 'id'>): void {
   const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
   toasts = [...toasts, { ...toast, id }]
   notify()
+  if (toast.persistent) return
   // Auto-dismiss after 5s
   setTimeout(() => {
     dismissToast(id)
@@ -68,23 +70,24 @@ function ToastContainerInner(): React.JSX.Element {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 60, scale: 0.9 }}
             transition={SPRING}
-            className="pointer-events-auto relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)] min-w-[280px] max-w-[400px]"
+            className="pointer-events-auto relative overflow-hidden flex items-center gap-3 p-3 rounded-lg bg-[var(--app-bg-primary)]/90 backdrop-blur-sm border border-[var(--app-separator)] text-[var(--app-text-primary)] min-w-[280px] max-w-[400px]"
           >
-            {/* Auto-dismiss progress strip */}
-            <motion.div
-              initial={{ scaleX: 1 }}
-              animate={{ scaleX: 0 }}
-              transition={{ duration: 5, ease: 'linear' }}
-              className="absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-current opacity-15"
-              style={{ color: toast.type === 'success' ? '#22c55e' : toast.type === 'error' ? '#ef4444' : '#6366f1' }}
-            />
+            {!toast.persistent && (
+              <motion.div
+                initial={{ scaleX: 1 }}
+                animate={{ scaleX: 0 }}
+                transition={{ duration: 5, ease: 'linear' }}
+                className="absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-current opacity-15"
+                style={{ color: toast.type === 'success' ? '#22c55e' : toast.type === 'error' ? '#ef4444' : '#6366f1' }}
+              />
+            )}
             <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${toast.type === 'success' ? 'bg-green-100 dark:bg-green-900/30' :
-                toast.type === 'error' ? 'bg-red-100 dark:bg-red-900/30' :
-                  'bg-blue-100 dark:bg-blue-900/30'
+                toast.type === 'error' ? 'bg-transparent' :
+                  'bg-transparent'
               }`}>
               <SvgIcon
                 svg={toast.type === 'error' ? warnSvg : toast.type === 'info' ? infoSvg : checkSvg}
-                size={12}
+                size={24}
                 className={
                   toast.type === 'success' ? 'text-green-500' :
                     toast.type === 'error' ? 'text-red-500' :
