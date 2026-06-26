@@ -117,7 +117,7 @@ function Sidebar({
   className={cn(
     "relative h-auto w-full justify-start gap-3 rounded-lg py-2.5",
     isActive &&
-      "!bg-[var(--app-control-active)] !text-[var(--app-text-primary)] shadow-sm hover:!bg-[var(--app-control-active)]"
+      "!bg-[var(--app-control-active)] !text-[var(--app-text-primary)] hover:!bg-[var(--app-control-active)]"
   )}
 >
   <span

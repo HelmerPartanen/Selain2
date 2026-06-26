@@ -212,7 +212,7 @@ function WindowControlsInner({
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="-mt-1 -mr-1 flex items-center overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
+            className="-mt-0.5 -mr-0.5 rounded-xl flex items-center overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
             style={{ pointerEvents: "auto" }}
             initial={
               disableAnimations ? undefined : { opacity: 0, scale: 0.85, y: -6 }
