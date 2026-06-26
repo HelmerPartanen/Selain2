@@ -208,7 +208,7 @@ function PrivacyPaneInner(): React.JSX.Element {
               }}
               className={`cursor-pointer text-left transition-colors ${
                 privacyProfile === id
-                  ? 'bg-green-500/10 dark:bg-green-400/10 hover:bg-green-500/15 dark:hover:bg-green-400/15 text-green-600 dark:text-green-300'
+                  ? '!bg-emerald-500/10 dark:bg-green-500/10 hover:bg-emerald-500/15 dark:hover:bg-green-400/15 text-emerald-600 dark:text-green-500'
                   : 'text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]'
               }`}
             >
@@ -276,7 +276,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                   <Button
                     variant="danger"
                     size="xs"
-                    rounded="rounded-full"
+                    rounded="rounded-md"
                     onClick={() => {
                       resetOrigin(entry.origin)
                       showToast({ message: 'Site permissions reset', type: 'success' })
@@ -301,7 +301,7 @@ function PrivacyPaneInner(): React.JSX.Element {
         <Desc>Export your bookmarks and settings to a file, or restore them from a previous backup.</Desc>
         <div className="flex gap-2">
           <Button
-            variant="solid"
+            variant="subtle"
             size="md"
             onClick={handleExportProfile}
             className="flex-1"
@@ -309,7 +309,7 @@ function PrivacyPaneInner(): React.JSX.Element {
             Export Profile
           </Button>
           <Button
-            variant="solid"
+            variant="subtle"
             size="md"
             onClick={handleImportProfile}
             className="flex-1"

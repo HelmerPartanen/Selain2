@@ -61,20 +61,28 @@ function AppearancePaneInner(): React.JSX.Element {
           {THEME_MODES.map(({ mode, label, icon }) => {
             const isActive = themeMode === mode;
             return (
-              <Button
-                key={mode}
-                variant="subtle"
-                size="lg"
-                role="radio"
-                aria-checked={isActive}
-                aria-label={`${label} theme`}
-                onClick={() => setThemeMode(mode)}
-                active={isActive}
-                className={`relative h-auto flex-1 flex-col gap-2 p-4 ${isActive ? "bg-black/[0.08] dark:bg-white/[0.10]" : "bg-transparent"}`}
-              >
-                <span className="relative"><SvgIcon svg={icon} size={22} /></span>
-                <span className="relative text-[12px] font-medium">{label}</span>
-              </Button>
+<Button
+  key={mode}
+  variant="ghost"
+  size="lg"
+  role="radio"
+  aria-checked={isActive}
+  aria-label={`${label} theme`}
+  onClick={() => setThemeMode(mode)}
+  active={isActive}
+  className={`relative h-auto flex-1 flex-col gap-2 p-4 ${
+    isActive
+      ? "!bg-black/10 hover:!bg-black/10 dark:!bg-white/10 dark:hover:!bg-white/10"
+      : "!bg-transparent hover:!bg-transparent"
+  }`}
+>
+  <span className="relative">
+    <SvgIcon svg={icon} size={22} />
+  </span>
+  <span className="relative text-[12px] font-medium">
+    {label}
+  </span>
+</Button>
             );
           })}
         </div>

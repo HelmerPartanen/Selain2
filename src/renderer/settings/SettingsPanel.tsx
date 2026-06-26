@@ -114,25 +114,33 @@ function Sidebar({
         const isActive = activeCategory === id
         return (
           <Button
-            key={id}
-            variant="ghost"
-            size="md"
-            onClick={() => onSelect(id)}
-            aria-current={isActive ? "page" : undefined}
-            active={isActive}
-            className={cn(
-              "relative h-auto w-full justify-start gap-3 rounded-xl p-2.5",
-              isActive &&
-                "bg-black/[0.08] text-gray-900 shadow-sm dark:bg-white/[0.10] dark:text-white",
-            )}
-          >
-            <span className={`w-9 h-9 flex items-center justify-center rounded-xl shrink-0 transition-all duration-150 ${colorClass}`}>
-              <SvgIcon svg={icon} size={18} />
-            </span>
-            <Text as="span" size="body" tone="secondary" className="truncate text-left font-medium">
-              {label}
-            </Text>
-          </Button>
+  key={id}
+  variant="ghost"
+  size="md"
+  onClick={() => onSelect(id)}
+  aria-current={isActive ? "page" : undefined}
+  active={isActive}
+  className={cn(
+    "relative h-auto w-full justify-start gap-3 rounded-lg py-2.5",
+    isActive &&
+      "!bg-black/10 !text-gray-900 shadow-sm hover:!bg-black/10 dark:!bg-white/[0.10] dark:!text-white dark:hover:!bg-white/[0.10]"
+  )}
+>
+  <span
+    className={`w-8 h-8 flex items-center justify-center rounded-lg shrink-0 transition-all duration-150 ${colorClass}`}
+  >
+    <SvgIcon svg={icon} size={16} />
+  </span>
+
+  <Text
+    as="span"
+    size="body"
+    tone="secondary"
+    className="truncate text-left font-medium"
+  >
+    {label}
+  </Text>
+</Button>
         )
       })}
     </nav>
@@ -162,7 +170,7 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <div className="flex h-full overflow-hidden">
         <div className="flex-shrink-0 h-full">
-          <div className="w-[240px] h-full bg-white dark:bg-white/5 flex flex-col overflow-hidden" style={{ borderRight: '1px solid var(--border-subtle)' }}>
+          <div className="w-[240px] h-full bg-white dark:bg-white/5 flex flex-col overflow-hidden">
             <div className="p-1">
             </div>
             <div className="flex-1 px-1.5 pb-4 overflow-y-auto">

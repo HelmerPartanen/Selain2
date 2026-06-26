@@ -36,13 +36,13 @@ const variantStyles: Record<ButtonVariant, string> = {
   ghost:
     "text-gray-600 dark:text-neutral-300 bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/[0.03]",
   solid:
-    "text-blue-500 dark:text-blue-400 bg-blue-500/20 hover:bg-blue-600 dark:bg-blue-400/20 dark:hover:bg-blue-400/10",
+    "text-blue-500 dark:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 dark:bg-blue-400/20 dark:hover:bg-blue-400/10",
   subtle:
-    "text-gray-700 dark:text-neutral-300 bg-black/[0.04] dark:bg-white/15 hover:bg-black/[0.07] dark:hover:bg-white/10",
+    "text-gray-700 dark:text-neutral-300 bg-black/5 dark:bg-white/15 hover:bg-black/10 dark:hover:bg-white/10",
   primary:
     "text-white bg-blue-500 hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500",
   danger:
-    "text-red-500 dark:text-red-400 bg-red-500/[0.06] dark:bg-red-400/15 hover:bg-red-500/10 dark:hover:bg-red-400/10",
+    "text-red-500 dark:text-red-300 bg-red-500/10 dark:bg-red-400/15 hover:bg-red-500/20 dark:hover:bg-red-400/10",
   icon:
     "text-gray-600 dark:text-neutral-300 bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/[0.03]",
   link:

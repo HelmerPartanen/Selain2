@@ -126,7 +126,7 @@ function GestureVisualization({
       </div>
 
       {/* Trackpad visualizer */}
-      <div className="relative mt-2 h-32 w-48 rounded-xl bg-black/[0.08] dark:bg-white/[0.10] overflow-hidden shrink-0 shadow-inner">
+      <div className="relative mt-2 h-32 w-48 rounded-lg bg-black/[0.08] dark:bg-white/[0.10] overflow-hidden shrink-0 shadow-inner">
         {/* Trackpad surface detail */}
         <div
           className="absolute inset-0 opacity-[0.03] dark:opacity-5 mix-blend-overlay"

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_2_Fill.svg?raw'
+import { Card } from "@/components/ui/Card";
 
 import { showToast } from '@/components/ui/Toast'
 import { useUIStore } from '@/store/uiStore'
@@ -221,17 +222,22 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                     : 'Your connection is not private. Avoid entering sensitive information on this site.'}
                 </p>
 
-                <div className="grid grid-cols-2 gap-2 pt-2">
-                  <div className="rounded-xl bg-black/[0.04] dark:bg-white/[0.06] p-2">
-                    <div className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500">Cookies</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Card variant="surface">
+                  <div>
+                    <div className="text-[10px] tracking-wide text-gray-400 dark:text-neutral-500">Cookies</div>
                     <div className="text-[13px] text-gray-800 dark:text-neutral-100">{siteInfo?.cookieCount ?? 0}</div>
                   </div>
-                  <div className="rounded-xl bg-black/[0.04] dark:bg-white/[0.06] p-2">
-                    <div className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500">Cache</div>
+                  </Card>
+
+                  <Card variant="surface">
+                  <div>
+                    <div className="text-[10px] tracking-wide text-gray-400 dark:text-neutral-500">Cache</div>
                     <div className="text-[13px] text-gray-800 dark:text-neutral-100">
                       {siteInfo ? `${Math.round(siteInfo.cacheSize / 1024 / 1024)} MB` : '0 MB'}
                     </div>
                   </div>
+                  </Card>
                 </div>
 
                 <div className="pt-2">
@@ -301,7 +307,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                     variant="primary"
                     size="sm"
                     onClick={handleOpenPrivacySettings}
-                    className="h-auto whitespace-normal bg-blue-500/[0.08] px-3 py-2 text-blue-500 hover:bg-blue-500/[0.14] dark:bg-blue-500/[0.08] dark:text-blue-400"
+                    className="h-auto whitespace-normal"
                     style={{ transition: 'none' }}
                   >
                     Privacy settings

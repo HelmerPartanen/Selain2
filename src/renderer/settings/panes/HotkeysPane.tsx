@@ -85,7 +85,7 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
 
 function KeyBadge({ label }: { label: string }): React.JSX.Element {
     return (
-        <span className="inline-flex items-center justify-center h-[22px] min-w-[22px] px-1.5 rounded-md glass border border-gray-200 dark:border-neutral-700 text-[11px] font-semibold text-gray-500 dark:text-neutral-400 leading-none">
+        <span className="inline-flex items-center justify-center h-[24px] min-w-[24px] px-1.5 rounded-md bg-black/5 dark:bg-white/5 text-[11px] font-semibold text-gray-500 dark:text-neutral-400 leading-none">
             {label}
         </span>
     )

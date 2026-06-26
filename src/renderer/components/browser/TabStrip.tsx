@@ -362,7 +362,7 @@ function TabStripInner(): React.JSX.Element {
       rounded="rounded-md"
       onClick={handleAddTab}
       aria-label="New tab"
-      className="h-8 w-8 flex-shrink-0 [app-region:no-drag]"
+      className="!h-8 w-8 flex-shrink-0 [app-region:no-drag]"
     >
       <SvgIcon svg={plusSvg} size={14} />
     </Button>

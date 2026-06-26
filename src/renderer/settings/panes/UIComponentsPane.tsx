@@ -153,7 +153,7 @@ function UIComponentsPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-7 pb-4">
       <div>
-        <Card variant="elevated" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Card variant="surface" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Text as="h3" size="title" tone="primary">
               App UI Kit
@@ -295,7 +295,7 @@ function UIComponentsPaneInner(): React.JSX.Element {
         <SectionHeader>Color Tokens</SectionHeader>
         <Desc>Common semantic color pairings used by the reusable variants.</Desc>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-          <Swatch className="bg-blue-500" label="Primary" />
+          <Swatch className="bg-blue-400" label="Primary" />
           <Swatch className="bg-red-500" label="Danger" />
           <Swatch className="bg-black/[0.08] dark:bg-white/[0.10]" label="Muted fill" />
           <Swatch className="bg-white dark:bg-[#1D1F23]" label="Surface" />

@@ -51,12 +51,12 @@ export function Toggle({
         "relative h-[22px] w-[42px] flex-shrink-0 rounded-full transition-colors duration-200",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900",
         checked
-          ? "bg-blue-500/70 dark:bg-blue-400/70"
+          ? "bg-emerald-500 dark:bg-green-400"
           : "bg-gray-300 dark:bg-neutral-600",
       )}
     >
       <motion.span
-        className="absolute left-[2px] top-[2px] h-[18px] w-[24px] rounded-full border border-white bg-gradient-to-b from-white/90 to-white/80 shadow-sm"
+        className="absolute left-[2px] top-[2px] h-[18px] w-[24px] rounded-full border border-white bg-white"
         animate={{ x: checked ? 14 : 0 }}
         transition={SPRING_SNAPPY}
       />

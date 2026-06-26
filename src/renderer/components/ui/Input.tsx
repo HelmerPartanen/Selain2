@@ -12,12 +12,12 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       ref={ref}
       aria-invalid={props["aria-invalid"] ?? invalid}
       className={cn(
-        "w-full rounded-xl bg-black/[0.06] dark:bg-transparent border text-gray-800 dark:text-neutral-200 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none transition-all duration-200",
+        "w-full rounded-xl bg-transparent dark:bg-transparent focus:bg-transparent dark:focus:bg-black/15 border text-gray-800 dark:text-neutral-200 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none transition-all duration-200",
         "focus-visible:ring-2",
         inputSize === "sm" ? "h-8 px-2.5 text-[12px]" : "h-10 px-3.5 text-[13px]",
         invalid
           ? "border-red-500/10 dark:border-red-400/10 ring-1 ring-red-500/50 dark:ring-red-400/50"
-          : "border-transparent dark:border-white/10 ring-1 ring-transparent focus:ring-blue-500/50 dark:focus:ring-blue-400/50",
+          : "border-black/10 dark:border-white/10 ring-1 ring-transparent focus:ring-blue-500/50 dark:focus:ring-blue-400/50",
         className,
       )}
       {...props}

@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useDeferredValue, useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { memo, useCallback, useDeferredValue, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SvgIcon, PIP_SVG } from '@/components/ui/SvgIcon'
 import roundArrowsSvg from '@/assets/icons/Arrows/Round_Arrows_2.svg?raw'
@@ -15,7 +15,7 @@ import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
-import { useHistoryStore } from '@/store/historyStore'
+import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useSpaceStore } from '@/store/spaceStore'
 import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
@@ -23,43 +23,30 @@ import { logger } from '@/utils/logger'
 import { fetchSearchSuggestions } from '@/utils/searchUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
-import { TextInput } from '@/components/ui/Input'
+import { SiteInfoPopover } from './SiteInfoPopover'
 import { getTabDomain } from '@/utils/tabAnalysis'
 
 import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
 
-const SiteInfoPopover = lazy(() =>
-  import('./SiteInfoPopover').then((module) => ({
-    default: module.SiteInfoPopover,
-  }))
-)
-
 const LoadingProgressBar = memo(function LoadingProgressBar() {
   const { loadProgress } = useFocusedTabNavState()
+
   return (
-    <div className="absolute bottom-0 left-4 right-4 h-[3px] rounded-full overflow-hidden">
+    <div className="pointer-events-none absolute inset-x-2 bottom-0 h-0.5 overflow-hidden rounded-full">
       <motion.div
-        className="h-full bg-blue-500 rounded-full"
+        className="h-full w-full origin-left rounded-full bg-blue-500"
         initial={false}
         animate={{
           scaleX: loadProgress > 0 ? loadProgress : 0,
           opacity: loadProgress > 0 && loadProgress < 1 ? 1 : 0,
         }}
         transition={loadProgress === 0 ? { duration: 0.3 } : SPRING_EXPAND}
-        style={{ transformOrigin: 'left' }}
       />
     </div>
   )
 })
 
-type Suggestion = {
-  id: string
-  url: string
-  title: string
-  favicon: string
-  timestamp: number
-  visitCount: number
-  lastVisit?: number
+type Suggestion = HistoryEntry & {
   type?: 'history' | 'search' | 'bookmark' | 'command' | 'tab' | 'space' | 'settings'
   action?: () => void
 }
@@ -157,35 +144,12 @@ function URLBarInner({
           .filter(Boolean)
           .filter((tab) => !term || tab!.title.toLowerCase().includes(term) || tab!.url.toLowerCase().includes(term))
           .slice(0, 8)
-          .map((tab) =>
-            makeCommandSuggestion(`tab-${tab!.id}`, `Switch to ${tab!.title || simplifyUrl(tab!.url)}`, () => tabStore.setActiveTab(tab!.id), 'tab'),
-          )
+          .map((tab) => makeCommandSuggestion(`tab-${tab!.id}`, `Switch to ${tab!.title || simplifyUrl(tab!.url)}`, () => tabStore.setActiveTab(tab!.id), 'tab'))
       }
-      if (scope === 'history') {
-        return useHistoryStore
-          .getState()
-          .search(term || raw)
-          .map((entry) => ({
-            ...entry,
-            id: `history-${entry.url}`,
-            type: 'history' as const,
-          }))
-      }
-      if (scope === 'bookmarks')
-        return useBookmarkStore
-          .getState()
-          .search(term)
-          .slice(0, 8)
-          .map((b) => ({
-            id: `bookmark-${b.id}`,
-            url: b.url,
-            title: b.title,
-            favicon: b.favicon ?? '',
-            visitCount: 0,
-            lastVisit: 0,
-            timestamp: b.createdAt,
-            type: 'bookmark' as const,
-          }))
+      if (scope === 'history') return useHistoryStore.getState().search(term || raw).map((entry) => ({ ...entry, type: 'history' as const }))
+      if (scope === 'bookmarks') return useBookmarkStore.getState().search(term).slice(0, 8).map((b) => ({
+        id: `bookmark-${b.id}`, url: b.url, title: b.title, favicon: b.favicon ?? '', visitCount: 0, lastVisit: 0, timestamp: b.createdAt, type: 'bookmark' as const
+      }))
       if (scope === 'spaces') {
         return spaces.spaceOrder
           .map((id) => spaces.spaces[id])
@@ -194,9 +158,9 @@ function URLBarInner({
           .map((space) => makeCommandSuggestion(`space-${space!.id}`, `Switch to Space: ${space!.name}`, () => spaces.switchSpace(space!.id), 'space'))
       }
       if (scope === 'settings') {
-        return ['General', 'Privacy', 'Search Engine', 'Shortcuts', 'Appearance']
-          .filter((name) => !term || name.toLowerCase().includes(term))
-          .map((name) => makeCommandSuggestion(`settings-${name}`, `Open ${name} settings`, () => useUIStore.getState().toggleSettings(), 'settings'))
+        return ['General', 'Privacy', 'Search Engine', 'Shortcuts', 'Appearance'].filter((name) => !term || name.toLowerCase().includes(term)).map((name) =>
+          makeCommandSuggestion(`settings-${name}`, `Open ${name} settings`, () => useUIStore.getState().toggleSettings(), 'settings')
+        )
       }
       if (scope === 'site' && activeTab) {
         const domain = getTabDomain(activeTab.url)
@@ -231,13 +195,13 @@ function URLBarInner({
     const historyResults = useHistoryStore
       .getState()
       .search(query)
-      .map((r) => ({ ...r, id: `history-${r.url}`, type: 'history' as const }))
+      .map(r => ({ ...r, type: 'history' as const }))
 
     const bookmarkResults = useBookmarkStore
       .getState()
       .search(query)
       .slice(0, 6)
-      .map((b) => ({
+      .map(b => ({
         id: `bookmark-${b.id}`,
         url: b.url,
         title: b.title,
@@ -245,7 +209,7 @@ function URLBarInner({
         visitCount: 0,
         lastVisit: 0,
         timestamp: b.createdAt,
-        type: 'bookmark' as const,
+        type: 'bookmark' as const
       }))
 
     const seedMap = new Map<string, Suggestion>()
@@ -270,10 +234,10 @@ function URLBarInner({
         return
       }
 
-      let searchResults: Suggestion[] = []
+      let searchResults: (HistoryEntry & { type: 'search' })[] = []
       try {
         const liveSuggestions = await fetchSearchSuggestions(query, controller.signal)
-        searchResults = liveSuggestions.map((phrase) => ({
+        searchResults = liveSuggestions.map(phrase => ({
           id: `search-${phrase}`,
           url: normalizeURL(phrase),
           title: phrase,
@@ -281,7 +245,7 @@ function URLBarInner({
           lastVisit: 0,
           timestamp: Date.now(),
           favicon: '',
-          type: 'search' as const,
+          type: 'search' as const
         }))
       } catch (e) {
         if (!(e instanceof DOMException && e.name === 'AbortError') && suggestionRequestIdRef.current === requestId && !controller.signal.aborted) {
@@ -327,7 +291,7 @@ function URLBarInner({
       setSuggestions([])
       setSelectedIndex(-1)
     },
-    [tabId, updateTab],
+    [tabId, updateTab]
   )
 
   const handleKeyDown = useCallback(
@@ -372,14 +336,14 @@ function URLBarInner({
         }
       }
     },
-    [inputValue, navigate, url, suggestions],
+    [inputValue, navigate, url, suggestions]
   )
 
   const handleFocus = useCallback(() => {
     setIsFocused(true)
     onFocusChange?.(true)
     setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
-    inputRef.current?.select()
+    requestAnimationFrame(() => inputRef.current?.select())
   }, [url, onFocusChange])
 
   const handleBlur = useCallback(() => {
@@ -398,7 +362,7 @@ function URLBarInner({
       navigate(suggestionUrl)
       inputRef.current?.blur()
     },
-    [navigate],
+    [navigate]
   )
 
   const handleReloadOrStop = useCallback(() => {
@@ -428,7 +392,7 @@ function URLBarInner({
 
   // PiP state
   const isPlayingMedia = useFocusedTabMediaPlaying()
-  const isMuted = useTabStore((s) => (tabId ? (s.tabs[tabId]?.isMuted ?? false) : false))
+  const isMuted = useTabStore((s) => tabId ? (s.tabs[tabId]?.isMuted ?? false) : false)
   const handleToggleMute = useCallback(() => {
     if (tabId) useTabStore.getState().toggleMute(tabId)
   }, [tabId])
@@ -444,29 +408,63 @@ function URLBarInner({
 
   const isClassic = layout === 'classic'
   const dropdownBelow = popoverDirection === 'down'
-  const dropdownOffsetClass = dropdownBelow ? (isClassic ? 'top-full mt-1' : 'top-full mt-2.5') : 'bottom-full mb-2.5'
+
+  const dropdownOffsetClass = dropdownBelow
+    ? isClassic
+      ? 'top-full mt-1'
+      : 'top-full mt-2.5'
+    : 'bottom-full mb-2.5'
+
   const autocompleteSurface = isClassic
-    ? 'bg-gray-200 dark:bg-neutral-800 border border-black/5 dark:border-white/5'
+    ? 'border border-black/5 bg-gray-200 dark:border-white/5 dark:bg-neutral-800'
     : disableBlurEffects
-      ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
-      : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
-  const classicFocusBg = isClassic && isFocused ? 'bg-black/[0.04] dark:bg-white/[0.08] transition-colors duration-150' : ''
+      ? 'border border-black/10 bg-white dark:border-white/10 dark:bg-[#121316]'
+      : 'border border-black/5 bg-white dark:border-white/5 dark:bg-[#1D1F23]'
+
+  const shellClassName = [
+    'relative flex max-w-full min-w-0 items-center overflow-hidden rounded-xl transition-colors duration-150',
+    isClassic ? 'h-8 w-full px-0.5' : 'h-10 px-1',
+    isClassic && isFocused
+      ? 'bg-black/[0.04] dark:bg-white/[0.08]'
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const toolbarButtonClass = isClassic
+    ? '!h-7 !w-7 !min-w-[28px] !shrink-0 !p-0'
+    : '!h-8 !w-8 !min-w-[32px] !shrink-0 !p-0'
+
+  const trailingControlWidth = isClassic ? 28 : 32
 
   return (
-    <div className={`relative ${isClassic ? 'w-full min-w-0' : ''}`}>
+    <div
+      className={[
+        'relative min-w-0 max-w-full',
+        isClassic ? 'w-full' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <motion.div
-        className={`relative flex items-center will-change-[width] transition-colors duration-150 ${classicFocusBg} ${isClassic ? 'w-full pr-1 h-8 pl-1 rounded-lg' : 'h-10 pl-2'}`}
+        className={shellClassName}
         animate={
           isClassic
             ? undefined
             : {
-                width: isFocused ? Math.min(500, typeof window !== 'undefined' ? window.innerWidth - 160 : 500) : 320,
+                width: isFocused ? 500 : 320,
               }
         }
         transition={isClassic ? undefined : SPRING_EXPAND}
+        style={isClassic ? undefined : { maxWidth: 'calc(100vw - 2rem)' }}
       >
-        <Button variant="icon" onClick={handleReloadOrStop} aria-label={isLoading ? 'Stop loading' : 'Reload'}>
-          <div className="relative flex items-center justify-center w-[15px] h-[15px]">
+        <Button
+          variant="icon"
+          onClick={handleReloadOrStop}
+          aria-label={isLoading ? 'Stop loading' : 'Reload'}
+          className={toolbarButtonClass}
+        >
+          <span className="relative flex h-[15px] w-[15px] items-center justify-center">
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.span
                 key={isLoading ? 'stop' : 'reload'}
@@ -476,40 +474,42 @@ function URLBarInner({
                 transition={SPRING_FAST}
                 className="flex items-center justify-center"
               >
-                {isLoading ? <SvgIcon svg={closeSvg} size={15} /> : <SvgIcon svg={roundArrowsSvg} size={15} />}
+                {isLoading ? (
+                  <SvgIcon svg={closeSvg} size={15} />
+                ) : (
+                  <SvgIcon svg={roundArrowsSvg} size={15} />
+                )}
               </motion.span>
             </AnimatePresence>
-          </div>
+          </span>
         </Button>
 
-        <div className="relative flex-1 min-w-0 flex items-center h-full">
-          <div className="absolute left-1.5 z-10 flex items-center justify-center">
-            <div
-              className={iconKey === 'search' ? 'pointer-events-none opacity-80' : 'cursor-pointer'}
-              aria-hidden={iconKey === 'search' ? true : undefined}
-              aria-label={iconKey === 'search' ? undefined : 'Site information'}
-              role={iconKey === 'search' ? undefined : 'button'}
-              tabIndex={iconKey === 'search' ? undefined : 0}
-              onMouseDown={(e) => {
-                if (iconKey === 'search') return
-                e.preventDefault()
-                setIsSiteInfoOpen((open) => !open)
-              }}
-              onKeyDown={(e) => {
-                if (iconKey === 'search') return
-                if (e.key === 'Enter' || e.key === ' ') {
+        <div className="relative flex h-full min-w-0 flex-1 items-center">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex w-7 items-center justify-center">
+            {iconKey === 'search' ? (
+              <span className="flex items-center justify-center text-gray-500 opacity-80 dark:text-neutral-400">
+                <SvgIcon svg={searchSvg} size={14} />
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="pointer-events-auto flex h-6 w-6 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-black/[0.05] hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:text-neutral-400 dark:hover:bg-white/[0.08] dark:hover:text-white"
+                aria-label="Site information"
+                onMouseDown={(e) => {
                   e.preventDefault()
-                  setIsSiteInfoOpen((open) => !open)
-                }
-              }}
-            >
-              {iconKey === 'lock' && <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />}
-              {iconKey === 'globe' && <SvgIcon svg={globeSvg} size={14} />}
-              {iconKey === 'search' && <SvgIcon svg={searchSvg} size={14} />}
-            </div>
+                }}
+                onClick={() => setIsSiteInfoOpen((open) => !open)}
+              >
+                {iconKey === 'lock' ? (
+                  <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />
+                ) : (
+                  <SvgIcon svg={globeSvg} size={14} />
+                )}
+              </button>
+            )}
           </div>
 
-          <TextInput
+          <input
             ref={inputRef}
             type="text"
             value={inputValue}
@@ -520,204 +520,237 @@ function URLBarInner({
             placeholder="Search or enter URL"
             spellCheck={false}
             autoComplete="off"
-            className="h-full w-full border-transparent bg-transparent pl-[36px] pr-[36px] text-sm ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="h-full min-w-0 flex-1 bg-transparent pl-7 pr-0 text-[13px] text-gray-900 outline-none placeholder:text-gray-400 focus:ring-0 dark:text-gray-100 dark:placeholder:text-neutral-500"
           />
 
-          {/* Clear input button */}
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {isFocused && inputValue.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={SPRING_FAST}
-                className="absolute right-1.5 z-10 flex items-center justify-center"
+                className="absolute inset-y-0 right-0 z-10 flex w-8 items-center justify-center"
               >
                 <Button
                   variant="icon"
-                  onMouseDown={(e: any) => {
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                  }}
+                  onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
                     setInputValue('')
                     inputRef.current?.focus()
                   }}
-                  onClick={(e: any) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setInputValue('')
-                    inputRef.current?.focus()
-                  }}
-                  className="text-gray-500 dark:text-neutral-400 flex-shrink-0"
+                  className="!h-6 !w-6 !min-w-[24px] !p-0 text-gray-500 dark:text-neutral-400"
                   aria-label="Clear input"
                 >
-                  <SvgIcon svg={closeSvg} size={14} />
+                  <SvgIcon svg={closeSvg} size={13} />
                 </Button>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Bookmark star */}
-        <AnimatePresence>
-          {hasUrl && !isFocused && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0, rotate: -15, width: 0 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0, width: 28 }}
-              exit={{ scale: 0, opacity: 0, rotate: 15, width: 0 }}
-              transition={SPRING_SNAPPY}
-              className="flex-shrink-0 flex items-center justify-center overflow-hidden ml-1"
-              style={{ originX: 0 }}
-            >
-              <Button variant="icon" onClick={handleToggleBookmark} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} className="flex-shrink-0">
-                <div className="relative flex items-center justify-center w-[15px] h-[15px]">
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    <motion.span
-                      key={isBookmarked ? 'filled' : 'empty'}
-                      initial={{ scale: 0.5, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
-                      transition={SPRING_FAST}
-                      className="flex items-center justify-center"
-                    >
-                      <SvgIcon
-                        svg={isBookmarked ? bookmarkFillSvg : bookmarkSvg}
-                        size={14}
-                        className={isBookmarked ? 'text-amber-500' : 'text-gray-400 dark:text-neutral-500'}
-                      />
-                    </motion.span>
-                  </AnimatePresence>
-                </div>
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* PiP button */}
-        <AnimatePresence>
-          {isPlayingMedia && !isFocused && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 28, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={SPRING_FAST}
-              className="flex-shrink-0 flex items-center justify-center overflow-hidden ml-1"
-            >
-              <Button variant="icon" onClick={handlePiP} aria-label="Picture in Picture" className="flex-shrink-0 text-gray-400 dark:text-neutral-500">
-                <SvgIcon svg={PIP_SVG} size={15} />
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Mute button */}
-        <AnimatePresence>
-          {(isPlayingMedia || isMuted) && !isFocused && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 28, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={SPRING_FAST}
-              className="flex-shrink-0 flex items-center justify-center overflow-hidden ml-1"
-            >
-              <Button
-                variant="icon"
-                onClick={handleToggleMute}
-                aria-label={isMuted ? 'Unmute tab' : 'Mute tab'}
-                className={`flex-shrink-0 ${isMuted ? 'text-red-400' : 'text-gray-400 dark:text-neutral-500'}`}
+        <div className="flex shrink-0 items-center gap-0.5">
+          <AnimatePresence initial={false}>
+            {hasUrl && !isFocused && (
+              <motion.div
+                initial={{ width: 0, opacity: 0, scale: 0.8 }}
+                animate={{ width: trailingControlWidth, opacity: 1, scale: 1 }}
+                exit={{ width: 0, opacity: 0, scale: 0.8 }}
+                transition={SPRING_SNAPPY}
+                className="flex shrink-0 items-center justify-center overflow-hidden"
               >
-                <SvgIcon svg={isMuted ? soundMuteSvg : soundFillSvg} size={15} />
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <Button
+                  variant="icon"
+                  onClick={handleToggleBookmark}
+                  aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+                  className={toolbarButtonClass}
+                >
+                  <span className="relative flex h-[15px] w-[15px] items-center justify-center">
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.span
+                        key={isBookmarked ? 'filled' : 'empty'}
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.5, opacity: 0, position: 'absolute' }}
+                        transition={SPRING_FAST}
+                        className="flex items-center justify-center"
+                      >
+                        <SvgIcon
+                          svg={isBookmarked ? bookmarkFillSvg : bookmarkSvg}
+                          size={14}
+                          className={
+                            isBookmarked
+                              ? 'text-amber-500'
+                              : 'text-gray-400 dark:text-neutral-500'
+                          }
+                        />
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Loading progress bar */}
+          <AnimatePresence initial={false}>
+            {isPlayingMedia && !isFocused && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: trailingControlWidth, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={SPRING_FAST}
+                className="flex shrink-0 items-center justify-center overflow-hidden"
+              >
+                <Button
+                  variant="icon"
+                  onClick={handlePiP}
+                  aria-label="Picture in Picture"
+                  className={`${toolbarButtonClass} text-gray-400 dark:text-neutral-500`}
+                >
+                  <SvgIcon svg={PIP_SVG} size={15} />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence initial={false}>
+            {(isPlayingMedia || isMuted) && !isFocused && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: trailingControlWidth, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={SPRING_FAST}
+                className="flex shrink-0 items-center justify-center overflow-hidden"
+              >
+                <Button
+                  variant="icon"
+                  onClick={handleToggleMute}
+                  aria-label={isMuted ? 'Unmute tab' : 'Mute tab'}
+                  className={`${toolbarButtonClass} ${
+                    isMuted
+                      ? 'text-red-400'
+                      : 'text-gray-400 dark:text-neutral-500'
+                  }`}
+                >
+                  <SvgIcon svg={isMuted ? soundMuteSvg : soundFillSvg} size={15} />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <LoadingProgressBar />
       </motion.div>
 
-      {/* Autocomplete dropdown — show when there are suggestions or when inline hint (offline/error) */}
       <AnimatePresence>
-        {(suggestions.length > 0 || (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) && isFocused && (
-          <motion.div
-            className={`absolute p-1 left-0 right-0 rounded-xl overflow-hidden z-[100] shadow-sm ${autocompleteSurface} ${dropdownOffsetClass}`}
-            style={{ originY: dropdownBelow ? 0 : 1 }}
-            initial={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
-            animate={{ scaleY: 1, opacity: 1, y: 0 }}
-            exit={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
-            transition={SPRING_POPUP}
-          >
-            {suggestions.map((entry, i) => {
-              const isActive = selectedIndex === i
-              return (
-                <Button
-                  key={entry.url}
-                  variant="ghost"
-                  size="none"
-                  onMouseDown={(e) => {
-                    e.preventDefault()
-                    handleSuggestionClick(entry.url)
-                  }}
-                  onMouseEnter={() => setHoveredIdx(i)}
-                  onMouseLeave={() => setHoveredIdx(null)}
-                  className={`relative flex h-9 w-full items-center justify-start gap-2.5 rounded-lg px-3 text-left ${
-                    isActive
-                      ? 'text-gray-900 dark:text-white'
-                      : 'text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.08]'
-                  }
+        {(suggestions.length > 0 ||
+          (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) &&
+          isFocused && (
+            <motion.div
+              className={`absolute left-0 right-0 z-[100] overflow-hidden rounded-xl p-1 shadow-sm ${autocompleteSurface} ${dropdownOffsetClass}`}
+              style={{ originY: dropdownBelow ? 0 : 1 }}
+              initial={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
+              animate={{ scaleY: 1, opacity: 1, y: 0 }}
+              exit={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
+              transition={SPRING_POPUP}
+            >
+              {suggestions.map((entry, i) => {
+                const isActive = selectedIndex === i
+                const isHovered = hoveredIdx === i
+
+                return (
+                  <button
+                    type="button"
+                    key={entry.url}
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      handleSuggestionClick(entry.url)
+                    }}
+                    onMouseEnter={() => setHoveredIdx(i)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                    className={`relative flex h-9 w-full min-w-0 items-center gap-2.5 rounded-lg px-3 text-left transition-colors duration-75 ${
+                      isActive || isHovered
+                        ? 'bg-black/[0.05] text-gray-900 dark:bg-white/[0.08] dark:text-white'
+                        : 'text-gray-600 dark:text-neutral-400'
                     }`}
-                >
-                  <span className="relative z-10 flex items-center gap-2.5 w-full">
+                  >
                     {entry.type === 'search' ? (
-                      <SvgIcon svg={searchSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
+                      <SvgIcon
+                        svg={searchSvg}
+                        size={14}
+                        className="shrink-0 text-gray-400 dark:text-neutral-500"
+                      />
                     ) : entry.favicon ? (
-                      <img src={entry.favicon} alt="" className="flex-shrink-0 w-4 h-4 rounded-sm object-contain" />
+                      <img
+                        src={entry.favicon}
+                        alt=""
+                        className="h-4 w-4 shrink-0 rounded-sm object-contain"
+                      />
                     ) : (
-                      <SvgIcon svg={counterclockwiseSvg} size={14} className="flex-shrink-0 text-gray-400 dark:text-neutral-500" />
+                      <SvgIcon
+                        svg={counterclockwiseSvg}
+                        size={14}
+                        className="shrink-0 text-gray-400 dark:text-neutral-500"
+                      />
                     )}
-                    <span className="flex-1 text-[13px] truncate">{entry.title || simplifyUrl(entry.url)}</span>
+
+                    <span className="min-w-0 flex-1 truncate text-[13px]">
+                      {entry.title || simplifyUrl(entry.url)}
+                    </span>
+
                     {(entry.type === 'history' || entry.type === 'bookmark') && (
-                      <span className="flex-shrink-0 text-[10px] text-gray-400 dark:text-neutral-600 truncate max-w-[160px]">{simplifyUrl(entry.url)}</span>
-                    )}
-                    {entry.type && entry.type !== 'search' && entry.type !== 'command' && (
-                      <span className="flex-shrink-0 text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-600 ml-1">
-                        {entry.type === 'history'
-                          ? 'History'
-                          : entry.type === 'bookmark'
-                            ? 'Bookmark'
-                            : entry.type === 'tab'
-                              ? 'Tab'
-                              : entry.type === 'space'
-                                ? 'Space'
-                                : entry.type === 'settings'
-                                  ? 'Settings'
-                                  : null}
+                      <span className="hidden max-w-[160px] shrink truncate text-[10px] text-gray-400 dark:text-neutral-600 sm:block">
+                        {simplifyUrl(entry.url)}
                       </span>
                     )}
-                  </span>
-                </Button>
-              )
-            })}
-            {suggestionsUnavailable && (
-              <div className="px-3 py-2 text-[11px] text-gray-500 dark:text-neutral-400 border-t border-black/5 dark:border-white/5 mt-1" role="status">
-                {suggestionsUnavailable === 'offline' ? "You're offline — live suggestions unavailable." : 'Suggestions temporarily unavailable.'}
-              </div>
-            )}
-          </motion.div>
-        )}
+
+                    {entry.type &&
+                      entry.type !== 'search' &&
+                      entry.type !== 'command' && (
+                        <span className="hidden shrink-0 text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-600 md:block">
+                          {entry.type === 'history'
+                            ? 'History'
+                            : entry.type === 'bookmark'
+                              ? 'Bookmark'
+                              : entry.type === 'tab'
+                                ? 'Tab'
+                                : entry.type === 'space'
+                                  ? 'Space'
+                                  : entry.type === 'settings'
+                                    ? 'Settings'
+                                    : null}
+                        </span>
+                      )}
+                  </button>
+                )
+              })}
+
+              {suggestionsUnavailable && (
+                <div
+                  className="mt-1 border-t border-black/5 px-3 py-2 text-[11px] text-gray-500 dark:border-white/5 dark:text-neutral-400"
+                  role="status"
+                >
+                  {suggestionsUnavailable === 'offline'
+                    ? "You're offline — live suggestions unavailable."
+                    : 'Suggestions temporarily unavailable.'}
+                </div>
+              )}
+            </motion.div>
+          )}
       </AnimatePresence>
 
-      {isSiteInfoOpen && (
-        <Suspense fallback={null}>
-          <SiteInfoPopover
-            isOpen={isSiteInfoOpen}
-            onClose={() => setIsSiteInfoOpen(false)}
-            url={url}
-            isSecure={isSecure}
-            popoverDirection={popoverDirection}
-            anchorLeft={isClassic}
-          />
-        </Suspense>
-      )}
+      <SiteInfoPopover
+        isOpen={isSiteInfoOpen}
+        onClose={() => setIsSiteInfoOpen(false)}
+        url={url}
+        isSecure={isSecure}
+        popoverDirection={popoverDirection}
+        anchorLeft={isClassic}
+      />
     </div>
   )
 }
