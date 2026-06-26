@@ -22,7 +22,6 @@ import { useTrackpadTabSwipe } from "@/hooks/useTrackpadTabSwipe";
 import { useFocusedTabUrl } from "@/hooks/useTabSelector";
 import { useAppSideEffects } from "@/hooks/useAppSideEffects";
 import { useWallpaperBackground, useUIZoom } from "@/hooks/useWallpaperBackground";
-import { useModalPreload } from "@/hooks/useModalPreload";
 import { useReadingToolsReveal } from "@/hooks/useReadingToolsReveal";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTabStore } from "@/store/tabStore";
@@ -134,7 +133,6 @@ function BrowserLayoutInner(): React.JSX.Element {
   useAISetup();
   usePermissionRequests();
   useAppSideEffects();
-  useModalPreload();
   useUIZoom();
 
   const uiLayout = useSettingsStore((s) => s.uiLayout);

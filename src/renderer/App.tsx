@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { LazyMotion, MotionConfig, domMax } from 'motion/react'
+import { LazyMotion, MotionConfig, domAnimation } from 'motion/react'
 import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { showToast } from '@/components/ui/Toast'
 import { logger } from '@/utils/logger'
@@ -76,9 +76,7 @@ export default function App(): React.JSX.Element {
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   return (
-    // LazyMotion + domAnimation loads the small animation runtime at startup;
-    // heavy features (drag, layout animations) load only when used.
-    <LazyMotion features={domMax}>
+    <LazyMotion features={domAnimation}>
       <MotionConfig reducedMotion={disableAnimations ? 'always' : 'never'}>
         <BrowserLayout />
       </MotionConfig>

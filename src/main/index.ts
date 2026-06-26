@@ -3,9 +3,8 @@
 
 import { app, BrowserWindow, components, session } from 'electron'
 import { readFileSync, existsSync } from 'fs'
+import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
-import { ElectronBlocker } from '@ghostery/adblocker-electron'
-import { adsAndTrackingLists } from '@ghostery/adblocker'
 import './flags'                                     // side-effect: Chromium CLI switches
 import { logger } from './logger'
 import { createWindow } from './window'
@@ -16,9 +15,9 @@ import { initBenchmarkPerfMonitor, writeBenchmarkPerfReport } from './perfMonito
 // Castlabs specific: Bypass Widevine VMP signature check since we are not officially signed by Google
 app.commandLine.appendSwitch('no-vmp')
 
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   // Start CDM init in background — don't block window creation
-  const cdmReady = components.whenReady().then(() => {
+  void components.whenReady().then(() => {
     logger.log('Widevine CDM ready:', components.status())
   }).catch((err) => {
     logger.warn('Widevine CDM init failed (DRM may be unavailable):', err)
@@ -64,13 +63,17 @@ app.whenReady().then(async () => {
     process.argv.includes('--no-adblock') ||
     process.env['BROWSER_DISABLE_ADBLOCK'] === '1'
 
-  const loadAdblocker = (): void => {
+  const loadAdblocker = async (): Promise<void> => {
     if (skipAdblocker) {
       logger.log(
         '[Adblocker] Skipped (--no-extensions, --no-adblock, or BROWSER_DISABLE_ADBLOCK=1)'
       )
       return
     }
+    const [{ ElectronBlocker }, { adsAndTrackingLists }] = await Promise.all([
+      import('@ghostery/adblocker-electron'),
+      import('@ghostery/adblocker')
+    ])
     const adblockConfig = {
       loadNetworkFilters: true,
       loadCosmeticFilters: enableDomLevelBlocking,
@@ -90,10 +93,18 @@ app.whenReady().then(async () => {
       '@@||spotify.com^$document',
       '@@||scdn.co^',
     ].join('\n')
-    ElectronBlocker.fromLists(globalThis.fetch, adsAndTrackingLists, adblockConfig)
+    const cachePath = join(
+      app.getPath('userData'),
+      enableDomLevelBlocking ? 'adblock-engine-dom.bin' : 'adblock-engine-network.bin'
+    )
+    ElectronBlocker.fromLists(globalThis.fetch, adsAndTrackingLists, adblockConfig, {
+      path: cachePath,
+      read: readFile,
+      write: writeFile
+    })
       .then((blocker) => {
         const allowlistEngine = ElectronBlocker.parse(streamingAllowlist, { loadNetworkFilters: true })
-        const merged = ElectronBlocker.merge([blocker, allowlistEngine]) as ElectronBlocker
+        const merged = ElectronBlocker.merge([blocker, allowlistEngine]) as typeof blocker
         const ses = session.fromPartition('persist:default')
         merged.enableBlockingInSession(ses)
         const mode = enableDomLevelBlocking ? 'network + DOM filters' : 'network filters only'
@@ -103,10 +114,11 @@ app.whenReady().then(async () => {
         logger.warn('[Adblocker] Failed to load Ghostery adblocker:', err)
       })
   }
-  setImmediate(loadAdblocker)
-
-  // Ensure CDM is ready before any DRM playback is attempted
-  await cdmReady
+  setImmediate(() => {
+    void loadAdblocker().catch((err) => {
+      logger.warn('[Adblocker] Failed to initialize:', err)
+    })
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

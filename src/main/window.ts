@@ -29,6 +29,11 @@ function isPopupWindowRequest(features: string): boolean {
   return width >= 280 && width <= 1400 && height >= 280 && height <= 1400
 }
 
+const BROWSER_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
+  'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+  'Chrome/120.0.0.0 Safari/537.36'
+
 export function createWindow(): void {
   const win = new BrowserWindow({
     width: 1280,
@@ -55,12 +60,7 @@ export function createWindow(): void {
     win.show()
   })
 
-
   setMainWindow(win)
-
-  win.on('ready-to-show', () => {
-    win.show()
-  })
 
   // Open DevTools automatically in dev mode
   if (process.env['ELECTRON_RENDERER_URL']) {
@@ -89,11 +89,7 @@ export function createWindow(): void {
     // Intercept new-window requests and keyboard shortcuts from all webviews
     ; (win.webContents as NodeJS.EventEmitter).on('did-attach-webview', (_event: unknown, webViewContents: Electron.WebContents) => {
       // Spoof User-Agent for Netflix/Spotify
-      webViewContents.setUserAgent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-        "AppleWebKit/537.36 (KHTML, like Gecko) " +
-        "Chrome/120.0.0.0 Safari/537.36"
-      )
+      webViewContents.setUserAgent(BROWSER_USER_AGENT)
 
       // Redirect target="_blank" links to new tabs instead of new windows.
       // Exception: popup windows (OAuth / login flows) specify explicit width+height
@@ -150,11 +146,7 @@ export function createWindow(): void {
     delete webPreferences.preload
   })
 
-  win.webContents.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-    "AppleWebKit/537.36 (KHTML, like Gecko) " +
-    "Chrome/120.0.0.0 Safari/537.36"
-  )
+  win.webContents.setUserAgent(BROWSER_USER_AGENT)
 
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(process.env['ELECTRON_RENDERER_URL'])

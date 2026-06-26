@@ -19,9 +19,9 @@ app.commandLine.appendSwitch('enable-features',
   'V8VmFuture,BackForwardCache,BlinkSchedulerHighPriorityInput,CanvasOopRasterization,UseSkiaRenderer'
 )
 app.commandLine.appendSwitch('js-flags',
-  '--maglev --turbofan --max-old-space-size=2048'
+  '--maglev --turbofan'
 )
-app.commandLine.appendSwitch('renderer-process-limit', '16')
+app.commandLine.appendSwitch('renderer-process-limit', '8')
 app.commandLine.appendSwitch('enable-quic')
 
 // ── Privacy: disable telemetry, translation, crash reporting ──

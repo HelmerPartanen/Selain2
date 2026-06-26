@@ -14,7 +14,6 @@ import {
   cancelSummarization,
   type SummarizeSource,
 } from './ollamaManager'
-import { extractPdfText } from './pdfTextExtractor'
 
 export function setupAIIPC(): void {
   // ── Status check ──────────────────────────────────────────────────────────
@@ -50,6 +49,7 @@ export function setupAIIPC(): void {
   ipcMain.handle('ai:extract-pdf-text', async (_event, url: string) => {
     if (typeof url !== 'string' || !url.trim()) return ''
     try {
+      const { extractPdfText } = await import('./pdfTextExtractor')
       return await extractPdfText(url)
     } catch {
       return ''
