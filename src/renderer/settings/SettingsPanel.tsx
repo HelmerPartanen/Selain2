@@ -10,7 +10,7 @@ import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Text } from "@/components/ui/Text";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
-import brushSvg from "@/assets/icons/News/Camera_Macro.svg?raw";
+import brushSvg from "@/assets/icons/Weather/Moon_Fill.svg?raw";
 import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
 import displaySvg from "@/assets/icons/Human/Person_Circle.svg?raw";
 import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
@@ -53,9 +53,9 @@ interface CategoryItem {
 }
 
 const CATEGORIES: CategoryItem[] = [
-  { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-slate-100 text-slate-700 dark:bg-slate-700/10 dark:text-slate-200" },
-  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-300" },
-  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300" },
+  { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-neutral-400 text-neutral-50" },
+  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-gradient-to-b from-indigo-900 to-indigo-600 text-indigo-100" },
+  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-100 text-purple-700 dark:bg-purple-500 dark:text-purple-100" },
   { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300" },
   { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" },
   { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" },
@@ -121,15 +121,15 @@ function Sidebar({
   )}
 >
   <span
-    className={`w-8 h-8 flex items-center justify-center rounded-lg shrink-0 transition-all duration-150 ${colorClass}`}
+    className={`w-8 h-8 flex items-center justify-center rounded-full shrink-0 transition-all duration-150 ${colorClass}`}
   >
-    <SvgIcon svg={icon} size={16} />
+    <SvgIcon svg={icon} size={18} />
   </span>
 
   <Text
     as="span"
     size="body"
-    tone="secondary"
+    tone="primary"
     className="truncate text-left font-medium"
   >
     {label}
@@ -154,67 +154,69 @@ function SettingsPanelInner(): React.JSX.Element {
 
   return (
     <PanelModal
-      onClose={closeSettings}
-      width="1100px"
-      height="700px"
-      role="dialog"
-      aria-label="Settings"
-      aria-modal={true}
-    >
+  onClose={closeSettings}
+  width="1100px"
+  height="700px"
+  role="dialog"
+  aria-label="Settings"
+  aria-modal={true}
+>
+  <div className="flex h-full overflow-hidden">
+    <div className="flex-shrink-0 h-full">
+      <div className="w-[240px] h-full bg-[var(--app-grouped-bg-secondary)] flex flex-col overflow-hidden">
+        <div className="p-1"></div>
 
-      <div className="flex h-full overflow-hidden">
-        <div className="flex-shrink-0 h-full">
-          <div className="w-[240px] h-full bg-[var(--app-grouped-bg-secondary)] flex flex-col overflow-hidden">
-            <div className="p-1">
-            </div>
-            <div className="flex-1 px-1.5 pb-4 overflow-y-auto">
-              <Sidebar
-                activeCategory={activeCategory}
-                onSelect={setActiveCategory}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--app-separator)' }}>
-            <AnimatePresence mode="wait">
-              <motion.h3
-                key={activeCategory}
-                initial={disableAnimations ? undefined : { opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={disableAnimations ? undefined : { opacity: 0, y: -4 }}
-                transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
-                className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-relaxed"
-              >
-                {categoryLabel}
-              </motion.h3>
-            </AnimatePresence>
-            <Button
-              variant="icon"
-              onClick={closeSettings}
-              aria-label="Close settings"
-              rounded="rounded-full"
-            >
-              <SvgIcon svg={closeSvg} size={13} />
-            </Button>
-          </div>
-          <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-5 glass-scroll">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeCategory}
-                initial={disableAnimations ? undefined : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={disableAnimations ? undefined : { opacity: 0, y: -6 }}
-                transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
-              >
-                <SettingsContent category={activeCategory} />
-              </motion.div>
-            </AnimatePresence>
-          </div>
+        <div className="flex-1 px-1.5 pb-4 overflow-y-auto">
+          <Sidebar
+            activeCategory={activeCategory}
+            onSelect={setActiveCategory}
+          />
         </div>
       </div>
-    </PanelModal>
+    </div>
+
+    <div className="flex-1 flex flex-col min-w-0">
+      <div className="relative flex items-center justify-center px-6 pt-4 pb-4">
+        <AnimatePresence mode="wait">
+          <motion.h3
+            key={activeCategory}
+            initial={disableAnimations ? undefined : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={disableAnimations ? undefined : { opacity: 0, y: -4 }}
+            transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
+            className="text-[18px] font-bold text-[var(--app-text-primary)]"
+          >
+            {categoryLabel}
+          </motion.h3>
+        </AnimatePresence>
+
+        <Button
+          variant="icon"
+          onClick={closeSettings}
+          aria-label="Close settings"
+          rounded="rounded-lg"
+          className="absolute right-6 top-1/2 -translate-y-1/2"
+        >
+          <SvgIcon svg={closeSvg} size={13} />
+        </Button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-4 glass-scroll">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            initial={disableAnimations ? undefined : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={disableAnimations ? undefined : { opacity: 0, y: -6 }}
+            transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
+          >
+            <SettingsContent category={activeCategory} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  </div>
+</PanelModal>
   );
 }
 

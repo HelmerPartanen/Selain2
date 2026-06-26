@@ -13,16 +13,16 @@ interface TextProps extends HTMLAttributes<HTMLElement> {
 const tones: Record<TextTone, string> = {
   primary: "text-[var(--app-text-primary)]",
   secondary: "text-[var(--app-text-secondary)]",
-  muted: "text-[var(--app-text-tertiary)]",
+  muted: "text-[var(--app-text-secondary)]",
   danger: "text-[var(--app-danger)]",
   accent: "text-[var(--app-accent)]",
 };
 
 const sizes: Record<TextSize, string> = {
-  caption: "text-[12px] font-medium leading-relaxed",
-  body: "text-[13px] font-medium leading-relaxed",
-  label: "text-[14px] font-medium leading-snug",
-  title: "text-[15px] font-medium tracking-relaxed leading-snug",
+  caption: "text-[13px] font-medium leading-relaxed",
+  body: "text-[14px] font-medium leading-relaxed",
+  label: "text-[15px] font-medium leading-snug",
+  title: "text-[16px] font-medium tracking-relaxed leading-snug",
 };
 
 export function Text({
