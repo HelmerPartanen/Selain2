@@ -162,7 +162,7 @@ const TabStripItem = memo(function TabStripItem({
             : "px-3 gap-2"
       } ${
         isHighlighted
-          ? "bg-[var(--app-bg-tertiary)] text-[var(--app-text-primary)]"
+          ? "!bg-[var(--app-control-hover)] !text-[var(--app-text-primary)]"
           : "bg-transparent hover:bg-[var(--app-control-hover)] text-[var(--app-text-secondary)]"
       }`}
     >
@@ -236,7 +236,7 @@ const TabStripItem = memo(function TabStripItem({
           className={`flex-shrink-0 w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity ${
             pinned
               ? "text-gray-300 cursor-not-allowed"
-              : "text-[var(--app-text-tertiary)] hover:bg-[var(--app-control-hover)]"
+              : "text-[var(--app-text-primary)] hover:bg-[var(--app-bg-secondary)]"
           }`}
           onClick={pinned ? undefined : handleClose}
           title={pinned ? "Unpin to close" : "Close tab"}

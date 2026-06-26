@@ -22,19 +22,13 @@ const HIDE_DELAY = 800;
 
 function Win11ControlButton({
   onClick,
-
   label,
-
   variant = "default",
-
   children,
 }: {
   onClick: () => void;
-
   label: string;
-
   variant?: "default" | "close";
-
   children: React.ReactNode;
 }): React.JSX.Element {
   const hoverClass =
@@ -48,9 +42,39 @@ function Win11ControlButton({
       size="none"
       onClick={onClick}
       aria-label={label}
-      className={`w-[46px] h-10 flex items-center justify-center text-[var(--app-text-primary)] transition-colors duration-75 ${hoverClass}`}
+      className={`w-[46px] h-10 flex items-center justify-center rounded-none text-[var(--app-text-primary)] transition-colors duration-75 ${hoverClass}`}
     >
       {children}
+    </Button>
+  );
+}
+
+function FloatingControlButton({
+  onClick,
+  label,
+  variant = "default",
+  children,
+}: {
+  onClick: () => void;
+  label: string;
+  variant?: "default" | "close";
+  children: React.ReactNode;
+}): React.JSX.Element {
+  const hoverClass =
+    variant === "close"
+      ? "hover:bg-[var(--app-danger)] hover:text-white"
+      : "hover:bg-[var(--app-control-hover)]";
+
+  return (
+    <Button
+      variant="ghost"
+      size="none"
+      onClick={onClick}
+      aria-label={label}
+      transition={SPRING_SNAPPY}
+      className={`relative w-9 h-9 flex items-center justify-center rounded-none text-[var(--app-text-primary)] transition-colors duration-75 ${hoverClass}`}
+    >
+      <span className="relative z-10">{children}</span>
     </Button>
   );
 }
@@ -188,7 +212,7 @@ function WindowControlsInner({
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="-mt-1 -mr-1 flex items-center rounded-l-lg overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
+            className="-mt-1 -mr-1 flex items-center overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
             style={{ pointerEvents: "auto" }}
             initial={
               disableAnimations ? undefined : { opacity: 0, scale: 0.85, y: -6 }
@@ -201,75 +225,32 @@ function WindowControlsInner({
             }
             transition={disableAnimations ? { duration: 0 } : SPRING_FAST}
           >
-            <ControlButton
-              onClick={handleMinimize}
-              label="Minimize"
-              hoverBg="hover:bg-[var(--app-control-hover)]"
-              hoverText="hover:text-[var(--app-text-primary)]"
-            >
+            <FloatingControlButton onClick={handleMinimize} label="Minimize">
               <SvgIcon svg={minusSvg} size={12} />
-            </ControlButton>
+            </FloatingControlButton>
 
-            <ControlButton
+            <FloatingControlButton
               onClick={handleToggleMaximize}
               label={isMaximized ? "Restore" : "Maximize"}
-              hoverBg="hover:bg-[var(--app-control-hover)]"
-              hoverText="hover:text-[var(--app-text-primary)]"
             >
               {isMaximized ? (
                 <SvgIcon svg={windowedSvg} size={12} />
               ) : (
                 <SvgIcon svg={maximizeSvg} size={12} />
               )}
-            </ControlButton>
+            </FloatingControlButton>
 
-            <ControlButton
+            <FloatingControlButton
               onClick={handleClose}
               label="Close"
-              hoverBg="hover:bg-[var(--app-danger-bg)]"
-              hoverText="hover:text-[var(--app-danger)]"
+              variant="close"
             >
               <SvgIcon svg={closeSvg} size={12} />
-            </ControlButton>
+            </FloatingControlButton>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-function ControlButton({
-  onClick,
-
-  label,
-
-  hoverBg,
-
-  hoverText,
-
-  children,
-}: {
-  onClick: () => void;
-
-  label: string;
-
-  hoverBg: string;
-
-  hoverText: string;
-
-  children: React.ReactNode;
-}): React.JSX.Element {
-  return (
-    <Button
-      variant="ghost"
-      size="none"
-      onClick={onClick}
-      aria-label={label}
-      transition={SPRING_SNAPPY}
-      className={`relative w-9 h-9 flex items-center justify-center text-[var(--app-text-secondary)] transition-colors duration-100 ${hoverBg} ${hoverText}`}
-    >
-      <span className="relative z-10">{children}</span>
-    </Button>
   );
 }
 

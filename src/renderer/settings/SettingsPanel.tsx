@@ -54,14 +54,14 @@ interface CategoryItem {
 
 const CATEGORIES: CategoryItem[] = [
   { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-neutral-400 text-neutral-50" },
-  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-gradient-to-b from-indigo-900 to-indigo-600 text-indigo-100" },
-  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-purple-100 text-purple-700 dark:bg-purple-500 dark:text-purple-100" },
-  { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300" },
-  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300" },
-  { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" },
-  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" },
+  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-gradient-to-b from-indigo-200 to-indigo-100 text-indigo-500" },
+  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-gradient-to-b from-blue-200 to-blue-100 text-blue-500" },
+  { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-500 text-sky-100" },
+  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-500" },
+  { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-100 text-blue-500" },
+  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-amber-500 text-white" },
   { id: "gestures", label: "Gestures", icon: gestureSvg, colorClass: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/10 dark:text-fuchsia-300" },
-  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-slate-100 text-slate-700 dark:bg-slate-700/10 dark:text-slate-200" },
+  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-slate-700 text-slate-100" },
 ];
 
 // --- Content Pane Router ------------------------------------------------------

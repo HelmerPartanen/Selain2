@@ -106,7 +106,7 @@ const TabCard = memo(function TabCard({
         }}
       >
         {/* Thumbnail area */}
-        <div className="relative aspect-[16/10] bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+        <div className="relative aspect-[16/10] overflow-hidden">
           {thumbnail ? (
             <img
               src={thumbnail}
@@ -147,7 +147,7 @@ const TabCard = memo(function TabCard({
           )}
 
           {/* Hover overlay */}
-          <div className="absolute inset-0 group-hover:bg-[var(--app-control-hover)] transition-colors duration-150" />
+          <div className="absolute inset-0 group-hover:bg-black/20 transition-colors duration-150" />
           <Button
             variant="ghost"
             size="none"
@@ -156,8 +156,8 @@ const TabCard = memo(function TabCard({
               e.stopPropagation()
               onToggleSelected(e)
             }}
-            className={`absolute bottom-2 right-2 w-5 h-5 rounded-md border flex items-center justify-center transition-colors transition-transform duration-200 ${
-              isSelected ? 'bg-blue-500 border-blue-500' : 'bg-transparent border-transparent'
+            className={`absolute bottom-2 right-2 w-5 h-5 rounded-full flex items-center justify-center transition-colors transition-transform duration-200 ${
+              isSelected ? '!bg-blue-500' : '!bg-transparent'
             }`}
             aria-label={isSelected ? 'Deselect tab' : 'Select tab'}
           >
@@ -443,7 +443,7 @@ function TabOverviewInner(): React.JSX.Element {
           {/* Backdrop — solid overlay */}
           <motion.div
             key="tab-overview-backdrop"
-            className="fixed inset-0 z-[90] bg-[var(--app-bg-primary)]"
+            className="fixed inset-0 z-[90] bg-white/50 dark:bg-black/50 backdrop-blur-lg transition-opacity duration-150"
             initial={disableAnimations ? undefined : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={disableAnimations ? undefined : { opacity: 0 }}
@@ -671,8 +671,8 @@ function TabOverviewInner(): React.JSX.Element {
                   size="none"
                   onClick={handleNewTab}
                   className="w-full rounded-lg overflow-hidden
-                    flex flex-col items-center justify-center gap-2 transition-all duration-200
-                    bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] active:scale-[0.97]"
+                    flex flex-col items-center justify-center gap-2
+                    !bg-[var(--app-bg-secondary)] opacity-80 hover:opacity-70 active:scale-[0.97] !transition-all duration-200"
                 >
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
                     <SvgIcon svg={plusSvg} size={22} className="text-[var(--app-text-secondary)]" />
