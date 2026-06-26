@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Text } from "@/components/ui/Text";
-import { SectionHeader } from "@/settings/components/SettingsShared";
+import { GroupBox } from "@/settings/components/SettingsShared";
 import { useThemeStore } from "@/store/themeStore";
 import {
   WALLPAPER_PRESETS,
@@ -391,7 +391,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
 
   return (
     <div className="space-y-3">
-      <SectionHeader className="mb-0">Current Wallpaper</SectionHeader>
+      <GroupBox title="Current Wallpaper">
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative w-full sm:w-[260px] flex-shrink-0 aspect-[16/10] overflow-hidden rounded-xl bg-[var(--app-bg-secondary)] ring-1 ring-[var(--app-separator)]">
           {isDynamic ? (
@@ -478,6 +478,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
           )}
         </div>
       </div>
+      </GroupBox>
     </div>
   );
 });
@@ -606,8 +607,7 @@ function WallpaperPaneInner(): React.JSX.Element {
         onDynamicModeChange={handleDynamicModeChange}
       />
 
-      <div>
-        <SectionHeader className="mb-3">Wallpapers</SectionHeader>
+      <GroupBox title="Wallpapers">
         <div
           className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 glass-scroll"
           role="listbox"
@@ -634,10 +634,9 @@ function WallpaperPaneInner(): React.JSX.Element {
             />
           ))}
         </div>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader className="mb-3">Gradients</SectionHeader>
+      <GroupBox title="Gradients">
         <div
           className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 glass-scroll"
           role="listbox"
@@ -656,10 +655,9 @@ function WallpaperPaneInner(): React.JSX.Element {
             );
           })}
         </div>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader className="mb-3">Solid Colors</SectionHeader>
+      <GroupBox title="Solid Colors">
         <div
           className="grid grid-cols-10 gap-2"
           role="listbox"
@@ -684,11 +682,10 @@ function WallpaperPaneInner(): React.JSX.Element {
             );
           })}
         </div>
-      </div>
+      </GroupBox>
 
       {customWallpapers.length > 0 && (
-        <div>
-          <SectionHeader className="mb-3">Custom</SectionHeader>
+        <GroupBox title="Custom">
           <div
             className="flex gap-2.5 overflow-x-auto p-1.5 -m-1.5 glass-scroll"
             role="listbox"
@@ -704,12 +701,13 @@ function WallpaperPaneInner(): React.JSX.Element {
               />
             ))}
           </div>
-        </div>
+        </GroupBox>
       )}
 
+      <GroupBox>
       <div className="flex gap-2.5">
         <Button
-          variant="solid"
+          variant="ghost"
           size="md"
           onClick={handleCustomImage}
           disabled={isUploading}
@@ -730,6 +728,7 @@ function WallpaperPaneInner(): React.JSX.Element {
           Remove
         </Button>
       </div>
+      </GroupBox>
     </div>
   );
 }

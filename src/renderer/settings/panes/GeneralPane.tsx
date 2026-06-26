@@ -2,8 +2,7 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import {
-  Desc,
-  SectionHeader,
+  GroupBox,
   SettingGroup,
   SettingRow,
   Toggle,
@@ -90,9 +89,10 @@ function GeneralPaneInner(): React.JSX.Element {
 
   return (
     <div className="space-y-7">
-      <div>
-        <SectionHeader>Startup</SectionHeader>
-        <Desc>Control what happens when the browser opens.</Desc>
+      <GroupBox
+        title="Startup"
+        desc="Control what happens when the browser opens."
+      >
         <SettingGroup>
           <SettingRow
             label="Restore previous tabs"
@@ -115,11 +115,13 @@ function GeneralPaneInner(): React.JSX.Element {
             />
           </SettingRow>
         </SettingGroup>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>New Tab</SectionHeader>
-        <Desc>Choose what appears when you open a new tab.</Desc>
+      <GroupBox
+        title="New Tab"
+        desc="Choose what appears when you open a new tab."
+        contentClassName="space-y-4"
+      >
         <SegmentedControl<NewTabMode>
           value={newTabMode}
           onChange={setNewTabMode}
@@ -129,7 +131,7 @@ function GeneralPaneInner(): React.JSX.Element {
             { value: "blank", label: "Blank Page" },
           ]}
         />
-        <SettingGroup className="mt-4">
+        <SettingGroup>
           <SettingRow
             label="Continue where you left off"
             desc="Show a list of recently visited pages at the bottom of the new tab page."
@@ -151,11 +153,12 @@ function GeneralPaneInner(): React.JSX.Element {
             />
           </SettingRow>
         </SettingGroup>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Tab behavior</SectionHeader>
-        <Desc>Let the browser help keep your tabs organized, without losing control.</Desc>
+      <GroupBox
+        title="Tab behavior"
+        desc="Let the browser help keep your tabs organized, without losing control."
+      >
         <SettingGroup>
           <SettingRow
             label="Tabs button action"
@@ -192,13 +195,12 @@ function GeneralPaneInner(): React.JSX.Element {
             />
           </SettingRow>
         </SettingGroup>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Homepage</SectionHeader>
-        <Desc>
-          URL to navigate when clicking the home button. Leave empty to disable.
-        </Desc>
+      <GroupBox
+        title="Homepage"
+        desc="URL to navigate when clicking the home button. Leave empty to disable."
+      >
         <div className="space-y-1.5">
           <TextInput
             type="text"
@@ -238,7 +240,7 @@ function GeneralPaneInner(): React.JSX.Element {
             </Button>
           )}
         </div>
-      </div>
+      </GroupBox>
 
     </div>
   );

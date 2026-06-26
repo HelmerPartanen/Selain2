@@ -6,7 +6,7 @@ import { RangeInput } from "@/components/ui/Input";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Text } from "@/components/ui/Text";
 import { SvgIcon } from "@/components/ui/SvgIcon";
-import { Desc, SectionHeader, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
+import { GroupBox, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
 import { useSettingsStore, UI_ZOOM_OPTIONS, type UiLayout } from "@/store/settingsStore";
 import sunSvg from "@/assets/icons/Weather/Sun_1.svg?raw";
@@ -54,9 +54,10 @@ function AppearancePaneInner(): React.JSX.Element {
 
   return (
     <div className="space-y-7">
-      <div>
-        <SectionHeader>Theme</SectionHeader>
-        <Desc>Choose how the browser interface looks.</Desc>
+      <GroupBox
+        title="Theme"
+        desc="Choose how the browser interface looks."
+      >
         <div className="flex gap-2.5" role="radiogroup" aria-label="Theme mode">
           {THEME_MODES.map(({ mode, label, icon }) => {
             const isActive = themeMode === mode;
@@ -86,11 +87,12 @@ function AppearancePaneInner(): React.JSX.Element {
             );
           })}
         </div>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Interface Scale</SectionHeader>
-        <Desc>Scale the browser UI. Does not affect web page content.</Desc>
+      <GroupBox
+        title="Interface Scale"
+        desc="Scale the browser UI. Does not affect web page content."
+      >
         <SegmentedControl<number>
           value={selectedUiZoom}
           onChange={handleUiZoomSelect}
@@ -101,13 +103,13 @@ function AppearancePaneInner(): React.JSX.Element {
             ariaLabel: `${z}% zoom`,
           }))}
         />
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Browser Layout</SectionHeader>
-        <Desc>
-          Choose between the floating toolbar or a classic browser layout with a tab strip and address bar.
-        </Desc>
+      <GroupBox
+        title="Browser Layout"
+        desc="Choose between the floating toolbar or a classic browser layout with a tab strip and address bar."
+        contentClassName="space-y-4"
+      >
         <SegmentedControl<UiLayout>
           value={uiLayout}
           onChange={setUiLayout}
@@ -117,7 +119,7 @@ function AppearancePaneInner(): React.JSX.Element {
             { value: "classic", label: "Classic" },
           ]}
         />
-        <SettingGroup className="mt-4">
+        <SettingGroup>
           <SettingRow
             label="Hide UI automatically"
             desc="The floating control bar will hide when inactive and reappear on hover or keyboard activity."
@@ -129,15 +131,14 @@ function AppearancePaneInner(): React.JSX.Element {
             />
           </SettingRow>
         </SettingGroup>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Toolbar Auto-Hide</SectionHeader>
-        <Desc>
-          {uiLayout === 'floating'
+      <GroupBox
+        title="Toolbar Auto-Hide"
+        desc={uiLayout === 'floating'
             ? 'How long the floating toolbar stays visible after inactivity.'
             : 'Auto-hide only applies to the floating layout.'}
-        </Desc>
+      >
         {uiLayout === 'floating' ? (
         <div className="flex items-center gap-3">
           <RangeInput
@@ -164,7 +165,7 @@ function AppearancePaneInner(): React.JSX.Element {
             Switch to the floating layout to configure auto-hide.
           </Text>
         )}
-      </div>
+      </GroupBox>
     </div>
   );
 }

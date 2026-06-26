@@ -57,7 +57,7 @@ function AppMenuInner(): React.JSX.Element {
   const uiLayout = useSettingsStore((s) => s.uiLayout)
   const popoverBelow = uiLayout === 'classic'
 const { enterY, exitY } = getPopoverMotion(popoverBelow)
-  const menuSurface = 'bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]'
+  const menuSurface = 'bg-[var(--app-bg-secondary)] border border-[var(--app-separator)]'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
 

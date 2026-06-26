@@ -2,7 +2,7 @@ import { memo } from "react";
 import { motion, type Transition } from "motion/react";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Text } from "@/components/ui/Text";
-import { Desc, SectionHeader, SettingRow } from "@/settings/components/SettingsShared";
+import { GroupBox, SettingGroup, SettingRow } from "@/settings/components/SettingsShared";
 import { useSettingsStore, type TwoFingerSwipeAction } from "@/store/settingsStore";
 
 function GestureVisualization({
@@ -152,11 +152,11 @@ function GesturesPaneInner(): React.JSX.Element {
       : "Swipe left/right with two fingers on your trackpad to navigate back/forward in browsing history.";
 
   return (
-    <div className="space-y-3 p-3">
-      <div>
-        <SectionHeader>Trackpad Gestures</SectionHeader>
-        <Desc>Master these intuitive, native-feeling gestures to navigate the browser natively.</Desc>
-      </div>
+    <div className="space-y-7">
+      <GroupBox
+        title="Trackpad Gestures"
+        desc="Master these intuitive, native-feeling gestures to navigate the browser natively."
+      >
 
       <div className="grid grid-cols-2">
         <GestureVisualization title={swipeTitle} description={swipeDescription} fingers={2} type="swipe-horizontal" />
@@ -175,8 +175,10 @@ function GesturesPaneInner(): React.JSX.Element {
           />
         </div>
       </div>
+      </GroupBox>
 
-      <div className="mt-2">
+      <GroupBox title="Gesture Behavior">
+        <SettingGroup>
         <SettingRow
           label="Horizontal two-finger swipe"
           desc="Choose whether the horizontal two-finger swipe cycles through tabs or navigates back/forward in the browser."
@@ -191,7 +193,8 @@ function GesturesPaneInner(): React.JSX.Element {
             ]}
           />
         </SettingRow>
-      </div>
+        </SettingGroup>
+      </GroupBox>
     </div>
   );
 }

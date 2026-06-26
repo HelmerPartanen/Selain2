@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Toggle, SettingGroup, SectionHeader, SettingRow } from "@/settings/components/SettingsShared";
+import { GroupBox, Toggle, SettingGroup, SettingRow } from "@/settings/components/SettingsShared";
 import { useSettingsStore } from "@/store/settingsStore";
 
 function AccessibilityPaneInner(): React.JSX.Element {
@@ -8,8 +8,7 @@ function AccessibilityPaneInner(): React.JSX.Element {
 
   return (
     <div className="space-y-7">
-      <div>
-        <SectionHeader className="mb-3">Visibility</SectionHeader> 
+      <GroupBox title="Visibility">
         <SettingGroup>
           <SettingRow
             label="Reduce motion"
@@ -22,7 +21,7 @@ function AccessibilityPaneInner(): React.JSX.Element {
             />
           </SettingRow>
         </SettingGroup>
-      </div>
+      </GroupBox>
     </div>
   );
 }

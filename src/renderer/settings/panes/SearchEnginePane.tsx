@@ -4,7 +4,7 @@ import { memo } from "react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import { SvgIcon } from "@/components/ui/SvgIcon";
-import { Desc, SectionHeader, SettingGroup } from "@/settings/components/SettingsShared";
+import { GroupBox, SettingGroup } from "@/settings/components/SettingsShared";
 import {
   useSearchEngineStore,
   SEARCH_ENGINES,
@@ -32,11 +32,10 @@ function SearchEnginePaneInner(): React.JSX.Element {
 
   return (
     <div className="space-y-7">
-      <div>
-        <SectionHeader>Default Search Engine</SectionHeader>
-        <Desc>
-          Choose the search engine used for address bar and new tab searches.
-        </Desc>
+      <GroupBox
+        title="Default Search Engine"
+        desc="Choose the search engine used for address bar and new tab searches."
+      >
         <SettingGroup>
           <div
             className="space-y-0.5"
@@ -77,7 +76,7 @@ function SearchEnginePaneInner(): React.JSX.Element {
             })}
           </div>
         </SettingGroup>
-      </div>
+      </GroupBox>
     </div>
   );
 }

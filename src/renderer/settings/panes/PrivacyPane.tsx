@@ -3,11 +3,9 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Text } from "@/components/ui/Text";
 import {
-  Desc,
-  SectionHeader,
+  GroupBox,
   SettingGroup,
   SettingRow,
   Toggle,
@@ -183,27 +181,23 @@ function PrivacyPaneInner(): React.JSX.Element {
 
   return (
     <div className="space-y-7">
-      <div>
-        <SectionHeader>Privacy Profile</SectionHeader>
-        <Desc>Choose the default privacy posture for browsing.</Desc>
+      <GroupBox
+        title="Privacy Profile"
+        desc="Choose the default privacy posture for browsing."
+      >
         <div className="grid grid-cols-3 gap-2">
           {([
             ['standard', 'Standard', 'Balanced protection for daily browsing.'],
             ['strict', 'Strict', 'Prefer blocking and asking before access.'],
             ['private', 'Private', 'Minimize retained data where possible.'],
           ] as Array<[PrivacyProfile, string, string]>).map(([id, label, desc]) => (
-            <Card
+            <Button
               key={id}
+              variant="ghost"
+              size="none"
               role="button"
-              tabIndex={0}
               onClick={() => setPrivacyProfile(id)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  setPrivacyProfile(id);
-                }
-              }}
-              className={`cursor-pointer text-left transition-colors ${
+              className={`h-auto flex-col items-start rounded-xl px-3 py-3 text-left transition-colors ${
                 privacyProfile === id
                   ? '!bg-[var(--app-control-active)] text-emerald-600 dark:text-green-500'
                   : 'text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)]'
@@ -215,14 +209,15 @@ function PrivacyPaneInner(): React.JSX.Element {
               <Text as="div" size="caption" className="mt-1 text-inherit opacity-70">
                 {desc}
               </Text>
-            </Card>
+            </Button>
           ))}
         </div>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Session</SectionHeader>
-        <Desc>Control how data is managed between sessions.</Desc>
+      <GroupBox
+        title="Session"
+        desc="Control how data is managed between sessions."
+      >
         <SettingGroup>
           <SettingRow
             label="Clear data on exit"
@@ -235,11 +230,12 @@ function PrivacyPaneInner(): React.JSX.Element {
             />
           </SettingRow>
         </SettingGroup>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Contents</SectionHeader>
-        <Desc>Manage web content display and blocking.</Desc>
+      <GroupBox
+        title="Contents"
+        desc="Manage web content display and blocking."
+      >
         <SettingGroup>
           <SettingRow
             label="Enable Adblocker"
@@ -252,11 +248,12 @@ function PrivacyPaneInner(): React.JSX.Element {
             />
           </SettingRow>
         </SettingGroup>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Site Permissions</SectionHeader>
-        <Desc>Review decisions remembered for individual sites.</Desc>
+      <GroupBox
+        title="Site Permissions"
+        desc="Review decisions remembered for individual sites."
+      >
         <SettingGroup>
           {permissionEntries.length === 0 ? (
             <div className="px-3.5 py-3 text-[12px] text-gray-400 dark:text-neutral-500">
@@ -291,14 +288,15 @@ function PrivacyPaneInner(): React.JSX.Element {
             </>
           )}
         </SettingGroup>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Profile Backup</SectionHeader>
-        <Desc>Export your bookmarks and settings to a file, or restore them from a previous backup.</Desc>
+      <GroupBox
+        title="Profile Backup"
+        desc="Export your bookmarks and settings to a file, or restore them from a previous backup."
+      >
         <div className="flex gap-2">
           <Button
-            variant="subtle"
+            variant="ghost"
             size="md"
             onClick={handleExportProfile}
             className="flex-1"
@@ -306,7 +304,7 @@ function PrivacyPaneInner(): React.JSX.Element {
             Export Profile
           </Button>
           <Button
-            variant="subtle"
+            variant="ghost"
             size="md"
             onClick={handleImportProfile}
             className="flex-1"
@@ -314,11 +312,12 @@ function PrivacyPaneInner(): React.JSX.Element {
             Import Profile
           </Button>
         </div>
-      </div>
+      </GroupBox>
 
-      <div>
-        <SectionHeader>Browsing Data</SectionHeader>
-        <Desc>Permanently delete stored data. This cannot be undone.</Desc>
+      <GroupBox
+        title="Browsing Data"
+        desc="Permanently delete stored data. This cannot be undone."
+      >
         <div className="grid grid-cols-2 gap-2">
           {actions.map((action) => {
             const isConfirming = confirmAction === action.id;
@@ -330,7 +329,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                     ? "primary"
                     : action.destructive
                       ? "danger"
-                      : "solid"
+                      : "ghost"
                 }
                 size="md"
                 aria-label={
@@ -367,7 +366,7 @@ function PrivacyPaneInner(): React.JSX.Element {
             );
           })}
         </div>
-      </div>
+      </GroupBox>
     </div>
   );
 }

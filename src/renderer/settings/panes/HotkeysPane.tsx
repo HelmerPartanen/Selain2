@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import { motion } from "motion/react";
 import { SPRING_SNAPPY, SPRING_LIST } from "@/utils/springs";
-import { SectionHeader, Desc } from "@/settings/components/SettingsShared";
+import { GroupBox, SettingGroup } from "@/settings/components/SettingsShared";
 
 const ShortcutRow = memo(function ShortcutRow({
     description,
@@ -109,9 +109,8 @@ function HotkeysPaneInner(): React.JSX.Element {
     return (
         <div className="space-y-7 pb-4">
             {SHORTCUT_GROUPS.map((group) => (
-                <div key={group.label}>
-                    <SectionHeader>{group.label}</SectionHeader>
-                    <div className="space-y-0.5 mt-2">
+                <GroupBox key={group.label} title={group.label}>
+                    <SettingGroup className="p-1">
                         {group.shortcuts.map((shortcut, idx) => (
                             <ShortcutRow
                                 key={shortcut.keys}
@@ -120,8 +119,8 @@ function HotkeysPaneInner(): React.JSX.Element {
                                 index={idx}
                             />
                         ))}
-                    </div>
-                </div>
+                    </SettingGroup>
+                </GroupBox>
             ))}
         </div>
     );

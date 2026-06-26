@@ -164,7 +164,7 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <div className="flex h-full overflow-hidden">
         <div className="flex-shrink-0 h-full">
-          <div className="w-[240px] h-full bg-[var(--app-grouped-bg-primary)] flex flex-col overflow-hidden">
+          <div className="w-[240px] h-full bg-[var(--app-grouped-bg-secondary)] flex flex-col overflow-hidden">
             <div className="p-1">
             </div>
             <div className="flex-1 px-1.5 pb-4 overflow-y-auto">
