@@ -467,7 +467,7 @@ function TabOverviewInner(): React.JSX.Element {
                 {previews.length} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
               </h2>
               <div
-                className="mt-4 h-[42px] flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
+                className="mt-4 h-[42px] flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 <SearchInput

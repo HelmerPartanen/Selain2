@@ -214,7 +214,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
               transition={{ duration: 0.3, delay: 0.1 }}
             >
               <div className="flex items-center justify-between px-6 py-4">
-                {/* Smart toggle button in glass pill */}
+                {/* Smart toggle button */}
                 {!isLoading && isAIReady && (
                   <motion.div
                     className="pointer-events-auto rounded-full shadow-sm bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
@@ -229,7 +229,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                 {/* Spacer */}
                 <div className="flex-1" />
 
-                {/* Close button in glass pill */}
+                {/* Close button */}
                 {!isLoading && (
                   <motion.div
                     className="pointer-events-auto rounded-full"

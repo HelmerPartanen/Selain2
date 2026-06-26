@@ -243,7 +243,7 @@ function FloatingControlsInner(): React.JSX.Element {
           {/* Floating controls surface */}
           <motion.div
             layout
-            className="absolute bottom-2 p-1 rounded-xl [app-region:no-drag] pointer-events-auto bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
+            className="absolute bottom-2 p-1 rounded-xl [app-region:no-drag] pointer-events-auto bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             initial={disableAnimations ? undefined : { y: 40, scale: 0.85, opacity: 0 }}
             animate={
               isIdle
