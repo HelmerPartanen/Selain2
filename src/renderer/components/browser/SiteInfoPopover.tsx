@@ -181,7 +181,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
         }
       >
         <div
-          className="rounded-xl mb-2 shadow-sm overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
+          className="rounded-xl mb-2 shadow-sm overflow-hidden bg-[var(--app-bg-primary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
         >
           <div className="p-1 relative">
             <div className="p-3">

@@ -42,7 +42,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "text-white bg-[var(--app-accent)] hover:bg-[var(--app-accent-hover)]",
   danger:
-    "text-[var(--app-danger)] bg-[var(--app-danger-bg)] hover:bg-[var(--app-danger-bg)]/75",
+    "text-[var(--app-danger)] bg-[var(--app-danger-bg)] hover:bg-[var(--app-danger-hover-bg)]",
   icon:
     "text-[var(--app-text-secondary)] bg-transparent hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]",
   link:
