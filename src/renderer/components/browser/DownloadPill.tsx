@@ -24,7 +24,7 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
   const isActive = item.state === 'progressing' || item.state === 'paused'
 
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors duration-75 group">
+    <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--app-control-hover)] transition-colors duration-75 group">
       <div className="w-7 h-7 rounded-md bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
         {item.state === 'completed' ? (
           <SvgIcon svg={checkSvg} size={12} className="text-green-500" />
@@ -223,7 +223,7 @@ function DownloadPillInner(): React.JSX.Element {
             style={{ overflow: 'hidden', flexShrink: 0 }}
             onClick={() => setDownloadPopoverOpen(!isOpen)}
             aria-label="Downloads"
-            className="h-10 rounded-full flex items-center justify-center glass px-3 gap-1.5 select-none hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-95 transition-colors duration-100"
+            className="h-10 rounded-full flex items-center justify-center bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] px-3 gap-1.5 select-none hover:bg-[var(--app-control-hover)] active:scale-95 transition-colors duration-100"
           >
             <div className="relative">
               <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
@@ -260,7 +260,7 @@ function DownloadPillInner(): React.JSX.Element {
       <AnimatePresence>
         {isOpen && hasItems && popoverPos && (
           <motion.div
-            className="fixed z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden glass-heavy"
+            className="fixed z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             style={{ left: popoverPos.left, top: popoverPos.top, originY: popoverBelow ? 0 : 1, originX: 1 }}
             initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: enterY }}
             animate={{ scaleY: 1, scaleX: 1, opacity: 1, y: 0 }}

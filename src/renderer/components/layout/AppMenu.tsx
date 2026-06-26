@@ -54,15 +54,10 @@ function AppMenuInner(): React.JSX.Element {
     isDownloadsOpen: s.isDownloadsOpen,
   })));
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const uiLayout = useSettingsStore((s) => s.uiLayout)
   const popoverBelow = uiLayout === 'classic'
 const { enterY, exitY } = getPopoverMotion(popoverBelow)
-  const menuSurface = popoverBelow
-    ? 'bg-gray-200 dark:bg-neutral-800 border border-black/5 dark:border-white/5'
-    : disableBlurEffects
-      ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
-      : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
+  const menuSurface = 'bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
 
@@ -154,7 +149,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none`}
+        className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} rounded-lg flex items-center justify-center transition-colors duration-100 select-none`}
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
           <motion.span
@@ -208,7 +203,6 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                 opacity: 0,
                 y: enterY,
                 borderRadius: 40,
-                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
               animate={{
                 scaleX: 1,
@@ -216,7 +210,6 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                 opacity: 1,
                 y: 0,
                 borderRadius: 16,
-                filter: disableBlurEffects ? 'none' : 'blur(0px)',
               }}
               exit={disableAnimations ? undefined : {
                 scaleX: 0.15,
@@ -224,7 +217,6 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                 opacity: 0,
                 y: exitY,
                 borderRadius: 40,
-                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
               transition={disableAnimations ? { duration: 0 } : {
                 type: 'spring',
@@ -232,7 +224,6 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                 damping: 28,
                 mass: 0.6,
                 opacity: { duration: 0.12 },
-                filter: { duration: 0.2 },
               }}
             >
               <div className={`rounded-xl shadow-sm overflow-hidden ${popoverBelow ? 'mt-0' : 'mb-2'} ${menuSurface}`}>
@@ -246,7 +237,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                         size="none"
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
-                        className="relative h-10 w-full justify-start gap-3 rounded-lg px-3.5 text-[13px] font-light text-gray-700 [app-region:no-drag] dark:text-neutral-300"
+                        className="relative h-10 w-full justify-start gap-3 rounded-lg px-3.5 text-[13px] font-light [app-region:no-drag]"
                         style={disableAnimations
                           ? { opacity: 1, animation: 'none' }
                           : {
@@ -258,7 +249,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                           <SvgIcon svg={Icon} size={16} />
                           <span className="flex-1 text-left">{item.label}</span>
                           {item.shortcut && (
-                            <span className="text-[11px] text-gray-400 dark:text-neutral-500">
+                            <span className="text-[11px] text-[var(--app-text-tertiary)]">
                               {item.shortcut}
                             </span>
                           )}

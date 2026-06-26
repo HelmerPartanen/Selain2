@@ -72,10 +72,10 @@ function SpaceRow({
         isActive
           ? hasTint
             ? ''
-            : 'bg-black/[0.06] dark:bg-white/[0.08] text-gray-900 dark:text-white'
+            : 'bg-[var(--app-control-active)] text-[var(--app-text-primary)]'
           : hasTint
             ? ''
-            : 'text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white'
+            : 'text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]'
       }`}
       style={{ ...animationStyle, ...tintStyle }}
     >
@@ -111,7 +111,7 @@ function SpaceRow({
 
       {/* Edit */}
       <div
-        className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] text-gray-600 dark:hover:text-neutral-300 transition-all duration-100"
+        className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-all duration-100"
         onClick={(e) => {
           e.stopPropagation()
           onEdit()
@@ -337,18 +337,13 @@ function SpaceSwitcherInner(): React.JSX.Element {
     isOpen: s.isSpaceSwitcherOpen,
     setOpen: s.setSpaceSwitcherOpen,
   })))
-  const { disableAnimations, disableBlurEffects, uiLayout } = useSettingsStore(useShallow((s) => ({
+  const { disableAnimations, uiLayout } = useSettingsStore(useShallow((s) => ({
     disableAnimations: s.disableAnimations,
-    disableBlurEffects: s.disableBlurEffects,
     uiLayout: s.uiLayout,
   })))
 const popoverBelow = uiLayout === 'classic'
   const { enterY, exitY } = getPopoverMotion(popoverBelow)
-  const popoverSurface = popoverBelow
-    ? 'bg-gray-200 dark:bg-neutral-800 border border-black/5 dark:border-white/5'
-    : disableBlurEffects
-      ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
-      : 'bg-white dark:bg-[#1D1F23]'
+  const popoverSurface = 'bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
 
@@ -448,7 +443,7 @@ const popoverBelow = uiLayout === 'classic'
           ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
           : undefined
       }
-      className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} flex items-center justify-center leading-none rounded-lg text-gray-600 dark:text-neutral-400 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-100 select-none`}
+      className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} flex items-center justify-center leading-none rounded-lg text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-colors duration-100 select-none`}
     >
       <span
         className="flex items-center justify-center"
@@ -494,9 +489,9 @@ const popoverBelow = uiLayout === 'classic'
                   {editingId && spaces[editingId] ? (
                             <motion.div
                       key={`edit-${editingId}`}
-                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
-                      animate={{ opacity: 1, scale: 1, filter: disableBlurEffects ? 'none' : 'blur(0px)' }}
-                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
                       transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                       <EditSpaceForm
@@ -507,9 +502,9 @@ const popoverBelow = uiLayout === 'classic'
                   ) : isCreating ? (
                     <motion.div
                       key="create"
-                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
-                      animate={{ opacity: 1, scale: 1, filter: disableBlurEffects ? 'none' : 'blur(0px)' }}
-                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
                       transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                       <NewSpaceForm
@@ -520,9 +515,9 @@ const popoverBelow = uiLayout === 'classic'
                   ) : (
                     <motion.div
                       key="list"
-                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
-                      animate={{ opacity: 1, scale: 1, filter: disableBlurEffects ? 'none' : 'blur(0px)' }}
-                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96, filter: disableBlurEffects ? 'none' : 'blur(4px)' }}
+                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
                       transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                     <div className="p-1 space-y-1">

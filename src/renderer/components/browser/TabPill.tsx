@@ -39,7 +39,7 @@ const ContextMenuItem = memo(function ContextMenuItem({
       className={`h-9 w-full justify-start gap-2.5 rounded-lg px-3.5 text-left text-[13px] font-light ${
         disabled
           ? 'opacity-40 cursor-not-allowed text-gray-700 dark:text-neutral-300'
-          : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+          : 'text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)]'
       }`}
     >
       {children}
@@ -163,8 +163,8 @@ export const TabRow = memo(function TabRow({
       onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e) }}
       className={`relative group flex h-10 w-full items-center justify-start gap-3 rounded-lg px-3.5 text-left font-light transition-all duration-150 ${
         isHighlighted
-          ? 'text-gray-900 dark:text-white bg-black/[0.04] dark:bg-white/[0.06]'
-          : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+          ? 'text-[var(--app-text-primary)] bg-[var(--app-control-active)]'
+          : 'text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)]'
       }`}
       style={{
         opacity: 0,
@@ -240,7 +240,6 @@ function TabPillInner(): React.JSX.Element {
   })))
   const tabCount = tabOrder.length
   const tabsButtonAction = useSettingsStore((s) => s.tabsButtonAction)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   useEffect(() => {
@@ -261,7 +260,7 @@ function TabPillInner(): React.JSX.Element {
           size="none"
           onClick={handleAddTab}
           aria-label="New tab"
-          className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
+          className="h-full aspect-square flex items-center justify-center text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <SvgIcon svg={plusSvg} size={14} />
         </Button>
@@ -277,7 +276,7 @@ function TabPillInner(): React.JSX.Element {
             }
           }}
           aria-label={tabsButtonAction === 'menu' ? 'Tab list' : 'Tab overview'}
-          className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
+          className="h-full aspect-square flex items-center justify-center text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
           <div className="relative">
         <div style={{ display: 'flex' }}>
@@ -306,7 +305,6 @@ function TabPillInner(): React.JSX.Element {
                 opacity: 0,
                 y: 10,
                 borderRadius: 40,
-                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
               animate={{
                 scaleX: 1,
@@ -314,7 +312,6 @@ function TabPillInner(): React.JSX.Element {
                 opacity: 1,
                 y: 0,
                 borderRadius: 16,
-                filter: disableBlurEffects ? 'none' : 'blur(0px)',
               }}
               exit={disableAnimations ? undefined : {
                 scaleX: 0.15,
@@ -322,7 +319,6 @@ function TabPillInner(): React.JSX.Element {
                 opacity: 0,
                 y: 10,
                 borderRadius: 40,
-                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }}
               transition={disableAnimations ? { duration: 0 } : {
                 type: 'spring',
@@ -330,10 +326,9 @@ function TabPillInner(): React.JSX.Element {
                 damping: 28,
                 mass: 0.6,
                 opacity: { duration: 0.12 },
-                filter: { duration: 0.2 },
               }}
             >
-              <div className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+              <div className="rounded-xl shadow-sm overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]">
                 <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1">
                   {tabOrder.map((id, index) => (
                     <TabRow

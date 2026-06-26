@@ -38,7 +38,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <div className={cn("relative flex h-full min-w-0 flex-1 items-center", containerClassName)}>
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex w-7 items-center justify-center">
           {leadingSlot ?? (
-            <span className="flex items-center justify-center text-gray-500 opacity-80 dark:text-neutral-400">
+            <span className="flex items-center justify-center text-[var(--app-text-secondary)]">
               <SvgIcon svg={searchSvg} size={14} />
             </span>
           )}
@@ -49,7 +49,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           type="search"
           value={value}
           className={cn(
-            "h-full min-w-0 flex-1 bg-transparent pl-7 pr-0 text-[13px] text-gray-900 outline-none placeholder:text-gray-400 focus:ring-0 dark:text-gray-100 dark:placeholder:text-neutral-500",
+            "h-full min-w-0 flex-1 bg-transparent pl-7 pr-0 text-[13px] text-[var(--app-text-primary)] outline-none placeholder:text-[var(--app-text-tertiary)] focus:ring-0",
             "[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
             showClear && "pr-8",
             className,
@@ -76,7 +76,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
                   event.stopPropagation();
                   onClear?.();
                 }}
-                className="!h-6 !w-6 !min-w-[24px] !p-0 text-gray-500 dark:text-neutral-400"
+                className="!h-6 !w-6 !min-w-[24px] !p-0 text-[var(--app-text-secondary)]"
                 aria-label={clearLabel}
               >
                 <SvgIcon svg={closeSvg} size={13} />

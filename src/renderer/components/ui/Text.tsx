@@ -11,11 +11,11 @@ interface TextProps extends HTMLAttributes<HTMLElement> {
 }
 
 const tones: Record<TextTone, string> = {
-  primary: "text-gray-900 dark:text-white",
-  secondary: "text-gray-700 dark:text-neutral-300",
-  muted: "text-gray-400 dark:text-neutral-500",
-  danger: "text-red-600 dark:text-red-400",
-  accent: "text-blue-600 dark:text-blue-400",
+  primary: "text-[var(--app-text-primary)]",
+  secondary: "text-[var(--app-text-secondary)]",
+  muted: "text-[var(--app-text-tertiary)]",
+  danger: "text-[var(--app-danger)]",
+  accent: "text-[var(--app-accent)]",
 };
 
 const sizes: Record<TextSize, string> = {

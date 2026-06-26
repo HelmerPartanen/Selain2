@@ -57,7 +57,6 @@ function AIFullscreenPageInner(): React.JSX.Element {
   const startSummary = useAIStore((s) => s.startSummary)
   const cancelSummary = useAIStore((s) => s.cancelSummary)
   const resetSummary = useAIStore((s) => s.resetSummary)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const isAIReady = aiStatus === 'ready'
   const isLoading = isSummarizing
@@ -154,7 +153,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
           transition={{ duration: 0.2 }}
         >
           {isPdfThinking && (
-            <div className="fixed bottom-20 left-1/2 z-[152] flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-black/10 bg-white/80 px-3 py-2 shadow-sm dark:border-white/10 dark:bg-[#1D1F23]/85">
+            <div className="fixed bottom-20 left-1/2 z-[152] flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-[var(--app-separator)] bg-[var(--app-bg-tertiary)] px-3 py-2 shadow-sm">
               {[0, 1, 2].map((dot) => (
                 <motion.span
                   key={dot}
@@ -179,7 +178,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   transition={{ duration: 0.2 }}
                 >
                   {/* Semi-transparent background for the overlay */}
-                  <div className={`absolute inset-0 ${disableBlurEffects ? 'bg-white dark:bg-[#121316]' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg'}`} />
+                  <div className="absolute inset-0 bg-[var(--app-bg-primary)]" />
 
                   {/* Summary content container */}
                   <motion.div
@@ -218,7 +217,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                 {/* Smart toggle button in glass pill */}
                 {!isLoading && isAIReady && (
                   <motion.div
-                    className={`pointer-events-auto rounded-full shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xs border border-black/5 dark:border-white/5'}`}
+                    className="pointer-events-auto rounded-full shadow-sm bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
@@ -241,7 +240,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   >
                     <motion.button
                       onClick={closeAIFullscreen}
-                      className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors duration-150 select-none"
+                      className="h-10 w-10 rounded-full flex items-center justify-center text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-colors duration-150 select-none"
                       aria-label="Close AI Summary"
                     >
                       <SvgIcon svg={closeSvg} size={18} />
@@ -260,14 +259,14 @@ function AIFullscreenPageInner(): React.JSX.Element {
               transition={{ duration: 0.3, delay: 0.1 }}
             >
               <div className="flex items-center justify-between px-6 py-4">
-                <span className="text-[11px] text-gray-400 dark:text-neutral-600 tabular-nums">
+                <span className="text-[11px] text-[var(--app-text-tertiary)] tabular-nums">
                   {wordCount} words
                 </span>
                 <div className="flex-1" />
                 <div className="flex items-center gap-2 pointer-events-auto">
                   <button
                     onClick={handleRegenerate}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-[var(--app-text-tertiary)] hover:text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] transition-colors duration-100"
                     aria-label="Regenerate"
                   >
                     <RefreshIcon />
@@ -275,7 +274,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   </button>
                   <button
                     onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-[var(--app-text-tertiary)] hover:text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] transition-colors duration-100"
                     aria-label="Copy summary"
                   >
                     <AnimatePresence mode="wait" initial={false}>

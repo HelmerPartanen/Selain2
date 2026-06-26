@@ -110,7 +110,6 @@ function FloatingControlsInner(): React.JSX.Element {
   );
 
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const { canGoBack, canGoForward } = useFocusedTabCanNavigate();
   const isSplit = useIsSplitView();
   const focusedPanel = useTabStore((s) => s.focusedPanel);
@@ -234,17 +233,17 @@ function FloatingControlsInner(): React.JSX.Element {
                 onMouseLeave={() => setIsHovered(false)}
               >
                 <div
-                  className="w-32 h-[5px] rounded-full bg-gray-500/80 dark:bg-neutral-300/70"
+                  className="w-32 h-[5px] rounded-full bg-[var(--app-text-tertiary)]"
                   style={{ animation: disableAnimations ? 'none' : 'hint-pulse 3s ease-in-out infinite' }}
                 />
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Floating controls — frosted glass surface with backdrop blur */}
+          {/* Floating controls surface */}
           <motion.div
             layout
-            className={`absolute bottom-2 p-1 rounded-xl [app-region:no-drag] pointer-events-auto shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-lg border border-black/5 dark:border-white/5'}`}
+            className="absolute bottom-2 p-1 rounded-xl [app-region:no-drag] pointer-events-auto bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             initial={disableAnimations ? undefined : { y: 40, scale: 0.85, opacity: 0 }}
             animate={
               isIdle
@@ -256,9 +255,9 @@ function FloatingControlsInner(): React.JSX.Element {
             onMouseLeave={() => setIsHovered(false)}
             style={{ height: FLOATING_CONTROL_HEIGHT, willChange: "transform, opacity" }}
           >
-            {/* Glass surface container with blur */}
+            {/* Surface container */}
             <div className="h-full">
-              {/* Pod constellation — separate glass pills with liquid morphing */}
+              {/* Pod constellation */}
               <div className="flex items-center gap-1.5 h-full max-w-[calc(100vw-40px)]">
 
                 {/* ── Menu + Spaces Pod ── */}
@@ -289,10 +288,9 @@ function FloatingControlsInner(): React.JSX.Element {
                       animate={{
                         opacity: canGoBack ? 1 : 0,
                         scale: canGoBack ? 1 : 0.85,
-                        filter: canGoBack ? "blur(0px)" : "blur(4px)",
                       }}
                       transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
-                      className="h-full aspect-square flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
+                      className="h-full aspect-square flex items-center justify-center transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none rounded-lg"
                     >
                       <SvgIcon svg={chevronLeftSvg} size={16} />
                     </Button>
@@ -317,10 +315,9 @@ function FloatingControlsInner(): React.JSX.Element {
                       animate={{
                         opacity: canGoForward ? 1 : 0,
                         scale: canGoForward ? 1 : 0.85,
-                        filter: canGoForward ? "blur(0px)" : "blur(4px)",
                       }}
                       transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
-                      className="h-full aspect-square rounded-lg flex items-center justify-center text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
+                      className="h-full aspect-square rounded-lg flex items-center justify-center transition-[background-color] duration-150 select-none disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
                     >
                       <SvgIcon svg={chevronRightSvg} size={16} />
                     </Button>
@@ -338,9 +335,9 @@ function FloatingControlsInner(): React.JSX.Element {
                     <motion.div
                       key="unsplit-pod"
                       className="flex items-center h-full rounded-full"
-                      initial={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                      animate={{ width: 'auto', scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                      exit={{ width: 0, scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                      initial={{ width: 0, scale: 0.7, opacity: 0 }}
+                      animate={{ width: 'auto', scale: 1, opacity: 1 }}
+                      exit={{ width: 0, scale: 0.7, opacity: 0 }}
                       transition={SPRING_EXPAND}
                       style={{ overflow: 'hidden' }}
                     >
@@ -350,11 +347,11 @@ function FloatingControlsInner(): React.JSX.Element {
                         onClick={handleUnsplit}
                         aria-label="Exit split view"
                         whileTap={{ scale: 0.85 }}
-                        initial={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
-                        animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-                        exit={{ scale: 0.7, opacity: 0, filter: 'blur(6px)' }}
+                        initial={{ scale: 0.7, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.7, opacity: 0 }}
                         transition={SPRING_EXPAND}
-                        className="h-full aspect-square rounded-lg flex items-center justify-center text-blue-500 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[background-color] duration-100 select-none"
+                        className="h-full aspect-square rounded-lg flex items-center justify-center text-[var(--app-accent)] transition-[background-color] duration-100 select-none"
                       >
                         <SvgIcon svg={unsplitSvg} size={15} />
                       </Button>
@@ -362,7 +359,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   )}
                 </AnimatePresence>
 
-                {/* ── Download Pill (self-contained, already glass-styled) ── */}
+                {/* ── Download Pill ── */}
                 {downloadCount > 0 && (
                   <Suspense fallback={null}>
                     <DownloadPill />
@@ -388,10 +385,10 @@ function FloatingControlsInner(): React.JSX.Element {
                   style={{ bottom: "100%", marginBottom: 6 }}
                 >
                   <div
-                    className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "primary" ? "bg-blue-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "primary" ? "bg-[var(--app-accent)]" : "bg-[var(--app-text-tertiary)]"}`}
                   />
                   <div
-                    className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "split" ? "bg-blue-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "split" ? "bg-[var(--app-accent)]" : "bg-[var(--app-text-tertiary)]"}`}
                   />
                 </motion.div>
               )}

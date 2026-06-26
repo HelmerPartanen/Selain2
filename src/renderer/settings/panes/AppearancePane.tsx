@@ -72,7 +72,7 @@ function AppearancePaneInner(): React.JSX.Element {
   active={isActive}
   className={`relative h-auto flex-1 flex-col gap-2 p-4 ${
     isActive
-      ? "!bg-black/10 hover:!bg-black/10 dark:!bg-white/10 dark:hover:!bg-white/10"
+      ? "!bg-[var(--app-control-active)] hover:!bg-[var(--app-control-active)]"
       : "!bg-transparent hover:!bg-transparent"
   }`}
 >

@@ -88,8 +88,8 @@ function PrimaryButton({
       className="px-4 py-2 rounded-lg text-[12px] font-medium transition-colors duration-100 hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
       style={
         variant === 'danger'
-          ? { background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }
-          : { background: 'rgb(255, 255, 255)', color: '#000000' }
+          ? { background: 'var(--app-danger-bg)', color: 'var(--app-danger)', border: '1px solid var(--app-danger)' }
+          : { background: 'var(--app-text-primary)', color: 'var(--app-bg-primary)' }
       }
     >
       {children}
@@ -101,7 +101,7 @@ function GhostButton({ onClick, children }: { onClick: () => void; children: Rea
   return (
     <button
       onClick={onClick}
-      className="px-3 py-1.5 rounded-full text-[11px] text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-100"
+      className="px-3 py-1.5 rounded-full text-[11px] text-[var(--app-text-tertiary)] hover:text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] transition-colors duration-100"
     >
       {children}
     </button>
@@ -154,7 +154,7 @@ function MissingOllamaScreen({ onRetry }: { onRetry: () => void }): React.JSX.El
 
         {info.command && (
           <div
-            className="mt-2 flex items-center gap-2 px-3 py-2 bg-black/[0.04] dark:bg-white/[0.05] rounded-lg w-full max-w-[290px]"
+            className="mt-2 flex items-center gap-2 px-3 py-2 bg-[var(--app-bg-secondary)] rounded-lg w-full max-w-[290px]"
           >
             <span className="text-[10px] text-gray-400 dark:text-neutral-500 font-mono select-all flex-1 text-left truncate">
               {info.command}
@@ -173,7 +173,7 @@ function ServiceDownScreen({ onRetry }: { onRetry: () => void }): React.JSX.Elem
     <SetupShell>
       <div
         className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-        style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
+        style={{ background: 'var(--app-bg-secondary)', border: '1px solid var(--app-separator)' }}
       >
         <SvgIcon svg={bookTextSvg} size={18} className="text-amber-500" />
       </div>
@@ -190,7 +190,7 @@ function ServiceDownScreen({ onRetry }: { onRetry: () => void }): React.JSX.Elem
       <div className="flex flex-col items-center gap-2">
         <div
           className="flex items-center gap-2 px-3 py-2 rounded-xl"
-          style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-subtle)' }}
+        style={{ background: 'var(--app-bg-secondary)', border: '1px solid var(--app-separator)' }}
         >
           <span className="text-[11px] text-gray-400 dark:text-neutral-400 font-mono select-all">
             ollama serve
@@ -259,7 +259,7 @@ function DownloadingScreen(): React.JSX.Element {
         {/* Progress bar */}
         <div
           className="w-full h-1.5 rounded-full overflow-hidden"
-          style={{ background: 'var(--glass-bg-heavy)' }}
+          style={{ background: 'var(--app-bg-secondary)' }}
         >
           <motion.div
             className="h-full rounded-full bg-blue-500"
@@ -296,7 +296,7 @@ function ErrorScreen({ onRetry }: { onRetry: () => void }): React.JSX.Element {
     <SetupShell>
       <div
         className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg"
-        style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}
+        style={{ background: 'var(--app-danger-bg)', border: '1px solid var(--app-danger)' }}
       >
         ⚠️
       </div>

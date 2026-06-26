@@ -12,8 +12,8 @@ import { Text } from '@/components/ui/Text'
 const SCROLLBAR_CSS = `
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+  ::-webkit-scrollbar-thumb { background: #2C2C2E; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #1C1C1E; }
 `
 
 const TAB_TRANSITION_MS = 100

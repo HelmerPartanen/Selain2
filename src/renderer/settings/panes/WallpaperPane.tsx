@@ -69,9 +69,9 @@ const SOLID_DATA_URLS_SET = new Set(SOLID_DATA_URL_MAP.values());
 const THUMB_BASE_CLASS =
   "relative flex-shrink-0 w-[180px] aspect-[16/10] rounded-lg overflow-hidden transition-all duration-150";
 const THUMB_RING_ACTIVE =
-  "ring-2 ring-blue-500/60 dark:ring-blue-400/60 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900";
+  "ring-2 ring-[var(--app-accent)] ring-offset-2 ring-offset-[var(--app-bg-primary)]";
 const THUMB_RING_INACTIVE =
-  "ring-1 ring-black/[0.06] dark:ring-white/[0.06] hover:ring-black/[0.12] dark:hover:ring-white/[0.12]";
+  "ring-1 ring-[var(--app-separator)] hover:ring-[var(--app-accent)]";
 const DYNAMIC_MODE_OPTIONS: Array<{
   mode: DynamicWallpaperMode;
   label: string;
@@ -219,7 +219,7 @@ const DynamicThumb = memo(function DynamicThumb({
         isActive={isActive}
         onSelect={() => onSelect(wallpaper.storageKey)}
       />
-      <div className="pointer-events-none absolute right-1 top-1 z-10 flex items-center gap-1.5 rounded-lg bg-white/85 px-2 py-1 text-[10px] font-medium text-gray-700 backdrop-blur-sm dark:bg-black/70 dark:text-neutral-200">
+      <div className="pointer-events-none absolute right-1 top-1 z-10 flex items-center gap-1.5 rounded-lg bg-[var(--app-bg-tertiary)] px-2 py-1 text-[10px] font-medium text-[var(--app-text-secondary)] border border-[var(--app-separator)]">
         <SvgIcon svg={dynamicSvg} size={16} />
       </div>
     </div>
@@ -321,7 +321,7 @@ const CustomThumb = memo(function CustomThumb({
         rounded="rounded-full"
         onClick={() => onRemove(item)}
         aria-label={`Remove custom wallpaper: ${item.name}`}
-        className="absolute right-2 top-2 z-10 bg-black/45 text-white backdrop-blur-md hover:bg-black/65"
+        className="absolute right-2 top-2 z-10 bg-[var(--app-bg-tertiary)] text-[var(--app-text-primary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)]"
       >
         <SvgIcon svg={trashSvg} size={13} />
       </Button>
@@ -393,7 +393,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
     <div className="space-y-3">
       <SectionHeader className="mb-0">Current Wallpaper</SectionHeader>
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative w-full sm:w-[260px] flex-shrink-0 aspect-[16/10] overflow-hidden rounded-xl bg-black/[0.06] dark:bg-white/[0.06] ring-1 ring-black/[0.06] dark:ring-white/[0.08]">
+        <div className="relative w-full sm:w-[260px] flex-shrink-0 aspect-[16/10] overflow-hidden rounded-xl bg-[var(--app-bg-secondary)] ring-1 ring-[var(--app-separator)]">
           {isDynamic ? (
             dynamicLayers.map((layer) => (
               <div
@@ -440,7 +440,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
                 {isMenuOpen && (
                   <div
                     role="menu"
-                    className="absolute left-0 top-[calc(100%+6px)] z-20 flex min-w-36 flex-col gap-1 rounded-xl p-1 shadow-sm bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-xl border border-black/5 dark:border-white/5"
+                    className="absolute left-0 top-[calc(100%+6px)] z-20 flex min-w-36 flex-col gap-1 rounded-xl p-1 shadow-sm bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
                   >
                     {DYNAMIC_MODE_OPTIONS.map((option) => (
                       <Button
@@ -455,8 +455,8 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
                         }}
                         className={`w-full justify-start text-left ${
                           dynamicMode === option.mode
-                            ? "text-gray-700 dark:text-white bg-black/[0.08] dark:bg-white/[0.10]"
-                            : "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
+                            ? "text-[var(--app-text-primary)] bg-[var(--app-control-active)]"
+                            : "text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)]"
                         }`}
                       >
                         {option.label}

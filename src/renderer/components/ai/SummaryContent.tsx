@@ -55,7 +55,7 @@ function parseInline(text: string): React.ReactNode[] {
       nodes.push(
         <code
           key={k++}
-          className="font-mono text-[14px] px-1.5 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.08] text-gray-700 dark:text-neutral-300"
+          className="font-mono text-[14px] px-1.5 py-0.5 rounded bg-[var(--app-bg-secondary)] text-[var(--app-text-secondary)]"
         >
           {m[3]}
         </code>
@@ -379,7 +379,7 @@ function ErrorContent(): React.JSX.Element {
     <div className="flex flex-col items-center justify-center gap-4 h-full text-center px-4">
       <motion.div
         className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-semibold"
-        style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}
+        style={{ background: 'var(--app-danger-bg)', border: '1px solid var(--app-danger)' }}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
@@ -435,7 +435,7 @@ export function SummaryContent({
             className="absolute inset-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.97, filter: 'blur(6px)' }}
+          exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <LoadingContent duration={loadingDuration} />
@@ -462,7 +462,7 @@ export function SummaryContent({
             {/* Summary metadata header */}
             {summary && (
               <motion.div
-                className="flex items-center gap-4 mb-4 pb-4 border-b border-black/[0.04] dark:border-white/[0.06]"
+                className="flex items-center gap-4 mb-4 pb-4 border-b border-[var(--app-separator)]"
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
@@ -492,8 +492,8 @@ export function SummaryContent({
               role="region"
               aria-label="AI Summary"
               aria-live="polite"
-              initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <MarkdownBody text={summary} />

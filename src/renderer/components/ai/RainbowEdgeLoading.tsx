@@ -3,7 +3,7 @@ import { CLASSIC_CHROME_HEIGHT } from '@/components/layout/layoutConstants'
 
 /**
  * Full-browser summarizing indicator.
- * Adds a blurred rotating conic glow behind the inset browser area.
+ * Adds a solid animated accent border around the inset browser area.
  */
 export function RainbowEdgeLoading(): React.JSX.Element {
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
@@ -33,12 +33,8 @@ export function RainbowEdgeLoading(): React.JSX.Element {
           }}
         >
           <div
-            className="absolute -inset-[26%] rounded-[16px]"
+            className="absolute inset-0 rounded-[10px] border-2 border-[var(--app-accent)]"
             style={{
-              background:
-                'conic-gradient(from 0deg, rgba(59,130,246,0.08), rgba(59,130,246,0.95), rgba(255,255,255,0.75), rgba(59,130,246,0.95), rgba(59,130,246,0.08))',
-              filter: 'blur(18px)',
-              opacity: 0.95,
               animation: disableAnimations ? undefined : 'summary-glow-spin 2.6s linear infinite',
             }}
           />

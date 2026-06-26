@@ -50,7 +50,7 @@ function sleep(ms: number): Promise<void> {
 // ─── New Tab Placeholder ─────────────────────────────────────────────────────
 
 const NEWTAB_GRADIENT =
-  'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.10) 100%)'
+  'linear-gradient(135deg, var(--app-bg-secondary) 0%, var(--app-bg-tertiary) 100%)'
 
 // ─── TabCard ─────────────────────────────────────────────────────────────────
 
@@ -147,7 +147,7 @@ const TabCard = memo(function TabCard({
           )}
 
           {/* Hover overlay */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 dark:group-hover:bg-white/5 transition-colors duration-150" />
+          <div className="absolute inset-0 group-hover:bg-[var(--app-control-hover)] transition-colors duration-150" />
           <Button
             variant="ghost"
             size="none"
@@ -194,14 +194,14 @@ const TabCard = memo(function TabCard({
       <div className="flex items-center gap-1.5 mt-2 px-1">
         <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
           {preview.isLoading ? (
-            <SvgIcon svg={SPINNER_SVG} size={12} className="animate-spin text-white/40" />
+            <SvgIcon svg={SPINNER_SVG} size={12} className="animate-spin text-[var(--app-text-tertiary)]" />
           ) : preview.favicon ? (
             <img src={preview.favicon} alt="" className="w-3.5 h-3.5 rounded-sm" draggable={false} />
           ) : (
-            <SvgIcon svg={globeSvg} size={12} className="text-white/40" />
+            <SvgIcon svg={globeSvg} size={12} className="text-[var(--app-text-tertiary)]" />
           )}
         </div>
-        <span className="flex-1 text-[11px] text-white/60 truncate">{title}</span>
+        <span className="flex-1 text-[11px] text-[var(--app-text-secondary)] truncate">{title}</span>
         {preview.isPlayingMedia && (
           <SvgIcon svg={soundFillSvg} size={11} className="flex-shrink-0 text-blue-400" />
         )}
@@ -218,7 +218,6 @@ function TabOverviewInner(): React.JSX.Element {
     closeOverview: s.closeTabOverview,
   })))
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const activeTabId = useTabStore((s) => s.activeTabId)
   const [previews, setPreviews] = useState<TabPreview[]>([])
   const [query, setQuery] = useState('')
@@ -444,7 +443,7 @@ function TabOverviewInner(): React.JSX.Element {
           {/* Backdrop — solid overlay */}
           <motion.div
             key="tab-overview-backdrop"
-            className={`fixed inset-0 z-[90] bg-black/70 ${disableBlurEffects ? '' : 'backdrop-blur-sm'}`}
+            className="fixed inset-0 z-[90] bg-[var(--app-bg-primary)]"
             initial={disableAnimations ? undefined : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={disableAnimations ? undefined : { opacity: 0 }}
@@ -464,11 +463,11 @@ function TabOverviewInner(): React.JSX.Element {
           >
             {/* Header */}
             <div className="mb-8 flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-white/90 tracking-tight">
+              <h2 className="text-xl font-semibold text-[var(--app-text-primary)] tracking-tight">
                 {previews.length} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
               </h2>
               <div
-                className={`mt-4 h-[42px] flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white/90 dark:bg-[#1D1F23]/80 border border-black/5 dark:border-white/5'}`}
+                className="mt-4 h-[42px] flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 <SearchInput
@@ -484,15 +483,15 @@ function TabOverviewInner(): React.JSX.Element {
                   size="none"
                   onClick={toggleSelecting}
                   whileTap={{ scale: 0.96 }}
-                  className="h-full px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                  className="h-full px-3 rounded-lg flex items-center gap-2 text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-[background-color,color] duration-150 select-none"
                   title={isSelecting ? 'Exit selection' : 'Select tabs'}
                   aria-label={isSelecting ? 'Exit selection mode' : 'Enter selection mode'}
                   style={{
-                    background: isSelecting ? 'rgba(43, 127, 255, 0.08)' : undefined,
+                    background: isSelecting ? 'var(--app-control-active)' : undefined,
                   }}
                 >
                   <span className="flex h-5 w-5 items-center justify-center">
-                    <SvgIcon svg={checkSvg} size={14} className={isSelecting ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-neutral-300'} />
+                    <SvgIcon svg={checkSvg} size={14} className={isSelecting ? 'text-blue-600 dark:text-blue-400' : 'text-[var(--app-text-secondary)]'} />
                   </span>
                   <span className="text-[12px] font-medium">Select</span>
                 </Button>
@@ -502,7 +501,7 @@ function TabOverviewInner(): React.JSX.Element {
                       variant="ghost"
                       size="none"
                       onClick={handleSleepSelected}
-                      className="h-full px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                      className="h-full px-3 rounded-lg flex items-center gap-2 text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-[background-color,color] duration-150 select-none"
                       title={`Sleep ${selectedIds.size} selected`}
                     >
                       <SvgIcon svg={bedSvg} size={14} />
@@ -523,7 +522,7 @@ function TabOverviewInner(): React.JSX.Element {
                         variant="ghost"
                         size="none"
                         onClick={() => setIsMoveMenuOpen((open) => !open)}
-                        className="h-[32px] px-3 rounded-lg flex items-center gap-2 text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] hover:text-gray-900 dark:hover:bg-white/[0.06] dark:hover:text-white transition-[background-color,color] duration-150 select-none"
+                        className="h-[32px] px-3 rounded-lg flex items-center gap-2 text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-[background-color,color] duration-150 select-none"
                         title="Move selected tabs to space"
                         aria-label="Move selected tabs to space"
                         aria-expanded={isMoveMenuOpen}
@@ -547,7 +546,6 @@ function TabOverviewInner(): React.JSX.Element {
                                 opacity: 0,
                                 y: -8,
                                 borderRadius: 40,
-                                filter: disableBlurEffects ? 'none' : 'blur(6px)',
                               }}
                               animate={{
                                 scaleX: 1,
@@ -555,7 +553,6 @@ function TabOverviewInner(): React.JSX.Element {
                                 opacity: 1,
                                 y: 0,
                                 borderRadius: 16,
-                                filter: disableBlurEffects ? 'none' : 'blur(0px)',
                               }}
                               exit={disableAnimations ? undefined : {
                                 scaleX: 0.15,
@@ -563,7 +560,6 @@ function TabOverviewInner(): React.JSX.Element {
                                 opacity: 0,
                                 y: -8,
                                 borderRadius: 40,
-                                filter: disableBlurEffects ? 'none' : 'blur(6px)',
                               }}
                               transition={disableAnimations ? { duration: 0 } : {
                                 type: 'spring',
@@ -571,11 +567,10 @@ function TabOverviewInner(): React.JSX.Element {
                                 damping: 28,
                                 mass: 0.6,
                                 opacity: { duration: 0.12 },
-                                filter: { duration: 0.2 },
                               }}
                               onMouseDown={(e) => e.stopPropagation()}
                             >
-                              <div className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'}`}>
+                              <div className="rounded-xl shadow-sm overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]">
                                 <div className="p-0 relative">
                                   {moveSpaceOptions.map((space, idx) => (
                                     <Button
@@ -585,7 +580,7 @@ function TabOverviewInner(): React.JSX.Element {
                                       onClick={() => handleMoveSelectedToSpace(space.id)}
                                       onMouseEnter={() => setHoveredMoveSpaceIdx(idx)}
                                       onMouseLeave={() => setHoveredMoveSpaceIdx(null)}
-                                      className="w-full rounded-xl flex items-center gap-3 px-3.5 h-[42px] text-[13px] font-light text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150 relative [app-region:no-drag]"
+                                      className="w-full rounded-xl flex items-center gap-3 px-3.5 h-[42px] text-[13px] font-light text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)] transition-all duration-150 relative [app-region:no-drag]"
                                       style={disableAnimations
                                         ? { opacity: 1, animation: 'none' }
                                         : {
@@ -600,7 +595,7 @@ function TabOverviewInner(): React.JSX.Element {
                                     </Button>
                                   ))}
                                   {moveSpaceOptions.length === 0 && (
-                                    <div className="px-3.5 h-full flex items-center text-[13px] text-gray-500 dark:text-neutral-400">
+                                    <div className="px-3.5 h-full flex items-center text-[13px] text-[var(--app-text-secondary)]">
                                       No spaces available
                                     </div>
                                   )}
@@ -639,7 +634,7 @@ function TabOverviewInner(): React.JSX.Element {
               <AnimatePresence mode={disableAnimations ? 'sync' : 'popLayout'} initial={!disableAnimations}>
                 {Object.entries(groupedPreviews).map(([group, items]) => (
                   <div key={group} className="contents">
-                    <div className="col-span-full text-[12px] uppercase tracking-wider text-white/45 mt-2">{group}</div>
+                    <div className="col-span-full text-[12px] uppercase tracking-wider text-[var(--app-text-secondary)] mt-2">{group}</div>
                     {items.map((preview, i) => (
                       <TabCard
                         key={preview.id}
@@ -677,11 +672,11 @@ function TabOverviewInner(): React.JSX.Element {
                   onClick={handleNewTab}
                   className="w-full rounded-lg overflow-hidden
                     flex flex-col items-center justify-center gap-2 transition-all duration-200
-                    bg-white/90 dark:bg-[#1D1F23]/80 hover:opacity-70 dark:hover:opacity-100 dark:hover:brightness-120 active:scale-[0.97]"
+                    bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] active:scale-[0.97]"
                 >
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
-                    <SvgIcon svg={plusSvg} size={22} className="text-neutral-700 dark:text-neutral-400" />
-                    <span className="text-[13px] font-medium text-neutral-700 dark:text-neutral-400">New Tab</span>
+                    <SvgIcon svg={plusSvg} size={22} className="text-[var(--app-text-secondary)]" />
+                    <span className="text-[13px] font-medium text-[var(--app-text-secondary)]">New Tab</span>
                   </div>
                 </Button>
               </div>

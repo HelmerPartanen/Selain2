@@ -39,8 +39,8 @@ function Win11ControlButton({
 }): React.JSX.Element {
   const hoverClass =
     variant === "close"
-      ? "hover:bg-[#C42B1C] hover:text-white dark:hover:bg-[#C42B1C] dark:hover:text-white"
-      : "hover:bg-[#E5E5E5] dark:hover:bg-[#3B3B3B]";
+      ? "hover:bg-[var(--app-danger)] hover:text-white"
+      : "hover:bg-[var(--app-control-hover)]";
 
   return (
     <Button
@@ -48,7 +48,7 @@ function Win11ControlButton({
       size="none"
       onClick={onClick}
       aria-label={label}
-      className={`w-[46px] h-10 flex items-center justify-center text-black dark:text-white transition-colors duration-75 ${hoverClass}`}
+      className={`w-[46px] h-10 flex items-center justify-center text-[var(--app-text-primary)] transition-colors duration-75 ${hoverClass}`}
     >
       {children}
     </Button>
@@ -63,8 +63,6 @@ function WindowControlsInner({
   const [isVisible, setIsVisible] = useState(false);
 
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);
-
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects);
 
   const [isMaximized, setIsMaximized] = useState(false);
 
@@ -178,11 +176,11 @@ function WindowControlsInner({
                 : "hint-pulse 3s ease-in-out infinite",
             }}
           >
-            <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+            <div className="w-[5px] h-[5px] rounded-full bg-[var(--app-text-tertiary)]" />
 
-            <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+            <div className="w-[5px] h-[5px] rounded-full bg-[var(--app-text-tertiary)]" />
 
-            <div className="w-[5px] h-[5px] rounded-full bg-gray-400 dark:bg-neutral-500" />
+            <div className="w-[5px] h-[5px] rounded-full bg-[var(--app-text-tertiary)]" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -190,7 +188,7 @@ function WindowControlsInner({
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className={`-mt-1 -mr-1 flex items-center rounded-l-lg overflow-hidden ${disableBlurEffects ? "bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10" : "bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5"}`}
+            className="-mt-1 -mr-1 flex items-center rounded-l-lg overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
             style={{ pointerEvents: "auto" }}
             initial={
               disableAnimations ? undefined : { opacity: 0, scale: 0.85, y: -6 }
@@ -206,8 +204,8 @@ function WindowControlsInner({
             <ControlButton
               onClick={handleMinimize}
               label="Minimize"
-              hoverBg="hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
-              hoverText="hover:text-gray-700 dark:hover:text-gray-300"
+              hoverBg="hover:bg-[var(--app-control-hover)]"
+              hoverText="hover:text-[var(--app-text-primary)]"
             >
               <SvgIcon svg={minusSvg} size={12} />
             </ControlButton>
@@ -215,8 +213,8 @@ function WindowControlsInner({
             <ControlButton
               onClick={handleToggleMaximize}
               label={isMaximized ? "Restore" : "Maximize"}
-              hoverBg="hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
-              hoverText="hover:text-gray-600 dark:hover:text-gray-300"
+              hoverBg="hover:bg-[var(--app-control-hover)]"
+              hoverText="hover:text-[var(--app-text-primary)]"
             >
               {isMaximized ? (
                 <SvgIcon svg={windowedSvg} size={12} />
@@ -228,8 +226,8 @@ function WindowControlsInner({
             <ControlButton
               onClick={handleClose}
               label="Close"
-              hoverBg="hover:bg-red-500/15 dark:hover:bg-red-400/10"
-              hoverText="hover:text-red-500 dark:hover:text-red-400"
+              hoverBg="hover:bg-[var(--app-danger-bg)]"
+              hoverText="hover:text-[var(--app-danger)]"
             >
               <SvgIcon svg={closeSvg} size={12} />
             </ControlButton>
@@ -268,7 +266,7 @@ function ControlButton({
       onClick={onClick}
       aria-label={label}
       transition={SPRING_SNAPPY}
-      className={`relative w-9 h-9 flex items-center justify-center text-gray-500 dark:text-neutral-400 transition-colors duration-100 ${hoverBg} ${hoverText}`}
+      className={`relative w-9 h-9 flex items-center justify-center text-[var(--app-text-secondary)] transition-colors duration-100 ${hoverBg} ${hoverText}`}
     >
       <span className="relative z-10">{children}</span>
     </Button>

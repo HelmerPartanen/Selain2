@@ -12,11 +12,11 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const variants: Record<CardVariant, string> = {
   plain: "bg-transparent",
   surface:
-    "bg-white dark:bg-[#242629]",
+    "bg-[var(--app-bg-tertiary)] text-[var(--app-text-primary)]",
   interactive:
-    "bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors duration-150",
+    "bg-[var(--app-grouped-bg-secondary)] hover:bg-[var(--app-control-hover)] text-[var(--app-text-primary)] transition-colors duration-150",
   elevated:
-    "bg-white dark:bg-[#2F3134] shadow-md",
+    "bg-[var(--app-bg-tertiary)] text-[var(--app-text-primary)] border border-[var(--app-separator)]",
 };
 
 const paddings: Record<CardPadding, string> = {
@@ -47,7 +47,7 @@ export const Sheet = forwardRef<HTMLDivElement, SheetProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-xl bg-white dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06]",
+        "rounded-xl bg-[var(--app-grouped-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]",
         inset && "p-1",
         className,
       )}

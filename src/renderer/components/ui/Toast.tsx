@@ -64,11 +64,11 @@ function ToastContainerInner(): React.JSX.Element {
         {items.map((toast) => (
           <motion.div
             key={toast.id}
-            initial={{ opacity: 0, x: 60, scale: 0.9, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, x: 60, scale: 0.9, filter: 'blur(6px)' }}
+            initial={{ opacity: 0, x: 60, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 60, scale: 0.9 }}
             transition={SPRING}
-            className="pointer-events-auto relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl glass-heavy min-w-[280px] max-w-[400px]"
+            className="pointer-events-auto relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)] min-w-[280px] max-w-[400px]"
           >
             {/* Auto-dismiss progress strip */}
             <motion.div

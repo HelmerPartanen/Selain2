@@ -20,7 +20,6 @@ function ReadingToolsButtonInner(): React.JSX.Element {
     })),
   )
 
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   const [hovered, setHovered] = useState(false)
@@ -37,12 +36,10 @@ function ReadingToolsButtonInner(): React.JSX.Element {
   const isOpening = open && !closing
   const expanded = hovered || open || closing
 
-  const surfaceClass = disableBlurEffects
-    ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
-    : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
+  const surfaceClass = 'bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
 
   const toolButtonClass =
-    'h-[42px] w-[42px] rounded-xl flex items-center justify-center text-gray-700 dark:text-neutral-300 transition-colors duration-100 select-none hover:brightness-90 dark:hover:brightness-120 shrink-0'
+    'h-[42px] w-[42px] rounded-xl flex items-center justify-center transition-colors duration-100 select-none hover:bg-[var(--app-control-hover)] shrink-0'
 
   // -------------------------
   // HOVER

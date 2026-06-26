@@ -94,7 +94,7 @@ export function UIComponentsContent(): React.JSX.Element {
             aria-label="Invalid example"
             readOnly
           />
-          <div className="h-10 rounded-xl border border-black/10 px-3 dark:border-white/10">
+          <div className="h-10 rounded-xl border border-[var(--app-separator)] px-3">
             <SearchInput
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -177,8 +177,8 @@ export function UIComponentsContent(): React.JSX.Element {
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           <Swatch className="bg-blue-400" label="Primary" />
           <Swatch className="bg-red-500" label="Danger" />
-          <Swatch className="bg-black/[0.08] dark:bg-white/[0.10]" label="Muted fill" />
-          <Swatch className="bg-white dark:bg-[#1D1F23]" label="Surface" />
+          <Swatch className="bg-[var(--app-control-hover)]" label="Muted fill" />
+          <Swatch className="bg-[var(--app-bg-tertiary)]" label="Surface" />
         </div>
       </div>
 

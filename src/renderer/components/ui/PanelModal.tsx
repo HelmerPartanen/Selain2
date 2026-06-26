@@ -1,7 +1,7 @@
 // \u2500\u2500\u2500 PanelModal \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 // Shared structural shell for all modal panels (Bookmarks, History,
-// Downloads, Settings). Provides: frosted glass surface, backdrop blur,
-// genie-entrance animation, and Escape key dismissal.
+// Downloads, Settings). Provides: solid panel surface, entrance animation,
+// and Escape key dismissal.
 //
 // Z-index contract:
 //   z-[80]  \u2014 dimmed backdrop
@@ -63,7 +63,6 @@ export function PanelModal({
   const panelRef = useRef<HTMLDivElement | null>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const modalIdRef = useRef(`modal-${Math.random().toString(36).slice(2, 10)}`)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   useEffect(() => {
@@ -139,7 +138,7 @@ export function PanelModal({
     <>
       {/* Dimmed backdrop \u2014 click-away closes the panel */}
       <motion.div
-        className="fixed inset-0 z-[80] bg-black/40 dark:bg-black/50"
+        className="fixed inset-0 z-[80] bg-[var(--app-bg-primary)]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -158,7 +157,7 @@ export function PanelModal({
           aria-modal={aria['aria-modal']}
           aria-label={aria['aria-label']}
           tabIndex={-1}
-          className={`${disableBlurEffects ? 'rounded-xl overflow-hidden shadow-sm bg-neutral-100 dark:bg-[#121316] border border-black/10 dark:border-white/10' : 'rounded-xl overflow-hidden shadow-sm bg-neutral-100 dark:bg-[#121316] border border-black/5 dark:border-white/5'} [app-region:no-drag] pointer-events-auto ${className}`}
+          className={`rounded-xl overflow-hidden bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)] [app-region:no-drag] pointer-events-auto ${className}`}
           style={{ width, height, transformOrigin: '50% 100%', perspective: 800 }}
           initial={disableAnimations ? undefined : PANEL_INITIAL}
           animate={PANEL_ANIMATE}

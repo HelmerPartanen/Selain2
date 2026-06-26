@@ -34,21 +34,21 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   ghost:
-    "text-gray-600 dark:text-neutral-300 bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/[0.03]",
+    "text-[var(--app-text-secondary)] bg-transparent hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]",
   solid:
-    "text-blue-500 dark:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 dark:bg-blue-400/20 dark:hover:bg-blue-400/10",
+    "text-[var(--app-accent)] bg-[var(--app-bg-secondary)] hover:bg-[var(--app-control-active)]",
   subtle:
-    "text-gray-700 dark:text-neutral-300 bg-black/5 dark:bg-white/15 hover:bg-black/10 dark:hover:bg-white/10",
+    "text-[var(--app-text-primary)] bg-[var(--app-bg-secondary)] hover:bg-[var(--app-control-active)]",
   primary:
-    "text-white bg-blue-500 hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500",
+    "text-white bg-[var(--app-accent)] hover:bg-[var(--app-accent-hover)]",
   danger:
-    "text-red-500 dark:text-red-300 bg-red-500/10 dark:bg-red-400/15 hover:bg-red-500/20 dark:hover:bg-red-400/10",
+    "text-[var(--app-danger)] bg-[var(--app-danger-bg)] hover:bg-[var(--app-control-active)]",
   icon:
-    "text-gray-600 dark:text-neutral-300 bg-transparent hover:bg-black/[0.03] dark:hover:bg-white/[0.03]",
+    "text-[var(--app-text-secondary)] bg-transparent hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]",
   link:
-    "text-blue-500 dark:text-blue-400 bg-transparent hover:underline",
+    "text-[var(--app-accent)] bg-transparent hover:underline",
   segment:
-    "text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-400 data-[active=true]:text-gray-700 data-[active=true]:dark:text-white data-[active=true]:bg-white data-[active=true]:dark:bg-white/15",
+    "text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] data-[active=true]:text-[var(--app-text-primary)] data-[active=true]:bg-[var(--app-bg-tertiary)]",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -87,7 +87,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
         data-active={active ? "true" : "false"}
         className={cn(
           "inline-flex items-center justify-center gap-2 select-none whitespace-nowrap font-medium transition-colors duration-150",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]",
           "disabled:cursor-not-allowed disabled:opacity-40 disabled:pointer-events-none",
           rounded,
           sizeStyles[resolvedSize],

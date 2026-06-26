@@ -149,8 +149,8 @@ function FavouriteTile({
       className={`absolute flex flex-col items-center justify-center gap-1.5 rounded-xl
         transition-colors border duration-100 group cursor-default select-none
         ${highlighted
-          ? 'bg-white/20 border-neutral-200/50'
-          : 'hover:bg-white/10 border-transparent hover:border-neutral-200/20'}
+          ? 'bg-[var(--app-bg-tertiary)] border-[var(--app-separator)]'
+          : 'hover:bg-[var(--app-control-hover)] border-transparent hover:border-[var(--app-separator)]'}
         }`}
       style={{
         width: TILE_W,
@@ -180,10 +180,10 @@ function FavouriteTile({
             }}
           />
         ) : (
-          <SvgIcon svg={globeSvg} size={20} className="text-black/40 dark:text-white/40" />
+          <SvgIcon svg={globeSvg} size={20} className="text-[var(--app-text-tertiary)]" />
         )}
       </div>
-        <span className="text-[11px] font-medium text-white truncate w-full text-center pointer-events-none px-1 [text-shadow:0_0px_2px_rgba(0,0,0,1)]">
+        <span className="text-[11px] font-medium text-[var(--app-text-primary)] truncate w-full text-center pointer-events-none px-1">
         {hostname}
       </span>
     </motion.div>
@@ -281,7 +281,7 @@ function ContinueSection(): React.JSX.Element | null {
 
   return (
     <div className="mt-6 space-y-2">
-      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white [text-shadow:0_0px_2px_rgba(0,0,0,1)]">
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--app-text-primary)]">
         Continue where you left off
       </div>
       <div className="space-y-1.5">
@@ -302,16 +302,16 @@ function ContinueSection(): React.JSX.Element | null {
                 handleOpenInNewTab(entry.url)
               }
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-full glass bg-black/10 hover:bg-black/18 text-left transition-colors duration-120"
+            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] text-left transition-colors duration-120"
           >
             <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
               {entry.favicon ? (
                 <img src={entry.favicon} alt="" className="w-4 h-4 rounded-sm" />
               ) : (
-                <SvgIcon svg={globeSvg} size={14} className="text-white/60" />
+                <SvgIcon svg={globeSvg} size={14} className="text-[var(--app-text-tertiary)]" />
               )}
             </span>
-            <span className="flex-1 min-w-0 text-[12px] text-white/90 truncate">
+            <span className="flex-1 min-w-0 text-[12px] text-[var(--app-text-primary)] truncate">
               {entry.title || simplifyUrl(entry.url)}
             </span>
           </button>
@@ -362,7 +362,7 @@ function FrequentSection(): React.JSX.Element | null {
 
   return (
     <div className="mt-6 space-y-2">
-      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white [text-shadow:0_0px_2px_rgba(0,0,0,1)]">
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--app-text-primary)]">
         Frequent sites
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -383,7 +383,7 @@ function FrequentSection(): React.JSX.Element | null {
                 handleOpenInNewTab(data.url)
               }
             }}
-            className="px-3 py-1.5 rounded-full glass bg-black/10 hover:bg-black/18 text-[11px] text-white/80 transition-colors duration-120"
+            className="px-3 py-1.5 rounded-full bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] text-[11px] text-[var(--app-text-secondary)] transition-colors duration-120"
           >
             {host}
           </button>

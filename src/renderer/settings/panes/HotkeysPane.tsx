@@ -23,7 +23,7 @@ const ShortcutRow = memo(function ShortcutRow({
             onMouseLeave={() => setHovered(false)}
             onFocus={() => setHovered(true)}
             onBlur={() => setHovered(false)}
-            className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-xl hover:bg-black/[0.04] hover:dark:bg-white/[0.06] transition-all duration-150"
+            className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-xl hover:bg-[var(--app-control-hover)] transition-all duration-150"
         >
             <span className="relative text-[13px] text-gray-700 dark:text-neutral-300 z-10">{description}</span>
             <div className="relative z-10">
@@ -85,7 +85,7 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
 
 function KeyBadge({ label }: { label: string }): React.JSX.Element {
     return (
-        <span className="inline-flex items-center justify-center h-[24px] min-w-[24px] px-1.5 rounded-md bg-black/5 dark:bg-white/5 text-[11px] font-semibold text-gray-500 dark:text-neutral-400 leading-none">
+        <span className="inline-flex items-center justify-center h-[24px] min-w-[24px] px-1.5 rounded-md bg-[var(--app-bg-secondary)] text-[11px] font-semibold text-[var(--app-text-secondary)] leading-none">
             {label}
         </span>
     )

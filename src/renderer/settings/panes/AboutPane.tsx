@@ -20,12 +20,12 @@ function AboutPaneInner(): React.JSX.Element {
           <Text as="span" size="caption" tone="muted">Chromium</Text>
           <Text as="span" size="caption" tone="secondary" className="tabular-nums">{chromeVersion}</Text>
         </div>
-        <div className="h-px bg-black/[0.04] dark:bg-white/[0.04]" />
+        <div className="h-px bg-[var(--app-separator)]" />
         <div className="flex items-center justify-between text-[12px]">
           <Text as="span" size="caption" tone="muted">Electron</Text>
           <Text as="span" size="caption" tone="secondary" className="tabular-nums">42.3.3</Text>
         </div>
-        <div className="h-px bg-black/[0.04] dark:bg-white/[0.04]" />
+        <div className="h-px bg-[var(--app-separator)]" />
         <div className="flex items-center justify-between text-[12px]">
           <Text as="span" size="caption" tone="muted">DRM</Text>
           <Text as="span" size="caption" tone="secondary">Widevine</Text>

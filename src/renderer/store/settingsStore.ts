@@ -51,8 +51,6 @@ export interface SettingsState {
 
   /** Disable non-essential UI animations */
   disableAnimations: boolean
-  /** Disable blur and translucent effects */
-  disableBlurEffects: boolean
   /** Two-finger horizontal trackpad swipe behavior */
   twoFingerSwipeAction: TwoFingerSwipeAction
 
@@ -82,7 +80,6 @@ export interface SettingsActions {
   setEnableAdblocker: (v: boolean) => void
   setSyncSplitScrolling: (v: boolean) => void
   setDisableAnimations: (v: boolean) => void
-  setDisableBlurEffects: (v: boolean) => void
   setTwoFingerSwipeAction: (v: TwoFingerSwipeAction) => void
   setTabsButtonAction: (v: TabsButtonAction) => void
   setUiLayout: (v: UiLayout) => void
@@ -113,7 +110,6 @@ export const useSettingsStore = create<SettingsStore>()(
       enableAdblocker: true,
       syncSplitScrolling: false,
       disableAnimations: false,
-      disableBlurEffects: false,
       twoFingerSwipeAction: 'tabs' as TwoFingerSwipeAction,
       tabsButtonAction: 'overview' as TabsButtonAction,
       uiLayout: 'floating' as UiLayout,
@@ -136,7 +132,6 @@ export const useSettingsStore = create<SettingsStore>()(
       setEnableAdblocker: (v) => set({ enableAdblocker: v }),
       setSyncSplitScrolling: (v) => set({ syncSplitScrolling: v }),
       setDisableAnimations: (v) => set({ disableAnimations: v }),
-      setDisableBlurEffects: (v) => set({ disableBlurEffects: v }),
       setTwoFingerSwipeAction: (v) => set({ twoFingerSwipeAction: v }),
       setTabsButtonAction: (v) => set({ tabsButtonAction: v }),
       setUiLayout: (v) => set({ uiLayout: v }),

@@ -162,8 +162,8 @@ const TabStripItem = memo(function TabStripItem({
             : "px-3 gap-2"
       } ${
         isHighlighted
-          ? "bg-white dark:bg-white/[0.12] text-gray-900 dark:text-white"
-          : "bg-transparent hover:bg-black/[0.04] dark:bg-transparent dark:hover:bg-white/[0.06] text-gray-600 dark:text-neutral-400"
+          ? "bg-[var(--app-bg-tertiary)] text-[var(--app-text-primary)]"
+          : "bg-transparent hover:bg-[var(--app-control-hover)] text-[var(--app-text-secondary)]"
       }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
@@ -236,7 +236,7 @@ const TabStripItem = memo(function TabStripItem({
           className={`flex-shrink-0 w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity ${
             pinned
               ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-400 hover:bg-black/10 dark:hover:bg-white/10"
+              : "text-[var(--app-text-tertiary)] hover:bg-[var(--app-control-hover)]"
           }`}
           onClick={pinned ? undefined : handleClose}
           title={pinned ? "Unpin to close" : "Close tab"}
@@ -263,8 +263,6 @@ function TabStripInner(): React.JSX.Element {
 
   const tabsButtonAction = useSettingsStore((s) => s.tabsButtonAction);
 
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects);
-
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);
 
   const menuOpen = useUIStore((s) => s.isTabStripMenuOpen);
@@ -280,10 +278,6 @@ function TabStripInner(): React.JSX.Element {
     x: number;
     y: number;
   } | null>(null);
-
-  const trailingSurface = disableBlurEffects
-    ? "bg-gray-100 dark:bg-neutral-900"
-    : "bg-gray-100/95 dark:bg-neutral-900/95";
 
   useEffect(() => {
     const el = tabsContainerRef.current;
@@ -388,7 +382,7 @@ function TabStripInner(): React.JSX.Element {
             transition={disableAnimations ? { duration: 0 } : SPRING_POPUP}
           >
             <div
-              className={`rounded-xl shadow-sm overflow-hidden ${disableBlurEffects ? "bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10" : "bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5"}`}
+              className="rounded-xl shadow-sm overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             >
               <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1 scrollbar-none">
                 {tabOrder.map((id, index) => (

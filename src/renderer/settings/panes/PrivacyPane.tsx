@@ -39,7 +39,6 @@ interface ProfileBackup {
     showNewTabFrequentSection: boolean
     enableAdblocker: boolean
     disableAnimations: boolean
-    disableBlurEffects: boolean
     uiLayout?: 'floating' | 'classic'
   }
 }
@@ -78,7 +77,6 @@ function PrivacyPaneInner(): React.JSX.Element {
         showNewTabFrequentSection: s.showNewTabFrequentSection,
         enableAdblocker: s.enableAdblocker,
         disableAnimations: s.disableAnimations,
-        disableBlurEffects: s.disableBlurEffects,
         uiLayout: s.uiLayout,
       },
     }
@@ -121,7 +119,6 @@ function PrivacyPaneInner(): React.JSX.Element {
         if (typeof st.showNewTabFrequentSection === 'boolean') s.setShowNewTabFrequentSection(st.showNewTabFrequentSection)
         if (typeof st.enableAdblocker === 'boolean') s.setEnableAdblocker(st.enableAdblocker)
         if (typeof st.disableAnimations === 'boolean') s.setDisableAnimations(st.disableAnimations)
-        if (typeof st.disableBlurEffects === 'boolean') s.setDisableBlurEffects(st.disableBlurEffects)
         if (st.uiLayout === 'floating' || st.uiLayout === 'classic') s.setUiLayout(st.uiLayout)
       }
 
@@ -208,8 +205,8 @@ function PrivacyPaneInner(): React.JSX.Element {
               }}
               className={`cursor-pointer text-left transition-colors ${
                 privacyProfile === id
-                  ? '!bg-emerald-500/10 dark:bg-green-500/10 hover:bg-emerald-500/15 dark:hover:bg-green-400/15 text-emerald-600 dark:text-green-500'
-                  : 'text-gray-700 dark:text-neutral-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]'
+                  ? '!bg-[var(--app-control-active)] text-emerald-600 dark:text-green-500'
+                  : 'text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)]'
               }`}
             >
               <Text as="div" size="label" className="text-inherit">

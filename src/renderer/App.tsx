@@ -52,12 +52,10 @@ function useGlobalErrorHandlers(): void {
 
 function useGraphicsMode(): void {
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
 
   useEffect(() => {
     document.documentElement.dataset.disableMotion = String(disableAnimations)
-    document.documentElement.dataset.disableBlur = String(disableBlurEffects)
-  }, [disableAnimations, disableBlurEffects])
+  }, [disableAnimations])
 }
 
 export default function App(): React.JSX.Element {

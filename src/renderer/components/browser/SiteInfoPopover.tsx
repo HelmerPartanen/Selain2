@@ -48,7 +48,6 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
   const resetOrigin = useSitePermissionsStore((s) => s.resetOrigin)
 
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
 
   useEffect(() => {
     if (!isOpen || !origin) {
@@ -149,7 +148,6 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 opacity: 0,
                 y: enterY,
                 borderRadius: 40,
-                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }
         }
         animate={{
@@ -158,7 +156,6 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
           opacity: 1,
           y: 0,
           borderRadius: 16,
-          filter: disableBlurEffects ? 'none' : 'blur(0px)',
         }}
         exit={
           disableAnimations
@@ -169,7 +166,6 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 opacity: 0,
                 y: exitY,
                 borderRadius: 40,
-                filter: disableBlurEffects ? 'none' : 'blur(6px)',
               }
         }
         transition={
@@ -181,16 +177,11 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 damping: 28,
                 mass: 0.6,
                 opacity: { duration: 0.12 },
-                filter: { duration: 0.2 },
               }
         }
       >
         <div
-          className={`rounded-xl mb-2 shadow-sm overflow-hidden ${
-            disableBlurEffects
-              ? 'bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10'
-              : 'bg-white dark:bg-[#1D1F23] border border-black/5 dark:border-white/5'
-          }`}
+          className="rounded-xl mb-2 shadow-sm overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
         >
           <div className="p-1 relative">
             <div className="p-3">

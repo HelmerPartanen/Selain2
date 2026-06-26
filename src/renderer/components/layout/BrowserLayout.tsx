@@ -109,7 +109,7 @@ const isPresetWallpaperKey = (value: string): boolean =>
 
 function PanelLoadingFallback(): React.JSX.Element {
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/20">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
       <div
         className="w-8 h-8 rounded-full border-2 border-blue-400/60 border-t-blue-400 animate-spin"
         aria-hidden
@@ -126,7 +126,7 @@ function MainContentErrorFallback({
   onNewTab: () => void;
 }): React.JSX.Element {
   return (
-    <div className="absolute inset-0 z-[90] flex items-center justify-center bg-black/40">
+    <div className="absolute inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
       <Card variant="elevated" padding="lg" className="max-w-sm text-center">
         <div className="text-3xl mb-3">âš ï¸</div>
         <Text as="h3" size="title" tone="primary" className="mb-2">
@@ -718,28 +718,10 @@ function BrowserLayoutInner(): React.JSX.Element {
                 WebkitMaskComposite: "xor",
               }}
             >
-              {/* Rotating glow */}
+              {/* Solid loading border */}
               <div
-                className="absolute left-1/2 top-1/2 aspect-square rounded-full"
+                className="absolute inset-0 rounded-[10px] border-2 border-[var(--app-accent)]"
                 style={{
-                  width: "180%",
-
-                  background: `
-              conic-gradient(
-                from 0deg,
-                transparent 0deg,
-                transparent 300deg,
-                rgba(230,59,246,0.15) 320deg,
-                rgba(230, 59, 246, 0.95) 340deg,
-                rgba(96,165,250,1) 350deg,
-                rgba(59,130,246,0.95) 360deg
-              )
-            `,
-
-                  filter: "blur(22px)",
-                  opacity: 1,
-
-                  transform: "translate(-50%, -50%)",
                   transformOrigin: "50% 50%",
                   willChange: "transform",
 

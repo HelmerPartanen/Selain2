@@ -51,17 +51,11 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);
 
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects);
-
   const [isUrlBarFocused, setIsUrlBarFocused] = useState(false);
 
-  const chromeSurface = disableBlurEffects
-    ? "bg-gray-100 dark:bg-neutral-900 border-black/10 dark:border-white/10"
-    : "bg-gray-100/95 dark:bg-neutral-900/95 backdrop-blur-md border-black/5 dark:border-white/5";
+  const chromeSurface = "bg-[var(--app-bg-secondary)] border-[var(--app-separator)]";
 
-  const toolbarSurface = disableBlurEffects
-    ? "bg-white dark:bg-[#1D1F23] border-black/10 dark:border-white/10"
-    : "bg-white dark:bg-[#1D1F23] border-black/5 dark:border-white/5";
+  const toolbarSurface = "bg-[var(--app-bg-tertiary)] border-[var(--app-separator)]";
 
   return (
     <div
@@ -115,7 +109,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
         <div className="flex-1 min-w-0 flex items-center">
           <div
-            className={`w-full min-w-0 rounded-lg bg-black/[0.06] dark:bg-white/[0.06] ${
+            className={`w-full min-w-0 rounded-lg bg-[var(--app-bg-tertiary)] ${
               isUrlBarFocused
                 ? ""
                 : ""
@@ -161,11 +155,11 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
               className="flex gap-1.5 px-1 flex-shrink-0"
             >
               <div
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${focusedPanel === "primary" ? "bg-blue-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+    className={`w-1.5 h-1.5 rounded-full transition-colors ${focusedPanel === "primary" ? "bg-[var(--app-accent)]" : "bg-[var(--app-text-tertiary)]"}`}
               />
 
               <div
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${focusedPanel === "split" ? "bg-blue-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+    className={`w-1.5 h-1.5 rounded-full transition-colors ${focusedPanel === "split" ? "bg-[var(--app-accent)]" : "bg-[var(--app-text-tertiary)]"}`}
               />
             </motion.div>
           )}

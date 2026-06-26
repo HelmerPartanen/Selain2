@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) return this.props.fallback
 
       return (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
           <Card variant="elevated" padding="lg" className="max-w-sm text-center">
             <div className="mb-3 text-3xl">!</div>
             <Text as="h3" size="title" tone="primary" className="mb-2">

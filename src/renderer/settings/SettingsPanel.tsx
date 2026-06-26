@@ -117,7 +117,7 @@ function Sidebar({
   className={cn(
     "relative h-auto w-full justify-start gap-3 rounded-lg py-2.5",
     isActive &&
-      "!bg-black/10 !text-gray-900 shadow-sm hover:!bg-black/10 dark:!bg-white/[0.10] dark:!text-white dark:hover:!bg-white/[0.10]"
+      "!bg-[var(--app-control-active)] !text-[var(--app-text-primary)] shadow-sm hover:!bg-[var(--app-control-active)]"
   )}
 >
   <span
@@ -164,7 +164,7 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <div className="flex h-full overflow-hidden">
         <div className="flex-shrink-0 h-full">
-          <div className="w-[240px] h-full bg-white dark:bg-white/5 flex flex-col overflow-hidden">
+          <div className="w-[240px] h-full bg-[var(--app-grouped-bg-primary)] flex flex-col overflow-hidden">
             <div className="p-1">
             </div>
             <div className="flex-1 px-1.5 pb-4 overflow-y-auto">
@@ -177,7 +177,7 @@ function SettingsPanelInner(): React.JSX.Element {
         </div>
 
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: '1px solid var(--app-separator)' }}>
             <AnimatePresence mode="wait">
               <motion.h3
                 key={activeCategory}
@@ -185,7 +185,7 @@ function SettingsPanelInner(): React.JSX.Element {
                 animate={{ opacity: 1, y: 0 }}
                 exit={disableAnimations ? undefined : { opacity: 0, y: -4 }}
                 transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
-                className="text-[15px] font-medium text-gray-900 dark:text-white tracking-relaxed"
+                className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-relaxed"
               >
                 {categoryLabel}
               </motion.h3>

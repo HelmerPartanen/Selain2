@@ -89,7 +89,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
     .reader-content blockquote {
       margin: 2em 0;
       padding: 0.1em 0 0.1em 1.25em;
-      border-left: 3px solid rgba(0,0,0,0.15);
+      border-left: 3px solid var(--app-separator);
       font-style: italic;
       color: inherit;
     }
@@ -99,15 +99,15 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
     .reader-content code {
       font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
       font-size: 0.84em;
-      background: rgba(0,0,0,0.055);
+      background: var(--app-bg-secondary);
       border-radius: 3px;
       padding: 0.15em 0.38em;
       letter-spacing: -0.01em;
       color: inherit;
     }
     .reader-content pre {
-      background: rgba(0,0,0,0.04);
-      border: 1px solid rgba(0,0,0,0.08);
+      background: var(--app-bg-secondary);
+      border: 1px solid var(--app-separator);
       border-radius: 6px;
       padding: 1.1em 1.3em;
       overflow-x: auto;
@@ -130,7 +130,7 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
     /* ─── Horizontal rules ───────────────────────────────────────────── */
     .reader-content hr {
       border: none;
-      border-top: 1px solid rgba(0,0,0,0.1);
+      border-top: 1px solid var(--app-separator);
       margin: 2.5em auto;
       width: 40%;
     }
@@ -149,19 +149,19 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
       font-size: 0.8em;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      border-bottom: 2px solid rgba(0,0,0,0.12);
+      border-bottom: 2px solid var(--app-separator);
       padding: 0.5em 0.75em 0.5em 0;
       color: #444;
     }
     .reader-content td {
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      border-bottom: 1px solid var(--app-separator);
       padding: 0.6em 0.75em 0.6em 0;
       vertical-align: top;
       color: inherit;
     }
 
     /* ─── Selection ──────────────────────────────────────────────────── */
-    .reader-content ::selection { background: rgba(26,107,204,0.18); }
+    .reader-content ::selection { background: var(--app-control-active); }
 
     /* ─── Scroll container ───────────────────────────────────────────── */
     .reader-scroll {
@@ -175,18 +175,18 @@ if (typeof document !== 'undefined' && !document.getElementById(READER_STYLE_ID)
     .dark .reader-content a { color: #5b9cf6; }
     .dark .reader-content a:hover { color: #85b5f8; }
     .dark .reader-content figcaption { color: #8a8a8a; }
-    .dark .reader-content blockquote { border-left-color: rgba(255,255,255,0.15); }
-    .dark .reader-content hr { border-top-color: rgba(255,255,255,0.1); }
-    .dark .reader-content code { background: rgba(255,255,255,0.08); }
+    .dark .reader-content blockquote { border-left-color: var(--app-separator); }
+    .dark .reader-content hr { border-top-color: var(--app-separator); }
+    .dark .reader-content code { background: var(--app-bg-secondary); }
     .dark .reader-content pre {
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.08);
+      background: var(--app-bg-secondary);
+      border-color: var(--app-separator);
     }
     .dark .reader-content th {
-      border-bottom-color: rgba(255,255,255,0.12);
+      border-bottom-color: var(--app-separator);
       color: #aaa;
     }
-    .dark .reader-content td { border-bottom-color: rgba(255,255,255,0.06); }
+    .dark .reader-content td { border-bottom-color: var(--app-separator); }
     .dark .reader-content li::marker { color: #666; }
 
     /* ─── Reduced motion ─────────────────────────────────────────────── */
@@ -252,7 +252,6 @@ function ReaderModePageInner(): React.JSX.Element {
     closeReaderMode: s.closeReaderMode,
   })))
   const focusedTabId = useFocusedTabId()
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const [article, setArticle] = useState<ReaderArticle | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -301,9 +300,7 @@ function ReaderModePageInner(): React.JSX.Element {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [isOpen, closeReaderMode])
 
-  const surfaceClass = disableBlurEffects
-    ? 'bg-[#FAFAF8] dark:bg-[#111213] border border-black/10 dark:border-white/10'
-    : 'bg-[#FAFAF8] dark:bg-[#18191C] border border-black/5 dark:border-white/5'
+  const surfaceClass = 'bg-[var(--app-bg-primary)] border border-[var(--app-separator)]'
 
   const spring = disableAnimations ? { duration: 0 } : SPRING
   const contentSpring = disableAnimations ? { duration: 0 } : SPRING_CONTENT
@@ -347,13 +344,13 @@ function ReaderModePageInner(): React.JSX.Element {
                 aria-label="Close reader mode"
                 whileTap={{ scale: 0.86 }}
                 transition={snappy}
-                className="h-9 w-9 rounded-full flex items-center justify-center text-gray-500 dark:text-neutral-400 hover:bg-black/[0.05] dark:hover:bg-white/[0.07] transition-colors"
+                className="h-9 w-9 rounded-full flex items-center justify-center text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-colors"
               >
                 <SvgIcon svg={closeSvg} size={15} />
               </motion.button>
             </motion.div>
 
-            <div className="flex-1 min-h-0 reader-scroll px-6 pb-10 text-[#1a1a1a] dark:text-[#e8e8e6]">
+            <div className="flex-1 min-h-0 reader-scroll px-6 pb-10 text-[var(--app-text-primary)]">
               {isLoading && <ReaderLoadingState disableAnimations={disableAnimations} />}
 
               {!isLoading && error && (
@@ -382,8 +379,8 @@ function ReaderModePageInner(): React.JSX.Element {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ ...contentSpring, delay: disableAnimations ? 0 : 0.18 }}
                 >
-                  <header className="mb-10 pb-8 border-b border-black/[0.08] dark:border-white/[0.08]">
-                    <h1 className="text-[1.9rem] font-bold leading-[1.22] tracking-[-0.022em] text-[#111111] dark:text-[#f0f0ee] mb-4">
+                  <header className="mb-10 pb-8 border-b border-[var(--app-separator)]">
+                    <h1 className="text-[1.9rem] font-bold leading-[1.22] text-[var(--app-text-primary)] mb-4">
                       {article.title}
                     </h1>
                     {article.byline && (

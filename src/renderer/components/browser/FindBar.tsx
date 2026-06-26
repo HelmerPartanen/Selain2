@@ -136,7 +136,7 @@ function FindBarInner(): React.JSX.Element {
       exit={{ y: -40, opacity: 0, scale: 0.95 }}
       transition={SPRING_POPUP}
     >
-      <div className="flex items-center gap-1 rounded-xl h-9 px-2 glass-heavy">
+      <div className="flex items-center gap-1 rounded-xl h-9 px-2 bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]">
         <TextInput
           ref={inputRef}
           type="text"

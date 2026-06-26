@@ -35,7 +35,6 @@ const TOTAL_STEPS = 4
 // Three soft radial-gradient circles float behind content.
 // Positions + hues shift per step with very slow springs so the
 // background feels alive without being distracting.
-// Using radial-gradient avoids expensive filter:blur — GPU-friendly.
 
 interface OrbDef {
   x: string
@@ -99,14 +98,14 @@ function AmbientOrbs({ step }: { step: number }): React.JSX.Element {
 function ProgressBar({ step, total }: { step: number; total: number }): React.JSX.Element {
   return (
     <div
-      className="w-48 h-[3px] rounded-full bg-gray-200/50 dark:bg-neutral-700/30 overflow-hidden"
+      className="w-48 h-[3px] rounded-full bg-[var(--app-bg-secondary)] overflow-hidden"
       role="progressbar"
       aria-valuenow={step + 1}
       aria-valuemin={1}
       aria-valuemax={total}
     >
       <motion.div
-        className="h-full rounded-full bg-gray-400/60 dark:bg-white/20"
+        className="h-full rounded-full bg-[var(--app-accent)]"
         animate={{ width: `${((step + 1) / total) * 100}%` }}
         transition={SPRING}
       />
@@ -139,12 +138,11 @@ function StaggeredWords({
           key={`${word}-${i}`}
           className="inline-block"
           style={{ marginRight: '0.28em' }}
-          initial={{ opacity: 0, y: 22, filter: 'blur(4px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{
             opacity: { duration: 0.55, delay: delay + i * stagger, ease: EASE_OUT },
             y: { ...SPRING_GENTLE, delay: delay + i * stagger },
-            filter: { duration: 0.45, delay: delay + i * stagger, ease: EASE_OUT },
           }}
         >
           {word}
@@ -335,9 +333,9 @@ function AppearanceStep(): React.JSX.Element {
                 transition-[background-color,box-shadow] duration-200 ease-out
                 ${selected
                   ? /* selected: white card elevated off the tray */
-                    'bg-white dark:bg-neutral-700 shadow-[0_2px_8px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]'
+                    'bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]'
                   : /* unselected: nearly flush with tray; lifts on hover */
-                    'bg-transparent hover:bg-white/70 dark:hover:bg-neutral-700/50 hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)] dark:hover:shadow-[0_2px_10px_rgba(0,0,0,0.3)]'
+                    'bg-transparent hover:bg-[var(--app-control-hover)]'
                 }
               `}
               aria-pressed={selected}
@@ -359,7 +357,7 @@ function AppearanceStep(): React.JSX.Element {
               <AnimatePresence>
                 {selected && (
                   <motion.span
-                    className="pointer-events-none absolute inset-0 rounded-[16px] bg-blue-500/[0.04] dark:bg-blue-400/[0.06]"
+                    className="pointer-events-none absolute inset-0 rounded-[16px] bg-[var(--app-control-active)]"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -449,7 +447,7 @@ function PrivacyStep(): React.JSX.Element {
         {PRIVACY_FEATURES.map(({ text, detail }, i) => (
           <motion.div
             key={text}
-            className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/60 dark:bg-neutral-800/50 border border-gray-100 dark:border-neutral-700/50 text-left"
+            className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-left"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ ...SPRING_GENTLE, delay: 0.48 + i * 0.1 }}
@@ -606,10 +604,10 @@ function OnboardingWindowControls(): React.JSX.Element {
           {hoveredIdx === 0 && (
             <motion.div
               layoutId="window-controls-hover"
-              className="absolute inset-0 rounded-full glass glass-interactive"
-              initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-              animate={{ opacity: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, filter: 'blur(2px)' }}
+              className="absolute inset-0 rounded-full bg-[var(--app-control-hover)]"
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={SPRING_SNAPPY}
             />
           )}
@@ -628,10 +626,10 @@ function OnboardingWindowControls(): React.JSX.Element {
           {hoveredIdx === 1 && (
             <motion.div
               layoutId="window-controls-hover"
-              className="absolute inset-0 rounded-full glass glass-interactive"
-              initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-              animate={{ opacity: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, filter: 'blur(2px)' }}
+              className="absolute inset-0 rounded-full bg-[var(--app-control-hover)]"
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={SPRING_SNAPPY}
             />
           )}
@@ -652,10 +650,10 @@ function OnboardingWindowControls(): React.JSX.Element {
           {hoveredIdx === 2 && (
             <motion.div
               layoutId="window-controls-hover"
-              className="absolute inset-0 rounded-full glass glass-interactive"
-              initial={{ opacity: 0.5, filter: 'blur(2px)' }}
-              animate={{ opacity: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, filter: 'blur(2px)' }}
+              className="absolute inset-0 rounded-full bg-[var(--app-control-hover)]"
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={SPRING_SNAPPY}
             />
           )}

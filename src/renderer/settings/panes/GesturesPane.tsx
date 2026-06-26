@@ -16,7 +16,7 @@ function GestureVisualization({
   type: "swipe-horizontal" | "pinch-in" | "pinch-out";
 }): React.JSX.Element {
   // Removed the 'absolute' from the base class so we can use it in flex containers safely
-  const baseFinger = "w-4 h-4 rounded-full bg-white dark:bg-white/70";
+  const baseFinger = "w-4 h-4 rounded-full bg-[var(--app-text-primary)]";
 
   // Standardized keyframe transition:
   // 1. Fade in & press down (0 -> 15%)
@@ -126,7 +126,7 @@ function GestureVisualization({
       </div>
 
       {/* Trackpad visualizer */}
-      <div className="relative mt-2 h-32 w-48 rounded-lg bg-black/[0.08] dark:bg-white/[0.10] overflow-hidden shrink-0 shadow-inner">
+      <div className="relative mt-2 h-32 w-48 rounded-lg bg-[var(--app-bg-secondary)] overflow-hidden shrink-0 shadow-inner">
         {/* Trackpad surface detail */}
         <div
           className="absolute inset-0 opacity-[0.03] dark:opacity-5 mix-blend-overlay"

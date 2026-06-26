@@ -14,7 +14,6 @@ import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_2_Fill.svg?raw'
 import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
-import { useSettingsStore } from '@/store/settingsStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useSpaceStore } from '@/store/spaceStore'
@@ -81,7 +80,6 @@ function URLBarInner({
   const url = useFocusedTabUrl()
   const { isLoading } = useFocusedTabNavState()
   const updateTab = useTabStore((s) => s.updateTab)
-  const disableBlurEffects = useSettingsStore((s) => s.disableBlurEffects)
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState('')
   const deferredInputValue = useDeferredValue(inputValue)
@@ -418,17 +416,13 @@ function URLBarInner({
       : 'top-full mt-2.5'
     : 'bottom-full mb-2.5'
 
-  const autocompleteSurface = isClassic
-    ? 'border border-black/5 bg-gray-200 dark:border-white/5 dark:bg-neutral-800'
-    : disableBlurEffects
-      ? 'border border-black/10 bg-white dark:border-white/10 dark:bg-[#121316]'
-      : 'border border-black/5 bg-white dark:border-white/5 dark:bg-[#1D1F23]'
+  const autocompleteSurface = 'border border-[var(--app-separator)] bg-[var(--app-bg-tertiary)] text-[var(--app-text-primary)]'
 
   const shellClassName = [
     'relative flex max-w-full min-w-0 items-center overflow-hidden rounded-xl transition-colors duration-150',
     isClassic ? 'h-8 w-full px-0.5' : 'h-10 px-1',
     isClassic && isFocused
-      ? 'bg-black/[0.04] dark:bg-white/[0.08]'
+      ? 'bg-[var(--app-control-hover)]'
       : '',
   ]
     .filter(Boolean)
@@ -507,7 +501,7 @@ function URLBarInner({
           }}
           leadingSlot={
             iconKey === 'search' ? (
-              <span className="flex items-center justify-center text-gray-500 opacity-80 dark:text-neutral-400">
+              <span className="flex items-center justify-center text-[var(--app-text-secondary)]">
                 <SvgIcon svg={searchSvg} size={14} />
               </span>
             ) : (
@@ -515,7 +509,7 @@ function URLBarInner({
                 variant="icon"
                 size="none"
                 type="button"
-                className="pointer-events-auto flex h-6 w-6 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-black/[0.05] hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:text-neutral-400 dark:hover:bg-white/[0.08] dark:hover:text-white"
+                className="pointer-events-auto flex h-6 w-6 items-center justify-center rounded-md text-[var(--app-text-secondary)] transition-colors hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)]"
                 aria-label="Site information"
                 onMouseDown={(e) => {
                   e.preventDefault()
@@ -655,15 +649,15 @@ function URLBarInner({
                     onMouseLeave={() => setHoveredIdx(null)}
                     className={`relative flex h-9 w-full min-w-0 items-center gap-2.5 rounded-lg px-3 text-left transition-colors duration-75 ${
                       isActive || isHovered
-                        ? 'bg-black/[0.05] text-gray-900 dark:bg-white/[0.08] dark:text-white'
-                        : 'text-gray-600 dark:text-neutral-400'
+                        ? 'bg-[var(--app-control-hover)] text-[var(--app-text-primary)]'
+                        : 'text-[var(--app-text-secondary)]'
                     }`}
                   >
                     {entry.type === 'search' ? (
                       <SvgIcon
                         svg={searchSvg}
                         size={14}
-                        className="shrink-0 text-gray-400 dark:text-neutral-500"
+                        className="shrink-0 text-[var(--app-text-tertiary)]"
                       />
                     ) : entry.favicon ? (
                       <img
@@ -675,7 +669,7 @@ function URLBarInner({
                       <SvgIcon
                         svg={counterclockwiseSvg}
                         size={14}
-                        className="shrink-0 text-gray-400 dark:text-neutral-500"
+                        className="shrink-0 text-[var(--app-text-tertiary)]"
                       />
                     )}
 
@@ -684,7 +678,7 @@ function URLBarInner({
                     </span>
 
                     {(entry.type === 'history' || entry.type === 'bookmark') && (
-                      <span className="hidden max-w-[160px] shrink truncate text-[10px] text-gray-400 dark:text-neutral-600 sm:block">
+                      <span className="hidden max-w-[160px] shrink truncate text-[10px] text-[var(--app-text-tertiary)] sm:block">
                         {simplifyUrl(entry.url)}
                       </span>
                     )}
@@ -692,7 +686,7 @@ function URLBarInner({
                     {entry.type &&
                       entry.type !== 'search' &&
                       entry.type !== 'command' && (
-                        <span className="hidden shrink-0 text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-600 md:block">
+                        <span className="hidden shrink-0 text-[10px] uppercase tracking-wide text-[var(--app-text-tertiary)] md:block">
                           {entry.type === 'history'
                             ? 'History'
                             : entry.type === 'bookmark'
@@ -712,7 +706,7 @@ function URLBarInner({
 
               {suggestionsUnavailable && (
                 <div
-                  className="mt-1 border-t border-black/5 px-3 py-2 text-[11px] text-gray-500 dark:border-white/5 dark:text-neutral-400"
+                  className="mt-1 border-t border-[var(--app-separator)] px-3 py-2 text-[11px] text-[var(--app-text-secondary)]"
                   role="status"
                 >
                   {suggestionsUnavailable === 'offline'
