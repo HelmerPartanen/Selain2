@@ -68,24 +68,24 @@ const HistoryRow = memo(function HistoryRow({
         {entry.favicon ? (
           <img src={entry.favicon} alt="" className="w-6 h-6" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
-          <SvgIcon svg={globeSvg} size={28} className="text-gray-400 dark:text-neutral-500" />
+          <SvgIcon svg={globeSvg} size={28} className="text-[var(--app-text-tertiary)]" />
         )}
       </div>
       <div className="flex-1 min-w-0 z-10">
-        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+        <div className="text-sm font-medium text-[var(--app-text-primary)] truncate">
           {entry.title || simplifyUrl(entry.url)}
         </div>
-        <div className="text-xs text-gray-500 dark:text-neutral-500 truncate">
+        <div className="text-xs text-[var(--app-text-tertiary)] truncate">
           {simplifyUrl(entry.url)}
         </div>
       </div>
-      <span className="flex-shrink-0 text-[11px] text-gray-400 dark:text-neutral-600 z-10">
+      <span className="flex-shrink-0 text-[11px] text-[var(--app-text-tertiary)] z-10">
         {formatTime(entry.timestamp)}
       </span>
       <Button
-        variant="danger"
+        variant="ghost"
         size="icon-sm"
-        rounded="rounded-full"
+        rounded="rounded-lg"
         onClick={(e) => {
           e.stopPropagation()
           onRemove(entry.url)
@@ -118,24 +118,24 @@ const RecentlyClosedRow = memo(function RecentlyClosedRow({
       onClick={onReopen}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer transition-all duration-150"
+      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-[var(--app-hover-bg)] cursor-pointer transition-all duration-150"
     >
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {tab.favicon ? (
           <img src={tab.favicon} alt="" className="w-6 h-6" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
-          <SvgIcon svg={globeSvg} size={28} className="text-gray-400 dark:text-neutral-500" />
+          <SvgIcon svg={globeSvg} size={28} className="text-[var(--app-text-tertiary)]" />
         )}
       </div>
       <div className="flex-1 min-w-0 z-10">
-        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+        <div className="text-sm font-medium text-[var(--app-text-primary)] truncate">
           {tab.title || simplifyUrl(tab.url)}
         </div>
-        <div className="text-xs text-gray-500 dark:text-neutral-500 truncate">
+        <div className="text-xs text-[var(--app-text-tertiary)] truncate">
           {simplifyUrl(tab.url)}
         </div>
       </div>
-      <span className="flex-shrink-0 text-[11px] text-blue-500 dark:text-blue-400 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+      <span className="flex-shrink-0 text-[11px] text-[var(--app-accent)] z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
         Open
       </span>
     </m.div>
@@ -253,8 +253,8 @@ function HistoryPanelInner(): React.JSX.Element {
       height="650px"
       className="flex flex-col"
     >
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+      <div className="flex items-center justify-between px-6 pt-3 pb-3 flex-shrink-0">
+        <h2 className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-tight flex items-center gap-2">
           <SvgIcon svg={counterclockwiseSvg} size={16} />
           History
         </h2>
@@ -262,7 +262,7 @@ function HistoryPanelInner(): React.JSX.Element {
           {clearButton}
           <Button
             variant="icon"
-            rounded="rounded-full"
+            rounded="rounded-lg"
             onClick={closeHistory}
             aria-label="Close history"
           >
@@ -274,7 +274,7 @@ function HistoryPanelInner(): React.JSX.Element {
       {entries.length > 0 && (
         <div className="px-6 pt-4 pb-2 flex-shrink-0">
           <div className="relative">
-            <SvgIcon svg={searchSvg} size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500" />
+            <SvgIcon svg={searchSvg} size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--app-text-tertiary)]" />
             <TextInput
               type="text"
               value={query}
@@ -289,7 +289,7 @@ function HistoryPanelInner(): React.JSX.Element {
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 glass-scroll" onScroll={handleScroll}>
         {entries.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-neutral-600">
+          <div className="flex flex-col items-center justify-center py-16 text-[var(--app-text-tertiary)]">
             <SvgIcon svg={counterclockwiseSvg} size={40} className="mb-3 opacity-50" />
             <p className="text-sm">No history yet</p>
             <p className="text-xs mt-1 opacity-70">Pages you visit will appear here</p>
@@ -297,7 +297,7 @@ function HistoryPanelInner(): React.JSX.Element {
         ) : searchResults ? (
           <div className="space-y-0.5">
             {searchResults.length === 0 ? (
-              <p className="text-center text-sm text-gray-400 dark:text-neutral-600 py-8">No results</p>
+              <p className="text-center text-sm text-[var(--app-text-tertiary)] py-8">No results</p>
             ) : (
               searchResults.slice(0, renderLimit).map((entry, i) => (
                 <HistoryRow
@@ -310,7 +310,7 @@ function HistoryPanelInner(): React.JSX.Element {
               ))
             )}
             {searchResults.length > renderLimit && (
-              <div className="px-3 py-2 text-xs text-gray-500 dark:text-neutral-500">
+              <div className="px-3 py-2 text-xs text-[var(--app-text-tertiary)]">
                 Loading more… ({renderLimit}/{searchResults.length})
               </div>
             )}
@@ -343,7 +343,7 @@ function HistoryPanelInner(): React.JSX.Element {
               </GroupBox>
             ))}
             {hasMoreHistory && (
-              <div className="px-3 py-2 text-xs text-gray-500 dark:text-neutral-500 text-center">
+              <div className="px-3 py-2 text-xs text-[var(--app-text-tertiary)] text-center">
                 Loading more…
               </div>
             )}
