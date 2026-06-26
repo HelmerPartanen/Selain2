@@ -343,7 +343,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
   })))
 const popoverBelow = uiLayout === 'classic'
   const { enterY, exitY } = getPopoverMotion(popoverBelow)
-  const popoverSurface = 'bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
+  const popoverSurface = 'bg-[var(--app-bg-primary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
 
@@ -463,8 +463,11 @@ const popoverBelow = uiLayout === 'classic'
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
             <motion.div
-              className={`${popoverBelow ? 'fixed' : 'absolute left-1/2 bottom-full mb-2 -translate-x-1/2'} z-[100] min-w-[220px] max-w-[280px]`}
-              style={
+className={`${
+  popoverBelow
+    ? 'fixed mt-10'
+    : 'absolute left-1/2 bottom-full mb-2 -translate-x-1/2'
+} z-[100] min-w-[220px] max-w-[280px]`}              style={
                 popoverBelow
                   ? {
                       left: popoverPos?.left,

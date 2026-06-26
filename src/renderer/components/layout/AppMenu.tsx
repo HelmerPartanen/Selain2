@@ -1,8 +1,10 @@
 import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useShallow } from 'zustand/react/shallow';
+import { useShallow } from "zustand/react/shallow";
+
 import { Button } from "@/components/ui/Button";
 import { SvgIcon } from "@/components/ui/SvgIcon";
+
 import homeSvg from "@/assets/icons/Interface/Home_2.svg?raw";
 import bookmarkSvg from "@/assets/icons/Objects/Bookmark.svg?raw";
 import counterclockwiseSvg from "@/assets/icons/Arrows/Counterclockwise.svg?raw";
@@ -13,13 +15,20 @@ import menuPointsSvg from "@/assets/icons/Interface/Menu_burger.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
+
 import { CARDS_SVG } from "@/components/ui/SvgIcon";
+
 import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
+
 import { normalizeURL, isValidHomepageUrl } from "@/utils/urlUtils";
-import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs';
-import { clampPopoverLeft, clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition';
+import { SPRING_POPUP, SPRING_SNAPPY } from "@/utils/springs";
+import {
+  clampPopoverLeft,
+  clampPopoverTop,
+  getPopoverMotion,
+} from "@/utils/popoverPosition";
 
 const MENU_WIDTH = 280;
 const MENU_ESTIMATED_HEIGHT = 420;
@@ -45,44 +54,64 @@ const menuItems = [
 ] as const;
 
 function AppMenuInner(): React.JSX.Element {
-  const { isOpen, setMenuOpen, isSettingsOpen, isBookmarksOpen, isHistoryOpen, isDownloadsOpen } = useUIStore(useShallow((s) => ({
-    isOpen: s.isMenuOpen,
-    setMenuOpen: s.setMenuOpen,
-    isSettingsOpen: s.isSettingsOpen,
-    isBookmarksOpen: s.isBookmarksOpen,
-    isHistoryOpen: s.isHistoryOpen,
-    isDownloadsOpen: s.isDownloadsOpen,
-  })));
-  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
-  const uiLayout = useSettingsStore((s) => s.uiLayout)
-  const popoverBelow = uiLayout === 'classic'
-const { enterY, exitY } = getPopoverMotion(popoverBelow)
-  const menuSurface = 'bg-[var(--app-bg-secondary)] border border-[var(--app-separator)]'
-  const triggerRef = useRef<HTMLDivElement>(null)
-  const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
+  const {
+    isOpen,
+    setMenuOpen,
+    isSettingsOpen,
+    isBookmarksOpen,
+    isHistoryOpen,
+    isDownloadsOpen,
+  } = useUIStore(
+    useShallow((s) => ({
+      isOpen: s.isMenuOpen,
+      setMenuOpen: s.setMenuOpen,
+      isSettingsOpen: s.isSettingsOpen,
+      isBookmarksOpen: s.isBookmarksOpen,
+      isHistoryOpen: s.isHistoryOpen,
+      isDownloadsOpen: s.isDownloadsOpen,
+    })),
+  );
+
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations);
+  const uiLayout = useSettingsStore((s) => s.uiLayout);
+
+  const popoverBelow = uiLayout === "classic";
+
+  const { enterY, exitY } = getPopoverMotion(popoverBelow);
+
+  const menuSurface =
+    "bg-[var(--app-bg-primary)] border border-[var(--app-separator)]";
+
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const [menuPos, setMenuPos] = useState<{
+    left: number;
+    top: number;
+  } | null>(null);
 
   useLayoutEffect(() => {
     if (!isOpen || !triggerRef.current) {
-      setMenuPos(null)
-      return
+      setMenuPos(null);
+      return;
     }
-    const rect = triggerRef.current.getBoundingClientRect()
+
+    const rect = triggerRef.current.getBoundingClientRect();
+
     if (!popoverBelow) {
       // Bottom toolbar layout: anchor above trigger
-      const left = clampPopoverLeft(rect, MENU_WIDTH)
-      const top = clampPopoverTop(rect, MENU_ESTIMATED_HEIGHT, popoverBelow)
-      setMenuPos({ left, top })
+      const left = clampPopoverLeft(rect, MENU_WIDTH);
+      const top = clampPopoverTop(rect, MENU_ESTIMATED_HEIGHT, popoverBelow);
+
+      setMenuPos({ left, top });
     } else {
-      // Classic (top toolbar) layout: pin to top-left corner
-      setMenuPos({ left: 2, top: 42 })
+      // Classic top toolbar layout: pin to top-left corner
+      setMenuPos({ left: 2, top: 42 });
     }
-  }, [isOpen, popoverBelow])
+  }, [isOpen, popoverBelow]);
 
   const isPanelOpen =
-    isSettingsOpen ||
-    isBookmarksOpen ||
-    isHistoryOpen ||
-    isDownloadsOpen;
+    isSettingsOpen || isBookmarksOpen || isHistoryOpen || isDownloadsOpen;
+
   const handleToggle = useCallback(() => {
     setMenuOpen(!isOpen);
   }, [isOpen, setMenuOpen]);
@@ -97,10 +126,13 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
         useUIStore.getState().toggleSettings();
       } else if (action === "home") {
         const tabStore = useTabStore.getState();
-        const homepageUrl = useSettingsStore.getState().homepageUrl?.trim() ?? "";
+        const homepageUrl =
+          useSettingsStore.getState().homepageUrl?.trim() ?? "";
+
         if (homepageUrl && isValidHomepageUrl(homepageUrl)) {
           const url = normalizeURL(homepageUrl);
           const activeId = tabStore.activeTabId;
+
           if (activeId && tabStore.tabs[activeId]) {
             tabStore.updateTab(activeId, { url });
           } else {
@@ -120,8 +152,12 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
       } else if (action === "ui-kit") {
         const tabStore = useTabStore.getState();
         const activeId = tabStore.activeTabId;
+
         if (activeId && tabStore.tabs[activeId]) {
-          tabStore.updateTab(activeId, { url: "browser://uikit", title: "UI Kit" });
+          tabStore.updateTab(activeId, {
+            url: "browser://uikit",
+            title: "UI Kit",
+          });
         } else {
           tabStore.addTab("browser://uikit");
         }
@@ -130,16 +166,19 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
       } else if (action === "tab-overview") {
         useUIStore.getState().toggleTabOverview();
       }
+
       handleClose();
     },
     [handleClose],
   );
 
   // Filter dividers so hover index tracking is safe across re-renders
-  const actionableItems = menuItems.filter((item) => !item.id.startsWith("divider"));
+  const actionableItems = menuItems.filter(
+    (item) => !item.id.startsWith("divider"),
+  );
 
   return (
-    <div className={`relative ${popoverBelow ? '' : 'h-full'}`} ref={triggerRef}>
+    <div className={`relative ${popoverBelow ? "" : "h-full"}`} ref={triggerRef}>
       <Button
         variant="ghost"
         size="none"
@@ -149,7 +188,9 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
         animate={{ scale: isOpen ? 0.92 : isPanelOpen ? 0.9 : 1 }}
         whileTap={{ scale: 0.82 }}
         transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-        className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} rounded-lg flex items-center justify-center transition-colors duration-100 select-none`}
+        className={`${
+          popoverBelow ? "h-9 w-9" : "h-full aspect-square"
+        } rounded-lg flex items-center justify-center transition-colors duration-100 select-none`}
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
           <motion.span
@@ -163,6 +204,7 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
           >
             <SvgIcon svg={menuPointsSvg} size={18} />
           </motion.span>
+
           <motion.span
             animate={{
               scale: isOpen ? 1 : 0,
@@ -182,28 +224,39 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
           <>
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
+
             <motion.div
-              className={`${popoverBelow ? 'fixed' : 'absolute left-1/2 bottom-full mb-2 -translate-x-1/2'} z-[100] min-w-[280px]`}
+              className={`${
+                popoverBelow
+                  ? "fixed"
+                  : "absolute left-1/2 bottom-full mb-2 -translate-x-1/2"
+              } z-[100]`}
               style={
                 popoverBelow
                   ? {
-                      left: menuPos?.left,
-                      top: menuPos?.top,
+                      left: menuPos.left,
+                      top: menuPos.top,
+                      width: MENU_WIDTH,
                       originX: 0.5,
                       originY: 0,
                     }
                   : {
+                      width: MENU_WIDTH,
                       originX: 0.5,
                       originY: 1,
                     }
               }
-              initial={disableAnimations ? undefined : {
-                scaleX: 0.15,
-                scaleY: 0.04,
-                opacity: 0,
-                y: enterY,
-                borderRadius: 40,
-              }}
+              initial={
+                disableAnimations
+                  ? undefined
+                  : {
+                      scaleX: 0.15,
+                      scaleY: 0.04,
+                      opacity: 0,
+                      y: enterY,
+                      borderRadius: 40,
+                    }
+              }
               animate={{
                 scaleX: 1,
                 scaleY: 1,
@@ -211,22 +264,34 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                 y: 0,
                 borderRadius: 16,
               }}
-              exit={disableAnimations ? undefined : {
-                scaleX: 0.15,
-                scaleY: 0.04,
-                opacity: 0,
-                y: exitY,
-                borderRadius: 40,
-              }}
-              transition={disableAnimations ? { duration: 0 } : {
-                type: 'spring',
-                stiffness: 380,
-                damping: 28,
-                mass: 0.6,
-                opacity: { duration: 0.12 },
-              }}
+              exit={
+                disableAnimations
+                  ? undefined
+                  : {
+                      scaleX: 0.15,
+                      scaleY: 0.04,
+                      opacity: 0,
+                      y: exitY,
+                      borderRadius: 40,
+                    }
+              }
+              transition={
+                disableAnimations
+                  ? { duration: 0 }
+                  : {
+                      type: "spring",
+                      stiffness: 380,
+                      damping: 28,
+                      mass: 0.6,
+                      opacity: { duration: 0.12 },
+                    }
+              }
             >
-              <div className={`rounded-xl shadow-sm overflow-hidden ${popoverBelow ? 'mt-0' : 'mb-2'} ${menuSurface}`}>
+              <div
+                className={`rounded-xl shadow-sm overflow-hidden ${
+                  popoverBelow ? "mt-10" : "mb-2"
+                } ${menuSurface}`}
+              >
                 <div className="p-1 relative">
                   {actionableItems.map((item, idx) => {
                     const Icon = item.icon!;
@@ -238,16 +303,21 @@ const { enterY, exitY } = getPopoverMotion(popoverBelow)
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
                         className="relative h-10 w-full justify-start gap-3 rounded-lg px-3.5 text-[13px] font-light [app-region:no-drag]"
-                        style={disableAnimations
-                          ? { opacity: 1, animation: 'none' }
-                          : {
-                              opacity: 0,
-                              animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
-                            }}
+                        style={
+                          disableAnimations
+                            ? { opacity: 1, animation: "none" }
+                            : {
+                                opacity: 0,
+                                animation: `menu-item-in 160ms ease-out ${
+                                  50 + idx * 20
+                                }ms forwards`,
+                              }
+                        }
                       >
                         <span className="relative flex items-center gap-3 w-full z-10">
                           <SvgIcon svg={Icon} size={16} />
                           <span className="flex-1 text-left">{item.label}</span>
+
                           {item.shortcut && (
                             <span className="text-[11px] text-[var(--app-text-tertiary)]">
                               {item.shortcut}

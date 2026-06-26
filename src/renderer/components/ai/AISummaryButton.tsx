@@ -36,7 +36,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
   const isOpening = open && !closing
   const expanded = hovered || open || closing
 
-  const surfaceClass = 'bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
+  const surfaceClass = 'bg-[var(--app-bg-primary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
 
   const toolButtonClass =
     'h-[42px] w-[42px] rounded-xl flex items-center justify-center transition-colors duration-100 select-none hover:bg-[var(--app-control-hover)] shrink-0'
