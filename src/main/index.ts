@@ -26,10 +26,16 @@ app.whenReady().then(async () => {
 
   setupIPC()
   setupPermissions()
-  setupCSP()
-  initBenchmarkPerfMonitor()
 
   createWindow()
+
+  // Run after the window has been created so it can't delay first paint.
+  setupCSP()
+
+  // Run perf-monitor init off the critical path. Under normal operation it
+  // is a no-op; under BROWSER_PERF_BENCH=1 it starts sampling and registers
+  // the perf IPC handlers (which also live in perfMonitor.ts).
+  setImmediate(() => initBenchmarkPerfMonitor())
 
   // ── Load adblocker after first tick so window appears quickly ─────────────────
   // Pass --no-extensions CLI flag to skip loading extensions for benchmarking

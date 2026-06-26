@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 
 import { Button } from "@/components/ui/Button";
 
@@ -148,7 +148,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
 
         <AnimatePresence initial={false}>
           {isSplit && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -161,7 +161,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
               <div
     className={`w-1.5 h-1.5 rounded-full transition-colors ${focusedPanel === "split" ? "bg-[var(--app-accent)]" : "bg-[var(--app-text-tertiary)]"}`}
               />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>

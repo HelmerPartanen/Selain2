@@ -3,7 +3,7 @@
 // Lives inside the AI Summary panel (same fixed CONTENT_HEIGHT container).
 
 import { useCallback } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { useAIStore, type AIStatus } from '@/store/aiStore'
 import ollamaIcon from '@/assets/ollama/ollama-icon.svg'
 import { CONTENT_HEIGHT } from './constants'
@@ -80,7 +80,7 @@ function PrimaryButton({
   variant?: 'default' | 'danger'
 }): React.JSX.Element {
   return (
-    <motion.button
+    <m.button
       onClick={onClick}
       disabled={disabled}
       whileTap={{ scale: 0.96 }}
@@ -93,7 +93,7 @@ function PrimaryButton({
       }
     >
       {children}
-    </motion.button>
+    </m.button>
   )
 }
 
@@ -113,7 +113,7 @@ function GhostButton({ onClick, children }: { onClick: () => void; children: Rea
 function CheckingScreen(): React.JSX.Element {
   return (
     <SetupShell>
-      <motion.div
+      <m.div
         className="w-8 h-8 rounded-full border-2 border-blue-400/30 border-t-blue-400"
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -261,7 +261,7 @@ function DownloadingScreen(): React.JSX.Element {
           className="w-full h-1.5 rounded-full overflow-hidden"
           style={{ background: 'var(--app-bg-secondary)' }}
         >
-          <motion.div
+          <m.div
             className="h-full rounded-full bg-blue-500"
             style={{
             }}
@@ -272,7 +272,7 @@ function DownloadingScreen(): React.JSX.Element {
 
         {/* Status text */}
         <AnimatePresence mode="wait">
-          <motion.p
+          <m.p
             key={displayStatus}
             className="text-[11px] text-gray-400 dark:text-neutral-500 font-light mt-2"
             initial={{ opacity: 0, y: 3 }}
@@ -281,7 +281,7 @@ function DownloadingScreen(): React.JSX.Element {
             transition={{ duration: 0.2 }}
           >
             {displayStatus}
-          </motion.p>
+          </m.p>
         </AnimatePresence>
       </div>
 
@@ -341,7 +341,7 @@ export function OllamaSetupContent(): React.JSX.Element {
   return (
     <div className="relative" style={{ height: CONTENT_HEIGHT }}>
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={status}
           className="absolute inset-0"
           initial={{ opacity: 0, y: 6 }}
@@ -350,7 +350,7 @@ export function OllamaSetupContent(): React.JSX.Element {
           transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           {screen}
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
   )

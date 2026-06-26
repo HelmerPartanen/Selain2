@@ -69,7 +69,12 @@ export interface TabStore {
   reopenClosedAt: (index: number) => void
 }
 
-/** Shape persisted to disk — a subset of TabStore without action methods */
+/** Shape persisted to disk — a subset of TabStore without action methods.
+ *  Thumbnails are intentionally excluded: they were base64 JPEGs that bloated
+ *  every tab-session.json save to ~1 MB. The runtime `Tab.thumbnail` field is
+ *  still populated while the session is alive; it just doesn't survive a
+ *  restart (regenerate via the LRU manager or on first render of TabOverview).
+ */
 type PersistedTabState = Pick<TabStore, 'tabOrder' | 'activeTabId' | 'splitTabId' | 'focusedPanel' | 'recentlyClosed'> & {
   tabs: Record<string, Omit<Tab, 'isPlayingMedia' | 'isMuted' | 'virtualBackUrl' | 'virtualForwardUrl' | 'thumbnail'>>
 }

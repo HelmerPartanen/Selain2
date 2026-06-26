@@ -1,10 +1,20 @@
 import { useEffect } from 'react'
-import { MotionConfig } from 'motion/react'
+import { LazyMotion, MotionConfig, domMax } from 'motion/react'
 import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { showToast } from '@/components/ui/Toast'
 import { logger } from '@/utils/logger'
-import { useThemeStore } from '@/store/themeStore'
+import { useThemeStore, startThemeHydration } from '@/store/themeStore'
 import { useSettingsStore } from '@/store/settingsStore'
+
+/**
+ * Kick off wallpaper hydration after first paint. The IPC roundtrip
+ * (loadWallpaper) does not block the initial render.
+ */
+function useThemeHydration(): void {
+  useEffect(() => {
+    void startThemeHydration()
+  }, [])
+}
 
 function useThemeMode(): void {
   const themeMode = useThemeStore((s) => s.themeMode)
@@ -62,11 +72,16 @@ export default function App(): React.JSX.Element {
   useThemeMode()
   useGlobalErrorHandlers()
   useGraphicsMode()
+  useThemeHydration()
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   return (
-    <MotionConfig reducedMotion={disableAnimations ? 'always' : 'never'}>
-      <BrowserLayout />
-    </MotionConfig>
+    // LazyMotion + domAnimation loads the small animation runtime at startup;
+    // heavy features (drag, layout animations) load only when used.
+    <LazyMotion features={domMax}>
+      <MotionConfig reducedMotion={disableAnimations ? 'always' : 'never'}>
+        <BrowserLayout />
+      </MotionConfig>
+    </LazyMotion>
   )
 }

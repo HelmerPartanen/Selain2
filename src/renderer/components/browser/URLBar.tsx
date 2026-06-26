@@ -1,5 +1,5 @@
 import { memo, useCallback, useDeferredValue, useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { SvgIcon, PIP_SVG } from '@/components/ui/SvgIcon'
 import roundArrowsSvg from '@/assets/icons/Arrows/Round_Arrows_2.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
@@ -33,7 +33,7 @@ const LoadingProgressBar = memo(function LoadingProgressBar() {
 
   return (
     <div className="pointer-events-none absolute inset-x-2 bottom-0 h-0.5 overflow-hidden rounded-full">
-      <motion.div
+      <m.div
         className="h-full w-full origin-left rounded-full bg-blue-500"
         initial={false}
         animate={{
@@ -443,7 +443,7 @@ function URLBarInner({
         .filter(Boolean)
         .join(' ')}
     >
-      <motion.div
+      <m.div
         className={shellClassName}
         animate={
           isClassic
@@ -463,7 +463,7 @@ function URLBarInner({
         >
           <span className="relative flex h-[15px] w-[15px] items-center justify-center">
             <AnimatePresence mode="popLayout" initial={false}>
-              <motion.span
+              <m.span
                 key={isLoading ? 'stop' : 'reload'}
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -476,7 +476,7 @@ function URLBarInner({
                 ) : (
                   <SvgIcon svg={roundArrowsSvg} size={15} />
                 )}
-              </motion.span>
+              </m.span>
             </AnimatePresence>
           </span>
         </Button>
@@ -529,7 +529,7 @@ function URLBarInner({
         <div className="flex shrink-0 items-center gap-0.5">
           <AnimatePresence initial={false}>
             {hasUrl && !isFocused && (
-              <motion.div
+              <m.div
                 initial={{ width: 0, opacity: 0, scale: 0.8 }}
                 animate={{ width: trailingControlWidth, opacity: 1, scale: 1 }}
                 exit={{ width: 0, opacity: 0, scale: 0.8 }}
@@ -544,7 +544,7 @@ function URLBarInner({
                 >
                   <span className="relative flex h-[15px] w-[15px] items-center justify-center">
                     <AnimatePresence mode="popLayout" initial={false}>
-                      <motion.span
+                      <m.span
                         key={isBookmarked ? 'filled' : 'empty'}
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -561,17 +561,17 @@ function URLBarInner({
                               : 'text-gray-400 dark:text-neutral-500'
                           }
                         />
-                      </motion.span>
+                      </m.span>
                     </AnimatePresence>
                   </span>
                 </Button>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
           <AnimatePresence initial={false}>
             {isPlayingMedia && !isFocused && (
-              <motion.div
+              <m.div
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: trailingControlWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
@@ -586,13 +586,13 @@ function URLBarInner({
                 >
                   <SvgIcon svg={PIP_SVG} size={15} />
                 </Button>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
           <AnimatePresence initial={false}>
             {(isPlayingMedia || isMuted) && !isFocused && (
-              <motion.div
+              <m.div
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: trailingControlWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
@@ -611,19 +611,19 @@ function URLBarInner({
                 >
                   <SvgIcon svg={isMuted ? soundMuteSvg : soundFillSvg} size={15} />
                 </Button>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
 
         <LoadingProgressBar />
-      </motion.div>
+      </m.div>
 
       <AnimatePresence>
         {(suggestions.length > 0 ||
           (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) &&
           isFocused && (
-            <motion.div
+            <m.div
               className={`absolute left-0 right-0 z-[100] overflow-hidden rounded-xl p-1 shadow-sm ${autocompleteSurface} ${dropdownOffsetClass}`}
               style={{ originY: dropdownBelow ? 0 : 1 }}
               initial={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
@@ -714,7 +714,7 @@ function URLBarInner({
                     : 'Suggestions temporarily unavailable.'}
                 </div>
               )}
-            </motion.div>
+            </m.div>
           )}
       </AnimatePresence>
 

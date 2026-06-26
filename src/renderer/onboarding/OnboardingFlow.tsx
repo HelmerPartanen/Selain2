@@ -8,7 +8,7 @@
 // Steps: Welcome → Appearance → Privacy → Ready
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
@@ -75,7 +75,7 @@ function AmbientOrbs({ step }: { step: number }): React.JSX.Element {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
       {orbs.map((orb, i) => (
-        <motion.div
+        <m.div
           key={i}
           className="absolute rounded-full opacity-[0.15] dark:opacity-[0.07]"
           animate={{ left: orb.x, top: orb.y }}
@@ -104,7 +104,7 @@ function ProgressBar({ step, total }: { step: number; total: number }): React.JS
       aria-valuemin={1}
       aria-valuemax={total}
     >
-      <motion.div
+      <m.div
         className="h-full rounded-full bg-[var(--app-accent)]"
         animate={{ width: `${((step + 1) / total) * 100}%` }}
         transition={SPRING}
@@ -134,7 +134,7 @@ function StaggeredWords({
   return (
     <Tag className={className}>
       {words.map((word, i) => (
-        <motion.span
+        <m.span
           key={`${word}-${i}`}
           className="inline-block"
           style={{ marginRight: '0.28em' }}
@@ -146,7 +146,7 @@ function StaggeredWords({
           }}
         >
           {word}
-        </motion.span>
+        </m.span>
       ))}
     </Tag>
   )
@@ -165,14 +165,14 @@ function FadeUp({
   className?: string
 }): React.JSX.Element {
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: EASE_OUT }}
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -321,7 +321,7 @@ function AppearanceStep(): React.JSX.Element {
           const selected = themeMode === id
 
           return (
-            <motion.button
+            <m.button
               key={id}
               onClick={() => setThemeMode(id)}
               initial={{ opacity: 0, y: 16 }}
@@ -343,7 +343,7 @@ function AppearanceStep(): React.JSX.Element {
               {/* Glow ring — renders behind the card content, only when selected */}
               <AnimatePresence>
                 {selected && (
-                  <motion.span
+                  <m.span
                     className="pointer-events-none absolute inset-0 rounded-[16px] ring-2 ring-blue-500 dark:ring-blue-400"
                     initial={{ opacity: 0, scale: 0.94 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -356,7 +356,7 @@ function AppearanceStep(): React.JSX.Element {
               {/* Subtle blue tint overlay when selected */}
               <AnimatePresence>
                 {selected && (
-                  <motion.span
+                  <m.span
                     className="pointer-events-none absolute inset-0 rounded-[16px] bg-[var(--app-control-active)]"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -381,7 +381,7 @@ function AppearanceStep(): React.JSX.Element {
               {/* Selection check badge */}
               <AnimatePresence>
                 {selected && (
-                  <motion.div
+                  <m.div
                     className="absolute -top-2 -right-2 w-[22px] h-[22px] rounded-full bg-blue-500 dark:bg-blue-400 flex items-center justify-center shadow-md shadow-blue-500/40 dark:shadow-blue-400/30"
                     initial={{ scale: 0, rotate: -20 }}
                     animate={{ scale: 1, rotate: 0 }}
@@ -389,10 +389,10 @@ function AppearanceStep(): React.JSX.Element {
                     transition={SPRING}
                   >
                     <SvgIcon svg={checkSvg} size={11} className="text-white dark:text-black" />
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
-            </motion.button>
+            </m.button>
           )
         })}
       </div>
@@ -412,20 +412,20 @@ function PrivacyStep(): React.JSX.Element {
   return (
     <div className="flex flex-col items-center text-center gap-8">
       {/* Shield with shape-morph entrance */}
-      <motion.div
+      <m.div
         className="w-[72px] h-[72px] rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center pt-[2px]"
         initial={{ scale: 0, rotate: -20 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ ...SPRING, stiffness: 300, damping: 20 }}
       >
-        <motion.div
+        <m.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ ...SPRING, delay: 0.14 }}
         >
           <SvgIcon svg={shieldSvg} size={34} className="text-emerald-500 dark:text-emerald-400" />
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       <div className="space-y-3">
         <StaggeredWords
@@ -445,26 +445,26 @@ function PrivacyStep(): React.JSX.Element {
       {/* Feature rows — staggered entrance */}
       <div className="flex flex-col gap-3 w-full max-w-[380px]">
         {PRIVACY_FEATURES.map(({ text, detail }, i) => (
-          <motion.div
+          <m.div
             key={text}
             className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-left"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ ...SPRING_GENTLE, delay: 0.48 + i * 0.1 }}
           >
-            <motion.div
+            <m.div
               className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center flex-shrink-0"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ ...SPRING, delay: 0.58 + i * 0.1 }}
             >
               <SvgIcon svg={checkSvg} size={12} className="text-emerald-600 dark:text-emerald-400" />
-            </motion.div>
+            </m.div>
             <div className="min-w-0">
               <div className="text-[13px] font-medium text-gray-800 dark:text-neutral-200">{text}</div>
               <div className="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5">{detail}</div>
             </div>
-          </motion.div>
+          </m.div>
         ))}
       </div>
     </div>
@@ -477,20 +477,20 @@ function ReadyStep(): React.JSX.Element {
   return (
     <div className="flex flex-col items-center text-center gap-8">
       {/* Bouncy checkmark reveal */}
-      <motion.div
+      <m.div
         className="w-[88px] h-[88px] rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ ...SPRING, stiffness: 280, damping: 18 }}
       >
-        <motion.div
+        <m.div
           initial={{ scale: 0, rotate: -60 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ ...SPRING, delay: 0.15, stiffness: 350, damping: 16 }}
         >
           <SvgIcon svg={checkSvg} size={40} className="text-blue-500 dark:text-blue-400" />
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       <div className="space-y-4">
         <StaggeredWords
@@ -554,7 +554,7 @@ function OnboardingWindowControls(): React.JSX.Element {
   }, [])
 
   return (
-    <motion.div
+    <m.div
       className="absolute top-0 right-0 z-10 [app-region:no-drag]"
       style={{ pointerEvents: 'none' }}
       initial={{ opacity: 0 }}
@@ -602,7 +602,7 @@ function OnboardingWindowControls(): React.JSX.Element {
             transition-all duration-75 active:scale-85"
         >
           {hoveredIdx === 0 && (
-            <motion.div
+            <m.div
               layoutId="window-controls-hover"
               className="absolute inset-0 rounded-full bg-[var(--app-control-hover)]"
               initial={{ opacity: 0.5 }}
@@ -624,7 +624,7 @@ function OnboardingWindowControls(): React.JSX.Element {
             transition-all duration-75 active:scale-85"
         >
           {hoveredIdx === 1 && (
-            <motion.div
+            <m.div
               layoutId="window-controls-hover"
               className="absolute inset-0 rounded-full bg-[var(--app-control-hover)]"
               initial={{ opacity: 0.5 }}
@@ -648,7 +648,7 @@ function OnboardingWindowControls(): React.JSX.Element {
             transition-all duration-75 active:scale-85"
         >
           {hoveredIdx === 2 && (
-            <motion.div
+            <m.div
               layoutId="window-controls-hover"
               className="absolute inset-0 rounded-full bg-[var(--app-control-hover)]"
               initial={{ opacity: 0.5 }}
@@ -660,7 +660,7 @@ function OnboardingWindowControls(): React.JSX.Element {
           <span className="relative z-10"><SvgIcon svg={closeSvg} size={12} /></span>
         </button>
       </div>
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -720,7 +720,7 @@ function OnboardingFlowInner(): React.JSX.Element {
   }, [next, back, isFirst, exiting])
 
   return (
-    <motion.div
+    <m.div
       className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-neutral-900 [app-region:no-drag]"
       initial={{ opacity: 0 }}
       animate={{ opacity: exiting ? 0 : 1, scale: exiting ? 1.04 : 1 }}
@@ -738,7 +738,7 @@ function OnboardingFlowInner(): React.JSX.Element {
       <AmbientOrbs step={step} />
 
       {/* Skip — top left, very subtle, appears late */}
-      <motion.button
+      <m.button
         onClick={skip}
         className="
           absolute top-5 left-6 z-10 text-[12px] text-gray-400 dark:text-neutral-500
@@ -751,7 +751,7 @@ function OnboardingFlowInner(): React.JSX.Element {
         transition={{ duration: 0.5, delay: 1.2, ease: EASE_OUT }}
       >
         Skip
-      </motion.button>
+      </m.button>
 
       {/* Window controls — top right */}
       <OnboardingWindowControls />
@@ -759,7 +759,7 @@ function OnboardingFlowInner(): React.JSX.Element {
       {/* Step content — centered, full-width */}
       <div className="flex-1 flex items-center justify-center relative z-[1]">
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={step}
             initial={{ opacity: 0, y: 30, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -772,12 +772,12 @@ function OnboardingFlowInner(): React.JSX.Element {
             className="w-full max-w-[560px] px-6"
           >
             <StepContent step={step} />
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
 
       {/* Bottom bar — CTA + progress */}
-      <motion.div
+      <m.div
         className="relative z-[1] flex flex-col items-center gap-6 pb-12"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -788,7 +788,7 @@ function OnboardingFlowInner(): React.JSX.Element {
           {/* Back — icon-only, hidden on first step */}
           <AnimatePresence>
             {!isFirst && (
-              <motion.button
+              <m.button
                 onClick={back}
                 initial={{ opacity: 0, scale: 0.8, width: 0 }}
                 animate={{ opacity: 1, scale: 1, width: 44 }}
@@ -807,12 +807,12 @@ function OnboardingFlowInner(): React.JSX.Element {
                 aria-label="Go back"
               >
                 <SvgIcon svg={chevronLeftSvg} size={18} />
-              </motion.button>
+              </m.button>
             )}
           </AnimatePresence>
 
           {/* Primary CTA */}
-          <motion.button
+          <m.button
             onClick={next}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
@@ -829,13 +829,13 @@ function OnboardingFlowInner(): React.JSX.Element {
             {isFirst ? 'Get Started' : isLast ? 'Start Browsing' : 'Continue'}
             {!isLast && <SvgIcon svg={chevronRightSvg} size={15} />}
             {isLast && <SvgIcon svg={checkSvg} size={15} />}
-          </motion.button>
+          </m.button>
         </div>
 
         {/* Progress */}
         <ProgressBar step={step} total={TOTAL_STEPS} />
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   )
 }
 

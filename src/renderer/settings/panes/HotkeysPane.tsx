@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { SPRING_SNAPPY, SPRING_LIST } from "@/utils/springs";
 import { GroupBox, SettingGroup } from "@/settings/components/SettingsShared";
 
@@ -15,7 +15,7 @@ const ShortcutRow = memo(function ShortcutRow({
     const [hovered, setHovered] = useState(false)
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...SPRING_LIST, delay: index * 0.02 }}
@@ -29,7 +29,7 @@ const ShortcutRow = memo(function ShortcutRow({
             <div className="relative z-10">
                 <KeyCombo keys={keys} />
             </div>
-        </motion.div>
+        </m.div>
     )
 })
 

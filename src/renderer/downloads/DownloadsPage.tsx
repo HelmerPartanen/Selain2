@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
@@ -25,7 +25,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
   const [hovered, setHovered] = useState(false)
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay: index * 0.03 }}
@@ -152,7 +152,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
           </Button>
         )}
       </div>
-    </motion.div>
+    </m.div>
   )
 })
 

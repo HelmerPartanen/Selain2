@@ -59,19 +59,9 @@
   --app-danger-hover-bg: #FFA3AF;
   --app-success: #34c759;
 
-  --glass-bg: var(--app-bg-tertiary);
-  --glass-bg-heavy: var(--app-bg-tertiary);
-  --glass-bg-subtle: var(--app-bg-secondary);
   --bg-solid-fallback: var(--app-bg-primary);
 
-  --shadow-xs: none;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-
   --border-subtle: var(--app-separator);
-  --border-medium: var(--app-separator);
-  --border-strong: var(--app-text-tertiary);
   --border-divider: var(--app-separator);
 }
 
@@ -102,39 +92,11 @@
 
 /* ─── Glass Material Utility Classes ──────────────────────────────────────── */
 
-.glass {
-  background: var(--glass-bg);
-  box-shadow: var(--shadow-xs);
-  border: 1px solid var(--border-subtle);
-  transition: background 0.35s ease, border-color 0.35s ease;
-}
-
-.glass-heavy {
-  background: var(--glass-bg-heavy);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-subtle);
-  transition: background 0.35s ease, border-color 0.35s ease;
-}
-
-.glass-subtle {
-  background: var(--glass-bg-subtle);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-subtle);
-  transition: background 0.35s ease, border-color 0.35s ease;
-}
-
 /* Canonical interactive highlight: list rows, pills, menu items (hover/active). Use with .glass. */
 .glass-interactive {
   box-shadow: none;
   border: 1px solid var(--border-subtle);
   background: var(--app-bg-tertiary);
-}
-
-.glass-blur {
-  background: var(--app-bg-tertiary);
-  box-shadow: none;
-  border: 1px solid var(--border-subtle);
-  transition: background 0.35s ease, border-color 0.35s ease;
 }
 
 .app-bg-primary { background-color: var(--app-bg-primary); }

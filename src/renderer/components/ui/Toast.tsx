@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { Text } from '@/components/ui/Text'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -64,7 +64,7 @@ function ToastContainerInner(): React.JSX.Element {
     <div className="fixed top-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none">
       <AnimatePresence>
         {items.map((toast) => (
-          <motion.div
+          <m.div
             key={toast.id}
             initial={{ opacity: 0, x: 60, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -73,7 +73,7 @@ function ToastContainerInner(): React.JSX.Element {
             className="pointer-events-auto relative overflow-hidden flex items-center gap-3 p-3 rounded-lg bg-[var(--app-bg-primary)]/90 backdrop-blur-sm border border-[var(--app-separator)] text-[var(--app-text-primary)] min-w-[280px] max-w-[400px]"
           >
             {!toast.persistent && (
-              <motion.div
+              <m.div
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: 0 }}
                 transition={{ duration: 5, ease: 'linear' }}
@@ -121,7 +121,7 @@ function ToastContainerInner(): React.JSX.Element {
             >
               <SvgIcon svg={closeSvg} size={10} />
             </Button>
-          </motion.div>
+          </m.div>
         ))}
       </AnimatePresence>
     </div>

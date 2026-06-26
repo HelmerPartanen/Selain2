@@ -309,27 +309,42 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   // Keep the outgoing tab visible during exit animation, then truly hide it
   const [shouldRender, setShouldRender] = useState(isActive)
   const prevIsActiveRef = useRef(isActive)
+  const activeSinceRef = useRef<number>(isActive ? performance.now() : 0)
+  const inFlightCaptureRef = useRef<Promise<string | null> | null>(null)
 
   useEffect(() => {
-    // If we transition from active to inactive, capture it right now
+    // If we transition from active to inactive, capture it — but only if the
+    // tab was actually active long enough that the user looked at it.
+    // Rapid Ctrl+Tab sequences otherwise trigger a flood of capturePage IPCs.
     if (prevIsActiveRef.current && !isActive) {
-      const takeSnapshot = async () => {
-        const webview = webviewRef.current
-        if (!webview) return
-        const tabIdStr = String(tabId)
+      const MIN_ACTIVE_MS = 1500
+      const tabIdStr = String(tabId)
+      const activeFor = performance.now() - activeSinceRef.current
+      const alreadyHasThumbnail = !!useTabStore.getState().tabs[tabIdStr]?.thumbnail
 
-        try {
-          const thumbnail = await webviewRegistry.capturePage(tabIdStr)
-          if (thumbnail) {
-            useTabStore.getState().updateTab(tabIdStr, { thumbnail })
-          }
-        } catch (e) {
-          logger.warn("Could not capture tab thumbnail before hiding", e)
+      // Coalesce: if a capture is already in flight for this tab, don't kick off another.
+      if (!inFlightCaptureRef.current && activeFor >= MIN_ACTIVE_MS && !alreadyHasThumbnail) {
+        const webview = webviewRef.current
+        if (webview) {
+          const capturePromise = webviewRegistry.capturePage(tabIdStr)
+          inFlightCaptureRef.current = capturePromise
+          capturePromise
+            .then((thumbnail) => {
+              if (thumbnail) {
+                useTabStore.getState().updateTab(tabIdStr, { thumbnail })
+              }
+            })
+            .catch((e) => {
+              logger.warn('Could not capture tab thumbnail before hiding', e)
+            })
+            .finally(() => {
+              inFlightCaptureRef.current = null
+            })
         }
       }
-      takeSnapshot()
     }
     prevIsActiveRef.current = isActive
+    if (isActive) activeSinceRef.current = performance.now()
 
     if (isActive) {
       setShouldRender(true)

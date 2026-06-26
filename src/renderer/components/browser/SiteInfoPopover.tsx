@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
@@ -135,7 +135,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
       />
 
       {/* Wrapper/animation: same direction/material primitives as AppMenu */}
-      <motion.div
+      <m.div
         className={`absolute z-[100] min-w-[280px] ${popoverBelow ? 'top-full mt-2' : 'bottom-full mb-2'} ${anchorLeft ? 'left-0' : 'left-1/2'}`}
         style={{ originX: anchorLeft ? 0 : 0.5, originY: popoverBelow ? 0 : 1, x: anchorLeft ? 0 : '-50%' }}
 
@@ -308,7 +308,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
             </div>
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </>
   )
 })

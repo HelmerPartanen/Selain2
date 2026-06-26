@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useFocusedTabId } from '@/hooks/useTabSelector'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -128,7 +128,7 @@ function FindBarInner(): React.JSX.Element {
   const topOffset = uiLayout === 'classic' ? CLASSIC_CHROME_HEIGHT + 8 : 12
 
   return (
-    <motion.div
+    <m.div
       className="fixed right-40 z-[90] [app-region:no-drag]"
       style={{ top: topOffset }}
       initial={{ y: -40, opacity: 0, scale: 0.95 }}
@@ -177,7 +177,7 @@ function FindBarInner(): React.JSX.Element {
           <SvgIcon svg={closeSvg} size={13} />
         </Button>
       </div>
-    </motion.div>
+    </m.div>
   )
 }
 

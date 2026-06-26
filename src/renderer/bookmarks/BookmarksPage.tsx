@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { TextInput } from '@/components/ui/Input'
 import { PanelModal } from '@/components/ui/PanelModal'
@@ -36,7 +36,7 @@ const BookmarkRow = memo(function BookmarkRow({
   const [hovered, setHovered] = useState(false)
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay }}
@@ -89,7 +89,7 @@ const BookmarkRow = memo(function BookmarkRow({
       >
         <SvgIcon svg={trashSvg} size={16} />
       </Button>
-    </motion.div>
+    </m.div>
   )
 })
 

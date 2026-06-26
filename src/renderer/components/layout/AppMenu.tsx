@@ -1,5 +1,5 @@
 import { memo, useCallback, useLayoutEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/Button";
@@ -193,7 +193,7 @@ function AppMenuInner(): React.JSX.Element {
         } rounded-lg flex items-center justify-center transition-colors duration-100 select-none`}
       >
         <div className="relative w-[18px] h-[18px] flex items-center justify-center">
-          <motion.span
+          <m.span
             animate={{
               scale: isOpen ? 0 : 1,
               rotate: isOpen ? 90 : 0,
@@ -203,9 +203,9 @@ function AppMenuInner(): React.JSX.Element {
             className="absolute inset-0 flex items-center justify-center"
           >
             <SvgIcon svg={menuPointsSvg} size={18} />
-          </motion.span>
+          </m.span>
 
-          <motion.span
+          <m.span
             animate={{
               scale: isOpen ? 1 : 0,
               rotate: isOpen ? 0 : -90,
@@ -215,7 +215,7 @@ function AppMenuInner(): React.JSX.Element {
             className="absolute inset-0 flex items-center justify-center"
           >
             <SvgIcon svg={closeSvg} size={18} />
-          </motion.span>
+          </m.span>
         </div>
       </Button>
 
@@ -225,7 +225,7 @@ function AppMenuInner(): React.JSX.Element {
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
-            <motion.div
+            <m.div
               className={`${
                 popoverBelow
                   ? "fixed"
@@ -329,7 +329,7 @@ function AppMenuInner(): React.JSX.Element {
                   })}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
 import { useBookmarkStore } from '@/store/bookmarkStore'
@@ -145,7 +145,7 @@ function FavouriteTile({
   const highlighted = isSelected || dragging
 
   return (
-    <motion.div
+    <m.div
       className={`absolute flex flex-col items-center justify-center gap-1.5 rounded-xl
         transition-colors border duration-100 group cursor-default select-none
         ${highlighted
@@ -186,7 +186,7 @@ function FavouriteTile({
         <span className="text-[11px] font-medium text-[var(--app-text-primary)] truncate w-full text-center pointer-events-none px-1">
         {hostname}
       </span>
-    </motion.div>
+    </m.div>
   )
 }
 

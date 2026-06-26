@@ -1,5 +1,5 @@
 import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import {
   useFocusedTabId,
   useFocusedTabCanNavigate,
@@ -209,7 +209,7 @@ function FloatingControlsInner(): React.JSX.Element {
           {/* Interactive hover zone — covers bottom area, receives pointer events */}
           <AnimatePresence>
             {!isIdle && (
-              <motion.div
+              <m.div
                 className="absolute bottom-0 left-0 right-0 h-2 pointer-events-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -223,7 +223,7 @@ function FloatingControlsInner(): React.JSX.Element {
           {/* Home-indicator hint pill — visible when toolbar is idle */}
           <AnimatePresence>
             {isIdle && (
-              <motion.div
+              <m.div
                 className="absolute bottom-2 pointer-events-auto [app-region:no-drag]"
                 initial={disableAnimations ? undefined : { opacity: 0, scaleX: 0.5 }}
               animate={{ opacity: 1, scaleX: 1 }}
@@ -236,12 +236,12 @@ function FloatingControlsInner(): React.JSX.Element {
                   className="w-32 h-[5px] rounded-full bg-[var(--app-text-tertiary)]"
                   style={{ animation: disableAnimations ? 'none' : 'hint-pulse 3s ease-in-out infinite' }}
                 />
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
           {/* Floating controls surface */}
-          <motion.div
+          <m.div
             layout
             className="absolute bottom-2 p-1 rounded-xl [app-region:no-drag] pointer-events-auto bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             initial={disableAnimations ? undefined : { y: 40, scale: 0.85, opacity: 0 }}
@@ -268,9 +268,9 @@ function FloatingControlsInner(): React.JSX.Element {
 
                 {/* ── Nav Pod ── */}
                 {/* Keep reflow-based expansion/shrink (no width:auto transitions). */}
-                <motion.div className="flex items-center h-full" style={{ overflow: "hidden" }}>
+                <m.div className="flex items-center h-full" style={{ overflow: "hidden" }}>
                   {/* Back button slot (40px wide) */}
-                  <motion.div
+                  <m.div
                     className="h-full"
                     layout={false}
                     animate={{ width: canGoBack ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
@@ -294,10 +294,10 @@ function FloatingControlsInner(): React.JSX.Element {
                     >
                       <SvgIcon svg={chevronLeftSvg} size={16} />
                     </Button>
-                  </motion.div>
+                  </m.div>
 
                   {/* Forward button slot (40px wide) */}
-                  <motion.div
+                  <m.div
                     className="h-full"
                     layout={false}
                     animate={{ width: canGoForward ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
@@ -321,8 +321,8 @@ function FloatingControlsInner(): React.JSX.Element {
                     >
                       <SvgIcon svg={chevronRightSvg} size={16} />
                     </Button>
-                  </motion.div>
-                </motion.div>
+                  </m.div>
+                </m.div>
 
                 {/* ── URL Pod ── */}
                 <div className="flex items-center h-full rounded-full min-w-0 flex-shrink">
@@ -332,7 +332,7 @@ function FloatingControlsInner(): React.JSX.Element {
                 {/* ── Split Unsplit Button ── */}
                 <AnimatePresence initial={false}>
                   {isSplit && (
-                    <motion.div
+                    <m.div
                       key="unsplit-pod"
                       className="flex items-center h-full rounded-full"
                       initial={{ width: 0, scale: 0.7, opacity: 0 }}
@@ -355,7 +355,7 @@ function FloatingControlsInner(): React.JSX.Element {
                       >
                         <SvgIcon svg={unsplitSvg} size={15} />
                       </Button>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
 
@@ -376,7 +376,7 @@ function FloatingControlsInner(): React.JSX.Element {
             {/* Split panel indicator dots */}
             <AnimatePresence>
               {isSplit && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
@@ -390,10 +390,10 @@ function FloatingControlsInner(): React.JSX.Element {
                   <div
                     className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${focusedPanel === "split" ? "bg-[var(--app-accent)]" : "bg-[var(--app-text-tertiary)]"}`}
                   />
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </>

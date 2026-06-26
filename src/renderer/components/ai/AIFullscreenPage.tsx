@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
@@ -145,7 +145,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           className={`fixed inset-0 z-[150] ${isSummaryOverlayVisible ? 'overflow-hidden' : 'overflow-auto pointer-events-none'}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -155,7 +155,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
           {isPdfThinking && (
             <div className="fixed bottom-20 left-1/2 z-[152] flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-[var(--app-separator)] bg-[var(--app-bg-tertiary)] px-3 py-2 shadow-sm">
               {[0, 1, 2].map((dot) => (
-                <motion.span
+                <m.span
                   key={dot}
                   className="h-1.5 w-1.5 rounded-full bg-blue-500/75 dark:bg-blue-300/80"
                   animate={disableAnimations ? undefined : { opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
@@ -170,7 +170,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
             {/* Summary overlay - animates in from top to bottom */}
             <AnimatePresence>
               {isSummaryOverlayVisible && !isLoading && (
-                <motion.div
+                <m.div
                   className="absolute inset-0 z-[151]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -181,7 +181,7 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   <div className="absolute inset-0 bg-[var(--app-bg-primary)]" />
 
                   {/* Summary content container */}
-                  <motion.div
+                  <m.div
                     className="relative z-10 w-full h-full overflow-auto flex flex-col"
                     initial={{ y: '-100%', opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -200,13 +200,13 @@ function AIFullscreenPageInner(): React.JSX.Element {
                         <OllamaSetupContent />
                       )}
                     </div>
-                  </motion.div>
-                </motion.div>
+                  </m.div>
+                </m.div>
               )}
             </AnimatePresence>
 
             {/* Top control bar */}
-            <motion.div
+            <m.div
               className="absolute top-0 left-0 right-0 z-[152] pointer-events-none"
               initial={{ opacity: 0, y: -20 }}
               animate={!isLoading ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
@@ -216,14 +216,14 @@ function AIFullscreenPageInner(): React.JSX.Element {
               <div className="flex items-center justify-between px-6 py-4">
                 {/* Smart toggle button */}
                 {!isLoading && isAIReady && (
-                  <motion.div
+                  <m.div
                     className="pointer-events-auto rounded-full shadow-sm bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.2 }}
                   >
-                  </motion.div>
+                  </m.div>
                 )}
 
                 {/* Spacer */}
@@ -231,27 +231,27 @@ function AIFullscreenPageInner(): React.JSX.Element {
 
                 {/* Close button */}
                 {!isLoading && (
-                  <motion.div
+                  <m.div
                     className="pointer-events-auto rounded-full"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <motion.button
+                    <m.button
                       onClick={closeAIFullscreen}
                       className="h-10 w-10 rounded-full flex items-center justify-center text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-colors duration-150 select-none"
                       aria-label="Close AI Summary"
                     >
                       <SvgIcon svg={closeSvg} size={18} />
-                    </motion.button>
-                  </motion.div>
+                    </m.button>
+                  </m.div>
                 )}
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Bottom action row — fixed at bottom */}
-            <motion.div
+            <m.div
               className="absolute bottom-0 left-0 right-0 z-[152] pointer-events-none"
               initial={{ opacity: 0, y: 20 }}
               animate={!isLoading && isSummaryOverlayVisible && !isSummarizing && summary ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -279,26 +279,26 @@ function AIFullscreenPageInner(): React.JSX.Element {
                   >
                     <AnimatePresence mode="wait" initial={false}>
                       {copied ? (
-                        <motion.span key="check" className="flex items-center gap-1.5 text-emerald-500"
+                        <m.span key="check" className="flex items-center gap-1.5 text-emerald-500"
                           initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
                           <CheckIcon />Copied
-                        </motion.span>
+                        </m.span>
                       ) : (
-                        <motion.span key="copy" className="flex items-center gap-1.5"
+                        <m.span key="copy" className="flex items-center gap-1.5"
                           initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0.7, opacity: 0 }} transition={{ duration: 0.15 }}>
                           <CopyIcon />Copy
-                        </motion.span>
+                        </m.span>
                       )}
                     </AnimatePresence>
                   </button>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

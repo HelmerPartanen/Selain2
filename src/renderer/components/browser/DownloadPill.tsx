@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useRef, useEffect, useLayoutEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
@@ -259,7 +259,7 @@ function DownloadPillInner(): React.JSX.Element {
 
       <AnimatePresence>
         {isOpen && hasItems && popoverPos && (
-          <motion.div
+          <m.div
             className="fixed z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             style={{ left: popoverPos.left, top: popoverPos.top, originY: popoverBelow ? 0 : 1, originX: 1 }}
             initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: enterY }}
@@ -284,7 +284,7 @@ function DownloadPillInner(): React.JSX.Element {
                   <DownloadRow key={item.id} item={item} />
                 ))}
               </div>
-            </motion.div>
+            </m.div>
         )}
       </AnimatePresence>
     </div>

@@ -7,7 +7,7 @@
 //   z-[80]  \u2014 dimmed backdrop
 //   z-[85]  \u2014 panel surface (sits above backdrop, below toasts at z-[200])
 
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useEffect, useRef } from 'react'
 import { useSettingsStore } from '@/store/settingsStore'
 import { SPRING } from '@/utils/springs'
@@ -44,7 +44,7 @@ interface PanelModalProps {
   height: string
   /** Extra classes applied to the panel surface */
   className?: string
-  /** Passed through to the motion.div for ARIA semantics */
+  /** Passed through to the m.div for ARIA semantics */
   role?: string
   'aria-label'?: string
   'aria-modal'?: boolean
@@ -137,7 +137,7 @@ export function PanelModal({
   return (
     <>
       {/* Dimmed backdrop \u2014 click-away closes the panel */}
-      <motion.div
+      <m.div
         className="fixed inset-0 z-[80] bg-black/25"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -151,7 +151,7 @@ export function PanelModal({
 
       {/* Centering wrapper \u2014 pointer-events disabled so backdrop click-away works */}
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
-        <motion.div
+        <m.div
           ref={panelRef}
           role={role}
           aria-modal={aria['aria-modal']}
@@ -165,7 +165,7 @@ export function PanelModal({
           transition={disableAnimations ? { duration: 0 } : PANEL_TRANSITION}
         >
           {children}
-        </motion.div>
+        </m.div>
       </div>
     </>
   )

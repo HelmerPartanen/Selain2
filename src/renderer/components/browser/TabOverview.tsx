@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { Button } from '@/components/ui/Button'
@@ -80,14 +80,14 @@ const TabCard = memo(function TabCard({
   const title = preview.title || 'New Tab'
 
   return (
-    <motion.div
+    <m.div
       layout={!disableAnimations}
       className="group relative tab-overview-card"
       style={{ animationDelay: disableAnimations ? undefined : `${index * 40}ms` }}
       exit={disableAnimations ? undefined : { scale: 0.8, opacity: 0 }}
       transition={disableAnimations ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
     >
-      <motion.button
+      <m.button
         onClick={onSelect}
         whileTap={{ scale: 0.99 }}
         className={`
@@ -169,7 +169,7 @@ const TabCard = memo(function TabCard({
             {preview.isSuspended && <span className="px-1.5 py-0.5 rounded-full bg-neutral-700 text-white text-[9px]">Sleeping</span>}
           </div>
         </div>
-      </motion.button>
+      </m.button>
 
 
       {/* Close button — only shown when the tab can be closed */}
@@ -206,7 +206,7 @@ const TabCard = memo(function TabCard({
           <SvgIcon svg={soundFillSvg} size={11} className="flex-shrink-0 text-blue-400" />
         )}
       </div>
-    </motion.div>
+    </m.div>
   )
 })
 
@@ -441,7 +441,7 @@ function TabOverviewInner(): React.JSX.Element {
       {isOpen && (
         <>
           {/* Backdrop — solid overlay */}
-          <motion.div
+          <m.div
             key="tab-overview-backdrop"
             className="fixed inset-0 z-[90] bg-white/50 dark:bg-black/50 backdrop-blur-lg transition-opacity duration-150"
             initial={disableAnimations ? undefined : { opacity: 0 }}
@@ -452,7 +452,7 @@ function TabOverviewInner(): React.JSX.Element {
           />
 
           {/* Content */}
-          <motion.div
+          <m.div
             key="tab-overview-content"
             className="fixed inset-0 z-[95] flex flex-col items-center overflow-y-auto py-12 px-8"
             initial={disableAnimations ? undefined : { opacity: 0, y: 24 }}
@@ -537,7 +537,7 @@ function TabOverviewInner(): React.JSX.Element {
                         {isMoveMenuOpen && (
                           <>
                             <div className="fixed inset-0 z-[99]" onMouseDown={() => setIsMoveMenuOpen(false)} />
-                            <motion.div
+                            <m.div
                               className="absolute top-full left-1/2 z-[110] mt-2 min-w-[220px]"
                               style={{ originX: 0.5, originY: 0, x: '-50%' }}
                               initial={disableAnimations ? undefined : {
@@ -601,7 +601,7 @@ function TabOverviewInner(): React.JSX.Element {
                                   )}
                                 </div>
                               </div>
-                            </motion.div>
+                            </m.div>
                           </>
                         )}
                       </AnimatePresence>
@@ -681,7 +681,7 @@ function TabOverviewInner(): React.JSX.Element {
                 </Button>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

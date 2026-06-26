@@ -2,7 +2,7 @@ import {
   forwardRef,
   memo,
 } from "react";
-import { motion, type HTMLMotionProps } from "motion/react";
+import { m, type HTMLMotionProps } from "motion/react";
 import { SPRING_SNAPPY } from "@/utils/springs";
 import { cn } from "@/utils/classNames";
 
@@ -80,7 +80,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
       size ?? (variant === "icon" ? "icon-sm" : "sm");
 
     return (
-      <motion.button
+      <m.button
         ref={ref}
         disabled={disabled}
         type={type}
@@ -97,7 +97,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {children}
-      </motion.button>
+      </m.button>
     );
   },
 );

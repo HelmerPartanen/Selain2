@@ -1,9 +1,7 @@
-import { memo, useCallback, useRef, useSyncExternalStore } from 'react'
+import { lazy, memo, Suspense, useCallback, useRef, useSyncExternalStore } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { WebViewInstance } from './WebViewInstance'
-import { NewTabPage } from '@/newtab/NewTabPage'
-import { UIKitPage } from '@/uikit/UIKitPage'
 import { isSpecialPage } from '@/utils/urlUtils'
 
 interface WebViewEntry {
@@ -11,9 +9,29 @@ interface WebViewEntry {
   initialUrl: string
 }
 
+const NewTabPage = lazy(() =>
+  import('@/newtab/NewTabPage').then((m) => ({ default: m.NewTabPage }))
+)
+
+const UIKitPage = lazy(() =>
+  import('@/uikit/UIKitPage').then((m) => ({ default: m.UIKitPage }))
+)
+
 function SpecialPage({ url }: { url: string }): React.JSX.Element | null {
-  if (url === 'browser://newtab') return <NewTabPage />
-  if (url === 'browser://uikit') return <UIKitPage />
+  if (url === 'browser://newtab') {
+    return (
+      <Suspense fallback={<div className="absolute inset-0" aria-hidden />}>
+        <NewTabPage />
+      </Suspense>
+    )
+  }
+  if (url === 'browser://uikit') {
+    return (
+      <Suspense fallback={<div className="absolute inset-0" aria-hidden />}>
+        <UIKitPage />
+      </Suspense>
+    )
+  }
   return null
 }
 

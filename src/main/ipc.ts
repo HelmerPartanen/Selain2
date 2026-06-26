@@ -586,21 +586,25 @@ export function setupIPC(): void {
   })
 
   // ── Performance diagnostics ─────────────────────────────────────────────
-  ipcMain.handle('perf-get-snapshot', () => {
-    return getLatestPerfSnapshot()
-  })
+  // Only registered when BROWSER_PERF_BENCH=1. The renderer checks the same
+  // flag and skips calling these handlers under normal operation.
+  if (process.env['BROWSER_PERF_BENCH'] === '1') {
+    ipcMain.handle('perf-get-snapshot', () => {
+      return getLatestPerfSnapshot()
+    })
 
-  ipcMain.handle('perf-get-snapshots', (_event, limit?: number) => {
-    const safeLimit = typeof limit === 'number' ? limit : 120
-    return getPerfSnapshots(safeLimit)
-  })
+    ipcMain.handle('perf-get-snapshots', (_event, limit?: number) => {
+      const safeLimit = typeof limit === 'number' ? limit : 120
+      return getPerfSnapshots(safeLimit)
+    })
 
-  ipcMain.handle('perf-start-monitor', (_event, intervalMs?: number) => {
-    const safeInterval = typeof intervalMs === 'number' ? intervalMs : 10000
-    return startPerfMonitor(safeInterval)
-  })
+    ipcMain.handle('perf-start-monitor', (_event, intervalMs?: number) => {
+      const safeInterval = typeof intervalMs === 'number' ? intervalMs : 10000
+      return startPerfMonitor(safeInterval)
+    })
 
-  ipcMain.handle('perf-stop-monitor', () => {
-    return stopPerfMonitor()
-  })
+    ipcMain.handle('perf-stop-monitor', () => {
+      return stopPerfMonitor()
+    })
+  }
 }

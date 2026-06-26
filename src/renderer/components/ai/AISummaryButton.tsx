@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import summarySvg from '@/assets/icons/Interface/Summary2.svg?raw'
@@ -115,7 +115,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
         <div className="absolute bottom-0 right-0 w-24 h-24 pointer-events-auto" onMouseEnter={handleEnter} onMouseLeave={handleLeave} />
 
         {/* STACK */}
-        <motion.div
+        <m.div
           className="relative flex items-center pointer-events-auto"
           animate={{
             opacity: expanded ? 1 : 0,
@@ -125,7 +125,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
           transition={transition}
         >
           {/* TOOLBOX */}
-          <motion.button
+          <m.button
             aria-label="Toolbox"
             onClick={() => {
               handleToggle()
@@ -140,15 +140,15 @@ function ReadingToolsButtonInner(): React.JSX.Element {
             }}
             transition={transition}
           >
-            <motion.div animate={open || tilt ? { rotate: -25 } : { rotate: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 18 }}>
+            <m.div animate={open || tilt ? { rotate: -25 } : { rotate: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 18 }}>
               <div style={{ display: 'flex' }}>
                 <SvgIcon svg={bookMenuSvg} size={18} className="text-violet-500 dark:text-violet-400" />
               </div>
-            </motion.div>
-          </motion.button>
+            </m.div>
+          </m.button>
 
           {/* AI SUMMARY (INDEX 0) */}
-          <motion.button
+          <m.button
             onClick={() => {
               openAIFullscreen()
               handleToggle()
@@ -170,10 +170,10 @@ function ReadingToolsButtonInner(): React.JSX.Element {
             whileTap={{ scale: 0.85 }}
           >
             <SvgIcon svg={summarySvg} size={18} className="text-blue-400" />
-          </motion.button>
+          </m.button>
 
           {/* READER MODE (INDEX 1) */}
-          <motion.button
+          <m.button
             onClick={() => {
               openReaderMode()
               handleToggle()
@@ -195,8 +195,8 @@ function ReadingToolsButtonInner(): React.JSX.Element {
             whileTap={{ scale: 0.85 }}
           >
             <SvgIcon svg={bookTextSvg} size={18} className="text-emerald-500" />
-          </motion.button>
-        </motion.div>
+          </m.button>
+        </m.div>
       </div>
     </div>
   )

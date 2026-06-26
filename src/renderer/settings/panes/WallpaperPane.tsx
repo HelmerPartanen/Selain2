@@ -1,6 +1,6 @@
 // ─── Wallpaper Settings Pane ─────────────────────────────────────────────────
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Text } from "@/components/ui/Text";
@@ -21,12 +21,12 @@ import {
 } from "@/theme/bundledWallpapers";
 import {
   DYNAMIC_WALLPAPER_KEY,
-  DYNAMIC_WALLPAPERS,
   type DynamicWallpaperSet,
   type DynamicWallpaperMode,
   getDynamicWallpaperLayers,
   getDynamicWallpaperMode,
   isDynamicWallpaperKey,
+  loadDynamicWallpapers,
   setDynamicWallpaperMode,
   subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
@@ -384,9 +384,27 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
     return () => window.removeEventListener("pointerdown", handlePointerDown);
   }, [isMenuOpen]);
 
-  const dynamicLayers = useMemo(() => {
-    if (!isDynamic) return [];
-    return getDynamicWallpaperLayers(wallpaper, new Date(), dynamicMode);
+  const [dynamicLayers, setDynamicLayers] = useState<
+    { url: string; opacity: number }[]
+  >([]);
+
+  useEffect(() => {
+    if (!isDynamic) {
+      setDynamicLayers([]);
+      return;
+    }
+    let cancelled = false;
+    getDynamicWallpaperLayers(wallpaper, new Date(), dynamicMode)
+      .then((layers) => {
+        if (!cancelled) setDynamicLayers(layers);
+      })
+      .catch((err) => {
+        logger.warn("Failed to resolve dynamic wallpaper preview:", err);
+        if (!cancelled) setDynamicLayers([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [isDynamic, wallpaper, dynamicMode]);
 
   return (
@@ -496,6 +514,23 @@ function WallpaperPaneInner(): React.JSX.Element {
   const [dynamicMode, setDynamicModeState] = useState<DynamicWallpaperMode>(
     () => getDynamicWallpaperMode(),
   );
+  const [dynamicWallpapers, setDynamicWallpapers] = useState<
+    DynamicWallpaperSet[]
+  >([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadDynamicWallpapers()
+      .then((sets) => {
+        if (!cancelled) setDynamicWallpapers(sets);
+      })
+      .catch((err) => {
+        logger.warn("Failed to load dynamic wallpapers:", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSelectPreset = useCallback(
     (dataUrl: string) => {
@@ -613,7 +648,7 @@ function WallpaperPaneInner(): React.JSX.Element {
           role="listbox"
           aria-label="Bundled wallpapers"
         >
-          {DYNAMIC_WALLPAPERS.map((dynamicWallpaper) => (
+          {dynamicWallpapers.map((dynamicWallpaper) => (
             <DynamicThumb
               key={dynamicWallpaper.storageKey}
               wallpaper={dynamicWallpaper}

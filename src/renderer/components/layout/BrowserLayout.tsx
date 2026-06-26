@@ -1,11 +1,8 @@
-﻿import React, {
+import React, {
   lazy,
   memo,
   useCallback,
   Suspense,
-  useEffect,
-  useMemo,
-  useRef,
   useState,
 } from "react";
 import { AnimatePresence } from "motion/react";
@@ -23,24 +20,20 @@ import { useAISetup } from "@/hooks/useAISetup";
 import { usePermissionRequests } from "@/hooks/usePermissionRequests";
 import { useTrackpadTabSwipe } from "@/hooks/useTrackpadTabSwipe";
 import { useFocusedTabUrl } from "@/hooks/useTabSelector";
-import { useIsDark } from "@/hooks/useIsDark";
+import { useAppSideEffects } from "@/hooks/useAppSideEffects";
+import { useWallpaperBackground, useUIZoom } from "@/hooks/useWallpaperBackground";
+import { useModalPreload } from "@/hooks/useModalPreload";
+import { useReadingToolsReveal } from "@/hooks/useReadingToolsReveal";
+import { useSettingsStore } from "@/store/settingsStore";
 import { useTabStore } from "@/store/tabStore";
-import { useThemeStore } from "@/store/themeStore";
 import { useUIStore } from "@/store/uiStore";
 import { useAIStore } from "@/store/aiStore";
-import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
-import { logger } from "@/utils/logger";
 import { useShallow } from "zustand/react/shallow";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Text } from "@/components/ui/Text";
-import { showToast, ToastContainer } from "@/components/ui/Toast";
-import { onSessionRestoreFailed } from "@/store/tabStore";
-import { useSettingsStore } from "@/store/settingsStore";
-import { useHistoryStore } from "@/store/historyStore";
-import { useDownloadStore } from "@/store/downloadStore";
-import { useBookmarkStore } from "@/store/bookmarkStore";
+import { ToastContainer } from "@/components/ui/Toast";
 
 const SettingsPanel = lazy(() =>
   import("@/settings/SettingsPanel").then((m) => ({
@@ -91,22 +84,6 @@ const OnboardingFlow = lazy(() =>
   })),
 );
 
-const CLEAR_ON_EXIT_STORES = [
-  "browser-history",
-  "download-history",
-  "bookmark-store",
-] as const;
-
-type DynamicWallpaperMode = "dynamic" | "light" | "dark";
-type DynamicWallpaperLayer = { url: string; opacity: number };
-
-const isBundledWallpaperKey = (value: string): boolean =>
-  value.startsWith("bundled:");
-const isDynamicWallpaperKey = (value: string): boolean =>
-  value.startsWith("dynamic:");
-const isPresetWallpaperKey = (value: string): boolean =>
-  value.startsWith("preset:");
-
 function PanelLoadingFallback(): React.JSX.Element {
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
@@ -128,7 +105,7 @@ function MainContentErrorFallback({
   return (
     <div className="absolute inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
       <Card variant="elevated" padding="lg" className="max-w-sm text-center">
-        <div className="text-3xl mb-3">âš ï¸</div>
+        <div className="text-3xl mb-3">⚠️</div>
         <Text as="h3" size="title" tone="primary" className="mb-2">
           Something went wrong
         </Text>
@@ -136,18 +113,10 @@ function MainContentErrorFallback({
           The tab area had a problem. Try again or open a new tab.
         </Text>
         <div className="flex gap-2 justify-center">
-          <Button
-            variant="primary"
-            size="md"
-            onClick={onRetry}
-          >
+          <Button variant="primary" size="md" onClick={onRetry}>
             Try Again
           </Button>
-          <Button
-            variant="subtle"
-            size="md"
-            onClick={onNewTab}
-          >
+          <Button variant="subtle" size="md" onClick={onNewTab}>
             New tab
           </Button>
         </div>
@@ -164,11 +133,12 @@ function BrowserLayoutInner(): React.JSX.Element {
   useTrackpadTabSwipe();
   useAISetup();
   usePermissionRequests();
-  const wallpaper = useThemeStore((s) => s.wallpaper);
-  const uiZoom = useSettingsStore((s) => s.uiZoom);
+  useAppSideEffects();
+  useModalPreload();
+  useUIZoom();
+
   const uiLayout = useSettingsStore((s) => s.uiLayout);
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);
-  const clearOnExit = useSettingsStore((s) => s.clearOnExit);
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
   const isAISummarizing = useAIStore((s) => s.isSummarizing);
   const focusedTabUrl = useFocusedTabUrl();
@@ -215,11 +185,19 @@ function BrowserLayoutInner(): React.JSX.Element {
       setDownloadPopoverOpen: s.setDownloadPopoverOpen,
     })),
   );
+
+  const showReadingTools = useReadingToolsReveal();
+  const {
+    wallpaperUrl,
+    dynamicLayers,
+    isDynamic: isDynamicWallpaper,
+    dynamicMode,
+  } = useWallpaperBackground();
+
   const isSummaryFrameActive = isAIFullscreenOpen && isAISummarizing;
   const isFocusedNewTab = focusedTabUrl === "browser://newtab";
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
-  const [showReadingTools, setShowReadingTools] = useState(false);
 
   const handleMainContentErrorRetry = useCallback(() => {
     setMainContentErrorKey((k) => k + 1);
@@ -230,404 +208,12 @@ function BrowserLayoutInner(): React.JSX.Element {
     setMainContentErrorKey((k) => k + 1);
   }, []);
 
-  // Resolve theme-aware wallpapers â€” preset gradients adapt to dark/light.
-  const isDark = useIsDark();
-  const isDynamicWallpaper = !!wallpaper && isDynamicWallpaperKey(wallpaper);
-  const [dynamicWallpaperNow, setDynamicWallpaperNow] = useState(
-    () => new Date(),
-  );
-  const [dynamicWallpaperMode, setDynamicWallpaperModeState] =
-    useState<DynamicWallpaperMode>("dynamic");
-  const [dynamicWallpaperLayers, setDynamicWallpaperLayers] = useState<
-    DynamicWallpaperLayer[]
-  >([]);
-
-  useEffect(() => {
-    if (!isDynamicWallpaper) return;
-    setDynamicWallpaperNow(new Date());
-    const id = window.setInterval(() => {
-      setDynamicWallpaperNow(new Date());
-    }, 60000);
-    return () => window.clearInterval(id);
-  }, [isDynamicWallpaper]);
-
-  useEffect(() => {
-    if (!isDynamicWallpaper) return;
-    let unsubscribe: (() => void) | undefined;
-    let cancelled = false;
-
-    import("@/theme/dynamicWallpapers").then((module) => {
-      if (cancelled) return;
-      setDynamicWallpaperModeState(module.getDynamicWallpaperMode());
-      unsubscribe = module.subscribeDynamicWallpaperMode(() => {
-        setDynamicWallpaperModeState(module.getDynamicWallpaperMode());
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      unsubscribe?.();
-    };
-  }, [isDynamicWallpaper]);
-
-  // Bundled wallpapers are lazy-loaded; cache the resolved URL so we don't re-import every frame.
-  const [bundledResolvedUrl, setBundledResolvedUrl] = useState<string | null>(
-    null,
-  );
-  useEffect(() => {
-    if (!wallpaper || !isBundledWallpaperKey(wallpaper)) {
-      setBundledResolvedUrl(null);
-      return;
-    }
-    let cancelled = false;
-    import("@/theme/bundledWallpapers").then((module) => {
-      module.resolveBundledWallpaperUrl(wallpaper).then(
-        (url) => {
-          if (!cancelled) setBundledResolvedUrl(url);
-        },
-        () => {
-          if (!cancelled) setBundledResolvedUrl(null);
-        },
-      );
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [wallpaper]);
-
-  const [presetResolvedUrl, setPresetResolvedUrl] = useState<string | null>(
-    null,
-  );
-  useEffect(() => {
-    if (!wallpaper || !isPresetWallpaperKey(wallpaper)) {
-      setPresetResolvedUrl(null);
-      return;
-    }
-    let cancelled = false;
-    import("@/theme/presets").then((module) => {
-      if (!cancelled) {
-        setPresetResolvedUrl(module.resolvePresetUrl(wallpaper, isDark));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [wallpaper, isDark]);
-
-  // Track all issued blob URLs to prevent accumulation
-  const blobUrlsRef = useRef<Set<string>>(new Set());
-
-  // Convert data URLs to blob URLs for efficient CSS rendering.
-  // Blob URLs avoid the rendering engine re-parsing multi-MB base64 strings.
-  const wallpaperUrl = useMemo(() => {
-    if (!wallpaper) return null;
-    if (isDynamicWallpaperKey(wallpaper)) return null;
-    if (isPresetWallpaperKey(wallpaper)) return presetResolvedUrl;
-    // Bundled keys: use async-resolved URL (may be null until loaded)
-    if (isBundledWallpaperKey(wallpaper)) return bundledResolvedUrl;
-    const resolved = wallpaper;
-    if (resolved.startsWith("data:image/svg+xml")) return resolved;
-    if (resolved.startsWith("blob:")) return resolved;
-
-    // Create blob URL and track it immediately
-    if (resolved.startsWith("data:")) {
-      const blobUrl = dataUrlToBlobUrl(resolved);
-      blobUrlsRef.current.add(blobUrl);
-      return blobUrl;
-    }
-    return resolved;
-  }, [wallpaper, bundledResolvedUrl, presetResolvedUrl]);
-
-  useEffect(() => {
-    if (!isDynamicWallpaper) {
-      setDynamicWallpaperLayers([]);
-      return;
-    }
-
-    let cancelled = false;
-    import("@/theme/dynamicWallpapers").then((module) => {
-      if (cancelled) return;
-      setDynamicWallpaperLayers(
-        module.getDynamicWallpaperLayers(
-          wallpaper,
-          dynamicWallpaperNow,
-          dynamicWallpaperMode,
-        ),
-      );
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    isDynamicWallpaper,
-    wallpaper,
-    dynamicWallpaperNow,
-    dynamicWallpaperMode,
-  ]);
-
-  useEffect(() => {
-    if (!isDynamicWallpaper) return;
-
-    let urlsToPreload: string[] = [];
-    const renderedUrls = new Set(
-      dynamicWallpaperLayers.map((layer) => layer.url),
-    );
-
-    const preload = async (): Promise<void> => {
-      const module = await import("@/theme/dynamicWallpapers");
-      urlsToPreload = module
-        .getDynamicWallpaperVariantUrls(wallpaper)
-        .filter((url) => !renderedUrls.has(url));
-      if (urlsToPreload.length === 0) return;
-
-      for (const url of urlsToPreload) {
-        const img = new Image();
-        img.decoding = "async";
-        img.src = url;
-      }
-    };
-
-    const ric = window as Window & {
-      requestIdleCallback?: (
-        cb: () => void,
-        opts?: { timeout: number },
-      ) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-
-    if (ric.requestIdleCallback) {
-      let idleId: number | undefined;
-      const timer = window.setTimeout(() => {
-        idleId = ric.requestIdleCallback?.(
-          () => {
-            void preload();
-          },
-          { timeout: 3000 },
-        );
-      }, 5000);
-      return () => {
-        window.clearTimeout(timer);
-        if (ric.cancelIdleCallback && idleId !== undefined) {
-          ric.cancelIdleCallback(idleId);
-        }
-      };
-    }
-
-    const timer = window.setTimeout(() => {
-      void preload();
-    }, 5000);
-    return () => window.clearTimeout(timer);
-  }, [dynamicWallpaperLayers, isDynamicWallpaper, wallpaper]);
-
-  // Revoke old blob URLs after new one is rendered, preventing accumulation
-  useEffect(() => {
-    // Revoke all blob URLs except the current one
-    const toRevoke: string[] = [];
-    const currentUrl = wallpaperUrl;
-
-    for (const url of blobUrlsRef.current) {
-      if (url !== currentUrl) {
-        toRevoke.push(url);
-      }
-    }
-
-    // Revoke synchronously and remove from tracking
-    for (const url of toRevoke) {
-      try {
-        URL.revokeObjectURL(url);
-        blobUrlsRef.current.delete(url);
-      } catch (err) {
-        logger.warn("Failed to revoke blob URL:", err);
-      }
-    }
-
-    return () => {
-      // On unmount, revoke all remaining blob URLs
-      for (const url of blobUrlsRef.current) {
-        try {
-          URL.revokeObjectURL(url);
-        } catch (err) {
-          logger.warn("Failed to revoke blob URL on unmount:", err);
-        }
-      }
-      blobUrlsRef.current.clear();
-    };
-  }, [wallpaperUrl]);
-
-  // â”€â”€ Apply UI zoom scale via Electron webFrame â”€â”€
-  useEffect(() => {
-    window.electronAPI.setZoomFactor(uiZoom / 100);
-    return () => {
-      window.electronAPI.setZoomFactor(1);
-    };
-  }, [uiZoom]);
-
-  // â”€â”€ Clear browsing data on exit if enabled â”€â”€
-  useEffect(() => {
-    if (!clearOnExit) return;
-    const handleBeforeUnload = (): void => {
-      useHistoryStore.getState().clearAll();
-      const dlStore = useDownloadStore.getState();
-      Object.keys(dlStore.downloads).forEach((id) =>
-        dlStore.removeDownload(id),
-      );
-      const bmStore = useBookmarkStore.getState();
-      bmStore.bookmarks.forEach((b) => bmStore.removeBookmark(b.url));
-
-      // Ensure persisted data is cleared immediately instead of waiting for
-      // debounced async store writes that may not finish during shutdown.
-      window.electronAPI.clearStoresSync([...CLEAR_ON_EXIT_STORES]);
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [clearOnExit]);
-
-  // Gate initial tab creation on hydration to avoid a spurious blank tab
-  // being added before the persisted session has been restored.
-  useEffect(() => {
-    function ensureTab(): void {
-      if (useTabStore.getState().tabOrder.length === 0) {
-        useTabStore.getState().addTab();
-      }
-    }
-
-    if (useTabStore.persist.hasHydrated()) {
-      ensureTab();
-    } else {
-      const unsub = useTabStore.persist.onFinishHydration(() => {
-        ensureTab();
-        unsub();
-      });
-    }
-  }, []);
-
-  // â”€â”€ Open links from webviews in new tabs â”€â”€
-  useEffect(() => {
-    return window.electronAPI.onOpenUrlInNewTab((url: string) => {
-      useTabStore.getState().addTab(url);
-    });
-  }, []);
-
-  // â”€â”€ Session restore failed (corrupt tab-session JSON) â”€â”€
-  useEffect(() => {
-    return onSessionRestoreFailed(() => {
-      showToast({
-        message: "Session could not be restored; starting fresh.",
-        type: "info",
-      });
-      // Auto-create a new tab so user isn't left with empty tab list
-      useTabStore.getState().addTab();
-    });
-  }, []);
-
-  // â”€â”€ Toast notification on download completion â”€â”€
-  useEffect(() => {
-    const prevStates = new Map<string, string>();
-    return useDownloadStore.subscribe((state) => {
-      for (const [id, dl] of Object.entries(state.downloads)) {
-        const prev = prevStates.get(id);
-        prevStates.set(id, dl.state);
-        if (prev === "progressing" && dl.state === "completed") {
-          showToast({ message: `Downloaded: ${dl.filename}`, type: "success" });
-        }
-      }
-      for (const id of prevStates.keys()) {
-        if (!state.downloads[id]) prevStates.delete(id);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    const reveal = (): void => setShowReadingTools(true);
-    const ric = window as Window & {
-      requestIdleCallback?: (
-        cb: () => void,
-        opts?: { timeout: number },
-      ) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-
-    if (ric.requestIdleCallback) {
-      let idleId: number | undefined;
-      const timer = window.setTimeout(() => {
-        idleId = ric.requestIdleCallback?.(reveal, { timeout: 1500 });
-      }, 2500);
-      return () => {
-        window.clearTimeout(timer);
-        if (ric.cancelIdleCallback && idleId !== undefined) {
-          ric.cancelIdleCallback(idleId);
-        }
-      };
-    }
-
-    const timer = window.setTimeout(reveal, 2500);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  // Preload heavy modal chunks after startup settles.
-  useEffect(() => {
-    if (
-      isSettingsOpen ||
-      isBookmarksOpen ||
-      isHistoryOpen ||
-      isDownloadsOpen ||
-      isTabOverviewOpen ||
-      isAIFullscreenOpen ||
-      isReaderModeOpen
-    ) {
-      return;
-    }
-
-    const preload = (): void => {
-      void import("@/settings/SettingsPanel");
-      void import("@/bookmarks/BookmarksPage");
-      void import("@/history/HistoryPage");
-      void import("@/downloads/DownloadsPage");
-      void import("@/components/browser/TabOverview");
-      void import("@/components/ai/AIFullscreenPage");
-      void import("@/components/reader/ReaderModePage");
-    };
-
-    const ric = window as Window & {
-      requestIdleCallback?: (
-        cb: () => void,
-        opts?: { timeout: number },
-      ) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-
-    if (ric.requestIdleCallback) {
-      let idleId: number | undefined;
-      const timer = window.setTimeout(() => {
-        idleId = ric.requestIdleCallback?.(preload, { timeout: 2000 });
-      }, 10000);
-      return () => {
-        window.clearTimeout(timer);
-        if (ric.cancelIdleCallback && idleId !== undefined) {
-          ric.cancelIdleCallback(idleId);
-        }
-      };
-    }
-
-    const timer = window.setTimeout(preload, 10000);
-    return () => window.clearTimeout(timer);
-  }, [
-    isSettingsOpen,
-    isBookmarksOpen,
-    isHistoryOpen,
-    isDownloadsOpen,
-    isTabOverviewOpen,
-    isAIFullscreenOpen,
-    isReaderModeOpen,
-  ]);
-
   return (
     <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
-      {/* Wallpaper layer â€” fixed behind everything */}
+      {/* Wallpaper layer — fixed behind everything */}
       <div className="fixed inset-0 z-0 bg-gray-100 dark:bg-neutral-900">
         {isDynamicWallpaper ? (
-          dynamicWallpaperLayers.map((layer) => (
+          dynamicLayers.map((layer) => (
             <div
               key={layer.url}
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -636,7 +222,7 @@ function BrowserLayoutInner(): React.JSX.Element {
                 opacity: layer.opacity,
                 transition: disableAnimations
                   ? undefined
-                  : dynamicWallpaperMode === "dynamic"
+                  : dynamicMode === "dynamic"
                     ? "opacity 70s linear"
                     : "opacity 220ms ease-out",
               }}
@@ -659,7 +245,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       {uiLayout === "floating" && (
         <div className="fixed top-0 left-0 right-0 h-2.5 z-[60] [app-region:drag]" />
       )}
-      {/* Web content â€” inset below classic chrome when applicable */}
+      {/* Web content — inset below classic chrome when applicable */}
       <div
         className="relative z-10 h-full"
         style={
@@ -809,13 +395,13 @@ function BrowserLayoutInner(): React.JSX.Element {
         />
       )}
 
-      {/* Window controls (floating layout â€” classic embeds controls in chrome) */}
+      {/* Window controls (floating layout — classic embeds controls in chrome) */}
       {uiLayout === "floating" && <WindowControls />}
 
       {/* Toast notifications */}
       <ToastContainer />
 
-      {/* Settings modal â€” rendered at root level to escape FloatingControls transform */}
+      {/* Settings modal — rendered at root level to escape FloatingControls transform */}
       <AnimatePresence>
         {isSettingsOpen && (
           <ErrorBoundary>
@@ -870,7 +456,7 @@ function BrowserLayoutInner(): React.JSX.Element {
         )}
       </AnimatePresence>
 
-      {/* Onboarding â€” shown once for first-run users */}
+      {/* Onboarding — shown once for first-run users */}
       <AnimatePresence>
         {!onboardingCompleted && (
           <Suspense fallback={<PanelLoadingFallback />}>

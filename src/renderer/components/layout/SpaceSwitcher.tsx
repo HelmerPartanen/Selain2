@@ -3,7 +3,7 @@
 // Sits between the AppMenu and the first divider in the floating controls bar.
 
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { Button } from '@/components/ui/Button'
 import { TextInput } from '@/components/ui/Input'
@@ -462,7 +462,7 @@ const popoverBelow = uiLayout === 'classic'
             {/* Click-away */}
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
 
-            <motion.div
+            <m.div
 className={`${
   popoverBelow
     ? 'fixed mt-10'
@@ -490,7 +490,7 @@ className={`${
               <div className={`rounded-xl shadow-sm overflow-hidden min-w-[280px] ${popoverSurface}`}>
                 <AnimatePresence mode="wait" initial={false}>
                   {editingId && spaces[editingId] ? (
-                            <motion.div
+                            <m.div
                       key={`edit-${editingId}`}
                       initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -501,9 +501,9 @@ className={`${
                         space={spaces[editingId]!}
                         onDone={() => setEditingId(null)}
                       />
-                    </motion.div>
+                    </m.div>
                   ) : isCreating ? (
-                    <motion.div
+                    <m.div
                       key="create"
                       initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -514,9 +514,9 @@ className={`${
                         onSubmit={handleCreate}
                         onCancel={() => setIsCreating(false)}
                       />
-                    </motion.div>
+                    </m.div>
                   ) : (
-                    <motion.div
+                    <m.div
                       key="list"
                       initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -559,11 +559,11 @@ className={`${
                         <span className="text-[13px]">New Space</span>
                       </Button>
                     </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

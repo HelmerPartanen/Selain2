@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
@@ -296,7 +296,7 @@ function TabPillInner(): React.JSX.Element {
         {isExpanded && tabCount > 1 && (
           <>
             <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
-            <motion.div
+            <m.div
               className="absolute bottom-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px] mb-2"
               style={{ originX: 0.5, originY: 1 }}
               initial={disableAnimations ? undefined : {
@@ -345,7 +345,7 @@ function TabPillInner(): React.JSX.Element {
                 </div>
 
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
@@ -361,7 +361,7 @@ function TabPillInner(): React.JSX.Element {
 
       <AnimatePresence initial={false}>
         {bgMediaPlaying && (
-          <motion.div
+          <m.div
             key="bg-audio-badge"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -370,7 +370,7 @@ function TabPillInner(): React.JSX.Element {
             className="absolute -top-0.5 -right-0.5 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md pointer-events-none"
           >
             <SvgIcon svg={soundFillSvg} size={14} className="text-white" />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

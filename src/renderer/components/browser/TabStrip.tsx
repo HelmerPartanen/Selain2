@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 
 import { Button } from "@/components/ui/Button";
 
@@ -366,7 +366,7 @@ function TabStripInner(): React.JSX.Element {
     <div className="relative z-10">
       <AnimatePresence>
         {menuOpen && tabsButtonAction === "menu" && (
-          <motion.div
+          <m.div
             className="absolute top-full right-0 z-[100] min-w-[230px] max-w-[290px] mt-1"
             initial={
               disableAnimations
@@ -405,7 +405,7 @@ function TabStripInner(): React.JSX.Element {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

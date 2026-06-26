@@ -39,7 +39,7 @@ export default defineConfig({
         },
         output: {
           manualChunks: {
-            'vendor-react': ['react', 'react-dom', 'react/jsx-runtime'],
+            'vendor-react': ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
             'vendor-motion': ['motion', 'motion/react'],
             'vendor-zustand': ['zustand', 'zustand/middleware', 'zustand/react/shallow']
           }

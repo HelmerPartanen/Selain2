@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { m, AnimatePresence, useReducedMotion } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -343,7 +343,7 @@ function ReaderLoadingState({
 }): React.JSX.Element {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-5">
-      <motion.div
+      <m.div
         animate={
           reduceMotion
             ? undefined
@@ -367,7 +367,7 @@ function ReaderLoadingState({
           size={36}
           className="text-[var(--app-accent)] opacity-70"
         />
-      </motion.div>
+      </m.div>
 
       <div className="flex w-48 flex-col items-center gap-3">
         <p className="text-sm text-[var(--app-text-secondary)]">
@@ -376,7 +376,7 @@ function ReaderLoadingState({
 
         <div className="flex w-full gap-1.5">
           {[0, 1, 2].map((i) => (
-            <motion.div
+            <m.div
               key={i}
               className="h-1 flex-1 rounded-full bg-[var(--app-accent)] opacity-30"
               animate={
@@ -543,14 +543,14 @@ function ReaderModePageInner(): React.JSX.Element {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           className="fixed inset-0 z-[150] [app-region:no-drag]"
           initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={reduceMotion ? undefined : { opacity: 0 }}
           transition={spring}
         >
-          <motion.div
+          <m.div
             className={`absolute inset-0 ${surfaceClass}`}
             initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -559,7 +559,7 @@ function ReaderModePageInner(): React.JSX.Element {
           />
 
           <div className="relative z-10 flex h-full flex-col">
-            <motion.div
+            <m.div
               className="flex shrink-0 items-center justify-between px-6 py-3"
               initial={reduceMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -577,7 +577,7 @@ function ReaderModePageInner(): React.JSX.Element {
                 )}
               </div>
 
-              <motion.button
+              <m.button
                 type="button"
                 onClick={closeReaderMode}
                 aria-label="Close reader mode"
@@ -586,14 +586,14 @@ function ReaderModePageInner(): React.JSX.Element {
                 className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--app-text-secondary)] transition-colors hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]"
               >
                 <SvgIcon svg={closeSvg} size={15} />
-              </motion.button>
-            </motion.div>
+              </m.button>
+            </m.div>
 
             <div className="reader-scroll min-h-0 flex-1 px-6 pb-10 text-[var(--app-text-primary)]">
               {isLoading && <ReaderLoadingState reduceMotion={reduceMotion} />}
 
               {!isLoading && error && (
-                <motion.div
+                <m.div
                   className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-3 text-center"
                   initial={reduceMotion ? false : { opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -612,11 +612,11 @@ function ReaderModePageInner(): React.JSX.Element {
                       Try again
                     </button>
                   )}
-                </motion.div>
+                </m.div>
               )}
 
               {!isLoading && article && (
-                <motion.article
+                <m.article
                   className="mx-auto max-w-[42rem] pt-6 pb-20"
                   initial={reduceMotion ? false : { opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -638,11 +638,11 @@ function ReaderModePageInner(): React.JSX.Element {
                   </header>
 
                   <ArticleBody html={article.content} />
-                </motion.article>
+                </m.article>
               )}
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

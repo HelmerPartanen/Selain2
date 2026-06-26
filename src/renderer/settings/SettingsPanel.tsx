@@ -1,9 +1,10 @@
 // ─── Settings Panel ──────────────────────────────────────────────────────────
 // Shell component: sidebar navigation + content router.
-// All panes are extracted to src/renderer/settings/panes/ for maintainability.
+// Each pane is lazy-loaded so the first open of Settings only ships the
+// default pane (general). Subsequent panes stream in on click or hover.
 
-import { memo, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { lazy, memo, Suspense, useEffect, useState } from "react";
+import { m, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { PanelModal } from "@/components/ui/PanelModal";
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -20,17 +21,36 @@ import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import gestureSvg from "@/assets/icons/Human/Finger_Tap.svg?raw";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
-import { GeneralPane } from "@/settings/panes/GeneralPane";
-import { AppearancePane } from "@/settings/panes/AppearancePane";
-import { WallpaperPane } from "@/settings/panes/WallpaperPane";
-import { PrivacyPane } from "@/settings/panes/PrivacyPane";
-import { SearchEnginePane } from "@/settings/panes/SearchEnginePane";
-import { HotkeysPane } from "@/settings/panes/HotkeysPane";
-import { GesturesPane } from "@/settings/panes/GesturesPane";
-import { AccessibilityPane } from "./panes/AccessibilityPane";
-import { AboutPane } from "@/settings/panes/AboutPane";
 import { SPRING_CONTENT } from "@/utils/springs";
 import { cn } from "@/utils/classNames";
+
+const GeneralPane = lazy(() =>
+  import("@/settings/panes/GeneralPane").then((m) => ({ default: m.GeneralPane }))
+);
+const AppearancePane = lazy(() =>
+  import("@/settings/panes/AppearancePane").then((m) => ({ default: m.AppearancePane }))
+);
+const WallpaperPane = lazy(() =>
+  import("@/settings/panes/WallpaperPane").then((m) => ({ default: m.WallpaperPane }))
+);
+const AccessibilityPane = lazy(() =>
+  import("@/settings/panes/AccessibilityPane").then((m) => ({ default: m.AccessibilityPane }))
+);
+const PrivacyPane = lazy(() =>
+  import("@/settings/panes/PrivacyPane").then((m) => ({ default: m.PrivacyPane }))
+);
+const SearchEnginePane = lazy(() =>
+  import("@/settings/panes/SearchEnginePane").then((m) => ({ default: m.SearchEnginePane }))
+);
+const HotkeysPane = lazy(() =>
+  import("@/settings/panes/HotkeysPane").then((m) => ({ default: m.HotkeysPane }))
+);
+const GesturesPane = lazy(() =>
+  import("@/settings/panes/GesturesPane").then((m) => ({ default: m.GesturesPane }))
+);
+const AboutPane = lazy(() =>
+  import("@/settings/panes/AboutPane").then((m) => ({ default: m.AboutPane }))
+);
 
 // --- Sidebar Categories -------------------------------------------------------
 
@@ -66,6 +86,27 @@ const CATEGORIES: CategoryItem[] = [
 
 // --- Content Pane Router ------------------------------------------------------
 
+const PANE_LOADERS: Record<SettingsCategory, () => Promise<{ default: React.ComponentType }>> = {
+  general: () =>
+    import("@/settings/panes/GeneralPane").then((m) => ({ default: m.GeneralPane })),
+  appearance: () =>
+    import("@/settings/panes/AppearancePane").then((m) => ({ default: m.AppearancePane })),
+  wallpaper: () =>
+    import("@/settings/panes/WallpaperPane").then((m) => ({ default: m.WallpaperPane })),
+  accessibility: () =>
+    import("@/settings/panes/AccessibilityPane").then((m) => ({ default: m.AccessibilityPane })),
+  privacy: () =>
+    import("@/settings/panes/PrivacyPane").then((m) => ({ default: m.PrivacyPane })),
+  search: () =>
+    import("@/settings/panes/SearchEnginePane").then((m) => ({ default: m.SearchEnginePane })),
+  hotkeys: () =>
+    import("@/settings/panes/HotkeysPane").then((m) => ({ default: m.HotkeysPane })),
+  gestures: () =>
+    import("@/settings/panes/GesturesPane").then((m) => ({ default: m.GesturesPane })),
+  about: () =>
+    import("@/settings/panes/AboutPane").then((m) => ({ default: m.AboutPane })),
+};
+
 function SettingsContent({
   category,
 }: {
@@ -93,6 +134,29 @@ function SettingsContent({
   }
 }
 
+/** Prefetch a settings pane chunk without mounting it. Safe to call repeatedly. */
+const prefetchedPanes = new Set<SettingsCategory>();
+export function prefetchSettingsPane(category: SettingsCategory): void {
+  if (prefetchedPanes.has(category)) return;
+  prefetchedPanes.add(category);
+  void PANE_LOADERS[category]();
+}
+
+function PaneSkeleton(): React.JSX.Element {
+  return (
+    <div className="flex flex-col gap-3" aria-hidden>
+      <div className="h-6 w-40 rounded-md bg-[var(--app-control-hover)] animate-pulse" />
+      <div className="h-4 w-72 rounded-md bg-[var(--app-control-hover)]/60 animate-pulse" />
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="h-20 rounded-lg bg-[var(--app-control-hover)]/40 animate-pulse" />
+        <div className="h-20 rounded-lg bg-[var(--app-control-hover)]/40 animate-pulse" />
+        <div className="h-20 rounded-lg bg-[var(--app-control-hover)]/40 animate-pulse" />
+        <div className="h-20 rounded-lg bg-[var(--app-control-hover)]/40 animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
 // --- Sidebar ------------------------------------------------------------------
 
 function Sidebar({
@@ -112,6 +176,8 @@ function Sidebar({
   variant="ghost"
   size="md"
   onClick={() => onSelect(id)}
+  onMouseEnter={() => prefetchSettingsPane(id)}
+  onFocus={() => prefetchSettingsPane(id)}
   aria-current={isActive ? "page" : undefined}
   active={isActive}
   className={cn(
@@ -149,6 +215,13 @@ function SettingsPanelInner(): React.JSX.Element {
   const [activeCategory, setActiveCategory] =
     useState<SettingsCategory>("general");
 
+  // Prefetch the default pane + the active one so first paint is instant.
+  // The default pane is loaded eagerly by the lazy() call below; this keeps
+  // it warm after a category switch.
+  useEffect(() => {
+    prefetchSettingsPane(activeCategory);
+  }, [activeCategory]);
+
   const categoryLabel =
     CATEGORIES.find((c) => c.id === activeCategory)?.label ?? "";
 
@@ -178,7 +251,7 @@ function SettingsPanelInner(): React.JSX.Element {
     <div className="flex-1 flex flex-col min-w-0">
       <div className="relative flex items-center justify-center px-6 pt-4 pb-4">
         <AnimatePresence mode="wait">
-          <motion.h3
+          <m.h3
             key={activeCategory}
             initial={disableAnimations ? undefined : { opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
@@ -187,7 +260,7 @@ function SettingsPanelInner(): React.JSX.Element {
             className="text-[18px] font-bold text-[var(--app-text-primary)]"
           >
             {categoryLabel}
-          </motion.h3>
+          </m.h3>
         </AnimatePresence>
 
         <Button
@@ -203,15 +276,17 @@ function SettingsPanelInner(): React.JSX.Element {
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-4 glass-scroll">
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={activeCategory}
             initial={disableAnimations ? undefined : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={disableAnimations ? undefined : { opacity: 0, y: -6 }}
             transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
           >
-            <SettingsContent category={activeCategory} />
-          </motion.div>
+            <Suspense fallback={<PaneSkeleton />}>
+              <SettingsContent category={activeCategory} />
+            </Suspense>
+          </m.div>
         </AnimatePresence>
       </div>
     </div>

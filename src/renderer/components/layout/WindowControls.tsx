@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 
 import { useSettingsStore } from "@/store/settingsStore";
 
@@ -185,7 +185,7 @@ function WindowControlsInner({
 
       <AnimatePresence>
         {!isVisible && (
-          <motion.div
+          <m.div
             initial={disableAnimations ? undefined : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={disableAnimations ? undefined : { opacity: 0 }}
@@ -205,13 +205,13 @@ function WindowControlsInner({
             <div className="w-[5px] h-[5px] rounded-full bg-[var(--app-text-tertiary)]" />
 
             <div className="w-[5px] h-[5px] rounded-full bg-[var(--app-text-tertiary)]" />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {isVisible && (
-          <motion.div
+          <m.div
             className="-mt-0.5 -mr-0.5 rounded-xl flex items-center overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)]"
             style={{ pointerEvents: "auto" }}
             initial={
@@ -247,7 +247,7 @@ function WindowControlsInner({
             >
               <SvgIcon svg={closeSvg} size={12} />
             </FloatingControlButton>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

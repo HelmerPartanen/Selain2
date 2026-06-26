@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { motion, type Transition } from "motion/react";
+import { m, type Transition } from "motion/react";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Text } from "@/components/ui/Text";
 import { GroupBox, SettingGroup, SettingRow } from "@/settings/components/SettingsShared";
@@ -35,7 +35,7 @@ function GestureVisualization({
       return (
         <div className="absolute inset-0 flex items-center justify-center">
           {/* Fingers swiping left to right */}
-          <motion.div
+          <m.div
             className="absolute flex items-center gap-4"
             animate={{
               x: [-50, -50, 50, 50, -50],
@@ -46,7 +46,7 @@ function GestureVisualization({
           >
             <div className={baseFinger} />
             <div className={baseFinger} />
-          </motion.div>
+          </m.div>
         </div>
       );
     }
@@ -55,7 +55,7 @@ function GestureVisualization({
       return (
         <div className="absolute inset-0 flex items-center justify-center">
           {/* Finger 1 (Top Left moving to Center) */}
-          <motion.div
+          <m.div
             className={`${baseFinger} absolute`}
             animate={{
               x: [-45, -45, -12, -12, -45],
@@ -66,7 +66,7 @@ function GestureVisualization({
             transition={gestureTransition}
           />
           {/* Finger 2 (Bottom Right moving to Center) */}
-          <motion.div
+          <m.div
             className={`${baseFinger} absolute`}
             animate={{
               x: [45, 45, 12, 12, 45],
@@ -84,7 +84,7 @@ function GestureVisualization({
       return (
         <div className="absolute inset-0 flex items-center justify-center">
           {/* Finger 1 (Center moving to Top Left) */}
-          <motion.div
+          <m.div
             className={`${baseFinger} absolute`}
             animate={{
               x: [-12, -12, -45, -45, -12],
@@ -95,7 +95,7 @@ function GestureVisualization({
             transition={gestureTransition}
           />
           {/* Finger 2 (Center moving to Bottom Right) */}
-          <motion.div
+          <m.div
             className={`${baseFinger} absolute`}
             animate={{
               x: [12, 12, 45, 45, 12],

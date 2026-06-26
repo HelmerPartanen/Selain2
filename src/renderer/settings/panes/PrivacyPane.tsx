@@ -1,7 +1,7 @@
 // ─── Privacy Settings Pane ───────────────────────────────────────────────────
 
 import { memo, useCallback, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import {
@@ -352,7 +352,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                 className={isConfirming ? "bg-red-500 hover:bg-red-600" : ""}
               >
                 <AnimatePresence mode="wait">
-                  <motion.span
+                  <m.span
                     key={isConfirming ? "confirm" : "label"}
                     initial={{ opacity: 0, y: 2 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -360,7 +360,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                     transition={{ duration: 0.12 }}
                   >
                     {isConfirming ? "Confirm?" : action.label}
-                  </motion.span>
+                  </m.span>
                 </AnimatePresence>
               </Button>
             );

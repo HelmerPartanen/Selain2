@@ -29,6 +29,7 @@ export function useLRUTabManager(): void {
         if (activeTabId) protectedIds.add(activeTabId)
         if (splitTabId) protectedIds.add(splitTabId)
 
+        // Suspend the cold tail of the LRU.
         if (recentOrderRef.current.length > MAX_ALIVE_TABS) {
           const toSuspend = recentOrderRef.current.slice(MAX_ALIVE_TABS)
           for (const id of toSuspend) {
@@ -39,27 +40,35 @@ export function useLRUTabManager(): void {
           }
         }
 
-        // Cap in-memory thumbnails: clear oldest beyond MAX_TAB_THUMBNAILS to bound RAM
+        // Batch thumbnail clearing into a single store mutation so we don't
+        // fire N re-renders when 20 tabs lose their cached previews at once.
         const order = recentOrderRef.current
+        const toClear = new Set<string>()
+
         if (order.length > MAX_TAB_THUMBNAILS) {
-          const toClear = order.slice(MAX_TAB_THUMBNAILS)
-          for (const id of toClear) {
-            if (protectedIds.has(id)) continue
-            const tab = state.tabs[id]
-            if (tab?.thumbnail) {
-              state.updateTab(id, { thumbnail: null })
-            }
+          for (const id of order.slice(MAX_TAB_THUMBNAILS)) {
+            if (!protectedIds.has(id)) toClear.add(id)
           }
         }
-
-        // Also aggressively clear thumbnails for suspended tabs to prevent memory bloat
-        // This ensures thumbnails don't accumulate for tabs that will likely never be viewed again
+        // Aggressively drop thumbnails for already-suspended tabs.
         for (const id of state.tabOrder) {
           const tab = state.tabs[id]
           if (tab && tab.isSuspended && tab.thumbnail && !protectedIds.has(id)) {
-            state.updateTab(id, { thumbnail: null })
+            toClear.add(id)
           }
         }
+
+        if (toClear.size === 0) return
+
+        useTabStore.setState((s) => {
+          const nextTabs = { ...s.tabs }
+          for (const id of toClear) {
+            const tab = nextTabs[id]
+            if (!tab || !tab.thumbnail) continue
+            nextTabs[id] = { ...tab, thumbnail: null }
+          }
+          return { tabs: nextTabs }
+        })
       },
       { equalityFn: (a, b) => a.activeTabId === b.activeTabId && a.splitTabId === b.splitTabId }
     )

@@ -1,5 +1,5 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import { Button } from "@/components/ui/Button";
@@ -59,7 +59,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
         <AnimatePresence initial={false}>
           {showClear && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
@@ -81,7 +81,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
               >
                 <SvgIcon svg={closeSvg} size={13} />
               </Button>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>

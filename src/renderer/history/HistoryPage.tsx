@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { PanelModal } from '@/components/ui/PanelModal'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -38,7 +38,7 @@ const HistoryRow = memo(function HistoryRow({
   const [hovered, setHovered] = useState(false)
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay: index * 0.03 }}
@@ -94,7 +94,7 @@ const HistoryRow = memo(function HistoryRow({
       >
         <SvgIcon svg={trashSvg} size={14} />
       </Button>
-    </motion.div>
+    </m.div>
   )
 })
 
@@ -110,7 +110,7 @@ const RecentlyClosedRow = memo(function RecentlyClosedRow({
   const [hovered, setHovered] = useState(false)
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...SPRING_LIST, delay: index * 0.03 }}
@@ -137,7 +137,7 @@ const RecentlyClosedRow = memo(function RecentlyClosedRow({
       <span className="flex-shrink-0 text-[11px] text-blue-500 dark:text-blue-400 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
         Open
       </span>
-    </motion.div>
+    </m.div>
   )
 })
 

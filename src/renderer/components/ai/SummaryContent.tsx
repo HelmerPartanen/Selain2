@@ -2,7 +2,7 @@
 // Renders real streaming AI output from Ollama. Tokens are received via IPC
 // and stored in aiStore. No fake data — this is the actual model response.
 
-import { motion, AnimatePresence } from 'motion/react'
+import { m, AnimatePresence } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import clockSvg from '@/assets/icons/Time/Clock.svg?raw'
 import { LoadingContent } from './LoadingContent'
@@ -192,7 +192,7 @@ function parseBlocks(raw: string): Block[] {
 function MarkdownBody({ text }: { text: string }): React.JSX.Element {
   const blocks = parseBlocks(text)
   return (
-    <motion.div
+    <m.div
       className="space-y-[8px]"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -201,7 +201,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
       {blocks.map((block, i) => {
         if (block.kind === 'gap') {
           return (
-            <motion.div
+            <m.div
               key={i}
               className="h-2"
               initial={{ opacity: 0 }}
@@ -212,7 +212,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
         }
         if (block.kind === 'h1') {
           return (
-            <motion.h1
+            <m.h1
               key={i}
               className="text-[32px] font-bold text-gray-900 dark:text-white leading-tight mt-3 mb-2"
               initial={{ opacity: 0, y: 6 }}
@@ -220,12 +220,12 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {parseInline(block.text)}
-            </motion.h1>
+            </m.h1>
           )
         }
         if (block.kind === 'h2') {
           return (
-            <motion.h2
+            <m.h2
               key={i}
               className="text-[24px] font-semibold text-gray-800 dark:text-neutral-100 leading-snug mt-2.5 mb-1"
               initial={{ opacity: 0, y: 6 }}
@@ -233,12 +233,12 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {parseInline(block.text)}
-            </motion.h2>
+            </m.h2>
           )
         }
         if (block.kind === 'h3') {
           return (
-            <motion.h3
+            <m.h3
               key={i}
               className="text-[18px] font-semibold text-gray-700 dark:text-neutral-300 leading-snug mt-2 mb-0.5"
               initial={{ opacity: 0, y: 6 }}
@@ -246,12 +246,12 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {parseInline(block.text)}
-            </motion.h3>
+            </m.h3>
           )
         }
         if (block.kind === 'blockquote') {
           return (
-            <motion.blockquote
+            <m.blockquote
               key={i}
               className="border-l-3 border-blue-400 dark:border-blue-500 pl-4 py-1 italic text-gray-600 dark:text-neutral-400 bg-blue-50 dark:bg-blue-950/20 rounded-r px-3"
               initial={{ opacity: 0, x: -6 }}
@@ -259,12 +259,12 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               transition={{ duration: 0.2, delay: i * 0.015 }}
             >
               {parseInline(block.text)}
-            </motion.blockquote>
+            </m.blockquote>
           )
         }
         if (block.kind === 'codeblock') {
           return (
-            <motion.pre
+            <m.pre
               key={i}
               className="bg-gray-900 dark:bg-[#0f1419] border border-gray-700 dark:border-gray-800 rounded-lg p-3 overflow-x-auto text-[13px] font-mono"
               initial={{ opacity: 0, y: 6 }}
@@ -274,12 +274,12 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               <code className="text-gray-300 dark:text-gray-400 leading-relaxed whitespace-pre-wrap break-words">
                 {block.code}
               </code>
-            </motion.pre>
+            </m.pre>
           )
         }
         if (block.kind === 'ul') {
           return (
-            <motion.ul
+            <m.ul
               key={i}
               className="space-y-[4px] pl-0"
               initial={{ opacity: 0, y: 6 }}
@@ -287,7 +287,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {block.items.map((item, j) => (
-                <motion.li
+                <m.li
                   key={j}
                   className="flex gap-3 text-[16px] leading-relaxed text-gray-600 dark:text-neutral-300"
                   initial={{ opacity: 0, x: -4 }}
@@ -296,14 +296,14 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
                 >
                   <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2" style={{ background: 'currentColor', opacity: 0.6 }} />
                   <span>{parseInline(item)}</span>
-                </motion.li>
+                </m.li>
               ))}
-            </motion.ul>
+            </m.ul>
           )
         }
         if (block.kind === 'ol') {
           return (
-            <motion.ol
+            <m.ol
               key={i}
               className="space-y-[4px] pl-0"
               initial={{ opacity: 0, y: 6 }}
@@ -311,7 +311,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
               transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {block.items.map((item, j) => (
-                <motion.li
+                <m.li
                   key={j}
                   className="flex gap-3 text-[16px] leading-relaxed text-gray-600 dark:text-neutral-300"
                   initial={{ opacity: 0, x: -4 }}
@@ -322,13 +322,13 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
                     {j + 1}.
                   </span>
                   <span>{parseInline(item)}</span>
-                </motion.li>
+                </m.li>
               ))}
-            </motion.ol>
+            </m.ol>
           )
         }
         return (
-          <motion.p
+          <m.p
             key={i}
             className="text-[16px] leading-[1.8] text-gray-600 dark:text-neutral-300"
             initial={{ opacity: 0, y: 6 }}
@@ -336,10 +336,10 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
             transition={{ duration: 0.2, delay: i * 0.015, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {parseInline((block as { kind: 'p'; text: string }).text)}
-          </motion.p>
+          </m.p>
         )
       })}
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -347,7 +347,7 @@ function MarkdownBody({ text }: { text: string }): React.JSX.Element {
 
 function BlinkingCursor(): React.JSX.Element {
   return (
-    <motion.span
+    <m.span
       className="inline-block w-[2px] h-[14px] ml-[2px] rounded-full"
       style={{ background: 'currentColor', verticalAlign: 'text-bottom' }}
       animate={{ opacity: [1, 0.3, 1] }}
@@ -377,7 +377,7 @@ function ErrorContent(): React.JSX.Element {
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 h-full text-center px-4">
-      <motion.div
+      <m.div
         className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-semibold"
         style={{ background: 'var(--app-danger-bg)', border: '1px solid var(--app-danger)' }}
         initial={{ scale: 0.8, opacity: 0 }}
@@ -385,8 +385,8 @@ function ErrorContent(): React.JSX.Element {
         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       >
         ⚠️
-      </motion.div>
-      <motion.div
+      </m.div>
+      <m.div
         className="space-y-2"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -399,7 +399,7 @@ function ErrorContent(): React.JSX.Element {
             {summaryError.slice(0, 120)}
           </p>
         )}
-      </motion.div>
+      </m.div>
     </div>
   )
 }
@@ -430,7 +430,7 @@ export function SummaryContent({
     <div className="relative w-full h-full">
       <AnimatePresence mode="wait">
         {showLoading ? (
-          <motion.div
+          <m.div
             key="loading"
             className="absolute inset-0"
             initial={{ opacity: 0 }}
@@ -439,9 +439,9 @@ export function SummaryContent({
             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <LoadingContent duration={loadingDuration} />
-          </motion.div>
+          </m.div>
         ) : showError ? (
-          <motion.div
+          <m.div
             key="error"
             className="absolute inset-0"
             initial={{ opacity: 0 }}
@@ -450,9 +450,9 @@ export function SummaryContent({
             transition={{ duration: 0.25 }}
           >
             <ErrorContent />
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.div
+          <m.div
             key="content"
             className="absolute inset-0 flex flex-col"
             initial={{ opacity: 0 }}
@@ -461,7 +461,7 @@ export function SummaryContent({
           >
             {/* Summary metadata header */}
             {summary && (
-              <motion.div
+              <m.div
                 className="flex items-center gap-4 mb-4 pb-4 border-b border-[var(--app-separator)]"
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -474,20 +474,20 @@ export function SummaryContent({
                   <span>{wordCount} words</span>
                 </div>
                 {keyPoints.length > 0 && (
-                  <motion.div
+                  <m.div
                     className="flex items-center gap-2 text-xs font-medium text-blue-600 dark:text-blue-400"
                     initial={{ opacity: 0, x: -4 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
                   >
                     <span>✓ {keyPoints.length} key points</span>
-                  </motion.div>
+                  </m.div>
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* Scrollable streaming text */}
-            <motion.div
+            <m.div
               className="flex-1 overflow-y-auto glass-scroll pr-1 pb-2"
               role="region"
               aria-label="AI Summary"
@@ -502,8 +502,8 @@ export function SummaryContent({
                   <BlinkingCursor />
                 </span>
               )}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

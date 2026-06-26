@@ -15,20 +15,22 @@ interface ThemeState {
   themeMode: ThemeMode
   /** Wallpaper URL (data URL, preset SVG, or null for solid fallback) */
   wallpaper: string | null
-  /** Whether the wallpaper has been loaded from IndexedDB */
+  /** Whether the wallpaper has been loaded from disk */
   wallpaperLoaded: boolean
 }
 
 interface ThemeActions {
   setThemeMode: (mode: ThemeMode) => void
   setWallpaper: (wallpaper: string | null) => Promise<boolean>
-  /** Hydrate wallpaper selection on startup */
+  /** Hydrate wallpaper selection. Safe to call multiple times. */
   hydrateWallpaper: () => Promise<void>
 }
 
 type ThemeStore = ThemeState & ThemeActions
 
 let wallpaperSelectionVersion = 0
+let hydrationStarted = false
+let hydrationPromise: Promise<void> | null = null
 
 export const useThemeStore = create<ThemeStore>()(
   devtools(
@@ -75,5 +77,16 @@ export const useThemeStore = create<ThemeStore>()(
   )
 )
 
-// Hydrate wallpaper selection on module load.
-useThemeStore.getState().hydrateWallpaper()
+/**
+ * Kick off wallpaper hydration. Idempotent — concurrent callers share the
+ * same in-flight promise. The React app calls this from a top-level
+ * useEffect (see App.tsx) instead of at module load, so the IPC roundtrip
+ * doesn't block the first paint.
+ */
+export function startThemeHydration(): Promise<void> {
+  if (hydrationPromise) return hydrationPromise
+  if (hydrationStarted) return Promise.resolve()
+  hydrationStarted = true
+  hydrationPromise = useThemeStore.getState().hydrateWallpaper()
+  return hydrationPromise
+}
