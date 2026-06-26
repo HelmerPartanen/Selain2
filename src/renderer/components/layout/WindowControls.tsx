@@ -116,7 +116,7 @@ function WindowControlsInner({
 
   if (embedded) {
     return (
-      <div className="flex items-start [app-region:no-drag] -mr-px -mt-px">
+      <div className="flex items-start [app-region:no-drag] -mr-1 -mt-px">
         <div className="flex items-center">
           <Win11ControlButton onClick={handleMinimize} label="Minimize">
             <SvgIcon svg={minusSvg} size={16} />
@@ -190,7 +190,7 @@ function WindowControlsInner({
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className={`mt-2.5 mr-2.5 flex items-center rounded-xl overflow-hidden ${disableBlurEffects ? "bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10" : "bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5"}`}
+            className={`-mt-1 -mr-1 flex items-center rounded-l-lg overflow-hidden ${disableBlurEffects ? "bg-white dark:bg-[#121316] border border-black/10 dark:border-white/10" : "bg-white/90 dark:bg-[#1D1F23]/80 backdrop-blur-md shadow-lg border border-white/10 dark:border-white/5"}`}
             style={{ pointerEvents: "auto" }}
             initial={
               disableAnimations ? undefined : { opacity: 0, scale: 0.85, y: -6 }
