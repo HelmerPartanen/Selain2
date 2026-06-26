@@ -105,7 +105,7 @@ export function GroupBox({
   return (
     <section
       className={cn(
-        "rounded-2xl bg-[var(--app-grouped-bg-primary)] p-3",
+        "rounded-xl bg-[var(--app-grouped-bg-secondary)] p-3",
         className,
       )}
     >

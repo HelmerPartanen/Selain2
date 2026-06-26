@@ -9,8 +9,8 @@ import { SvgIcon } from "@/components/ui/SvgIcon";
 import { GroupBox, Toggle, SettingRow, SettingGroup } from "@/settings/components/SettingsShared";
 import { useThemeStore, type ThemeMode } from "@/store/themeStore";
 import { useSettingsStore, UI_ZOOM_OPTIONS, type UiLayout } from "@/store/settingsStore";
-import sunSvg from "@/assets/icons/Weather/Sun_1.svg?raw";
-import moonSvg from "@/assets/icons/Weather/Moon.svg?raw";
+import sunSvg from "@/assets/icons/Weather/Sun_2_Fill.svg?raw";
+import moonSvg from "@/assets/icons/Weather/Moon_Fill.svg?raw";
 import displaySvg from "@/assets/icons/Devices/Display.svg?raw";
 
 const THEME_MODES: { mode: ThemeMode; label: string; icon: string }[] = [
@@ -61,6 +61,12 @@ function AppearancePaneInner(): React.JSX.Element {
         <div className="flex gap-2.5" role="radiogroup" aria-label="Theme mode">
           {THEME_MODES.map(({ mode, label, icon }) => {
             const isActive = themeMode === mode;
+            const activeIconClass =
+              isActive && mode === "light"
+                ? "text-yellow-500"
+                : isActive && mode === "dark"
+                  ? "text-purple-500"
+                  : "";
             return (
 <Button
   key={mode}
@@ -71,13 +77,13 @@ function AppearancePaneInner(): React.JSX.Element {
   aria-label={`${label} theme`}
   onClick={() => setThemeMode(mode)}
   active={isActive}
-  className={`relative h-auto flex-1 flex-col gap-2 p-4 ${
+  className={`relative h-auto flex-1 flex-col gap-2 p-4 !text-[var(--app-text-secondary)] hover:!text-[var(--app-text-secondary)] ${
     isActive
       ? "!bg-[var(--app-control-active)] hover:!bg-[var(--app-control-active)]"
       : "!bg-transparent hover:!bg-transparent"
   }`}
 >
-  <span className="relative">
+  <span className={`relative ${activeIconClass}`}>
     <SvgIcon svg={icon} size={22} />
   </span>
   <span className="relative text-[12px] font-medium">

@@ -199,7 +199,7 @@ function PrivacyPaneInner(): React.JSX.Element {
               onClick={() => setPrivacyProfile(id)}
               className={`h-auto flex-col items-start rounded-xl px-3 py-3 text-left transition-colors ${
                 privacyProfile === id
-                  ? '!bg-[var(--app-control-active)] text-emerald-600 dark:text-green-500'
+                  ? '!bg-emerald-500/20 text-emerald-600 dark:text-green-500 hover:text-emerald-600 dark:hover:text-green-500'
                   : 'text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)]'
               }`}
             >
@@ -296,7 +296,7 @@ function PrivacyPaneInner(): React.JSX.Element {
       >
         <div className="flex gap-2">
           <Button
-            variant="ghost"
+            variant="subtle"
             size="md"
             onClick={handleExportProfile}
             className="flex-1"
@@ -304,7 +304,7 @@ function PrivacyPaneInner(): React.JSX.Element {
             Export Profile
           </Button>
           <Button
-            variant="ghost"
+            variant="subtle"
             size="md"
             onClick={handleImportProfile}
             className="flex-1"
@@ -329,7 +329,7 @@ function PrivacyPaneInner(): React.JSX.Element {
                     ? "primary"
                     : action.destructive
                       ? "danger"
-                      : "ghost"
+                      : "solid"
                 }
                 size="md"
                 aria-label={

@@ -19,8 +19,8 @@ const tones: Record<TextTone, string> = {
 };
 
 const sizes: Record<TextSize, string> = {
-  caption: "text-[12px] font-light leading-relaxed",
-  body: "text-[13px] font-normal leading-relaxed",
+  caption: "text-[12px] font-medium leading-relaxed",
+  body: "text-[13px] font-medium leading-relaxed",
   label: "text-[14px] font-medium leading-snug",
   title: "text-[15px] font-medium tracking-relaxed leading-snug",
 };

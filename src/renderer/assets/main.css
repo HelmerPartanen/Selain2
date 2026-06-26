@@ -36,8 +36,8 @@
 /* Design tokens: solid system colors only. */
 
 :root {
-  --app-bg-primary: #ffffff;
-  --app-bg-secondary: #f2f2f7;
+  --app-bg-primary: #f2f2f7;
+  --app-bg-secondary: #ffffff;
   --app-bg-tertiary: #ffffff;
 
   --app-grouped-bg-primary: #f2f2f7;
@@ -50,8 +50,8 @@
   --app-text-quaternary: #dcdcde;
 
   --app-separator: #dcdcde;
-  --app-control-hover: #f2f2f7;
-  --app-control-active: #e5e5ea;
+  --app-control-hover: #e5e5ea;
+  --app-control-active: #f2f2f7;
   --app-accent: #007aff;
   --app-accent-hover: #006ee6;
   --app-danger: #ff3b30;

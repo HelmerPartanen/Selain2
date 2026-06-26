@@ -54,7 +54,7 @@ function SearchEnginePaneInner(): React.JSX.Element {
                   aria-label={`${engine.name} search engine`}
                   onClick={() => setEngine(engine.id)}
                   active={isActive}
-                  className={`relative h-auto w-full justify-start gap-3 rounded-xl px-3.5 py-3 ${isActive ? "bg-[var(--app-control-active)] text-[var(--app-text-primary)]" : ""}`}
+                  className={`relative h-auto w-full justify-start gap-3 rounded-xl px-3.5 py-3 ${isActive ? "!bg-[var(--app-control-active)] text-[var(--app-text-primary)]" : ""}`}
                 >
                   <div className="relative w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">
                     {ENGINE_ICONS[engine.id] ? (

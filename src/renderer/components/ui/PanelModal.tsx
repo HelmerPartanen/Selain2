@@ -138,7 +138,7 @@ export function PanelModal({
     <>
       {/* Dimmed backdrop \u2014 click-away closes the panel */}
       <motion.div
-        className="fixed inset-0 z-[80] bg-[var(--app-bg-primary)]"
+        className="fixed inset-0 z-[80] bg-black/25"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
