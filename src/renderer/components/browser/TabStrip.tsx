@@ -164,8 +164,8 @@ const TabStripItem = memo(function TabStripItem({
             : "px-3 gap-2"
       } ${
         isHighlighted
-          ? "!bg-[var(--app-control-hover)] !text-[var(--app-text-primary)]"
-          : "bg-transparent hover:bg-[var(--app-control-hover)] text-[var(--app-text-secondary)]"
+          ? "!bg-[var(--app-bg-quaternary)] !text-[var(--app-text-primary)]"
+          : "bg-transparent hover:bg-[var(--app-bg-quaternary)] hover:text-[var(--app-text-secondary)]"
       }`}
     >
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center">

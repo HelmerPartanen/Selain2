@@ -34,9 +34,9 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   ghost:
-    "text-[var(--app-text-secondary)] bg-transparent hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]",
+    "text-[var(--app-text-secondary)] bg-transparent hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] focus:none",
   solid:
-    "text-[var(--app-accent)] bg-[var(--app-accent)]/20 hover:bg-[var(--app-accent)]/15",
+    "text-[var(--app-accent)] bg-[var(--app-accent-bg)] hover:bg-[var(--app-accent-bg-hover)]",
   subtle:
     "text-[var(--app-text-primary)] bg-[var(--app-bg-secondary)] hover:bg-[var(--app-control-active)]",
   primary:

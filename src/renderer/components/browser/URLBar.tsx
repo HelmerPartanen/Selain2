@@ -649,7 +649,7 @@ function URLBarInner({
                     onMouseLeave={() => setHoveredIdx(null)}
                     className={`relative flex h-9 w-full min-w-0 items-center gap-2.5 rounded-lg px-3 text-left transition-colors duration-75 ${
                       isActive || isHovered
-                        ? 'bg-[var(--app-control-hover)] text-[var(--app-text-primary)]'
+                        ? 'bg-[var(--app-bg-quaternary)] text-[var(--app-text-primary)]'
                         : 'text-[var(--app-text-secondary)]'
                     }`}
                   >

@@ -49,7 +49,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           type="search"
           value={value}
           className={cn(
-            "h-full min-w-0 flex-1 bg-transparent pl-7 pr-0 text-[13px] text-[var(--app-text-primary)] outline-none placeholder:text-[var(--app-text-tertiary)] focus:ring-0",
+            "h-full min-w-0 flex-1 bg-transparent pl-7 pr-0 text-[13px] text-[var(--app-text-primary)] outline-none placeholder:text-[var(--app-text-secondary)] focus:ring-0",
             "[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
             showClear && "pr-8",
             className,

@@ -249,7 +249,7 @@ function SettingsPanelInner(): React.JSX.Element {
     </div>
 
     <div className="flex-1 flex flex-col min-w-0">
-      <div className="relative flex items-center justify-center px-6 pt-4 pb-4">
+      <div className="relative flex items-center justify-center px-6 pt-3 pb-3">
         <AnimatePresence mode="wait">
           <m.h3
             key={activeCategory}
@@ -257,7 +257,7 @@ function SettingsPanelInner(): React.JSX.Element {
             animate={{ opacity: 1, y: 0 }}
             exit={disableAnimations ? undefined : { opacity: 0, y: -4 }}
             transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
-            className="text-[18px] font-bold text-[var(--app-text-primary)]"
+            className="text-[var(--app-text-primary)]"
           >
             {categoryLabel}
           </m.h3>

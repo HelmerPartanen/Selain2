@@ -136,19 +136,6 @@ export function PanelModal({
 
   return (
     <>
-      {/* Dimmed backdrop \u2014 click-away closes the panel */}
-      <m.div
-        className="fixed inset-0 z-[80] bg-black/25"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-        onMouseDown={(e) => {
-          if (e.target === e.currentTarget) onClose()
-        }}
-        aria-hidden="true"
-      />
-
       {/* Centering wrapper \u2014 pointer-events disabled so backdrop click-away works */}
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
         <m.div
