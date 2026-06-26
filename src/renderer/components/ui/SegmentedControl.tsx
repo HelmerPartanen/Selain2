@@ -27,7 +27,7 @@ export function SegmentedControl<T extends string | number>({
   return (
     <div
       className={cn(
-        "flex gap-1 p-1 rounded-xl bg-[var(--app-grouped-bg-primary)]",
+        "flex gap-1 p-1 rounded-xl bg-[var(--app-grouped-bg-tertiary)]",
         className,
       )}
       role="radiogroup"

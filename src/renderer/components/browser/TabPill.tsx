@@ -5,6 +5,7 @@ import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_fill.svg?raw'
+import newTabFavicon from '@/assets/icons/Interface/Dott.svg'
 import tabsSvg from '@/assets/icons/Interface/Tabs.svg?raw'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_2_Fill.svg?raw'
 import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
@@ -86,12 +87,13 @@ function ActiveFavicon(): React.JSX.Element {
   const state = useTabFaviconState(activeTabId ?? '')
   const favicon = state?.favicon
   const isLoading = state?.isLoading ?? false
+  const isNewTabFavicon = favicon === newTabFavicon
 
   if (isLoading) {
     return <SvgIcon svg={SPINNER_SVG} size={14} className="animate-spin text-gray-400" />
   }
   if (favicon) {
-    return <img src={favicon} alt="" className="w-3.5 h-3.5 rounded-sm" draggable={false} />
+    return <img src={favicon} alt="" className={`w-3.5 h-3.5 rounded-sm ${isNewTabFavicon ? 'dark:invert' : ''}`} draggable={false} />
   }
   return <SvgIcon svg={globeSvg} size={14} className="text-gray-400" />
 }
@@ -122,6 +124,7 @@ export const TabRow = memo(function TabRow({
 
   const title = meta?.title ?? 'New Tab'
   const favicon = meta?.favicon
+  const isNewTabFavicon = favicon === newTabFavicon
   const isLoading = meta?.isLoading ?? false
   const isPlayingMedia = meta?.isPlayingMedia ?? false
   const isMuted = meta?.isMuted ?? false
@@ -176,7 +179,7 @@ export const TabRow = memo(function TabRow({
         {isLoading ? (
           <SvgIcon svg={SPINNER_SVG} size={16} className="animate-spin text-gray-400" />
         ) : favicon ? (
-          <img src={favicon} alt="" className="w-4 h-4 rounded-sm" draggable={false} />
+          <img src={favicon} alt="" className={`w-4 h-4 rounded-sm ${isNewTabFavicon ? 'dark:invert' : ''}`} draggable={false} />
         ) : (
           <SvgIcon svg={globeSvg} size={16} className="text-gray-400" />
         )}

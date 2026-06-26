@@ -3,6 +3,7 @@ import { devtools, persist, subscribeWithSelector } from 'zustand/middleware'
 import { useSettingsStore } from './settingsStore'
 import { createIPCStorage } from './ipcStorage'
 import { webviewRegistry } from '@/webview/webviewRegistry'
+import newTabFavicon from '@/assets/icons/Interface/Dott.svg'
 
 export interface Tab {
   id: string
@@ -93,6 +94,10 @@ function isSpecialPage(url: string): boolean {
   return url === 'browser://newtab' || url === 'browser://uikit'
 }
 
+function getDefaultFavicon(url: string): string {
+  return url === 'browser://newtab' ? newTabFavicon : ''
+}
+
 function createTab(url: string): Tab {
   const now = Date.now()
   const title = url === 'browser://uikit' ? 'UI Kit' : 'New Tab'
@@ -100,7 +105,7 @@ function createTab(url: string): Tab {
     id: crypto.randomUUID(),
     url,
     title,
-    favicon: '',
+    favicon: getDefaultFavicon(url),
     isLoading: false,
     isPlayingMedia: false,
     isMuted: false,
@@ -212,7 +217,7 @@ export const useTabStore = create<TabStore>()(
                       ...closedTab,
                       url: 'browser://newtab',
                       title: 'New Tab',
-                      favicon: '',
+                      favicon: newTabFavicon,
                       isLoading: false,
                       canGoBack: false,
                       canGoForward: false,
@@ -341,6 +346,9 @@ export const useTabStore = create<TabStore>()(
                   // Navigating from special page (e.g. newtab) to a real URL
                   virtualPatch = { virtualBackUrl: existing.url, virtualForwardUrl: null }
                 }
+              }
+              if (patch.url && patch.url !== existing.url && !('favicon' in patch)) {
+                virtualPatch.favicon = getDefaultFavicon(patch.url)
               }
 
               const merged = { ...existing, ...virtualPatch, ...patch }
@@ -546,7 +554,7 @@ export const useTabStore = create<TabStore>()(
                 id: tab.id,
                 url: tab.url,
                 title: tab.title,
-                favicon: tab.favicon,
+                favicon: tab.url === 'browser://newtab' ? newTabFavicon : tab.favicon,
                 isLoading: false,
                 isPlayingMedia: false,
                 isMuted: false,
@@ -573,6 +581,7 @@ export const useTabStore = create<TabStore>()(
             tab.lastActiveAt = tab.lastActiveAt ?? tab.createdAt
             tab.pinned = tab.pinned ?? false
             tab.isMuted = false // isMuted is session-only, always reset on restore
+            if (tab.url === 'browser://newtab') tab.favicon = newTabFavicon
           }
           // If user disabled tab restore, clear all rehydrated tabs and start fresh
           const { restoreTabs } = useSettingsStore.getState()

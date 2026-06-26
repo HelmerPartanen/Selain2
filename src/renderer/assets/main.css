@@ -38,16 +38,25 @@
 :root {
   --app-bg-primary: #f2f2f7;
   --app-bg-secondary: #ffffff;
-  --app-bg-tertiary: #ffffff;
+
+  /* Subtle elevated / nested surface */
+  --app-bg-tertiary: #f7f7fb;
+
+  /* Stronger nested surface, chips, pressed areas, inset panels */
+  --app-bg-quaternary: #efeff4;
+
+  /* Backwards-compatible typo alias */
+  --app-bg-quatenary: var(--app-bg-quaternary);
 
   --app-grouped-bg-primary: #f2f2f7;
   --app-grouped-bg-secondary: #ffffff;
-  --app-grouped-bg-tertiary: #f2f2f7;
+  --app-grouped-bg-tertiary: #f7f7fb;
+  --app-grouped-bg-quaternary: #efeff4;
 
-  --app-text-primary: #000000;
+  --app-text-primary: #1c1c1e;
   --app-text-secondary: #8a8a8e;
   --app-text-tertiary: #c6c6c8;
-  --app-text-quaternary: #dcdcde;
+  --app-text-quarternary: #dcdcde;
 
   --app-separator: #dcdcde;
   --app-control-hover: #e5e5ea;
@@ -69,10 +78,15 @@
   --app-bg-primary: #000000;
   --app-bg-secondary: #1c1c1e;
   --app-bg-tertiary: #2c2c2e;
+  --app-bg-quaternary: #3a3a3c;
+
+  /* Backwards-compatible typo alias */
+  --app-bg-quatenary: var(--app-bg-quaternary);
 
   --app-grouped-bg-primary: #000000;
   --app-grouped-bg-secondary: #1c1c1e;
   --app-grouped-bg-tertiary: #2c2c2e;
+  --app-grouped-bg-quarternary: #3a3a3c;
 
   --app-text-primary: #ffffff;
   --app-text-secondary: #a5a5ac;

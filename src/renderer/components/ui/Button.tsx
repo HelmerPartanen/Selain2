@@ -48,7 +48,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   link:
     "text-[var(--app-accent)] bg-transparent hover:underline",
   segment:
-    "text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] data-[active=true]:text-[var(--app-text-primary)] data-[active=true]:bg-[var(--app-bg-tertiary)]",
+    "text-[var(--app-text-secondary)] hover:text-[var(--app-text-secondary)] data-[active=true]:text-[var(--app-text-primary)] data-[active=true]:bg-[var(--app-bg-quaternary)]",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

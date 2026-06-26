@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { m } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
-import globeSvg from '@/assets/icons/Nature/Globe.svg?raw'
+import dottSvg from '@/assets/icons/Interface/Dott.svg?raw'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -180,10 +180,10 @@ function FavouriteTile({
             }}
           />
         ) : (
-          <SvgIcon svg={globeSvg} size={20} className="text-[var(--app-text-tertiary)]" />
+          <SvgIcon svg={dottSvg} size={20} className="text-black dark:text-white" />
         )}
       </div>
-        <span className="text-[11px] font-medium text-[var(--app-text-primary)] truncate w-full text-center pointer-events-none px-1">
+        <span className="text-[11px] font-medium text-[var(--app-text-tertinary)] truncate w-full text-center pointer-events-none px-1">
         {hostname}
       </span>
     </m.div>
@@ -308,7 +308,7 @@ function ContinueSection(): React.JSX.Element | null {
               {entry.favicon ? (
                 <img src={entry.favicon} alt="" className="w-4 h-4 rounded-sm" />
               ) : (
-                <SvgIcon svg={globeSvg} size={14} className="text-[var(--app-text-tertiary)]" />
+                <SvgIcon svg={dottSvg} size={14} className="text-[var(--app-text-tertinary)]" />
               )}
             </span>
             <span className="flex-1 min-w-0 text-[12px] text-[var(--app-text-primary)] truncate">

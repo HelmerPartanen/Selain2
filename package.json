@@ -1,12 +1,12 @@
 {
-  "name": "chromium-browser",
+  "name": "dott",
   "version": "0.1.0",
-  "description": "Chromium — High-performance Chromium browser shell",
+  "description": "Dott — High-performance browser",
   "main": "./out/main/index.js",
   "author": "",
   "build": {
-    "appId": "com.chromium-browser.app",
-    "productName": "Chromium Browser",
+    "appId": "com.dott.app",
+    "productName": "Dott Browser",
     "electronDownload": {
       "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
     },

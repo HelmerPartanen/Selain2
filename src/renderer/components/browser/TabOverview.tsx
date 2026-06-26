@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { Button } from '@/components/ui/Button'
 import { SearchInput } from '@/components/ui/Search'
 import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
+import newTabFavicon from '@/assets/icons/Interface/Dott.svg'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
@@ -77,6 +78,7 @@ const TabCard = memo(function TabCard({
 }): React.JSX.Element {
   const { thumbnail } = preview
   const isNewTab = preview.url === 'browser://newtab'
+  const isNewTabFavicon = preview.favicon === newTabFavicon
   const title = preview.title || 'New Tab'
 
   return (
@@ -196,7 +198,7 @@ const TabCard = memo(function TabCard({
           {preview.isLoading ? (
             <SvgIcon svg={SPINNER_SVG} size={12} className="animate-spin text-[var(--app-text-tertiary)]" />
           ) : preview.favicon ? (
-            <img src={preview.favicon} alt="" className="w-3.5 h-3.5 rounded-sm" draggable={false} />
+            <img src={preview.favicon} alt="" className={`w-3.5 h-3.5 rounded-sm ${isNewTabFavicon ? 'dark:invert' : ''}`} draggable={false} />
           ) : (
             <SvgIcon svg={globeSvg} size={12} className="text-[var(--app-text-tertiary)]" />
           )}

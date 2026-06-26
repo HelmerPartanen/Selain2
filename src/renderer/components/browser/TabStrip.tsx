@@ -11,6 +11,7 @@ import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 
 import globeSvg from "@/assets/icons/Nature/Globe_fill.svg?raw";
+import newTabFavicon from "@/assets/icons/Interface/Dott.svg";
 
 import tabsSvg from "@/assets/icons/Interface/Tabs.svg?raw";
 
@@ -93,6 +94,7 @@ const TabStripItem = memo(function TabStripItem({
   const title = meta?.title ?? "New Tab";
 
   const favicon = meta?.favicon;
+  const isNewTabFavicon = favicon === newTabFavicon;
 
   const isLoading = meta?.isLoading ?? false;
 
@@ -177,7 +179,7 @@ const TabStripItem = memo(function TabStripItem({
           <img
             src={favicon}
             alt=""
-            className="w-3.5 h-3.5 rounded-sm"
+            className={`w-3.5 h-3.5 rounded-sm ${isNewTabFavicon ? "dark:invert" : ""}`}
             draggable={false}
           />
         ) : (
