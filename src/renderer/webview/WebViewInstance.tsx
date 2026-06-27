@@ -18,6 +18,12 @@ const SCROLLBAR_CSS = `
 
 const TAB_TRANSITION_MS = 100
 
+type ManagedWebview = Electron.WebviewTag & {
+  stop?: () => void
+  loadURL?: (url: string) => void
+  clearHistory?: () => void
+}
+
 interface WebViewInstanceProps {
   tabId: string
   isActive: boolean
@@ -29,6 +35,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   const webviewRef = useRef<Electron.WebviewTag | null>(null)
   const domReadyRef = useRef(false)
   const lastNavigatedUrlRef = useRef(initialUrl)
+  const isUnmountedRef = useRef(false)
 
   // Batch pending store updates to reduce Zustand set() calls
   // Use 1ms timer debounce instead of RAF to reduce microtask queue buildup with many tabs
@@ -225,17 +232,33 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
 
   // Register/unregister in the global webview registry
   useEffect(() => {
+    isUnmountedRef.current = false
     const webview = webviewRef.current
     if (webview) {
       webviewRegistry.register(tabId, webview)
     }
     return () => {
+      isUnmountedRef.current = true
       webviewRegistry.unregister(tabId)
       // Cancel pending batched updates on unmount
       if (debounceTimerRef.current) window.clearTimeout(debounceTimerRef.current)
       if (progressResetTimerRef.current !== null) {
         window.clearTimeout(progressResetTimerRef.current)
       }
+      pendingUpdateRef.current = null
+
+      const closingWebview = webviewRef.current as ManagedWebview | null
+      if (closingWebview) {
+        try {
+          closingWebview.stop?.()
+          closingWebview.clearHistory?.()
+          closingWebview.loadURL?.('about:blank')
+          closingWebview.removeAttribute('src')
+        } catch (error) {
+          logger.warn(`[WebViewInstance] Failed to tear down webview for ${tabId}:`, error)
+        }
+      }
+      webviewRef.current = null
     }
   }, [tabId])
 
@@ -333,7 +356,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
           inFlightCaptureRef.current = capturePromise
           capturePromise
             .then((thumbnail) => {
-              if (thumbnail) {
+              if (thumbnail && !isUnmountedRef.current && useTabStore.getState().tabs[tabIdStr]) {
                 useTabStore.getState().updateTab(tabIdStr, { thumbnail })
               }
             })
@@ -341,7 +364,9 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
               logger.warn('Could not capture tab thumbnail before hiding', e)
             })
             .finally(() => {
-              inFlightCaptureRef.current = null
+              if (!isUnmountedRef.current) {
+                inFlightCaptureRef.current = null
+              }
             })
         }
       }

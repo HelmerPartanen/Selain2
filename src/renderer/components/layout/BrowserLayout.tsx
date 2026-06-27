@@ -5,6 +5,8 @@
   Suspense,
   useState,
 } from "react";
+import { FloatingControls } from "@/components/layout/FloatingControls";
+import { WindowControls } from "@/components/layout/WindowControls";
 import { CLASSIC_CHROME_HEIGHT } from "@/components/layout/layoutConstants";
 import { WebViewManager } from "@/webview/WebViewManager";
 import { useLRUTabManager } from "@/webview/useLRUTabManager";
@@ -30,16 +32,6 @@ import { Text } from "@/components/ui/Text";
 const SettingsPanel = lazy(() =>
   import("@/settings/SettingsPanel").then((m) => ({
     default: m.SettingsPanel,
-  })),
-);
-const FloatingControls = lazy(() =>
-  import("@/components/layout/FloatingControls").then((m) => ({
-    default: m.FloatingControls,
-  })),
-);
-const WindowControls = lazy(() =>
-  import("@/components/layout/WindowControls").then((m) => ({
-    default: m.WindowControls,
   })),
 );
 const FindBar = lazy(() =>
@@ -90,24 +82,13 @@ const AISummaryButton = lazy(() =>
     default: m.AISummaryButton,
   })),
 );
-const LoadingSpinner = lazy(() =>
-  import("@/components/ui/LoadingSpinner").then((m) => ({
-    default: m.LoadingSpinner,
-  })),
-);
 const ToastContainer = lazy(() =>
   import("@/components/ui/Toast").then((m) => ({
     default: m.ToastContainer,
   })),
 );
 function PanelLoadingFallback(): React.JSX.Element {
-  return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)] text-[var(--app-text-primary)]">
-      <Suspense fallback={null}>
-        <LoadingSpinner size={32} />
-      </Suspense>
-    </div>
-  );
+  return <div className="fixed inset-0 z-[90] pointer-events-none" aria-hidden />;
 }
 
 function MainContentErrorFallback({
@@ -357,9 +338,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       </div>
       {/* Browser chrome */}
       {uiLayout === "floating" ? (
-        <Suspense fallback={null}>
-          <FloatingControls />
-        </Suspense>
+        <FloatingControls />
       ) : (
         <Suspense fallback={null}>
           <ClassicBrowserChrome />
@@ -422,11 +401,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       )}
 
       {/* Window controls (floating layout — classic embeds controls in chrome) */}
-      {uiLayout === "floating" && (
-        <Suspense fallback={null}>
-          <WindowControls />
-        </Suspense>
-      )}
+      {uiLayout === "floating" && <WindowControls />}
 
       {/* Toast notifications */}
       <Suspense fallback={null}>

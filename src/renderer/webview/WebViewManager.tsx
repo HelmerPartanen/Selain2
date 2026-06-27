@@ -20,14 +20,14 @@ const UIKitPage = lazy(() =>
 function SpecialPage({ url }: { url: string }): React.JSX.Element | null {
   if (url === 'browser://newtab') {
     return (
-      <Suspense fallback={<div className="absolute inset-0 bg-[var(--bg-solid-fallback)]" aria-hidden />}>
+      <Suspense fallback={null}>
         <NewTabPage />
       </Suspense>
     )
   }
   if (url === 'browser://uikit') {
     return (
-      <Suspense fallback={<div className="absolute inset-0 bg-[var(--bg-solid-fallback)]" aria-hidden />}>
+      <Suspense fallback={null}>
         <UIKitPage />
       </Suspense>
     )
