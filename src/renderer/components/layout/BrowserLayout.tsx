@@ -80,7 +80,7 @@ const AISummaryButton = lazy(() =>
 );
 function PanelLoadingFallback(): React.JSX.Element {
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-text-primary)]">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)] text-[var(--app-text-primary)]">
       <LoadingSpinner size={32} />
     </div>
   );
@@ -198,9 +198,9 @@ function BrowserLayoutInner(): React.JSX.Element {
   }, []);
 
   return (
-    <div className="relative h-screen overflow-hidden text-gray-900 dark:text-gray-100">
+    <div className="relative h-screen overflow-hidden bg-[var(--app-bg-primary)] text-[var(--app-text-primary)]">
       {/* Wallpaper layer — fixed behind everything */}
-      <div className="fixed inset-0 z-0 bg-gray-100 dark:bg-neutral-900">
+      <div className="fixed inset-0 z-0 bg-[var(--bg-solid-fallback)]">
         {isDynamicWallpaper ? (
           dynamicLayers.map((layer) => (
             <div
@@ -267,7 +267,7 @@ function BrowserLayoutInner(): React.JSX.Element {
 
         <div
           className={`relative isolate h-full transition-[padding] duration-150 bezier-cubic-out ${
-            isFocusedNewTab ? "" : "bg-gray-100 dark:bg-neutral-900"
+            isFocusedNewTab ? "" : "bg-[var(--bg-solid-fallback)]"
           }`}
           style={{
             padding: isSummaryFrameActive ? 10 : 0,

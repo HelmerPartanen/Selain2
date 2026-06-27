@@ -15,16 +15,14 @@ function PrivateModeIndicatorInner(): React.JSX.Element | null {
   if (!isPrivate) return null;
 
   return (
-    <div className="flex h-full items-center gap-1 rounded-lg bg-[var(--app-bg-tertiary)] px-2 text-[var(--app-text-primary)] border border-[var(--app-separator)]">
+    <div className="flex h-full items-center gap-1 rounded-lg bg-[var(--app-bg-tertiary)] px-2 text-[var(--app-text-primary)]">
       <span className="flex items-center gap-1.5 text-[12px] font-medium">
         <SvgIcon svg={privateSvg} size={14} />
-        Private mode
       </span>
       <Button
         variant="ghost"
-        size="none"
+        size="xs"
         onClick={handleExit}
-        className="h-6 rounded-md px-2 text-[11px] text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]"
         aria-label="Exit Private mode"
       >
         Exit

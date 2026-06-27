@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { LazyMotion, MotionConfig, domAnimation } from 'motion/react'
 import { BrowserLayout } from '@/components/layout/BrowserLayout'
 import { showToast } from '@/components/ui/Toast'
@@ -19,10 +19,11 @@ function useThemeHydration(): void {
 function useThemeMode(): void {
   const themeMode = useThemeStore((s) => s.themeMode)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const apply = (resolved: 'dark' | 'light'): void => {
       document.documentElement.setAttribute('data-theme', resolved)
       document.documentElement.classList.toggle('dark', resolved === 'dark')
+      document.documentElement.style.colorScheme = resolved
     }
 
     if (themeMode !== 'system') {

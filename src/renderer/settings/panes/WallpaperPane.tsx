@@ -434,7 +434,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
               className="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
-            <div className="absolute inset-0 bg-gray-100 dark:bg-neutral-900" />
+            <div className="absolute inset-0 bg-[var(--bg-solid-fallback)]" />
           )}
         </div>
 

@@ -381,9 +381,9 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
         style={{ display: 'inline-flex' }}
       />
       {errorState && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white dark:bg-neutral-950 select-none px-8">
-          <Text as="span" className="text-6xl font-thin text-gray-200 dark:text-neutral-800 tabular-nums">{errorState.code}</Text>
-          <Text as="h2" size="title" tone="primary" className="text-base font-semibold text-gray-800 dark:text-neutral-200">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[var(--app-bg-primary)] select-none px-8">
+          <Text as="span" className="text-6xl font-thin text-[var(--app-text-quaternary)] tabular-nums">{errorState.code}</Text>
+          <Text as="h2" size="title" tone="primary" className="text-base font-semibold text-[var(--app-text-primary)]">
             This page can&apos;t be reached
           </Text>
           <Text size="body" tone="muted" className="max-w-xs text-center text-sm">

@@ -121,9 +121,9 @@ const TabCard = memo(function TabCard({
           ) : isNewTab ? (
             <ErrorBoundary
               fallback={
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-neutral-850">
+                <div className="absolute inset-0 flex items-center justify-center bg-[var(--app-bg-secondary)]">
                   <div className="text-center">
-                    <div className="text-[11px] text-gray-500 dark:text-neutral-400">
+                    <div className="text-[11px] text-[var(--app-text-secondary)]">
                       Failed to load page
                     </div>
                   </div>
@@ -145,8 +145,8 @@ const TabCard = memo(function TabCard({
               </div>
             </ErrorBoundary>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-neutral-850">
-              <SvgIcon svg={globeSvg} size={28} className="text-gray-300 dark:text-neutral-600" />
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--app-bg-secondary)]">
+              <SvgIcon svg={globeSvg} size={28} className="text-[var(--app-text-tertiary)]" />
             </div>
           )}
 
@@ -466,7 +466,8 @@ function TabOverviewInner(): React.JSX.Element {
           {/* Backdrop — solid overlay */}
           <m.div
             key="tab-overview-backdrop"
-            className="fixed inset-0 z-[90] bg-white/50 dark:bg-black/50 backdrop-blur-lg transition-opacity duration-150"
+            className="fixed inset-0 z-[90] backdrop-blur-lg transition-opacity duration-150"
+            style={{ backgroundColor: 'color-mix(in srgb, var(--app-bg-primary) 72%, transparent)' }}
             initial={disableAnimations ? undefined : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={disableAnimations ? undefined : { opacity: 0 }}
