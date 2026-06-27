@@ -21,6 +21,7 @@ async function loadPdfBytes(url: string): Promise<Buffer | null> {
     const parsed = new URL(url)
 
     if (parsed.protocol === 'file:') {
+      if (!parsed.pathname.toLowerCase().endsWith('.pdf')) return null
       const filePath = fileURLToPath(parsed.href)
       const data = await readFile(filePath)
       if (data.length > MAX_PDF_BYTES) return null
@@ -37,7 +38,8 @@ async function loadPdfBytes(url: string): Promise<Buffer | null> {
       if (arrayBuffer.byteLength > MAX_PDF_BYTES) return null
 
       const buffer = Buffer.from(arrayBuffer)
-      if (!contentType.includes('application/pdf') && !isPdfBuffer(buffer)) return null
+      if (!contentType.includes('application/pdf') && !isPdfBuffer(buffer))
+        return null
       return buffer
     }
   } catch (err) {

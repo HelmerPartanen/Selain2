@@ -11,7 +11,7 @@ const ALLOWED_PERMISSIONS = new Set([
   'media',
   'fullscreen',
   'media-key-system-access',
-  'protected-media-identifier'
+  'protected-media-identifier',
 ])
 
 function isSecureTrustedOrigin(urlString: string | undefined): boolean {
@@ -19,9 +19,12 @@ function isSecureTrustedOrigin(urlString: string | undefined): boolean {
   try {
     const url = new URL(urlString)
     if (url.protocol === 'https:') return true
-    if (url.protocol === 'file:') return true
     if (url.protocol === 'http:') {
-      return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]'
+      return (
+        url.hostname === 'localhost' ||
+        url.hostname === '127.0.0.1' ||
+        url.hostname === '[::1]'
+      )
     }
     return false
   } catch {
@@ -29,7 +32,10 @@ function isSecureTrustedOrigin(urlString: string | undefined): boolean {
   }
 }
 
-function shouldAllowPermission(permission: string, requestingUrl: string | undefined): boolean {
+function shouldAllowPermission(
+  permission: string,
+  requestingUrl: string | undefined,
+): boolean {
   if (!ALLOWED_PERMISSIONS.has(permission)) return false
 
   // Fullscreen itself is a low-risk UI permission and expected on many sites.
@@ -41,7 +47,11 @@ function shouldAllowPermission(permission: string, requestingUrl: string | undef
 
 const pendingPermissionRequests = new Map<string, (decision: boolean) => void>()
 
-function askRendererForPermission(permission: string, requestingUrl: string | undefined, fallback: (decision: boolean) => void): void {
+function askRendererForPermission(
+  permission: string,
+  requestingUrl: string | undefined,
+  fallback: (decision: boolean) => void,
+): void {
   const win = getMainWindow()
   if (!win || !requestingUrl) {
     fallback(false)
@@ -63,14 +73,21 @@ function askRendererForPermission(permission: string, requestingUrl: string | un
     clearTimeout(timer)
     fallback(decision)
   })
-  win.webContents.send('permission-request', { id, origin, permission, requestingUrl })
+  win.webContents.send('permission-request', {
+    id,
+    origin,
+    permission,
+    requestingUrl,
+  })
 }
 
 const CHROME_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
 export function setupPermissions(): void {
-  ipcMain.on('permission-response', (_event, id: unknown, decision: unknown) => {
+  ipcMain.on('permission-response', (event, id: unknown, decision: unknown) => {
+    const win = getMainWindow()
+    if (!win || event.sender.id !== win.webContents.id) return
     if (typeof id !== 'string') return
     const resolver = pendingPermissionRequests.get(id)
     if (!resolver) return
@@ -82,23 +99,28 @@ export function setupPermissions(): void {
     ses.setUserAgent(CHROME_UA)
     ses.setSpellCheckerEnabled(false)
 
-    ses.setPermissionRequestHandler((webContents, permission, callback, details) => {
-      const requestingUrl = details?.requestingUrl ?? webContents.getURL()
-      if (!shouldAllowPermission(permission, requestingUrl)) {
-        callback(false)
-        return
-      }
-      if (permission === 'fullscreen') {
-        callback(true)
-        return
-      }
-      askRendererForPermission(permission, requestingUrl, callback)
-    })
+    ses.setPermissionRequestHandler(
+      (webContents, permission, callback, details) => {
+        const requestingUrl = details?.requestingUrl ?? webContents.getURL()
+        if (!shouldAllowPermission(permission, requestingUrl)) {
+          callback(false)
+          return
+        }
+        if (permission === 'fullscreen') {
+          callback(true)
+          return
+        }
+        askRendererForPermission(permission, requestingUrl, callback)
+      },
+    )
 
-    ses.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
-      const requestingUrl = details?.requestingUrl ?? requestingOrigin ?? webContents?.getURL()
-      return shouldAllowPermission(permission, requestingUrl)
-    })
+    ses.setPermissionCheckHandler(
+      (webContents, permission, requestingOrigin, details) => {
+        const requestingUrl =
+          details?.requestingUrl ?? requestingOrigin ?? webContents?.getURL()
+        return shouldAllowPermission(permission, requestingUrl)
+      },
+    )
   }
 
   configureSes(session.defaultSession)
@@ -123,40 +145,42 @@ export function setupCSP(): void {
         ...details.responseHeaders,
         'Content-Security-Policy': [
           "default-src 'self';" +
-          " script-src 'self' 'unsafe-inline';" +
-          " style-src 'self' 'unsafe-inline';" +
-          " img-src 'self' data: blob: https:;" +
-          " font-src 'self' data:;" +
-          " connect-src 'self' https: ws:;" +
-          " media-src 'self' blob: https:;" +
-          " frame-src 'none';"
-        ]
-      }
+            " script-src 'self' 'unsafe-inline';" +
+            " style-src 'self' 'unsafe-inline';" +
+            " img-src 'self' data: blob: https:;" +
+            " font-src 'self' data:;" +
+            " connect-src 'self' https: ws:;" +
+            " media-src 'self' blob: https:;" +
+            " frame-src 'none';",
+        ],
+      },
     })
   })
 
   // Also register on persist:default so the app-shell CSP applies if it ever
   // loads via this session. External (non-file://) requests pass through unmodified.
-  session.fromPartition('persist:default').webRequest.onHeadersReceived((details, callback) => {
-    if (!details.url.startsWith('file://')) {
-      callback({ cancel: false })
-      return
-    }
-    callback({
-      cancel: false,
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self';" +
-          " script-src 'self' 'unsafe-inline';" +
-          " style-src 'self' 'unsafe-inline';" +
-          " img-src 'self' data: blob: https:;" +
-          " font-src 'self' data:;" +
-          " connect-src 'self' https: ws:;" +
-          " media-src 'self' blob: https:;" +
-          " frame-src 'none';"
-        ]
+  session
+    .fromPartition('persist:default')
+    .webRequest.onHeadersReceived((details, callback) => {
+      if (!details.url.startsWith('file://')) {
+        callback({ cancel: false })
+        return
       }
+      callback({
+        cancel: false,
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self';" +
+              " script-src 'self' 'unsafe-inline';" +
+              " style-src 'self' 'unsafe-inline';" +
+              " img-src 'self' data: blob: https:;" +
+              " font-src 'self' data:;" +
+              " connect-src 'self' https: ws:;" +
+              " media-src 'self' blob: https:;" +
+              " frame-src 'none';",
+          ],
+        },
+      })
     })
-  })
 }

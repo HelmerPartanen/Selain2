@@ -7,6 +7,7 @@ import { URLBar } from './URLBar'
 vi.mock('@/hooks/useTabSelector', () => ({
   useFocusedTabId: () => 'tab-1',
   useFocusedTabUrl: () => 'https://example.com',
+  useFocusedTabIsPrivate: () => false,
   useFocusedTabNavState: () => ({ isLoading: false, loadProgress: 0 }),
   useFocusedTabMediaPlaying: () => false
 }))

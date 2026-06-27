@@ -2,17 +2,34 @@
 // All ipcMain handlers: downloads, window controls, zoom, image picker,
 // wallpaper persistence, and settings store persistence.
 
-import { app, dialog, ipcMain, nativeImage, session, shell, webContents, net } from 'electron'
+import {
+  app,
+  dialog,
+  ipcMain,
+  nativeImage,
+  session,
+  shell,
+  webContents,
+  net,
+} from 'electron'
 import { mkdir, readFile, rename, writeFile, unlink } from 'fs/promises'
-import { basename, join } from 'path'
+import { basename, isAbsolute, join, relative, resolve } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { existsSync, writeFileSync } from 'fs'
 import { logger } from './logger'
-import { getMainWindow } from './state'
-import { getLatestPerfSnapshot, getPerfSnapshots, startPerfMonitor, stopPerfMonitor } from './perfMonitor'
+import { getMainWindow, isTrackedAppWebview, isTrustedAppSender } from './state'
+import {
+  getLatestPerfSnapshot,
+  getPerfSnapshots,
+  startPerfMonitor,
+  stopPerfMonitor,
+} from './perfMonitor'
 import { setupAIIPC } from './ai/ipcAI'
 
 const PERF_LOGS = process.env['BROWSER_PERF_LOG'] === '1'
+const MAX_WALLPAPER_DATA_URL_BYTES = 10 * 1024 * 1024
+const MAX_STORE_BYTES = 5 * 1024 * 1024
+const MAX_EXPORT_BYTES = 10 * 1024 * 1024
 
 const storePerf = {
   saveRequests: 0,
@@ -20,7 +37,7 @@ const storePerf = {
   skippedNoChange: 0,
   loadHits: 0,
   loadMisses: 0,
-  saveErrors: 0
+  saveErrors: 0,
 }
 
 const savedStoreCache = new Map<string, string>()
@@ -37,7 +54,7 @@ function startPerfLogging(): void {
   setInterval(() => {
     logger.log('[perf][main][store]', {
       ...storePerf,
-      cachedStores: savedStoreCache.size
+      cachedStores: savedStoreCache.size,
     })
   }, 10000)
 }
@@ -59,6 +76,23 @@ function originFromUrl(input: string): string | null {
   }
 }
 
+function isFromAppShell(
+  event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent,
+): boolean {
+  return isTrustedAppSender(event.sender)
+}
+
+function stringByteLength(value: string): number {
+  return Buffer.byteLength(value, 'utf-8')
+}
+
+function isPathInside(parent: string, child: string): boolean {
+  const parentPath = resolve(parent)
+  const childPath = resolve(child)
+  const rel = relative(parentPath, childPath)
+  return rel === '' || (!!rel && !rel.startsWith('..') && !isAbsolute(rel))
+}
+
 export function setupIPC(): void {
   startPerfLogging()
   setupAIIPC()
@@ -68,7 +102,10 @@ export function setupIPC(): void {
   const knownDownloadPaths = new Map<string, string>()
   let downloadCounter = 0
 
-  function setupDownloadHandling(ses: Electron.Session, isPrivate = false): void {
+  function setupDownloadHandling(
+    ses: Electron.Session,
+    isPrivate = false,
+  ): void {
     ses.on('will-download', (_event, item) => {
       const id = `dl-${++downloadCounter}-${Date.now()}`
       activeDownloads.set(id, item)
@@ -83,7 +120,7 @@ export function setupIPC(): void {
         totalBytes: item.getTotalBytes(),
         receivedBytes: item.getReceivedBytes(),
         startTime: Date.now(),
-        isPrivate
+        isPrivate,
       })
 
       let lastUpdate = 0
@@ -99,14 +136,14 @@ export function setupIPC(): void {
             id,
             receivedBytes: item.getReceivedBytes(),
             totalBytes: item.getTotalBytes(),
-            speed: item.getCurrentBytesPerSecond?.() ?? 0
+            speed: item.getCurrentBytesPerSecond?.() ?? 0,
           })
         } else if (state === 'interrupted') {
           sendToMainWindow('download-progress', {
             id,
             receivedBytes: item.getReceivedBytes(),
             totalBytes: item.getTotalBytes(),
-            speed: 0
+            speed: 0,
           })
         }
       })
@@ -116,7 +153,12 @@ export function setupIPC(): void {
         if (finalPath) knownDownloadPaths.set(id, finalPath)
         sendToMainWindow('download-done', {
           id,
-          state: state === 'completed' ? 'completed' : state === 'cancelled' ? 'cancelled' : 'failed'
+          state:
+            state === 'completed'
+              ? 'completed'
+              : state === 'cancelled'
+                ? 'cancelled'
+                : 'failed',
         })
         activeDownloads.delete(id)
         // Prune path after a delay so open/show-in-folder still works briefly after done
@@ -129,55 +171,81 @@ export function setupIPC(): void {
   setupDownloadHandling(session.fromPartition('persist:default'))
   setupDownloadHandling(session.fromPartition('private'), true)
 
-  const VALID_DOWNLOAD_ACTIONS = new Set(['pause', 'resume', 'cancel', 'open', 'show-in-folder'])
+  const VALID_DOWNLOAD_ACTIONS = new Set([
+    'pause',
+    'resume',
+    'cancel',
+    'open',
+    'show-in-folder',
+  ])
 
-  ipcMain.on('download-action', (_event, action: string, id: string, _savePath?: string) => {
-    if (!VALID_DOWNLOAD_ACTIONS.has(action)) return
-    if (typeof id !== 'string' || !id) return
-    const item = activeDownloads.get(id)
-    const trackedPath = knownDownloadPaths.get(id) ?? item?.getSavePath()
-    if (trackedPath) knownDownloadPaths.set(id, trackedPath)
+  ipcMain.on(
+    'download-action',
+    (event, action: string, id: string, _savePath?: string) => {
+      if (!isFromAppShell(event)) return
+      if (!VALID_DOWNLOAD_ACTIONS.has(action)) return
+      if (typeof id !== 'string' || !id) return
+      const item = activeDownloads.get(id)
+      const trackedPath = knownDownloadPaths.get(id) ?? item?.getSavePath()
+      if (trackedPath) knownDownloadPaths.set(id, trackedPath)
 
-    // Never trust renderer-supplied file paths for shell actions.
-    if (action === 'open' || action === 'show-in-folder') {
-      if (!trackedPath) return
-      if (action === 'open') {
-        shell.openPath(trackedPath)
-      } else {
-        shell.showItemInFolder(trackedPath)
+      // Never trust renderer-supplied file paths for shell actions.
+      if (action === 'open' || action === 'show-in-folder') {
+        if (!trackedPath) return
+        if (action === 'open') {
+          shell.openPath(trackedPath)
+        } else {
+          shell.showItemInFolder(trackedPath)
+        }
+        return
       }
-      return
-    }
-    if (!item) return
+      if (!item) return
 
-    switch (action) {
-      case 'pause': item.pause(); break
-      case 'resume': item.resume(); break
-      case 'cancel': item.cancel(); break
-    }
-  })
+      switch (action) {
+        case 'pause':
+          item.pause()
+          break
+        case 'resume':
+          item.resume()
+          break
+        case 'cancel':
+          item.cancel()
+          break
+      }
+    },
+  )
 
   // ── Window controls ──────────────────────────────────────────────────────
-  ipcMain.on('window-minimize', () => { getMainWindow()?.minimize() })
-  ipcMain.on('window-maximize', () => { getMainWindow()?.maximize() })
-  ipcMain.on('window-close', () => { getMainWindow()?.close() })
-  ipcMain.on('window-toggle-maximize', () => {
+  ipcMain.on('window-minimize', (event) => {
+    if (isFromAppShell(event)) getMainWindow()?.minimize()
+  })
+  ipcMain.on('window-maximize', (event) => {
+    if (isFromAppShell(event)) getMainWindow()?.maximize()
+  })
+  ipcMain.on('window-close', (event) => {
+    if (isFromAppShell(event)) getMainWindow()?.close()
+  })
+  ipcMain.on('window-toggle-maximize', (event) => {
+    if (!isFromAppShell(event)) return
     const win = getMainWindow()
     if (!win) return
     win.isMaximized() ? win.unmaximize() : win.maximize()
   })
 
-  ipcMain.on('set-zoom-factor', (_event, factor: number) => {
+  ipcMain.on('set-zoom-factor', (event, factor: number) => {
+    if (!isFromAppShell(event)) return
     if (typeof factor !== 'number' || !Number.isFinite(factor)) return
     const clamped = Math.max(0.25, Math.min(5, factor))
     getMainWindow()?.webContents.setZoomFactor(clamped)
   })
 
-  ipcMain.handle('open-external', async (_event, url: unknown) => {
+  ipcMain.handle('open-external', async (event, url: unknown) => {
+    if (!isFromAppShell(event)) return false
     if (typeof url !== 'string') return false
     try {
       const parsed = new URL(url)
-      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:')
+        return false
       await shell.openExternal(parsed.toString())
       return true
     } catch {
@@ -185,7 +253,8 @@ export function setupIPC(): void {
     }
   })
 
-  ipcMain.handle('get-site-info', async (_event, url: unknown) => {
+  ipcMain.handle('get-site-info', async (event, url: unknown) => {
+    if (!isFromAppShell(event)) return null
     if (typeof url !== 'string') return null
     const origin = originFromUrl(url)
     if (!origin) return null
@@ -214,7 +283,9 @@ export function setupIPC(): void {
     try {
       await ses.clearStorageData({ origin: safeOrigin })
       const cookies = await ses.cookies.get({ url: safeOrigin })
-      await Promise.all(cookies.map((cookie) => ses.cookies.remove(safeOrigin, cookie.name)))
+      await Promise.all(
+        cookies.map((cookie) => ses.cookies.remove(safeOrigin, cookie.name)),
+      )
       return true
     } catch (err) {
       logger.warn('Failed to clear site data:', err)
@@ -222,7 +293,8 @@ export function setupIPC(): void {
     }
   }
 
-  ipcMain.handle('clear-site-data', async (_event, origin: unknown) => {
+  ipcMain.handle('clear-site-data', async (event, origin: unknown) => {
+    if (!isFromAppShell(event)) return false
     if (typeof origin !== 'string') return false
     const safeOrigin = originFromUrl(origin)
     if (!safeOrigin) return false
@@ -230,7 +302,8 @@ export function setupIPC(): void {
   })
 
   // forget-site performs a full site data wipe (same semantics as clear-site-data).
-  ipcMain.handle('forget-site', async (_event, origin: unknown) => {
+  ipcMain.handle('forget-site', async (event, origin: unknown) => {
+    if (!isFromAppShell(event)) return false
     if (typeof origin !== 'string') return false
     const safeOrigin = originFromUrl(origin)
     if (!safeOrigin) return false
@@ -242,7 +315,31 @@ export function setupIPC(): void {
   const wallpaperDir = join(app.getPath('userData'), 'wallpapers')
   const customWallpaperIndexPath = join(wallpaperDir, 'custom-wallpapers.json')
 
-  async function writeTextAtomic(filePath: string, data: string): Promise<void> {
+  function isAllowedWallpaperValue(value: string): boolean {
+    if (stringByteLength(value) > MAX_WALLPAPER_DATA_URL_BYTES) return false
+    if (
+      value.startsWith('bundled:') ||
+      value.startsWith('preset:') ||
+      value.startsWith('dynamic:')
+    ) {
+      return true
+    }
+    if (/^data:image\/(?:png|jpe?g|webp|bmp|gif);base64,/i.test(value))
+      return true
+    if (value.startsWith('file://')) {
+      try {
+        return isPathInside(wallpaperDir, fileURLToPath(value))
+      } catch {
+        return false
+      }
+    }
+    return value.length === 0
+  }
+
+  async function writeTextAtomic(
+    filePath: string,
+    data: string,
+  ): Promise<void> {
     const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}`
     await writeFile(tempPath, data, 'utf-8')
     await rename(tempPath, filePath)
@@ -251,7 +348,9 @@ export function setupIPC(): void {
   async function loadCustomWallpapers(): Promise<CustomWallpaper[]> {
     try {
       if (!existsSync(customWallpaperIndexPath)) return []
-      const parsed = JSON.parse(await readFile(customWallpaperIndexPath, 'utf-8')) as unknown
+      const parsed = JSON.parse(
+        await readFile(customWallpaperIndexPath, 'utf-8'),
+      ) as unknown
       if (!Array.isArray(parsed)) return []
       return parsed.filter((item): item is CustomWallpaper => {
         const candidate = item as Partial<CustomWallpaper>
@@ -277,7 +376,10 @@ export function setupIPC(): void {
 
   async function saveCustomWallpapers(items: CustomWallpaper[]): Promise<void> {
     await mkdir(wallpaperDir, { recursive: true })
-    await writeTextAtomic(customWallpaperIndexPath, JSON.stringify(items, null, 2))
+    await writeTextAtomic(
+      customWallpaperIndexPath,
+      JSON.stringify(items, null, 2),
+    )
   }
 
   async function saveSelectedWallpaper(value: string | null): Promise<boolean> {
@@ -287,17 +389,7 @@ export function setupIPC(): void {
         return true
       }
 
-      if (
-        typeof value !== 'string' ||
-        (
-          !value.startsWith('data:image/') &&
-          !value.startsWith('bundled:') &&
-          !value.startsWith('preset:') &&
-          !value.startsWith('dynamic:') &&
-          !value.startsWith('file://') &&
-          value.length > 0
-        )
-      ) {
+      if (typeof value !== 'string' || !isAllowedWallpaperValue(value)) {
         logger.warn('Invalid wallpaper data')
         return false
       }
@@ -316,8 +408,13 @@ export function setupIPC(): void {
 
     const result = await dialog.showOpenDialog(win, {
       title: 'Choose a wallpaper image',
-      filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'] }],
-      properties: ['openFile']
+      filters: [
+        {
+          name: 'Images',
+          extensions: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'],
+        },
+      ],
+      properties: ['openFile'],
     })
     if (result.canceled || result.filePaths.length === 0) return null
 
@@ -339,7 +436,7 @@ export function setupIPC(): void {
       img = img.resize({
         width: Math.round(size.width * ratio),
         height: Math.round(size.height * ratio),
-        quality: 'good'
+        quality: 'good',
       })
     }
 
@@ -354,7 +451,7 @@ export function setupIPC(): void {
       id,
       name: basename(filePath).replace(/\.[^.]+$/, ''),
       url: pathToFileURL(outputPath).toString(),
-      createdAt: Date.now()
+      createdAt: Date.now(),
     }
 
     const existing = await loadCustomWallpapers()
@@ -364,20 +461,24 @@ export function setupIPC(): void {
   }
 
   // Legacy API: keep returning just the URL for older renderer call sites.
-  ipcMain.handle('open-image-dialog', async () => {
+  ipcMain.handle('open-image-dialog', async (event) => {
+    if (!isFromAppShell(event)) return null
     const item = await importWallpaperFromDialog()
     return item?.url ?? null
   })
 
-  ipcMain.handle('import-wallpaper', async () => {
+  ipcMain.handle('import-wallpaper', async (event) => {
+    if (!isFromAppShell(event)) return null
     return importWallpaperFromDialog()
   })
 
-  ipcMain.handle('list-custom-wallpapers', async () => {
+  ipcMain.handle('list-custom-wallpapers', async (event) => {
+    if (!isFromAppShell(event)) return []
     return loadCustomWallpapers()
   })
 
-  ipcMain.handle('delete-custom-wallpaper', async (_event, id: unknown) => {
+  ipcMain.handle('delete-custom-wallpaper', async (event, id: unknown) => {
+    if (!isFromAppShell(event)) return false
     if (typeof id !== 'string' || !id.startsWith('custom-')) return false
     const existing = await loadCustomWallpapers()
     const item = existing.find((wp) => wp.id === id)
@@ -393,11 +494,13 @@ export function setupIPC(): void {
     return true
   })
 
-  ipcMain.handle('save-wallpaper', async (_event, dataUrl: string | null) => {
+  ipcMain.handle('save-wallpaper', async (event, dataUrl: string | null) => {
+    if (!isFromAppShell(event)) return false
     return saveSelectedWallpaper(dataUrl)
   })
 
-  ipcMain.handle('load-wallpaper', async () => {
+  ipcMain.handle('load-wallpaper', async (event) => {
+    if (!isFromAppShell(event)) return null
     try {
       if (!existsSync(wallpaperPath)) return null
       return await readFile(wallpaperPath, 'utf-8')
@@ -418,11 +521,15 @@ export function setupIPC(): void {
     'download-history',
     'space-store',
     'site-permissions',
-    'shortcut-store'
+    'shortcut-store',
   ])
   const storeDir = app.getPath('userData')
 
   ipcMain.on('clear-stores-sync', (event, names: unknown) => {
+    if (!isFromAppShell(event)) {
+      event.returnValue = false
+      return
+    }
     const list = Array.isArray(names) ? names : []
     try {
       for (const name of list) {
@@ -438,7 +545,8 @@ export function setupIPC(): void {
     }
   })
 
-  ipcMain.handle('load-store', async (_event, name: string) => {
+  ipcMain.handle('load-store', async (event, name: string) => {
+    if (!isFromAppShell(event)) return null
     if (typeof name !== 'string' || !ALLOWED_STORES.has(name)) return null
     const filePath = join(storeDir, `${name}.json`)
     try {
@@ -456,9 +564,16 @@ export function setupIPC(): void {
     }
   })
 
-  ipcMain.handle('save-store', async (_event, name: string, data: string) => {
+  ipcMain.handle('save-store', async (event, name: string, data: string) => {
+    if (!isFromAppShell(event)) return false
     if (typeof name !== 'string' || !ALLOWED_STORES.has(name)) return false
     if (typeof data !== 'string') return false
+    if (stringByteLength(data) > MAX_STORE_BYTES) return false
+    try {
+      JSON.parse(data)
+    } catch {
+      return false
+    }
     storePerf.saveRequests += 1
 
     const cached = savedStoreCache.get(name)
@@ -480,8 +595,10 @@ export function setupIPC(): void {
     }
   })
 
-  ipcMain.handle('export-bookmarks-html', async (_event, html: unknown) => {
+  ipcMain.handle('export-bookmarks-html', async (event, html: unknown) => {
+    if (!isFromAppShell(event)) return false
     if (typeof html !== 'string') return false
+    if (stringByteLength(html) > MAX_EXPORT_BYTES) return false
     const win = getMainWindow()
     if (!win) return false
     const result = await dialog.showSaveDialog(win, {
@@ -494,7 +611,8 @@ export function setupIPC(): void {
     return true
   })
 
-  ipcMain.handle('import-bookmarks-html', async () => {
+  ipcMain.handle('import-bookmarks-html', async (event) => {
+    if (!isFromAppShell(event)) return null
     const win = getMainWindow()
     if (!win) return null
     const result = await dialog.showOpenDialog(win, {
@@ -503,11 +621,19 @@ export function setupIPC(): void {
       properties: ['openFile'],
     })
     if (result.canceled || result.filePaths.length === 0) return null
-    return await readFile(result.filePaths[0]!, 'utf-8')
+    const data = await readFile(result.filePaths[0]!, 'utf-8')
+    return stringByteLength(data) <= MAX_EXPORT_BYTES ? data : null
   })
 
-  ipcMain.handle('export-profile-backup', async (_event, data: unknown) => {
+  ipcMain.handle('export-profile-backup', async (event, data: unknown) => {
+    if (!isFromAppShell(event)) return false
     if (typeof data !== 'string') return false
+    if (stringByteLength(data) > MAX_EXPORT_BYTES) return false
+    try {
+      JSON.parse(data)
+    } catch {
+      return false
+    }
     const win = getMainWindow()
     if (!win) return false
     const result = await dialog.showSaveDialog(win, {
@@ -520,7 +646,8 @@ export function setupIPC(): void {
     return true
   })
 
-  ipcMain.handle('import-profile-backup', async () => {
+  ipcMain.handle('import-profile-backup', async (event) => {
+    if (!isFromAppShell(event)) return null
     const win = getMainWindow()
     if (!win) return null
     const result = await dialog.showOpenDialog(win, {
@@ -529,11 +656,24 @@ export function setupIPC(): void {
       properties: ['openFile'],
     })
     if (result.canceled || result.filePaths.length === 0) return null
-    return await readFile(result.filePaths[0]!, 'utf-8')
+    const data = await readFile(result.filePaths[0]!, 'utf-8')
+    if (stringByteLength(data) > MAX_EXPORT_BYTES) return null
+    try {
+      JSON.parse(data)
+    } catch {
+      return null
+    }
+    return data
   })
 
   // ── Picture-in-Picture ──────────────────────────────────────────────────
-  ipcMain.on('request-pip', (_event, webContentsId: number) => {
+  ipcMain.on('request-pip', (event, webContentsId: number) => {
+    if (!isFromAppShell(event)) return
+    if (
+      typeof webContentsId !== 'number' ||
+      !isTrackedAppWebview(webContentsId)
+    )
+      return
     const wc = webContents.fromId(webContentsId)
     if (!wc) return
     wc.executeJavaScript(`
@@ -551,10 +691,14 @@ export function setupIPC(): void {
   })
 
   // ── Renderer Fixes (Main Process side) ──────────────────────────────────
-  ipcMain.handle('fetch-search-suggestions', async (_event, query: string) => {
+  ipcMain.handle('fetch-search-suggestions', async (event, query: string) => {
+    if (!isFromAppShell(event)) return []
+    if (typeof query !== 'string' || query.length > 256) return []
     if (!query) return []
     try {
-      const response = await net.fetch(`https://duckduckgo.com/ac/?q=${encodeURIComponent(query)}&type=list`)
+      const response = await net.fetch(
+        `https://duckduckgo.com/ac/?q=${encodeURIComponent(query)}&type=list`,
+      )
       if (!response.ok) return []
       return await response.json()
     } catch (err) {
@@ -563,9 +707,11 @@ export function setupIPC(): void {
     }
   })
 
-  ipcMain.handle('capture-tab', async (_event, webContentsId: number) => {
+  ipcMain.handle('capture-tab', async (event, webContentsId: number) => {
     try {
+      if (!isFromAppShell(event)) return null
       if (typeof webContentsId !== 'number') return null
+      if (!isTrackedAppWebview(webContentsId)) return null
       const wc = webContents.fromId(webContentsId)
       if (!wc || wc.isDestroyed()) return null
 
@@ -577,7 +723,7 @@ export function setupIPC(): void {
           ? img.resize({
               width: MAX_WIDTH,
               height: Math.round((size.height * MAX_WIDTH) / size.width),
-              quality: 'good'
+              quality: 'good',
             })
           : img
       const jpeg = toEncode.toJPEG(52)
@@ -591,21 +737,25 @@ export function setupIPC(): void {
   // Only registered when BROWSER_PERF_BENCH=1. The renderer checks the same
   // flag and skips calling these handlers under normal operation.
   if (process.env['BROWSER_PERF_BENCH'] === '1') {
-    ipcMain.handle('perf-get-snapshot', () => {
+    ipcMain.handle('perf-get-snapshot', (event) => {
+      if (!isFromAppShell(event)) return null
       return getLatestPerfSnapshot()
     })
 
-    ipcMain.handle('perf-get-snapshots', (_event, limit?: number) => {
+    ipcMain.handle('perf-get-snapshots', (event, limit?: number) => {
+      if (!isFromAppShell(event)) return []
       const safeLimit = typeof limit === 'number' ? limit : 120
       return getPerfSnapshots(safeLimit)
     })
 
-    ipcMain.handle('perf-start-monitor', (_event, intervalMs?: number) => {
+    ipcMain.handle('perf-start-monitor', (event, intervalMs?: number) => {
+      if (!isFromAppShell(event)) return { started: false, intervalMs: 0 }
       const safeInterval = typeof intervalMs === 'number' ? intervalMs : 10000
       return startPerfMonitor(safeInterval)
     })
 
-    ipcMain.handle('perf-stop-monitor', () => {
+    ipcMain.handle('perf-stop-monitor', (event) => {
+      if (!isFromAppShell(event)) return { stopped: false, samples: 0 }
       return stopPerfMonitor()
     })
   }

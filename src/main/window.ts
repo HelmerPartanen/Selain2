@@ -4,7 +4,7 @@
 
 import { BrowserWindow } from 'electron'
 import { join } from 'path'
-import { setMainWindow } from './state'
+import { setMainWindow, trackAttachedWebview } from './state'
 import { buildContextMenu } from './contextMenu'
 import { handleShortcutInput } from './shortcuts'
 
@@ -13,7 +13,11 @@ function isAllowedPopupUrl(rawUrl: string): boolean {
     const url = new URL(rawUrl)
     if (url.protocol === 'https:') return true
     if (url.protocol === 'http:') {
-      return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]'
+      return (
+        url.hostname === 'localhost' ||
+        url.hostname === '127.0.0.1' ||
+        url.hostname === '[::1]'
+      )
     }
     return false
   } catch {
@@ -45,13 +49,13 @@ export function createWindow(): void {
     frame: false,
     webPreferences: {
       contextIsolation: true,
-      sandbox: false, // Required for DRM
+      sandbox: true,
       nodeIntegration: false,
       webviewTag: true,
       plugins: true,
       v8CacheOptions: 'bypassHeatCheck',
-      preload: join(__dirname, '../preload/index.js')
-    }
+      preload: join(__dirname, '../preload/index.js'),
+    },
   })
 
   win.maximize()
@@ -86,8 +90,12 @@ export function createWindow(): void {
   // Block renderer-initiated window.open()
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
 
-    // Intercept new-window requests and keyboard shortcuts from all webviews
-    ; (win.webContents as NodeJS.EventEmitter).on('did-attach-webview', (_event: unknown, webViewContents: Electron.WebContents) => {
+  // Intercept new-window requests and keyboard shortcuts from all webviews
+  ;(win.webContents as NodeJS.EventEmitter).on(
+    'did-attach-webview',
+    (_event: unknown, webViewContents: Electron.WebContents) => {
+      trackAttachedWebview(webViewContents)
+
       // Spoof User-Agent for Netflix/Spotify
       webViewContents.setUserAgent(BROWSER_USER_AGENT)
 
@@ -98,7 +106,9 @@ export function createWindow(): void {
       webViewContents.setWindowOpenHandler(({ url, features }) => {
         const isPopup = isPopupWindowRequest(features)
         if (isPopup && isAllowedPopupUrl(url)) {
-          const partition = webViewContents.session.isPersistent() ? 'persist:default' : 'private'
+          const partition = webViewContents.session.isPersistent()
+            ? 'persist:default'
+            : 'private'
           return {
             action: 'allow',
             overrideBrowserWindowOptions: {
@@ -111,14 +121,14 @@ export function createWindow(): void {
                 contextIsolation: true,
                 sandbox: true,
                 nodeIntegration: false,
-              }
-            }
+              },
+            },
           }
         }
         if (url) {
           win.webContents.send('open-url-in-new-tab', {
             url,
-            isPrivate: !webViewContents.session.isPersistent()
+            isPrivate: !webViewContents.session.isPersistent(),
           })
         }
         return { action: 'deny' }
@@ -133,7 +143,8 @@ export function createWindow(): void {
       webViewContents.on('before-input-event', (event, input) => {
         handleShortcutInput(event, input)
       })
-    })
+    },
+  )
 
   // Also forward shortcuts when the host webContents itself has focus
   win.webContents.on('before-input-event', (event, input) => {
@@ -144,7 +155,7 @@ export function createWindow(): void {
   win.webContents.on('will-attach-webview', (_event, webPreferences) => {
     webPreferences.nodeIntegration = false
     webPreferences.contextIsolation = true
-    webPreferences.sandbox = false
+    webPreferences.sandbox = true
     webPreferences.webSecurity = true
     webPreferences.allowRunningInsecureContent = false
     webPreferences.plugins = true
