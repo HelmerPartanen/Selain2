@@ -343,7 +343,7 @@ function SpaceSwitcherInner(): React.JSX.Element {
   })))
 const popoverBelow = uiLayout === 'classic'
   const { enterY, exitY } = getPopoverMotion(popoverBelow)
-  const popoverSurface = 'bg-[var(--app-bg-primary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
+  const popoverSurface = 'bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
 

@@ -80,7 +80,7 @@ function AppMenuInner(): React.JSX.Element {
   const { enterY, exitY } = getPopoverMotion(popoverBelow);
 
   const menuSurface =
-    "bg-[var(--app-bg-primary)] border border-[var(--app-separator)]";
+    "bg-[var(--app-bg-secondary)] border border-[var(--app-separator)]";
 
   const triggerRef = useRef<HTMLDivElement>(null);
 
