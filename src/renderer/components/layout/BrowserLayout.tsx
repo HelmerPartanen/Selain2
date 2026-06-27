@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Text } from "@/components/ui/Text";
 import { ToastContainer } from "@/components/ui/Toast";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const SettingsPanel = lazy(() =>
   import("@/settings/SettingsPanel").then((m) => ({
@@ -80,10 +81,7 @@ const AISummaryButton = lazy(() =>
 function PanelLoadingFallback(): React.JSX.Element {
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
-      <div
-        className="w-8 h-8 rounded-full border-2 border-blue-400/60 border-t-blue-400 animate-spin"
-        aria-hidden
-      />
+      <LoadingSpinner size={32} />
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { memo, useCallback, useDeferredValue, useEffect, useRef, useState, type 
 import { m, AnimatePresence } from 'motion/react'
 import { SvgIcon, PIP_SVG } from '@/components/ui/SvgIcon'
 import roundArrowsSvg from '@/assets/icons/Arrows/Round_Arrows_2.svg?raw'
-import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
@@ -22,29 +21,12 @@ import { logger } from '@/utils/logger'
 import { fetchSearchSuggestions } from '@/utils/searchUtils'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { SearchInput } from '@/components/ui/Search'
 import { SiteInfoPopover } from './SiteInfoPopover'
 import { getTabDomain } from '@/utils/tabAnalysis'
 
 import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
-
-const LoadingProgressBar = memo(function LoadingProgressBar() {
-  const { loadProgress } = useFocusedTabNavState()
-
-  return (
-    <div className="pointer-events-none absolute inset-x-2 bottom-0 h-0.5 overflow-hidden rounded-full">
-      <m.div
-        className="h-full w-full origin-left rounded-full bg-blue-500"
-        initial={false}
-        animate={{
-          scaleX: loadProgress > 0 ? loadProgress : 0,
-          opacity: loadProgress > 0 && loadProgress < 1 ? 1 : 0,
-        }}
-        transition={loadProgress === 0 ? { duration: 0.3 } : SPRING_EXPAND}
-      />
-    </div>
-  )
-})
 
 type Suggestion = HistoryEntry & {
   id?: string
@@ -472,7 +454,7 @@ function URLBarInner({
                 className="flex items-center justify-center"
               >
                 {isLoading ? (
-                  <SvgIcon svg={closeSvg} size={15} />
+                  <LoadingSpinner size={15} inheritColor />
                 ) : (
                   <SvgIcon svg={roundArrowsSvg} size={15} />
                 )}
@@ -615,8 +597,6 @@ function URLBarInner({
             )}
           </AnimatePresence>
         </div>
-
-        <LoadingProgressBar />
       </m.div>
 
       <AnimatePresence>
