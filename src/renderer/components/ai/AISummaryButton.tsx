@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { m } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { SvgIcon } from '@/components/ui/SvgIcon'
@@ -28,6 +28,7 @@ function ReadingToolsButtonInner(): React.JSX.Element {
   const [tilt, setTilt] = useState(false)
 
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const transition = disableAnimations ? { duration: 0 } : SPRING_SNAPPY
 
@@ -60,12 +61,20 @@ function ReadingToolsButtonInner(): React.JSX.Element {
   // -------------------------
   // TOGGLE
   // -------------------------
+  const closeTools = useCallback(() => {
+    if (!open) return
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    setClosing(true)
+    setOpen(false)
+    closeTimer.current = setTimeout(() => {
+      setClosing(false)
+      closeTimer.current = null
+    }, CLOSE_MS)
+  }, [open])
+
   const handleToggle = () => {
     if (open) {
-      setClosing(true)
-      setOpen(false)
-
-      setTimeout(() => setClosing(false), CLOSE_MS)
+      closeTools()
     } else {
       setOpen(true)
     }
@@ -79,8 +88,21 @@ function ReadingToolsButtonInner(): React.JSX.Element {
   useEffect(() => {
     return () => {
       if (hideTimer.current) clearTimeout(hideTimer.current)
+      if (closeTimer.current) clearTimeout(closeTimer.current)
     }
   }, [])
+
+  useEffect(() => {
+    if (!open) return
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeTools()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown, true)
+    return () => window.removeEventListener('keydown', handleKeyDown, true)
+  }, [closeTools, open])
 
   // -------------------------
   // POSITIONING
@@ -110,6 +132,13 @@ function ReadingToolsButtonInner(): React.JSX.Element {
 
   return (
     <div className="fixed inset-0 z-[95] pointer-events-none">
+      {open && (
+        <div
+          className="fixed inset-0 z-0 pointer-events-auto [app-region:no-drag]"
+          onMouseDown={closeTools}
+        />
+      )}
+
       <div className="absolute inset-0 flex items-end justify-end p-2 pointer-events-none">
         {/* HOT ZONE */}
         <div className="absolute bottom-0 right-0 w-24 h-24 pointer-events-auto" onMouseEnter={handleEnter} onMouseLeave={handleLeave} />

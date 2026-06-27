@@ -148,6 +148,11 @@ export function PanelModal({
 
   return (
     <>
+      <div
+        className="fixed inset-0 z-[80] bg-black/20 [app-region:no-drag]"
+        onMouseDown={onClose}
+      />
+
       {/* Centering wrapper \u2014 pointer-events disabled so backdrop click-away works */}
       <div className="fixed inset-0 z-[85] flex items-center justify-center pointer-events-none">
         <m.div

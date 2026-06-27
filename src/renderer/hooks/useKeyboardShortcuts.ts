@@ -131,9 +131,18 @@ export function useKeyboardShortcuts(): void {
       // Escape — Close find bar and other transient UI (when not in input)
       if (key === 'escape' && !isInputField) {
         const ui = useUIStore.getState()
-        if (ui.isFindBarOpen) { ui.closeFindBar(); return }
-        if (ui.isDropdownOpen) { ui.setDropdownOpen(false); return }
-        if (ui.isMenuOpen) { ui.setMenuOpen(false); return }
+        if (
+          ui.isFindBarOpen ||
+          ui.isDropdownOpen ||
+          ui.isMenuOpen ||
+          ui.isSpaceSwitcherOpen ||
+          ui.isTabStripMenuOpen ||
+          ui.isDownloadPopoverOpen
+        ) {
+          e.preventDefault()
+          ui.closeTransientUI()
+          return
+        }
       }
 
       // Ctrl+Shift+S — Toggle split view (split next tab or unsplit)

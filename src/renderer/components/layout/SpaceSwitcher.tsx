@@ -499,7 +499,7 @@ className={`${
                     >
                       <EditSpaceForm
                         space={spaces[editingId]!}
-                        onDone={() => setEditingId(null)}
+                        onDone={handleClose}
                       />
                     </m.div>
                   ) : isCreating ? (
@@ -512,7 +512,7 @@ className={`${
                     >
                       <NewSpaceForm
                         onSubmit={handleCreate}
-                        onCancel={() => setIsCreating(false)}
+                        onCancel={handleClose}
                       />
                     </m.div>
                   ) : (

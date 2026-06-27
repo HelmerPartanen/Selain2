@@ -147,11 +147,7 @@ function BrowserLayoutInner(): React.JSX.Element {
     isDownloadPopoverOpen,
     isAIFullscreenOpen,
     isReaderModeOpen,
-    setDropdownOpen: closeDropdown,
-    setMenuOpen: closeMenu,
-    setSpaceSwitcherOpen: closeSpaceSwitcher,
-    setTabStripMenuOpen: closeTabStripMenu,
-    setDownloadPopoverOpen: closeDownloadPopover,
+    closeTransientUI,
   } = useUIStore(
     useShallow((s) => ({
       isDropdownOpen: s.isDropdownOpen,
@@ -167,11 +163,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       isDownloadPopoverOpen: s.isDownloadPopoverOpen,
       isAIFullscreenOpen: s.isAIFullscreenOpen,
       isReaderModeOpen: s.isReaderModeOpen,
-      setDropdownOpen: s.setDropdownOpen,
-      setMenuOpen: s.setMenuOpen,
-      setSpaceSwitcherOpen: s.setSpaceSwitcherOpen,
-      setTabStripMenuOpen: s.setTabStripMenuOpen,
-      setDownloadPopoverOpen: s.setDownloadPopoverOpen,
+      closeTransientUI: s.closeTransientUI,
     })),
   );
 
@@ -374,13 +366,7 @@ function BrowserLayoutInner(): React.JSX.Element {
         isDownloadPopoverOpen) && (
         <div
           className="fixed inset-0 z-[45]"
-          onMouseDown={() => {
-            closeDropdown(false);
-            closeMenu(false);
-            closeSpaceSwitcher(false);
-            closeTabStripMenu(false);
-            closeDownloadPopover(false);
-          }}
+          onMouseDown={closeTransientUI}
         />
       )}
 

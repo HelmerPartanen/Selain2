@@ -48,6 +48,7 @@ interface UIState {
   setSplitRatio: (ratio: number) => void
   requestUrlBarFocus: () => void
   clearUrlBarFocus: () => void
+  closeTransientUI: () => void
 }
 
 // Shared close-all used for mutual exclusion — only one panel at a time
@@ -112,5 +113,13 @@ export const useUIStore = create<UIState>((set) => ({
   closeReaderMode: () => set({ isReaderModeOpen: false }),
   setSplitRatio: (ratio) => set({ splitRatio: Math.max(0.25, Math.min(0.75, ratio)) }),
   requestUrlBarFocus: () => set({ urlBarFocusRequested: true }),
-  clearUrlBarFocus: () => set({ urlBarFocusRequested: false })
+  clearUrlBarFocus: () => set({ urlBarFocusRequested: false }),
+  closeTransientUI: () => set({
+    isDropdownOpen: false,
+    isMenuOpen: false,
+    isSpaceSwitcherOpen: false,
+    isTabStripMenuOpen: false,
+    isDownloadPopoverOpen: false,
+    isFindBarOpen: false,
+  })
 }))

@@ -64,6 +64,8 @@ function URLBarInner({
   const { isLoading } = useFocusedTabNavState()
   const updateTab = useTabStore((s) => s.updateTab)
   const inputRef = useRef<HTMLInputElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const skipNextFocusRestoreRef = useRef(false)
   const [inputValue, setInputValue] = useState('')
   const deferredInputValue = useDeferredValue(inputValue)
   const [isFocused, setIsFocused] = useState(false)
@@ -78,6 +80,16 @@ function URLBarInner({
   const suggestionAbortRef = useRef<AbortController | null>(null)
 
   const [isSiteInfoOpen, setIsSiteInfoOpen] = useState(false)
+
+  const closeTransientUrlUI = useCallback(() => {
+    suggestionRequestIdRef.current += 1
+    suggestionAbortRef.current?.abort()
+    suggestionAbortRef.current = null
+    setSuggestions([])
+    setSelectedIndex(-1)
+    setSuggestionsUnavailable(null)
+    setIsSiteInfoOpen(false)
+  }, [])
 
   // URL bar focus request from keyboard shortcuts
   const urlBarFocusRequested = useUIStore((s) => s.urlBarFocusRequested)
@@ -95,6 +107,21 @@ function URLBarInner({
       setSelectedIndex(-1)
     }
   }, [url, isFocused])
+
+  useEffect(() => {
+    if (!isFocused && !isSiteInfoOpen) return
+
+    const handlePointerDown = (event: PointerEvent): void => {
+      const target = event.target as Node | null
+      if (target && rootRef.current?.contains(target)) return
+      closeTransientUrlUI()
+      setIsFocused(false)
+      onFocusChange?.(false)
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown, true)
+    return () => document.removeEventListener('pointerdown', handlePointerDown, true)
+  }, [closeTransientUrlUI, isFocused, isSiteInfoOpen, onFocusChange])
 
   // Debounced autocomplete search
   useEffect(() => {
@@ -314,9 +341,9 @@ function URLBarInner({
         inputRef.current?.blur()
       } else if (e.key === 'Escape') {
         if (currentSuggestions.length > 0) {
-          setSuggestions([])
-          setSelectedIndex(-1)
+          closeTransientUrlUI()
         } else {
+          setIsSiteInfoOpen(false)
           setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
           inputRef.current?.blur()
         }
@@ -328,20 +355,19 @@ function URLBarInner({
   const handleFocus = useCallback(() => {
     setIsFocused(true)
     onFocusChange?.(true)
-    setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
+    if (skipNextFocusRestoreRef.current) {
+      skipNextFocusRestoreRef.current = false
+    } else {
+      setInputValue(url === 'about:blank' || url.startsWith('browser://') ? '' : url)
+    }
     requestAnimationFrame(() => inputRef.current?.select())
   }, [url, onFocusChange])
 
   const handleBlur = useCallback(() => {
     setIsFocused(false)
     onFocusChange?.(false)
-    suggestionRequestIdRef.current += 1
-    suggestionAbortRef.current?.abort()
-    suggestionAbortRef.current = null
-    setSuggestions([])
-    setSelectedIndex(-1)
-    setSuggestionsUnavailable(null)
-  }, [onFocusChange])
+    closeTransientUrlUI()
+  }, [closeTransientUrlUI, onFocusChange])
 
   const handleSuggestionClick = useCallback(
     (suggestionUrl: string) => {
@@ -394,6 +420,11 @@ function URLBarInner({
 
   const isClassic = layout === 'classic'
   const dropdownBelow = popoverDirection === 'down'
+  const hasUrlTransientUI =
+    isFocused ||
+    isSiteInfoOpen ||
+    suggestions.length > 0 ||
+    Boolean(suggestionsUnavailable)
 
   const dropdownOffsetClass = dropdownBelow
     ? isClassic
@@ -421,6 +452,7 @@ function URLBarInner({
 
   return (
     <div
+      ref={rootRef}
       className={[
         'relative min-w-0 max-w-full',
         isClassic ? 'w-full' : '',
@@ -428,6 +460,18 @@ function URLBarInner({
         .filter(Boolean)
         .join(' ')}
     >
+      {hasUrlTransientUI && (
+        <div
+          className="fixed inset-0 z-[44] [app-region:no-drag]"
+          onMouseDown={() => {
+            closeTransientUrlUI()
+            setIsFocused(false)
+            onFocusChange?.(false)
+            inputRef.current?.blur()
+          }}
+        />
+      )}
+
       <m.div
         className={shellClassName}
         animate={
@@ -481,6 +525,7 @@ function URLBarInner({
           clearVisible={isFocused && inputValue.length > 0 && !isLoading}
           clearLabel="Clear input"
           onClear={() => {
+            skipNextFocusRestoreRef.current = true
             setInputValue('')
             inputRef.current?.focus()
           }}
