@@ -160,6 +160,6 @@ describe('URLBar', () => {
     const siteInfoBtn = screen.getByLabelText('Site information')
     await user.click(siteInfoBtn)
     
-    expect(screen.getByText('Connection is secure')).toBeInTheDocument()
+    expect(await screen.findByText('Connection is secure')).toBeInTheDocument()
   })
 })

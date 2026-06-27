@@ -1,4 +1,4 @@
-import { memo, useCallback, useDeferredValue, useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { lazy, memo, Suspense, useCallback, useDeferredValue, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { m, AnimatePresence } from 'motion/react'
 import { SvgIcon, PIP_SVG } from '@/components/ui/SvgIcon'
 import roundArrowsSvg from '@/assets/icons/Arrows/Round_Arrows_2.svg?raw'
@@ -23,10 +23,15 @@ import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { SearchInput } from '@/components/ui/Search'
-import { SiteInfoPopover } from './SiteInfoPopover'
 import { getTabDomain } from '@/utils/tabAnalysis'
 
 import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
+
+const SiteInfoPopover = lazy(() =>
+  import('./SiteInfoPopover').then((module) => ({
+    default: module.SiteInfoPopover,
+  })),
+)
 
 type Suggestion = HistoryEntry & {
   id?: string
@@ -746,14 +751,18 @@ function URLBarInner({
           )}
       </AnimatePresence>
 
-      <SiteInfoPopover
-        isOpen={isSiteInfoOpen}
-        onClose={() => setIsSiteInfoOpen(false)}
-        url={url}
-        isSecure={isSecure}
-        popoverDirection={popoverDirection}
-        anchorLeft={isClassic}
-      />
+      {isSiteInfoOpen && (
+        <Suspense fallback={null}>
+          <SiteInfoPopover
+            isOpen={isSiteInfoOpen}
+            onClose={() => setIsSiteInfoOpen(false)}
+            url={url}
+            isSecure={isSecure}
+            popoverDirection={popoverDirection}
+            anchorLeft={isClassic}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }
