@@ -733,6 +733,39 @@ export function setupIPC(): void {
     }
   })
 
+  ipcMain.handle('destroy-webview', async (event, webContentsId: number) => {
+    try {
+      if (!isFromAppShell(event)) return false
+      if (typeof webContentsId !== 'number') return false
+      if (!isTrackedAppWebview(webContentsId)) return false
+
+      const wc = webContents.fromId(webContentsId)
+      if (!wc || wc.isDestroyed()) return true
+
+      try {
+        wc.stop()
+      } catch {
+        // Best-effort cleanup; still close the guest below.
+      }
+
+      try {
+        wc.navigationHistory.clear()
+      } catch {
+        try {
+          wc.clearHistory()
+        } catch {
+          // History cleanup is opportunistic.
+        }
+      }
+
+      wc.close({ waitForBeforeUnload: false })
+      return true
+    } catch (err) {
+      logger.warn('Failed to destroy webview:', err)
+      return false
+    }
+  })
+
   // ── Performance diagnostics ─────────────────────────────────────────────
   // Only registered when BROWSER_PERF_BENCH=1. The renderer checks the same
   // flag and skips calling these handlers under normal operation.

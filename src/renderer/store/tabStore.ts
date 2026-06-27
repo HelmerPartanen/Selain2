@@ -273,6 +273,7 @@ export const useTabStore = create<TabStore>()(
             if (closedTab && closedTab.url === 'browser://newtab') return
             // ...otherwise navigate it to newtab instead of removing
             if (closedTab) {
+              webviewRegistry.destroy(id)
               // Push to recently closed
               let newRecentlyClosed = state.recentlyClosed
               if (!closedTab.isPrivate && closedTab.url !== 'browser://newtab') {
@@ -320,6 +321,7 @@ export const useTabStore = create<TabStore>()(
           const newOrder = state.tabOrder.filter((tid) => tid !== id)
           const newTabs = { ...state.tabs }
           delete newTabs[id]
+          webviewRegistry.destroy(id)
 
           let newActiveId = state.activeTabId
           let newSplitId = state.splitTabId

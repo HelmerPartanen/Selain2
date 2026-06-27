@@ -71,6 +71,7 @@ const api: ElectronAPI = {
   requestPiP: (webContentsId: number) => ipcRenderer.send('request-pip', webContentsId),
   fetchSearchSuggestions: (query: string) => ipcRenderer.invoke('fetch-search-suggestions', query),
   captureTab: (webContentsId: number) => ipcRenderer.invoke('capture-tab', webContentsId),
+  destroyWebview: (webContentsId: number) => ipcRenderer.invoke('destroy-webview', webContentsId),
   getSiteInfo: (url: string) => ipcRenderer.invoke('get-site-info', url),
   clearSiteData: (origin: string) => ipcRenderer.invoke('clear-site-data', origin),
   forgetSite: (origin: string) => ipcRenderer.invoke('forget-site', origin),

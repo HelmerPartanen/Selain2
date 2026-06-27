@@ -15,6 +15,21 @@ export const webviewRegistry = {
     registry.delete(tabId)
   },
 
+  destroy(tabId: string): void {
+    const webview = registry.get(tabId)
+    registry.delete(tabId)
+    if (!webview) return
+
+    try {
+      const webContentsId = (webview as unknown as { getWebContentsId?(): number }).getWebContentsId?.()
+      if (webContentsId !== undefined) {
+        void window.electronAPI.destroyWebview(webContentsId)
+      }
+    } catch {
+      // The guest may already be gone; cleanup is best-effort.
+    }
+  },
+
   get(tabId: string): Electron.WebviewTag | undefined {
     return registry.get(tabId)
   },

@@ -59,6 +59,8 @@ export interface ElectronAPI {
   fetchSearchSuggestions(query: string): Promise<any>
   /** Capture webview thumbnail safely without crashing the context bridge */
   captureTab(webContentsId: number): Promise<string | null>
+  /** Force-close a tracked app webview guest after its tab is closed */
+  destroyWebview(webContentsId: number): Promise<boolean>
   getSiteInfo(url: string): Promise<{
     origin: string
     hostname: string

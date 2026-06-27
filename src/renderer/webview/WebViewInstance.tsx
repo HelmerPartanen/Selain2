@@ -239,7 +239,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     }
     return () => {
       isUnmountedRef.current = true
-      webviewRegistry.unregister(tabId)
+      webviewRegistry.destroy(tabId)
       // Cancel pending batched updates on unmount
       if (debounceTimerRef.current) window.clearTimeout(debounceTimerRef.current)
       if (progressResetTimerRef.current !== null) {
