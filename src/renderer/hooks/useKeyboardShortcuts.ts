@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
-import { showToast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/toastStore'
 
 function getFocusedTabId(): string | null {
   const s = useTabStore.getState()

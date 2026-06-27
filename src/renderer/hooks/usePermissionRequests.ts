@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { showToast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/toastStore'
 import {
   SITE_PERMISSION_LABELS,
   useSitePermissionsStore,

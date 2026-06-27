@@ -12,7 +12,7 @@ import { useDownloadStore } from "@/store/downloadStore";
 import { useBookmarkStore } from "@/store/bookmarkStore";
 import type { BookmarkEntry } from "@/store/bookmarkStore";
 import { SITE_PERMISSION_LABELS, useSitePermissionsStore } from "@/store/sitePermissionsStore";
-import { showToast } from "@/components/ui/Toast";
+import { showToast } from "@/components/ui/toastStore";
 import { GroupBox } from "@/components/ui/GroupBox";
 
 interface ProfileBackup {

@@ -31,7 +31,7 @@ import {
   subscribeDynamicWallpaperMode,
 } from "@/theme/dynamicWallpapers";
 import { getPresetThumbnailUrl } from "@/theme/presetThumbnails";
-import { showToast } from "@/components/ui/Toast";
+import { showToast } from "@/components/ui/toastStore";
 import { logger } from "@/utils/logger";
 import { useIsDark } from "@/hooks/useIsDark";
 import uploadSvg from "@/assets/icons/Objects/Tray_Arrow_Up.svg?raw";

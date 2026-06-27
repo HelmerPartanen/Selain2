@@ -9,7 +9,7 @@ import { useHistoryStore } from "@/store/historyStore";
 import { useBookmarkStore } from "@/store/bookmarkStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTabStore, onSessionRestoreFailed } from "@/store/tabStore";
-import { showToast } from "@/components/ui/Toast";
+import { showToast } from "@/components/ui/toastStore";
 
 const CLEAR_ON_EXIT_STORES = [
   "browser-history",

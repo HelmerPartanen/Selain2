@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useTabStore } from '@/store/tabStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useUIStore } from '@/store/uiStore'
-import { showToast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/toastStore'
 import { countDuplicateGroups, findDuplicateTabIds } from '@/utils/tabAnalysis'
 
 const MIN_TABS_FOR_SUGGESTION = 12

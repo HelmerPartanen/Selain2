@@ -16,7 +16,7 @@ import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
 import { SPRING_LIST } from '@/utils/springs'
-import { showToast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/toastStore'
 
 const SEARCH_DEBOUNCE_MS = 200
 

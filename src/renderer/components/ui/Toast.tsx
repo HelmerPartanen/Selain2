@@ -3,54 +3,20 @@ import { m, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { Text } from '@/components/ui/Text'
 import { SvgIcon } from '@/components/ui/SvgIcon'
+import { dismissToast, getToastsSnapshot, subscribeToToasts, type Toast } from '@/components/ui/toastStore'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import warnSvg from '@/assets/icons/Interface/Warn_Triangle.svg?raw'
 import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { SPRING } from '@/utils/springs'
 
-export interface Toast {
-  id: string
-  message: string
-  type: 'success' | 'info' | 'error'
-  action?: { label: string; onClick: () => void }
-  persistent?: boolean
-}
-
-// Simple external store for toasts (avoids prop drilling)
-let toasts: Toast[] = []
-let listeners: Array<() => void> = []
-
-function notify(): void {
-  for (const l of listeners) l()
-}
-
-export function showToast(toast: Omit<Toast, 'id'>): void {
-  const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-  toasts = [...toasts, { ...toast, id }]
-  notify()
-  if (toast.persistent) return
-  // Auto-dismiss after 5s
-  setTimeout(() => {
-    dismissToast(id)
-  }, 5000)
-}
-
-export function dismissToast(id: string): void {
-  toasts = toasts.filter((t) => t.id !== id)
-  notify()
-}
-
 function useToasts(): Toast[] {
   const [, forceUpdate] = useState(0)
   useEffect(() => {
     const listener = (): void => forceUpdate((n) => n + 1)
-    listeners.push(listener)
-    return () => {
-      listeners = listeners.filter((l) => l !== listener)
-    }
+    return subscribeToToasts(listener)
   }, [])
-  return toasts
+  return getToastsSnapshot()
 }
 
 function ToastContainerInner(): React.JSX.Element {

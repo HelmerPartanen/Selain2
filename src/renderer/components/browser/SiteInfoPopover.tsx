@@ -6,7 +6,7 @@ import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_2_Fill.svg?raw'
 import { Card } from "@/components/ui/Card";
 
-import { showToast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/toastStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getPopoverMotion } from '@/utils/popoverPosition'

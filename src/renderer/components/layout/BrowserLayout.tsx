@@ -5,12 +5,7 @@
   Suspense,
   useState,
 } from "react";
-import { AnimatePresence } from "motion/react";
-import { FloatingControls } from "@/components/layout/FloatingControls";
 import { CLASSIC_CHROME_HEIGHT } from "@/components/layout/layoutConstants";
-import { WindowControls } from "@/components/layout/WindowControls";
-import { FindBar } from "@/components/browser/FindBar";
-import { SplitDivider } from "@/components/layout/SplitDivider";
 import { WebViewManager } from "@/webview/WebViewManager";
 import { useLRUTabManager } from "@/webview/useLRUTabManager";
 import { useTabCleanupSuggestions } from "@/hooks/useTabCleanupSuggestions";
@@ -29,15 +24,32 @@ import { useUIStore } from "@/store/uiStore";
 import { useAIStore } from "@/store/aiStore";
 import { useShallow } from "zustand/react/shallow";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Text } from "@/components/ui/Text";
-import { ToastContainer } from "@/components/ui/Toast";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const SettingsPanel = lazy(() =>
   import("@/settings/SettingsPanel").then((m) => ({
     default: m.SettingsPanel,
+  })),
+);
+const FloatingControls = lazy(() =>
+  import("@/components/layout/FloatingControls").then((m) => ({
+    default: m.FloatingControls,
+  })),
+);
+const WindowControls = lazy(() =>
+  import("@/components/layout/WindowControls").then((m) => ({
+    default: m.WindowControls,
+  })),
+);
+const FindBar = lazy(() =>
+  import("@/components/browser/FindBar").then((m) => ({
+    default: m.FindBar,
+  })),
+);
+const SplitDivider = lazy(() =>
+  import("@/components/layout/SplitDivider").then((m) => ({
+    default: m.SplitDivider,
   })),
 );
 const ClassicBrowserChrome = lazy(() =>
@@ -78,10 +90,22 @@ const AISummaryButton = lazy(() =>
     default: m.AISummaryButton,
   })),
 );
+const LoadingSpinner = lazy(() =>
+  import("@/components/ui/LoadingSpinner").then((m) => ({
+    default: m.LoadingSpinner,
+  })),
+);
+const ToastContainer = lazy(() =>
+  import("@/components/ui/Toast").then((m) => ({
+    default: m.ToastContainer,
+  })),
+);
 function PanelLoadingFallback(): React.JSX.Element {
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)] text-[var(--app-text-primary)]">
-      <LoadingSpinner size={32} />
+      <Suspense fallback={null}>
+        <LoadingSpinner size={32} />
+      </Suspense>
     </div>
   );
 }
@@ -104,12 +128,20 @@ function MainContentErrorFallback({
           The tab area had a problem. Try again or open a new tab.
         </Text>
         <div className="flex gap-2 justify-center">
-          <Button variant="primary" size="md" onClick={onRetry}>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex h-8 items-center justify-center rounded-lg bg-[var(--app-accent)] px-4 text-[13px] font-medium text-white transition-colors hover:bg-[var(--app-accent-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]"
+          >
             Try Again
-          </Button>
-          <Button variant="subtle" size="md" onClick={onNewTab}>
+          </button>
+          <button
+            type="button"
+            onClick={onNewTab}
+            className="inline-flex h-8 items-center justify-center rounded-lg bg-[var(--app-bg-secondary)] px-4 text-[13px] font-medium text-[var(--app-text-primary)] transition-colors hover:bg-[var(--app-control-active)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]"
+          >
             New tab
-          </Button>
+          </button>
         </div>
       </Card>
     </div>
@@ -179,6 +211,7 @@ function BrowserLayoutInner(): React.JSX.Element {
   const isFocusedNewTab = focusedTabUrl === "browser://newtab";
   const isSplitView = useTabStore((s) => s.splitTabId !== null);
   const [mainContentErrorKey, setMainContentErrorKey] = useState(0);
+  const [shouldLoadReadingTools, setShouldLoadReadingTools] = useState(false);
 
   const handleMainContentErrorRetry = useCallback(() => {
     setMainContentErrorKey((k) => k + 1);
@@ -187,6 +220,10 @@ function BrowserLayoutInner(): React.JSX.Element {
   const handleMainContentErrorNewTab = useCallback(() => {
     useTabStore.getState().addTab();
     setMainContentErrorKey((k) => k + 1);
+  }, []);
+
+  const requestReadingTools = useCallback(() => {
+    setShouldLoadReadingTools(true);
   }, []);
 
   return (
@@ -320,7 +357,9 @@ function BrowserLayoutInner(): React.JSX.Element {
       </div>
       {/* Browser chrome */}
       {uiLayout === "floating" ? (
-        <FloatingControls />
+        <Suspense fallback={null}>
+          <FloatingControls />
+        </Suspense>
       ) : (
         <Suspense fallback={null}>
           <ClassicBrowserChrome />
@@ -328,35 +367,47 @@ function BrowserLayoutInner(): React.JSX.Element {
       )}
 
       {/* AI Summary floating button (bottom-right) */}
-      {showReadingTools && (
+      {showReadingTools && !shouldLoadReadingTools && (
+        <div
+          aria-hidden
+          className="fixed bottom-0 right-0 z-[95] h-24 w-24 pointer-events-auto [app-region:no-drag]"
+          onMouseEnter={requestReadingTools}
+          onPointerDown={requestReadingTools}
+        />
+      )}
+      {showReadingTools && shouldLoadReadingTools && (
         <Suspense fallback={null}>
           <AISummaryButton />
         </Suspense>
       )}
 
       {/* AI Fullscreen page */}
-      <AnimatePresence>
-        {isAIFullscreenOpen && (
-          <Suspense fallback={<PanelLoadingFallback />}>
-            <AIFullscreenPage />
-          </Suspense>
-        )}
-      </AnimatePresence>
+      {isAIFullscreenOpen && (
+        <Suspense fallback={<PanelLoadingFallback />}>
+          <AIFullscreenPage />
+        </Suspense>
+      )}
 
       {/* Reader mode overlay */}
-      <AnimatePresence>
-        {isReaderModeOpen && (
-          <Suspense fallback={<PanelLoadingFallback />}>
-            <ReaderModePage />
-          </Suspense>
-        )}
-      </AnimatePresence>
+      {isReaderModeOpen && (
+        <Suspense fallback={<PanelLoadingFallback />}>
+          <ReaderModePage />
+        </Suspense>
+      )}
 
       {/* Find bar */}
-      <AnimatePresence>{isFindBarOpen && <FindBar />}</AnimatePresence>
+      {isFindBarOpen && (
+        <Suspense fallback={null}>
+          <FindBar />
+        </Suspense>
+      )}
 
       {/* Split divider overlay */}
-      {isSplitView && <SplitDivider />}
+      {isSplitView && (
+        <Suspense fallback={null}>
+          <SplitDivider />
+        </Suspense>
+      )}
 
       {/* Click-away overlay for dropdowns (rendered above webview stacking context) */}
       {(isDropdownOpen ||
@@ -371,65 +422,61 @@ function BrowserLayoutInner(): React.JSX.Element {
       )}
 
       {/* Window controls (floating layout — classic embeds controls in chrome) */}
-      {uiLayout === "floating" && <WindowControls />}
+      {uiLayout === "floating" && (
+        <Suspense fallback={null}>
+          <WindowControls />
+        </Suspense>
+      )}
 
       {/* Toast notifications */}
-      <ToastContainer />
+      <Suspense fallback={null}>
+        <ToastContainer />
+      </Suspense>
 
       {/* Settings modal — rendered at root level to escape FloatingControls transform */}
-      <AnimatePresence>
-        {isSettingsOpen && (
-          <ErrorBoundary>
-            <Suspense fallback={<PanelLoadingFallback />}>
-              <SettingsPanel />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </AnimatePresence>
+      {isSettingsOpen && (
+        <ErrorBoundary>
+          <Suspense fallback={<PanelLoadingFallback />}>
+            <SettingsPanel />
+          </Suspense>
+        </ErrorBoundary>
+      )}
 
       {/* Bookmarks panel */}
-      <AnimatePresence>
-        {isBookmarksOpen && (
-          <ErrorBoundary>
-            <Suspense fallback={<PanelLoadingFallback />}>
-              <BookmarksPanel />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </AnimatePresence>
+      {isBookmarksOpen && (
+        <ErrorBoundary>
+          <Suspense fallback={<PanelLoadingFallback />}>
+            <BookmarksPanel />
+          </Suspense>
+        </ErrorBoundary>
+      )}
 
       {/* History panel */}
-      <AnimatePresence>
-        {isHistoryOpen && (
-          <ErrorBoundary>
-            <Suspense fallback={<PanelLoadingFallback />}>
-              <HistoryPanel />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </AnimatePresence>
+      {isHistoryOpen && (
+        <ErrorBoundary>
+          <Suspense fallback={<PanelLoadingFallback />}>
+            <HistoryPanel />
+          </Suspense>
+        </ErrorBoundary>
+      )}
 
       {/* Downloads panel */}
-      <AnimatePresence>
-        {isDownloadsOpen && (
-          <ErrorBoundary>
-            <Suspense fallback={<PanelLoadingFallback />}>
-              <DownloadsPanel />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </AnimatePresence>
+      {isDownloadsOpen && (
+        <ErrorBoundary>
+          <Suspense fallback={<PanelLoadingFallback />}>
+            <DownloadsPanel />
+          </Suspense>
+        </ErrorBoundary>
+      )}
 
       {/* Tab overview (Ctrl+Shift+A) */}
-      <AnimatePresence>
-        {isTabOverviewOpen && (
-          <ErrorBoundary>
-            <Suspense fallback={<PanelLoadingFallback />}>
-              <TabOverview />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </AnimatePresence>
+      {isTabOverviewOpen && (
+        <ErrorBoundary>
+          <Suspense fallback={<PanelLoadingFallback />}>
+            <TabOverview />
+          </Suspense>
+        </ErrorBoundary>
+      )}
 
     </div>
   );

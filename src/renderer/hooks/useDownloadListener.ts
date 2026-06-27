@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useDownloadStore } from '@/store/downloadStore'
-import { showToast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/toastStore'
 
 /**
  * Subscribes to download IPC events from main process and updates the download store.

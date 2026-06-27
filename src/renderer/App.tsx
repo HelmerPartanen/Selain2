@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect } from 'react'
-import { LazyMotion, MotionConfig, domAnimation } from 'motion/react'
+import { LazyMotion, MotionConfig } from 'motion/react'
 import { BrowserLayout } from '@/components/layout/BrowserLayout'
-import { showToast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/toastStore'
 import { logger } from '@/utils/logger'
 import { useThemeStore, startThemeHydration } from '@/store/themeStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -77,7 +77,7 @@ export default function App(): React.JSX.Element {
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
 
   return (
-    <LazyMotion features={domAnimation}>
+    <LazyMotion features={() => import('@/utils/motionFeatures').then((module) => module.default)}>
       <MotionConfig reducedMotion={disableAnimations ? 'always' : 'never'}>
         <BrowserLayout />
       </MotionConfig>
