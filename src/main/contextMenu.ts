@@ -38,6 +38,13 @@ function getSelectionSearchUrl(query: string): string {
   }
 }
 
+function openUrlInNewTabFrom(webContents: Electron.WebContents, url: string): void {
+  getMainWindow()?.webContents.send('open-url-in-new-tab', {
+    url,
+    isPrivate: !webContents.session.isPersistent()
+  })
+}
+
 export function buildContextMenu(
   webContents: Electron.WebContents,
   params: Electron.ContextMenuParams
@@ -50,7 +57,7 @@ export function buildContextMenu(
     template.push(
       {
         label: 'Open Link in New Tab',
-        click: () => getMainWindow()?.webContents.send('open-url-in-new-tab', params.linkURL)
+        click: () => openUrlInNewTabFrom(webContents, params.linkURL)
       },
       { type: 'separator' },
       {
@@ -70,7 +77,7 @@ export function buildContextMenu(
     template.push(
       {
         label: 'Open Image in New Tab',
-        click: () => getMainWindow()?.webContents.send('open-url-in-new-tab', params.srcURL)
+        click: () => openUrlInNewTabFrom(webContents, params.srcURL)
       },
       {
         label: 'Save Image As\u2026',
@@ -126,7 +133,7 @@ export function buildContextMenu(
       },
       {
         label: 'Open Media in New Tab',
-        click: () => getMainWindow()?.webContents.send('open-url-in-new-tab', params.srcURL)
+        click: () => openUrlInNewTabFrom(webContents, params.srcURL)
       },
       { type: 'separator' }
     )
@@ -157,7 +164,7 @@ export function buildContextMenu(
       template.push({
         label: `Search for \u201C${display}\u201D`,
         click: () => {
-          getMainWindow()?.webContents.send('open-url-in-new-tab', getSelectionSearchUrl(trimmed))
+          openUrlInNewTabFrom(webContents, getSelectionSearchUrl(trimmed))
         }
       })
     }
@@ -206,7 +213,7 @@ export function buildContextMenu(
       label: 'View Page Source',
       click: () => {
         const url = webContents.getURL()
-        if (url) getMainWindow()?.webContents.send('open-url-in-new-tab', `view-source:${url}`)
+        if (url) openUrlInNewTabFrom(webContents, `view-source:${url}`)
       }
     },
     {

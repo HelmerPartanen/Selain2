@@ -26,6 +26,7 @@ export interface Tab {
   createdAt: number
   lastActiveAt: number
   pinned: boolean
+  isPrivate: boolean
   sleepReason?: 'manual' | 'memory' | 'cleanup'
 }
 
@@ -50,6 +51,9 @@ export interface TabStore {
   recentlyClosed: ClosedTab[]
 
   addTab: (url?: string) => string
+  addPrivateTab: (url?: string) => string
+  addTabInCurrentContext: (url?: string) => string
+  exitPrivateMode: () => void
   duplicateTab: (id: string) => void
   removeTab: (id: string) => void
   setActiveTab: (id: string) => void
@@ -98,7 +102,7 @@ function getDefaultFavicon(url: string): string {
   return url === 'browser://newtab' ? newTabFavicon : ''
 }
 
-function createTab(url: string): Tab {
+function createTab(url: string, isPrivate = false): Tab {
   const now = Date.now()
   const title = url === 'browser://uikit' ? 'UI Kit' : 'New Tab'
   return {
@@ -118,7 +122,8 @@ function createTab(url: string): Tab {
     thumbnail: null,
     createdAt: now,
     lastActiveAt: now,
-    pinned: false
+    pinned: false,
+    isPrivate
   }
 }
 
@@ -164,10 +169,77 @@ export const useTabStore = create<TabStore>()(
           return tab.id
         },
 
+        addPrivateTab: (url = 'browser://newtab') => {
+          const tab = createTab(url, true)
+          set(
+            (state) => {
+              const nextOrder = [...state.tabOrder]
+              const activeIndex = state.activeTabId ? nextOrder.indexOf(state.activeTabId) : -1
+              const insertIndex = activeIndex >= 0 ? activeIndex + 1 : nextOrder.length
+              nextOrder.splice(insertIndex, 0, tab.id)
+              return {
+                tabs: { ...state.tabs, [tab.id]: tab },
+                tabOrder: nextOrder,
+                activeTabId: tab.id
+              }
+            },
+            undefined,
+            'addPrivateTab'
+          )
+          return tab.id
+        },
+
+        addTabInCurrentContext: (url = 'browser://newtab') => {
+          const state = get()
+          const focusedTabId =
+            state.focusedPanel === 'split' && state.splitTabId
+              ? state.splitTabId
+              : state.activeTabId
+          const focusedTab = focusedTabId ? state.tabs[focusedTabId] : null
+          return focusedTab?.isPrivate ? get().addPrivateTab(url) : get().addTab(url)
+        },
+
+        exitPrivateMode: () => {
+          const state = get()
+          const privateIds = new Set(
+            state.tabOrder.filter((id) => state.tabs[id]?.isPrivate)
+          )
+          if (privateIds.size === 0) return
+
+          const nextTabs = { ...state.tabs }
+          for (const id of privateIds) delete nextTabs[id]
+
+          const nextOrder = state.tabOrder.filter((id) => !privateIds.has(id))
+          const fallbackActiveId = nextOrder[nextOrder.length - 1] ?? null
+          const nextActiveId =
+            state.activeTabId && !privateIds.has(state.activeTabId)
+              ? state.activeTabId
+              : fallbackActiveId
+
+          set(
+            {
+              tabs: nextTabs,
+              tabOrder: nextOrder,
+              activeTabId: nextActiveId,
+              splitTabId:
+                state.splitTabId && !privateIds.has(state.splitTabId)
+                  ? state.splitTabId
+                  : null,
+              focusedPanel: 'primary'
+            },
+            undefined,
+            'exitPrivateMode'
+          )
+
+          if (!nextActiveId) {
+            get().addTab()
+          }
+        },
+
         duplicateTab: (id) => {
           const source = get().tabs[id]
           if (!source) return
-          const tab = createTab(source.url)
+          const tab = createTab(source.url, source.isPrivate)
           tab.title = source.title
           tab.favicon = source.favicon
           set(
@@ -203,7 +275,7 @@ export const useTabStore = create<TabStore>()(
             if (closedTab) {
               // Push to recently closed
               let newRecentlyClosed = state.recentlyClosed
-              if (closedTab.url !== 'browser://newtab') {
+              if (!closedTab.isPrivate && closedTab.url !== 'browser://newtab') {
                 newRecentlyClosed = [
                   { url: closedTab.url, title: closedTab.title, favicon: closedTab.favicon },
                   ...state.recentlyClosed
@@ -238,7 +310,7 @@ export const useTabStore = create<TabStore>()(
 
           // Push to recently closed
           let newRecentlyClosed = state.recentlyClosed
-          if (closedTab && closedTab.url !== 'browser://newtab') {
+          if (closedTab && !closedTab.isPrivate && closedTab.url !== 'browser://newtab') {
             newRecentlyClosed = [
               { url: closedTab.url, title: closedTab.title, favicon: closedTab.favicon },
               ...state.recentlyClosed
@@ -542,32 +614,41 @@ export const useTabStore = create<TabStore>()(
           }
         }),
         partialize: (state): PersistedTabState => ({
-          tabOrder: state.tabOrder,
-          activeTabId: state.activeTabId,
-          splitTabId: state.splitTabId,
+          tabOrder: state.tabOrder.filter((id) => !state.tabs[id]?.isPrivate),
+          activeTabId:
+            state.activeTabId && !state.tabs[state.activeTabId]?.isPrivate
+              ? state.activeTabId
+              : state.tabOrder.find((id) => !state.tabs[id]?.isPrivate) ?? null,
+          splitTabId:
+            state.splitTabId && !state.tabs[state.splitTabId]?.isPrivate
+              ? state.splitTabId
+              : null,
           focusedPanel: state.focusedPanel,
           recentlyClosed: state.recentlyClosed.slice(0, MAX_RECENTLY_CLOSED),
           tabs: Object.fromEntries(
-            Object.entries(state.tabs).map(([id, tab]) => [
-              id,
-              {
-                id: tab.id,
-                url: tab.url,
-                title: tab.title,
-                favicon: tab.url === 'browser://newtab' ? newTabFavicon : tab.favicon,
-                isLoading: false,
-                isPlayingMedia: false,
-                isMuted: false,
-                canGoBack: false,
-                canGoForward: false,
-                isSuspended: true, // All restored tabs start suspended
-                loadProgress: 0,
-                createdAt: tab.createdAt ?? Date.now(),
-                lastActiveAt: tab.lastActiveAt ?? Date.now(),
-                pinned: tab.pinned ?? false,
-                sleepReason: tab.sleepReason
-              }
-            ])
+            Object.entries(state.tabs)
+              .filter(([, tab]) => !tab.isPrivate)
+              .map(([id, tab]) => [
+                id,
+                {
+                  id: tab.id,
+                  url: tab.url,
+                  title: tab.title,
+                  favicon: tab.url === 'browser://newtab' ? newTabFavicon : tab.favicon,
+                  isLoading: false,
+                  isPlayingMedia: false,
+                  isMuted: false,
+                  canGoBack: false,
+                  canGoForward: false,
+                  isSuspended: true, // All restored tabs start suspended
+                  loadProgress: 0,
+                  createdAt: tab.createdAt ?? Date.now(),
+                  lastActiveAt: tab.lastActiveAt ?? Date.now(),
+                  pinned: tab.pinned ?? false,
+                  isPrivate: false,
+                  sleepReason: tab.sleepReason
+                }
+              ])
           )
         }),
         onRehydrateStorage: () => (state) => {
@@ -580,6 +661,7 @@ export const useTabStore = create<TabStore>()(
             tab.createdAt = tab.createdAt ?? Date.now()
             tab.lastActiveAt = tab.lastActiveAt ?? tab.createdAt
             tab.pinned = tab.pinned ?? false
+            tab.isPrivate = false
             tab.isMuted = false // isMuted is session-only, always reset on restore
             if (tab.url === 'browser://newtab') tab.favicon = newTabFavicon
           }

@@ -98,6 +98,7 @@ export function createWindow(): void {
       webViewContents.setWindowOpenHandler(({ url, features }) => {
         const isPopup = isPopupWindowRequest(features)
         if (isPopup && isAllowedPopupUrl(url)) {
+          const partition = webViewContents.session.isPersistent() ? 'persist:default' : 'private'
           return {
             action: 'allow',
             overrideBrowserWindowOptions: {
@@ -106,7 +107,7 @@ export function createWindow(): void {
               frame: true,
               show: true,
               webPreferences: {
-                partition: 'persist:default',
+                partition,
                 contextIsolation: true,
                 sandbox: true,
                 nodeIntegration: false,
@@ -114,7 +115,12 @@ export function createWindow(): void {
             }
           }
         }
-        if (url) win.webContents.send('open-url-in-new-tab', url)
+        if (url) {
+          win.webContents.send('open-url-in-new-tab', {
+            url,
+            isPrivate: !webViewContents.session.isPersistent()
+          })
+        }
         return { action: 'deny' }
       })
 

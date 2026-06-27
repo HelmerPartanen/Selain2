@@ -24,6 +24,7 @@ import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
 
 import { URLBar } from "@/components/browser/URLBar";
+import { PrivateModeIndicator } from "@/components/browser/PrivateModeIndicator";
 
 import { AppMenu } from "@/components/layout/AppMenu";
 
@@ -122,6 +123,8 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
             />
           </div>
         </div>
+
+        <PrivateModeIndicator />
 
         <AnimatePresence initial={false}>
           {isSplit && (

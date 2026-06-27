@@ -3,8 +3,7 @@
 // Each pane is lazy-loaded so the first open of Settings only ships the
 // default pane (general). Subsequent panes stream in on click or hover.
 
-import { lazy, memo, Suspense, useEffect, useState } from "react";
-import { m, AnimatePresence } from "motion/react";
+import { lazy, memo, Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { PanelModal } from "@/components/ui/PanelModal";
 import { SvgIcon } from "@/components/ui/SvgIcon";
@@ -19,9 +18,7 @@ import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import gestureSvg from "@/assets/icons/Human/Finger_Tap.svg?raw";
-import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
-import { SPRING_CONTENT } from "@/utils/springs";
 import { cn } from "@/utils/classNames";
 
 const GeneralPane = lazy(() =>
@@ -142,6 +139,32 @@ export function prefetchSettingsPane(category: SettingsCategory): void {
   void PANE_LOADERS[category]();
 }
 
+function scheduleSettingsPanePrefetch(category: SettingsCategory): () => void {
+  if (prefetchedPanes.has(category)) return () => {};
+
+  let cancelled = false;
+  let idleId: number | null = null;
+  let timeoutId: number | null = null;
+
+  const run = (): void => {
+    if (!cancelled) prefetchSettingsPane(category);
+  };
+
+  if (typeof window.requestIdleCallback === "function") {
+    idleId = window.requestIdleCallback(run, { timeout: 900 });
+  } else {
+    timeoutId = window.setTimeout(run, 180);
+  }
+
+  return () => {
+    cancelled = true;
+    if (idleId !== null && typeof window.cancelIdleCallback === "function") {
+      window.cancelIdleCallback(idleId);
+    }
+    if (timeoutId !== null) window.clearTimeout(timeoutId);
+  };
+}
+
 function PaneSkeleton(): React.JSX.Element {
   return (
     <div className="flex flex-col gap-3" aria-hidden>
@@ -166,6 +189,17 @@ function Sidebar({
   activeCategory: SettingsCategory;
   onSelect: (id: SettingsCategory) => void;
 }): React.JSX.Element {
+  const cancelPrefetchRef = useRef<(() => void) | null>(null);
+
+  const queuePrefetch = (id: SettingsCategory): void => {
+    cancelPrefetchRef.current?.();
+    cancelPrefetchRef.current = scheduleSettingsPanePrefetch(id);
+  };
+
+  useEffect(() => {
+    return () => cancelPrefetchRef.current?.();
+  }, []);
+
   return (
     <nav aria-label="Settings categories" className="flex flex-col gap-1">
       {CATEGORIES.map(({ id, label, icon, colorClass }) => {
@@ -176,8 +210,8 @@ function Sidebar({
   variant="ghost"
   size="md"
   onClick={() => onSelect(id)}
-  onMouseEnter={() => prefetchSettingsPane(id)}
-  onFocus={() => prefetchSettingsPane(id)}
+  onMouseEnter={() => queuePrefetch(id)}
+  onFocus={() => queuePrefetch(id)}
   aria-current={isActive ? "page" : undefined}
   active={isActive}
   className={cn(
@@ -211,7 +245,6 @@ function Sidebar({
 
 function SettingsPanelInner(): React.JSX.Element {
   const closeSettings = useUIStore((s) => s.closeSettings);
-  const disableAnimations = useSettingsStore((s) => s.disableAnimations);
   const [activeCategory, setActiveCategory] =
     useState<SettingsCategory>("general");
 
@@ -230,9 +263,11 @@ function SettingsPanelInner(): React.JSX.Element {
   onClose={closeSettings}
   width="1100px"
   height="700px"
+  motionPreset="flat"
   role="dialog"
   aria-label="Settings"
   aria-modal={true}
+  className="will-change-transform"
 >
   <div className="flex h-full overflow-hidden">
     <div className="flex-shrink-0 h-full">
@@ -250,18 +285,7 @@ function SettingsPanelInner(): React.JSX.Element {
 
     <div className="flex-1 flex flex-col min-w-0">
       <div className="relative flex items-center justify-center px-6 pt-3 pb-3">
-        <AnimatePresence mode="wait">
-          <m.h3
-            key={activeCategory}
-            initial={disableAnimations ? undefined : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={disableAnimations ? undefined : { opacity: 0, y: -4 }}
-            transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
-            className="text-[var(--app-text-primary)]"
-          >
-            {categoryLabel}
-          </m.h3>
-        </AnimatePresence>
+        <h3 className="text-[var(--app-text-primary)]">{categoryLabel}</h3>
 
         <Button
           variant="icon"
@@ -274,20 +298,12 @@ function SettingsPanelInner(): React.JSX.Element {
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-4 glass-scroll">
-        <AnimatePresence mode="wait">
-          <m.div
-            key={activeCategory}
-            initial={disableAnimations ? undefined : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={disableAnimations ? undefined : { opacity: 0, y: -6 }}
-            transition={disableAnimations ? { duration: 0 } : SPRING_CONTENT}
-          >
-            <Suspense fallback={<PaneSkeleton />}>
-              <SettingsContent category={activeCategory} />
-            </Suspense>
-          </m.div>
-        </AnimatePresence>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-4 glass-scroll [contain:layout_paint]">
+        <div key={activeCategory}>
+          <Suspense fallback={<PaneSkeleton />}>
+            <SettingsContent category={activeCategory} />
+          </Suspense>
+        </div>
       </div>
     </div>
   </div>

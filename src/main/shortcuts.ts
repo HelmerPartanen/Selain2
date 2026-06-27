@@ -6,7 +6,7 @@
 import { getMainWindow } from './state'
 
 const CTRL_KEYS = new Set(['t', 'w', 'l', 'f', 'r', 'h', 'b', ',', 'd', 'm'])
-const CTRL_SHIFT_KEYS = new Set(['t', 's', 'a', 'x', 'z'])
+const CTRL_SHIFT_KEYS = new Set(['t', 's', 'a', 'x', 'z', 'n'])
 const ALT_KEYS = new Set(['arrowleft', 'arrowright'])
 const DIGIT_RE = /^[1-9]$/
 

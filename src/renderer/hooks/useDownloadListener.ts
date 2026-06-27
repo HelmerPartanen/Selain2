@@ -20,7 +20,8 @@ export function useDownloadListener(): void {
         receivedBytes: 0,
         state: 'progressing',
         startTime: Date.now(),
-        speed: 0
+        speed: 0,
+        isPrivate: item.isPrivate
       })
     })
 

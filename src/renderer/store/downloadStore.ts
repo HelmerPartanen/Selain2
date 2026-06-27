@@ -13,6 +13,7 @@ export interface DownloadItem {
   state: 'progressing' | 'completed' | 'cancelled' | 'failed' | 'paused'
   startTime: number
   speed: number
+  isPrivate?: boolean
 }
 
 interface DownloadState {
@@ -118,6 +119,7 @@ export const useDownloadStore = create<DownloadState>()(
         // Limit to MAX_PERSISTED_DOWNLOADS most recent
         const finished = Object.values(state.downloads)
           .filter((d) => d.state === 'completed' || d.state === 'failed' || d.state === 'cancelled')
+          .filter((d) => !d.isPrivate)
           .sort((a, b) => b.startTime - a.startTime)
           .slice(0, MAX_PERSISTED_DOWNLOADS)
         return {

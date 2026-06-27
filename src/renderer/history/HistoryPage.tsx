@@ -45,7 +45,7 @@ const HistoryRow = memo(function HistoryRow({
       transition={{ ...SPRING_LIST, delay: index * 0.03 }}
       onClick={(e) => {
         if (e.ctrlKey || e.metaKey) {
-          useTabStore.getState().addTab(entry.url)
+          useTabStore.getState().addTabInCurrentContext(entry.url)
           useUIStore.getState().closeHistory()
         } else {
           onNavigate(entry.url)
@@ -54,7 +54,7 @@ const HistoryRow = memo(function HistoryRow({
       onAuxClick={(e) => {
         if (e.button === 1) {
           e.preventDefault()
-          useTabStore.getState().addTab(entry.url)
+          useTabStore.getState().addTabInCurrentContext(entry.url)
           useUIStore.getState().closeHistory()
         }
       }}

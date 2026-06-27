@@ -35,6 +35,14 @@ export function useFocusedTabUrl(): string {
   })
 }
 
+export function useFocusedTabIsPrivate(): boolean {
+  return useTabStore((s) => {
+    const id = s.focusedPanel === 'split' && s.splitTabId ? s.splitTabId : s.activeTabId
+    if (!id) return false
+    return s.tabs[id]?.isPrivate ?? false
+  })
+}
+
 /** Legacy: subscribe only to the active tab's URL */
 export function useActiveTabUrl(): string {
   return useTabStore((s) => {
@@ -85,12 +93,12 @@ export function useFocusedTabCanNavigate(): { canGoBack: boolean; canGoForward: 
   )
 }
 
-export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean; isMuted: boolean; pinned: boolean } | undefined {
+export function useTabMeta(id: string): { title: string; favicon: string; isLoading: boolean; isPlayingMedia: boolean; isMuted: boolean; pinned: boolean; isPrivate: boolean } | undefined {
   return useTabStore(
     useShallow((s) => {
       const tab = s.tabs[id]
       if (!tab) return undefined
-      return { title: tab.title, favicon: tab.favicon, isLoading: tab.isLoading, isPlayingMedia: tab.isPlayingMedia, isMuted: tab.isMuted, pinned: tab.pinned }
+      return { title: tab.title, favicon: tab.favicon, isLoading: tab.isLoading, isPlayingMedia: tab.isPlayingMedia, isMuted: tab.isMuted, pinned: tab.pinned, isPrivate: tab.isPrivate }
     })
   )
 }

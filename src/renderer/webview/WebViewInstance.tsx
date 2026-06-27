@@ -25,6 +25,7 @@ interface WebViewInstanceProps {
 }
 
 function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstanceProps): React.JSX.Element {
+  const isPrivate = useTabStore((s) => s.tabs[tabId]?.isPrivate ?? false)
   const webviewRef = useRef<Electron.WebviewTag | null>(null)
   const domReadyRef = useRef(false)
   const lastNavigatedUrlRef = useRef(initialUrl)
@@ -115,11 +116,11 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       batchUpdate({ title: event.title })
       // Patch the history entry for the current URL with the real page title,
       // since at navigate time the title was still the previous page's value.
-      if (lastNavigatedUrlRef.current) {
+      if (!isPrivate && lastNavigatedUrlRef.current) {
         useHistoryStore.getState().patchEntryTitle(lastNavigatedUrlRef.current, event.title)
       }
     },
-    [batchUpdate]
+    [batchUpdate, isPrivate]
   )
 
   const handlePageFaviconUpdated = useCallback(
@@ -145,9 +146,11 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       })
       // Record to history with an empty title — the real title arrives in
       // handlePageTitleUpdated and is patched via patchEntryTitle.
-      useHistoryStore.getState().recordVisit(event.url, '', undefined)
+      if (!isPrivate) {
+        useHistoryStore.getState().recordVisit(event.url, '', undefined)
+      }
     },
-    [batchUpdate, tabId]
+    [batchUpdate, isPrivate]
   )
 
   const handleDidNavigateInPage = useCallback(
@@ -323,7 +326,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       const alreadyHasThumbnail = !!useTabStore.getState().tabs[tabIdStr]?.thumbnail
 
       // Coalesce: if a capture is already in flight for this tab, don't kick off another.
-      if (!inFlightCaptureRef.current && activeFor >= MIN_ACTIVE_MS && !alreadyHasThumbnail) {
+      if (!isPrivate && !inFlightCaptureRef.current && activeFor >= MIN_ACTIVE_MS && !alreadyHasThumbnail) {
         const webview = webviewRef.current
         if (webview) {
           const capturePromise = webviewRegistry.capturePage(tabIdStr)
@@ -352,7 +355,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       const timer = setTimeout(() => setShouldRender(false), TAB_TRANSITION_MS + 20)
       return () => clearTimeout(timer)
     }
-  }, [isActive, tabId])
+  }, [isActive, isPrivate, tabId])
 
   const isVisible = isActive || shouldRender
 
@@ -371,7 +374,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       <webview
         ref={webviewRef}
         src={initialUrl}
-        partition="persist:default"
+        partition={isPrivate ? "private" : "persist:default"}
         useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         {...{ plugins: '', allowpopups: '', allow: 'encrypted-media; autoplay; fullscreen' } as Record<string, string>}
         className="w-full h-full"

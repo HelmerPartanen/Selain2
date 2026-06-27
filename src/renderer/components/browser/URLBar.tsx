@@ -8,7 +8,7 @@ import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
 import bookmarkSvg from '@/assets/icons/Objects/Bookmark.svg?raw'
 import bookmarkFillSvg from '@/assets/icons/Objects/Bookmark_Fill.svg?raw'
-import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState, useFocusedTabMediaPlaying } from '@/hooks/useTabSelector'
+import { useFocusedTabId, useFocusedTabUrl, useFocusedTabNavState, useFocusedTabMediaPlaying, useFocusedTabIsPrivate } from '@/hooks/useTabSelector'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Wave_2_Fill.svg?raw'
 import soundMuteSvg from '@/assets/icons/Objects/Sound_Mute.svg?raw'
 import { useTabStore } from '@/store/tabStore'
@@ -60,6 +60,7 @@ function URLBarInner({
 }): React.JSX.Element {
   const tabId = useFocusedTabId()
   const url = useFocusedTabUrl()
+  const isPrivate = useFocusedTabIsPrivate()
   const { isLoading } = useFocusedTabNavState()
   const updateTab = useTabStore((s) => s.updateTab)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -129,7 +130,7 @@ function URLBarInner({
           .slice(0, 8)
           .map((tab) => makeCommandSuggestion(`tab-${tab!.id}`, `Switch to ${tab!.title || simplifyUrl(tab!.url)}`, () => tabStore.setActiveTab(tab!.id), 'tab'))
       }
-      if (scope === 'history') return useHistoryStore.getState().search(term || raw).map((entry) => ({ ...entry, type: 'history' as const }))
+      if (scope === 'history') return isPrivate ? [] : useHistoryStore.getState().search(term || raw).map((entry) => ({ ...entry, type: 'history' as const }))
       if (scope === 'bookmarks') return useBookmarkStore.getState().search(term).slice(0, 8).map((b) => ({
         id: `bookmark-${b.id}`, url: b.url, title: b.title, favicon: b.favicon ?? '', visitCount: 0, lastVisit: 0, timestamp: b.createdAt, type: 'bookmark' as const
       }))
@@ -175,10 +176,12 @@ function URLBarInner({
     }
 
     // Always compute local results immediately so the list feels instant.
-    const historyResults = useHistoryStore
-      .getState()
-      .search(query)
-      .map(r => ({ ...r, type: 'history' as const }))
+    const historyResults = isPrivate
+      ? []
+      : useHistoryStore
+        .getState()
+        .search(query)
+        .map(r => ({ ...r, type: 'history' as const }))
 
     const bookmarkResults = useBookmarkStore
       .getState()
@@ -265,7 +268,7 @@ function URLBarInner({
         suggestionAbortRef.current = null
       }
     }
-  }, [deferredInputValue, isFocused])
+  }, [deferredInputValue, isFocused, isPrivate])
 
   const navigate = useCallback(
     (targetUrl: string) => {
@@ -398,7 +401,7 @@ function URLBarInner({
       : 'top-full mt-2.5'
     : 'bottom-full mb-2.5'
 
-  const autocompleteSurface = 'border border-[var(--app-separator)] bg-[var(--app-bg-tertiary)] text-[var(--app-text-primary)]'
+  const autocompleteSurface = 'border border-[var(--app-separator)] bg-[var(--app-bg-secondary)] text-[var(--app-text-primary)]'
 
   const shellClassName = [
     'relative flex max-w-full min-w-0 items-center overflow-hidden rounded-xl transition-colors duration-150',

@@ -35,8 +35,8 @@ const api: ElectronAPI = {
     }
   },
   downloadAction: (action: string, id: string, savePath?: string) => ipcRenderer.send('download-action', action, id, savePath),
-  onDownloadStarted: (callback: (item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number }) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number }): void => {
+  onDownloadStarted: (callback: (item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number; isPrivate?: boolean }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number; isPrivate?: boolean }): void => {
       callback(item)
     }
     ipcRenderer.on('download-started', handler)
@@ -57,9 +57,9 @@ const api: ElectronAPI = {
     ipcRenderer.on('download-done', handler)
     return () => { ipcRenderer.removeListener('download-done', handler) }
   },
-  onOpenUrlInNewTab: (callback: (url: string) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, url: string): void => {
-      callback(url)
+  onOpenUrlInNewTab: (callback: (payload: string | { url: string; isPrivate?: boolean }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, payload: string | { url: string; isPrivate?: boolean }): void => {
+      callback(payload)
     }
     ipcRenderer.on('open-url-in-new-tab', handler)
     return () => { ipcRenderer.removeListener('open-url-in-new-tab', handler) }

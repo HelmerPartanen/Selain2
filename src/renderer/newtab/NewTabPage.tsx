@@ -218,7 +218,7 @@ function Favourites(): React.JSX.Element | null {
   }, [])
 
   const handleOpenInNewTab = useCallback((url: string) => {
-    useTabStore.getState().addTab(url)
+    useTabStore.getState().addTabInCurrentContext(url)
   }, [])
 
   const handleSelect = useCallback((url: string) => {
@@ -274,7 +274,7 @@ function ContinueSection(): React.JSX.Element | null {
   }, [])
 
   const handleOpenInNewTab = useCallback((url: string) => {
-    useTabStore.getState().addTab(url)
+    useTabStore.getState().addTabInCurrentContext(url)
   }, [])
 
   if (items.length === 0) return null
@@ -355,7 +355,7 @@ function FrequentSection(): React.JSX.Element | null {
   }, [])
 
   const handleOpenInNewTab = useCallback((url: string) => {
-    useTabStore.getState().addTab(url)
+    useTabStore.getState().addTabInCurrentContext(url)
   }, [])
 
   if (items.length === 0) return null

@@ -1,6 +1,4 @@
-import { m } from "motion/react";
 import { Text } from "@/components/ui/Text";
-import { SPRING_SNAPPY } from "@/utils/springs";
 import { cn } from "@/utils/classNames";
 
 export function SectionHeader({
@@ -54,10 +52,11 @@ export function Toggle({
           : "bg-gray-300 dark:bg-neutral-600",
       )}
     >
-      <m.span
-        className="absolute left-[2px] top-[2px] h-[18px] w-[24px] rounded-full border border-white bg-white"
-        animate={{ x: checked ? 14 : 0 }}
-        transition={SPRING_SNAPPY}
+      <span
+        className={cn(
+          "absolute left-[2px] top-[2px] h-[18px] w-[24px] rounded-full border border-white bg-white transition-transform duration-150 ease-out",
+          checked ? "translate-x-[14px]" : "translate-x-0",
+        )}
       />
     </button>
   );

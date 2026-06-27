@@ -38,11 +38,17 @@ export function useKeyboardShortcuts(): void {
       // Ctrl+T — New tab
       if (ctrl && !shift && key === 't') {
         e.preventDefault()
-        useTabStore.getState().addTab()
+        useTabStore.getState().addTabInCurrentContext()
         return
       }
 
       // Ctrl+W — Close current tab
+      if (ctrl && shift && key === 'n') {
+        e.preventDefault()
+        useTabStore.getState().addPrivateTab()
+        return
+      }
+
       if (ctrl && !shift && key === 'w') {
         e.preventDefault()
         const tabId = getFocusedTabId()

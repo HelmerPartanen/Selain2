@@ -38,11 +38,11 @@ export interface ElectronAPI {
   onShortcutPressed(callback: (shortcut: { key: string; code: string; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean }) => void): () => void
   /** Download management */
   downloadAction(action: 'pause' | 'resume' | 'cancel' | 'open' | 'show-in-folder', id: string, savePath?: string): void
-  onDownloadStarted(callback: (item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number }) => void): () => void
+  onDownloadStarted(callback: (item: { id: string; filename: string; url: string; savePath: string; totalBytes: number; receivedBytes: number; startTime: number; isPrivate?: boolean }) => void): () => void
   onDownloadProgress(callback: (data: { id: string; receivedBytes: number; totalBytes: number; speed: number }) => void): () => void
   onDownloadDone(callback: (data: { id: string; state: 'completed' | 'cancelled' | 'failed' }) => void): () => void
   /** Listen for URLs that should open in a new tab (from webview window.open / target="_blank") */
-  onOpenUrlInNewTab(callback: (url: string) => void): () => void
+  onOpenUrlInNewTab(callback: (payload: string | { url: string; isPrivate?: boolean }) => void): () => void
   /** Open a URL in the user's default browser */
   openExternal(url: string): Promise<boolean>
   /** Set the renderer zoom factor (1.0 = 100%) */

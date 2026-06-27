@@ -8,6 +8,7 @@ import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import newTabFavicon from '@/assets/icons/Interface/Dott.svg'
 import soundFillSvg from '@/assets/icons/Objects/Sound_Fill.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import privateSvg from '@/assets/icons/Interface/Private.svg?raw'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import tabsSvg from '@/assets/icons/Interface/Tabs.svg?raw'
 import folderSvg from '@/assets/icons/Objects/Folder.svg?raw'
@@ -39,6 +40,7 @@ interface TabPreview {
   isDuplicate: boolean
   pinned: boolean
   isSuspended: boolean
+  isPrivate: boolean
 }
 
 const MAX_THUMBNAIL_CAPTURES = 16
@@ -221,6 +223,10 @@ function TabOverviewInner(): React.JSX.Element {
   })))
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const activeTabId = useTabStore((s) => s.activeTabId)
+  const isPrivateContext = useTabStore((s) => {
+    if (!s.activeTabId) return false
+    return s.tabs[s.activeTabId]?.isPrivate ?? false
+  })
   const [previews, setPreviews] = useState<TabPreview[]>([])
   const [query, setQuery] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -249,8 +255,17 @@ function TabOverviewInner(): React.JSX.Element {
         spaceByTabId.set(tabId, space.name)
       }
     }
-    const duplicates = findDuplicateTabIds(tabOrder, tabs)
-    const snapshots: TabPreview[] = tabOrder
+    const visibleTabOrder = tabOrder.filter((id) => {
+      const tab = tabs[id]
+      return !!tab && tab.isPrivate === isPrivateContext
+    })
+    const visibleTabs = Object.fromEntries(
+      visibleTabOrder
+        .map((id) => [id, tabs[id]] as const)
+        .filter((entry): entry is [string, Tab] => Boolean(entry[1]))
+    )
+    const duplicates = findDuplicateTabIds(visibleTabOrder, visibleTabs)
+    const snapshots: TabPreview[] = visibleTabOrder
       .map((id) => {
         const tab = tabs[id]
         if (!tab) return null
@@ -265,7 +280,8 @@ function TabOverviewInner(): React.JSX.Element {
           spaceName: spaceByTabId.get(id) ?? 'General',
           isDuplicate: duplicates.has(id),
           pinned: tab.pinned,
-          isSuspended: tab.isSuspended
+          isSuspended: tab.isSuspended,
+          isPrivate: tab.isPrivate
         } as TabPreview
       })
       .filter(Boolean) as TabPreview[]
@@ -278,7 +294,7 @@ function TabOverviewInner(): React.JSX.Element {
       if (!currentActiveTabId) return
 
       const activeSnapshot = snapshots.find(s => s.id === currentActiveTabId)
-      if (!activeSnapshot || activeSnapshot.url === 'browser://newtab') return
+      if (!activeSnapshot || activeSnapshot.isPrivate || activeSnapshot.url === 'browser://newtab') return
 
       if (cancelledRef.current) return
       const thumbnail = await webviewRegistry.capturePage(currentActiveTabId)
@@ -293,7 +309,7 @@ function TabOverviewInner(): React.JSX.Element {
     captureActiveTab()
 
     return () => { cancelledRef.current = true }
-  }, [isOpen, activeTabId])
+  }, [isOpen, activeTabId, isPrivateContext])
 
   const handleSelect = useCallback(
     (tabId: string) => {
@@ -332,7 +348,12 @@ function TabOverviewInner(): React.JSX.Element {
   )
 
   const handleNewTab = useCallback(() => {
-    useTabStore.getState().addTab()
+    useTabStore.getState().addTabInCurrentContext()
+    closeOverview()
+  }, [closeOverview])
+
+  const handleExitPrivateMode = useCallback(() => {
+    useTabStore.getState().exitPrivateMode()
     closeOverview()
   }, [closeOverview])
 
@@ -465,8 +486,9 @@ function TabOverviewInner(): React.JSX.Element {
           >
             {/* Header */}
             <div className="mb-8 flex flex-col items-center">
-              <h2 className="text-xl font-semibold text-[var(--app-text-primary)] tracking-tight">
-                {previews.length} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-[var(--app-text-primary)] tracking-tight">
+                {isPrivateContext && <SvgIcon svg={privateSvg} size={18} />}
+                {previews.length} {isPrivateContext ? 'Private' : ''} {previews.length === 1 ? 'Tab' : 'Tabs'} Open
               </h2>
               <div
                 className="mt-4 h-[42px] flex flex-wrap items-center justify-center gap-1.5 max-w-[calc(100vw-40px)] rounded-xl px-1.5 py-1 shadow-sm bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
@@ -678,7 +700,9 @@ function TabOverviewInner(): React.JSX.Element {
                 >
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
                     <SvgIcon svg={plusSvg} size={22} className="text-[var(--app-text-secondary)]" />
-                    <span className="text-[13px] font-medium text-[var(--app-text-secondary)]">New Tab</span>
+                    <span className="text-[13px] font-medium text-[var(--app-text-secondary)]">
+                      {isPrivateContext ? 'New Private Tab' : 'New Tab'}
+                    </span>
                   </div>
                 </Button>
               </div>

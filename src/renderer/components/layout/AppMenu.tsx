@@ -15,12 +15,14 @@ import menuPointsSvg from "@/assets/icons/Interface/Menu_burger.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
+import privateSvg from "@/assets/icons/Interface/Private.svg?raw";
 
 import { CARDS_SVG } from "@/components/ui/SvgIcon";
 
 import { useTabStore } from "@/store/tabStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useUIStore } from "@/store/uiStore";
+import { useFocusedTabIsPrivate } from "@/hooks/useTabSelector";
 
 import { normalizeURL, isValidHomepageUrl } from "@/utils/urlUtils";
 import { SPRING_POPUP, SPRING_SNAPPY } from "@/utils/springs";
@@ -35,6 +37,8 @@ const MENU_ESTIMATED_HEIGHT = 420;
 
 const menuItems = [
   { id: "new-tab", label: "New Tab", icon: plusSvg, shortcut: "Ctrl+T" },
+  { id: "private-mode", label: "Private mode", icon: privateSvg, shortcut: "Ctrl+Shift+N" },
+  { id: "exit-private-mode", label: "Exit Private mode", icon: privateSvg, shortcut: "" },
   { id: "home", label: "Home", icon: homeSvg, shortcut: "" },
   { id: "divider", label: "", icon: null, shortcut: "" },
   { id: "find", label: "Find in Page", icon: searchSvg, shortcut: "Ctrl+F" },
@@ -74,6 +78,7 @@ function AppMenuInner(): React.JSX.Element {
 
   const disableAnimations = useSettingsStore((s) => s.disableAnimations);
   const uiLayout = useSettingsStore((s) => s.uiLayout);
+  const isPrivate = useFocusedTabIsPrivate();
 
   const popoverBelow = uiLayout === "classic";
 
@@ -142,7 +147,11 @@ function AppMenuInner(): React.JSX.Element {
           tabStore.addTab("browser://newtab");
         }
       } else if (action === "new-tab") {
-        useTabStore.getState().addTab();
+        useTabStore.getState().addTabInCurrentContext();
+      } else if (action === "private-mode") {
+        useTabStore.getState().addPrivateTab();
+      } else if (action === "exit-private-mode") {
+        useTabStore.getState().exitPrivateMode();
       } else if (action === "bookmarks") {
         useUIStore.getState().toggleBookmarks();
       } else if (action === "history") {
@@ -174,7 +183,9 @@ function AppMenuInner(): React.JSX.Element {
 
   // Filter dividers so hover index tracking is safe across re-renders
   const actionableItems = menuItems.filter(
-    (item) => !item.id.startsWith("divider"),
+    (item) =>
+      !item.id.startsWith("divider") &&
+      (isPrivate || item.id !== "exit-private-mode"),
   );
 
   return (

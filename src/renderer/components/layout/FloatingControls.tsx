@@ -13,6 +13,7 @@ import chevronRightSvg from "@/assets/icons/Arrows/Chevron_Right.svg?raw";
 import unsplitSvg from "@/assets/icons/Arrows/Triangle_Merge.svg?raw";
 import { webviewRegistry } from "@/webview/webviewRegistry";
 import { URLBar } from "@/components/browser/URLBar";
+import { PrivateModeIndicator } from "@/components/browser/PrivateModeIndicator";
 import { AppMenu } from "@/components/layout/AppMenu";
 import { SpaceSwitcher } from "@/components/layout/SpaceSwitcher";
 import { TabPill } from "@/components/browser/TabPill";
@@ -328,6 +329,8 @@ function FloatingControlsInner(): React.JSX.Element {
                 <div className="flex items-center h-full rounded-full min-w-0 flex-shrink">
                   <URLBar onFocusChange={handleFocusChange} />
                 </div>
+
+                <PrivateModeIndicator />
 
                 {/* ── Split Unsplit Button ── */}
                 <AnimatePresence initial={false}>

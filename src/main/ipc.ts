@@ -68,7 +68,7 @@ export function setupIPC(): void {
   const knownDownloadPaths = new Map<string, string>()
   let downloadCounter = 0
 
-  function setupDownloadHandling(ses: Electron.Session): void {
+  function setupDownloadHandling(ses: Electron.Session, isPrivate = false): void {
     ses.on('will-download', (_event, item) => {
       const id = `dl-${++downloadCounter}-${Date.now()}`
       activeDownloads.set(id, item)
@@ -82,7 +82,8 @@ export function setupIPC(): void {
         savePath: item.getSavePath(),
         totalBytes: item.getTotalBytes(),
         receivedBytes: item.getReceivedBytes(),
-        startTime: Date.now()
+        startTime: Date.now(),
+        isPrivate
       })
 
       let lastUpdate = 0
@@ -126,6 +127,7 @@ export function setupIPC(): void {
 
   setupDownloadHandling(session.defaultSession)
   setupDownloadHandling(session.fromPartition('persist:default'))
+  setupDownloadHandling(session.fromPartition('private'), true)
 
   const VALID_DOWNLOAD_ACTIONS = new Set(['pause', 'resume', 'cancel', 'open', 'show-in-folder'])
 

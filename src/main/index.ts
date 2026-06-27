@@ -96,8 +96,8 @@ app.whenReady().then(() => {
       .then((blocker) => {
         const allowlistEngine = ElectronBlocker.parse(streamingAllowlist, { loadNetworkFilters: true })
         const merged = ElectronBlocker.merge([blocker, allowlistEngine]) as typeof blocker
-        const ses = session.fromPartition('persist:default')
-        merged.enableBlockingInSession(ses)
+        merged.enableBlockingInSession(session.fromPartition('persist:default'))
+        merged.enableBlockingInSession(session.fromPartition('private'))
         const mode = enableDomLevelBlocking ? 'network + DOM filters' : 'network filters only'
         logger.log(`[Adblocker] Loaded Ghostery adblocker (${mode})`)
       })

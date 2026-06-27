@@ -17,6 +17,10 @@ const PANEL_INITIAL = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: 
 const PANEL_ANIMATE = { y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 } as const
 const PANEL_EXIT    = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 } as const
 const PANEL_TRANSITION = { ...SPRING, damping: 26 } as const
+const FLAT_PANEL_INITIAL = { y: 18, opacity: 0 } as const
+const FLAT_PANEL_ANIMATE = { y: 0, opacity: 1 } as const
+const FLAT_PANEL_EXIT = { y: 12, opacity: 0 } as const
+const FLAT_PANEL_TRANSITION = { duration: 0.14, ease: 'easeOut' } as const
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -42,6 +46,7 @@ interface PanelModalProps {
   onClose: () => void
   width: string
   height: string
+  motionPreset?: 'default' | 'flat'
   /** Extra classes applied to the panel surface */
   className?: string
   /** Passed through to the m.div for ARIA semantics */
@@ -55,6 +60,7 @@ export function PanelModal({
   onClose,
   width,
   height,
+  motionPreset = 'default',
   className = '',
   role,
   children,
@@ -134,6 +140,12 @@ export function PanelModal({
     }
   }, [onClose])
 
+  const useFlatMotion = motionPreset === 'flat'
+  const initial = useFlatMotion ? FLAT_PANEL_INITIAL : PANEL_INITIAL
+  const animate = useFlatMotion ? FLAT_PANEL_ANIMATE : PANEL_ANIMATE
+  const exit = useFlatMotion ? FLAT_PANEL_EXIT : PANEL_EXIT
+  const transition = useFlatMotion ? FLAT_PANEL_TRANSITION : PANEL_TRANSITION
+
   return (
     <>
       {/* Centering wrapper \u2014 pointer-events disabled so backdrop click-away works */}
@@ -145,11 +157,11 @@ export function PanelModal({
           aria-label={aria['aria-label']}
           tabIndex={-1}
           className={`rounded-xl overflow-hidden bg-[var(--app-bg-primary)] border border-[var(--app-separator)] text-[var(--app-text-primary)] [app-region:no-drag] pointer-events-auto ${className}`}
-          style={{ width, height, transformOrigin: '50% 100%', perspective: 800 }}
-          initial={disableAnimations ? undefined : PANEL_INITIAL}
-          animate={PANEL_ANIMATE}
-          exit={disableAnimations ? undefined : PANEL_EXIT}
-          transition={disableAnimations ? { duration: 0 } : PANEL_TRANSITION}
+          style={{ width, height, transformOrigin: '50% 100%' }}
+          initial={disableAnimations ? undefined : initial}
+          animate={animate}
+          exit={disableAnimations ? undefined : exit}
+          transition={disableAnimations ? { duration: 0 } : transition}
         >
           {children}
         </m.div>

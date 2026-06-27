@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   lazy,
   memo,
   useCallback,
@@ -80,7 +80,7 @@ const AISummaryButton = lazy(() =>
 );
 function PanelLoadingFallback(): React.JSX.Element {
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-bg-primary)]">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[var(--app-text-primary)]">
       <LoadingSpinner size={32} />
     </div>
   );

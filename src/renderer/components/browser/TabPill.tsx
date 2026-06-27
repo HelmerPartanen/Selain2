@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
+import privateSvg from '@/assets/icons/Interface/Private.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_fill.svg?raw'
 import newTabFavicon from '@/assets/icons/Interface/Dott.svg'
 import tabsSvg from '@/assets/icons/Interface/Tabs.svg?raw'
@@ -129,6 +130,7 @@ export const TabRow = memo(function TabRow({
   const isPlayingMedia = meta?.isPlayingMedia ?? false
   const isMuted = meta?.isMuted ?? false
   const pinned = meta?.pinned ?? false
+  const isPrivate = meta?.isPrivate ?? false
 
   const handleClick = useCallback(() => {
     setActiveTab(tabId)
@@ -187,6 +189,10 @@ export const TabRow = memo(function TabRow({
 
       <span className="flex-1 text-[13px] truncate z-10">{title}</span>
 
+      {isPrivate && (
+        <SvgIcon svg={privateSvg} size={12} className="flex-shrink-0 text-[var(--app-text-tertiary)] z-10" />
+      )}
+
       {isSplitTarget && (
         <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-blue-500 z-10" />
       )}
@@ -235,7 +241,7 @@ function TabPillInner(): React.JSX.Element {
   const activeTabId = useActiveTabId()
   const splitTabId = useSplitTabId()
   const isSplit = useIsSplitView()
-  const addTab = useTabStore((s) => s.addTab)
+  const addTabInCurrentContext = useTabStore((s) => s.addTabInCurrentContext)
   const bgMediaPlaying = useBackgroundMediaPlaying()
   const { isExpanded, setDropdownOpen } = useUIStore(useShallow((s) => ({
     isExpanded: s.isDropdownOpen,
@@ -249,7 +255,7 @@ function TabPillInner(): React.JSX.Element {
     if (tabCount <= 1) setDropdownOpen(false)
   }, [tabCount, setDropdownOpen])
 
-  const handleAddTab = useCallback(() => addTab(), [addTab])
+  const handleAddTab = useCallback(() => addTabInCurrentContext(), [addTabInCurrentContext])
   const handleToggle = useCallback(() => setDropdownOpen(!isExpanded), [isExpanded, setDropdownOpen])
   const handleClose = useCallback(() => setDropdownOpen(false), [setDropdownOpen])
 

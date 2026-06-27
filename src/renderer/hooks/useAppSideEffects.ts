@@ -63,8 +63,14 @@ function useTabHydrationGate(): void {
 /** Open target=_blank links from webviews in a new tab. */
 function useOpenUrlInterceptor(): void {
   useEffect(() => {
-    return window.electronAPI.onOpenUrlInNewTab((url: string) => {
-      useTabStore.getState().addTab(url);
+    return window.electronAPI.onOpenUrlInNewTab((payload) => {
+      const url = typeof payload === "string" ? payload : payload.url;
+      const isPrivate = typeof payload === "string" ? false : !!payload.isPrivate;
+      if (isPrivate) {
+        useTabStore.getState().addPrivateTab(url);
+      } else {
+        useTabStore.getState().addTab(url);
+      }
     });
   }, []);
 }

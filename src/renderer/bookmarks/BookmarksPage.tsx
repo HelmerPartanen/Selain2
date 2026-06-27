@@ -42,7 +42,7 @@ const BookmarkRow = memo(function BookmarkRow({
       transition={{ ...SPRING_LIST, delay }}
       onClick={(e) => {
         if (e.ctrlKey || e.metaKey) {
-          useTabStore.getState().addTab(entry.url)
+          useTabStore.getState().addTabInCurrentContext(entry.url)
           useUIStore.getState().closeBookmarks()
         } else {
           onNavigate(entry.url)
@@ -51,7 +51,7 @@ const BookmarkRow = memo(function BookmarkRow({
       onAuxClick={(e) => {
         if (e.button === 1) {
           e.preventDefault()
-          useTabStore.getState().addTab(entry.url)
+          useTabStore.getState().addTabInCurrentContext(entry.url)
           useUIStore.getState().closeBookmarks()
         }
       }}

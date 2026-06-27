@@ -103,6 +103,7 @@ export function setupPermissions(): void {
 
   configureSes(session.defaultSession)
   configureSes(session.fromPartition('persist:default'))
+  configureSes(session.fromPartition('private'))
 }
 
 export function setupCSP(): void {

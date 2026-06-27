@@ -9,6 +9,7 @@ import { SvgIcon, SPINNER_SVG } from "@/components/ui/SvgIcon";
 import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
 
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
+import privateSvg from "@/assets/icons/Interface/Private.svg?raw";
 
 import globeSvg from "@/assets/icons/Nature/Globe_fill.svg?raw";
 import newTabFavicon from "@/assets/icons/Interface/Dott.svg";
@@ -103,6 +104,7 @@ const TabStripItem = memo(function TabStripItem({
   const isMuted = meta?.isMuted ?? false;
 
   const pinned = meta?.pinned ?? false;
+  const isPrivate = meta?.isPrivate ?? false;
 
   const isHighlighted = isActive || isSplitTarget;
 
@@ -191,6 +193,14 @@ const TabStripItem = memo(function TabStripItem({
         <span className="flex-1 min-w-0 text-[12px] truncate">{title}</span>
       )}
 
+      {showActions && isPrivate && (
+        <SvgIcon
+          svg={privateSvg}
+          size={11}
+          className="flex-shrink-0 text-[var(--app-text-tertiary)]"
+        />
+      )}
+
       {showActions && isSplitTarget && (
         <SvgIcon
           svg={splitSvg}
@@ -259,7 +269,7 @@ function TabStripInner(): React.JSX.Element {
 
   const isSplit = useIsSplitView();
 
-  const addTab = useTabStore((s) => s.addTab);
+  const addTabInCurrentContext = useTabStore((s) => s.addTabInCurrentContext);
 
   const bgMediaPlaying = useBackgroundMediaPlaying();
 
@@ -316,7 +326,7 @@ function TabStripInner(): React.JSX.Element {
         ? "compact"
         : "full";
 
-  const handleAddTab = useCallback(() => addTab(), [addTab]);
+  const handleAddTab = useCallback(() => addTabInCurrentContext(), [addTabInCurrentContext]);
 
   const handleTabOverview = useCallback(() => {
     if (tabsButtonAction === "menu") {
