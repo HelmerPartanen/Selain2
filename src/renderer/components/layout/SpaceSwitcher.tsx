@@ -55,7 +55,7 @@ function AccountRailItem({ account, isActive, onSelect }: {
         <AccountAvatar account={account} size={28} />
       </span>
       {account.requirePassword && (
-        <span className="absolute bottom-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[var(--app-bg-secondary)] text-[var(--app-text-secondary)] ring-1 ring-[var(--app-separator)]">
+        <span className="absolute bottom-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[var(--app-bg-secondary)] text-[hsl(38_50%_50%)] ring-1 ring-[var(--app-separator)]">
           <SvgIcon svg={lockSvg} size={9} />
         </span>
       )}

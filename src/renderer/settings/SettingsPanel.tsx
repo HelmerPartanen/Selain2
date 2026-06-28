@@ -76,21 +76,21 @@ interface CategoryItem {
   id: SettingsCategory;
   label: string;
   icon: string;
-  colorClass: string;
+  color: string;
 }
 
 const CATEGORIES: CategoryItem[] = [
-  { id: "general", label: "Startup", icon: settingsSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "wallpaper", label: "Background", icon: cameraSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "accounts", label: "Accounts", icon: accountSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "tabs", label: "Tabs", icon: tabsSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "performance", label: "Performance", icon: gaugeSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "search", label: "Search", icon: searchSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "extensions", label: "Extensions", icon: puzzleSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
-  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "general", label: "Startup", icon: settingsSvg, color: "hsl(210 34% 58%)" },
+  { id: "appearance", label: "Appearance", icon: brushSvg, color: "hsl(272 34% 60%)" },
+  { id: "wallpaper", label: "Background", icon: cameraSvg, color: "hsl(178 34% 48%)" },
+  { id: "accounts", label: "Accounts", icon: accountSvg, color: "hsl(215 46% 56%)" },
+  { id: "tabs", label: "Tabs", icon: tabsSvg, color: "hsl(235 36% 60%)" },
+  { id: "performance", label: "Performance", icon: gaugeSvg, color: "hsl(38 50% 50%)" },
+  { id: "search", label: "Search", icon: searchSvg, color: "hsl(196 38% 50%)" },
+  { id: "privacy", label: "Privacy", icon: shieldSvg, color: "hsl(142 34% 45%)" },
+  { id: "extensions", label: "Extensions", icon: puzzleSvg, color: "hsl(24 46% 54%)" },
+  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, color: "hsl(348 38% 58%)" },
+  { id: "about", label: "About", icon: infoSvg, color: "hsl(205 18% 58%)" },
 ];
 
 // --- Content Pane Router ------------------------------------------------------
@@ -222,7 +222,7 @@ function Sidebar({
 
   return (
     <nav aria-label="Settings categories" className="flex flex-col gap-1 focus:none">
-      {CATEGORIES.map(({ id, label, icon, colorClass }) => {
+      {CATEGORIES.map(({ id, label, icon, color }) => {
         const isActive = activeCategory === id
         return (
           <Button
@@ -241,7 +241,8 @@ function Sidebar({
   )}
 >
   <span
-    className={`w-8 h-8 flex items-center justify-center rounded-lg shrink-0 transition-colors duration-100 ${isActive ? "bg-[var(--app-accent-bg)] text-[var(--app-accent)]" : colorClass}`}
+    className="w-8 h-8 flex items-center justify-center rounded-lg shrink-0 bg-[var(--app-bg-tertiary)] transition-colors duration-100"
+    style={{ color }}
   >
     <SvgIcon svg={icon} size={18} />
   </span>

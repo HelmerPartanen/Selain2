@@ -125,7 +125,7 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
                     {account.id === activeAccountId ? 'Current' : isLocked ? 'Locked' : 'Switch'}
                   </Text>
                 </span>
-                {isLocked && <SvgIcon svg={lockSvg} size={12} className="text-[var(--app-text-secondary)]" />}
+                {isLocked && <SvgIcon svg={lockSvg} size={12} className="text-[hsl(38_50%_50%)]" />}
               </Button>
             )
           })}
