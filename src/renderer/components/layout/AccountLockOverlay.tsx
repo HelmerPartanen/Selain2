@@ -7,11 +7,12 @@ import { verifyAccountPassword } from '@/utils/accountSecurity'
 
 function AccountLockOverlayInner(): React.JSX.Element | null {
   const activeAccount = useAccountStore((s) => s.accounts[s.activeAccountId])
-  const [unlockedAccountId, setUnlockedAccountId] = useState<string | null>(null)
+  const unlockedAccountIds = useAccountStore((s) => s.unlockedAccountIds)
+  const unlockAccount = useAccountStore((s) => s.unlockAccount)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  if (!activeAccount?.requirePassword || !activeAccount.passwordHash || unlockedAccountId === activeAccount.id) return null
+  if (!activeAccount?.requirePassword || !activeAccount.passwordHash || unlockedAccountIds.includes(activeAccount.id)) return null
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[var(--app-bg-primary)]/95 px-6 backdrop-blur-md">
@@ -28,7 +29,7 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
             }}
             onKeyDown={async (event) => {
               if (event.key === 'Enter' && await verifyAccountPassword(password, activeAccount.passwordHash)) {
-                setUnlockedAccountId(activeAccount.id)
+                unlockAccount(activeAccount.id)
               } else if (event.key === 'Enter') {
                 setError('Password is incorrect')
               }
@@ -43,7 +44,7 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
           size="md"
           className="mt-4 w-full"
           onClick={async () => {
-            if (await verifyAccountPassword(password, activeAccount.passwordHash)) setUnlockedAccountId(activeAccount.id)
+            if (await verifyAccountPassword(password, activeAccount.passwordHash)) unlockAccount(activeAccount.id)
             else setError('Password is incorrect')
           }}
         >

@@ -198,7 +198,10 @@ function SpaceSwitcherInner(): React.JSX.Element {
                     <div className="flex gap-2">
                       <Button variant="primary" size="sm" onClick={async () => {
                         const account = accounts[pendingAccountId]
-                        if (account && await verifyAccountPassword(draftPassword, account.passwordHash)) switchToAccount(account.id)
+                        if (account && await verifyAccountPassword(draftPassword, account.passwordHash)) {
+                          store.unlockAccount(account.id)
+                          switchToAccount(account.id)
+                        }
                         else setAuthError('Password is incorrect')
                       }}>Unlock</Button>
                       <Button variant="ghost" size="sm" onClick={() => setMode('list')}>Cancel</Button>

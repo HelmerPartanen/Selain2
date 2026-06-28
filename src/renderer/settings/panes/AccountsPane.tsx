@@ -7,7 +7,7 @@ import { TextInput } from '@/components/ui/Input'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import { SettingGroup, SettingRow } from '@/settings/components/SettingsShared'
 import { useAccountStore, DEFAULT_ACCOUNT_ID } from '@/store/accountStore'
-import { hashAccountPassword } from '@/utils/accountSecurity'
+import { hashAccountPassword, verifyAccountPassword } from '@/utils/accountSecurity'
 import lockSvg from '@/assets/icons/Objects/Lock.svg?raw'
 import lockOpenSvg from '@/assets/icons/Objects/Lock_Open.svg?raw'
 
@@ -21,12 +21,15 @@ function AccountsPaneInner(): React.JSX.Element {
   const renameAccount = useAccountStore((s) => s.renameAccount)
   const removeAccount = useAccountStore((s) => s.removeAccount)
   const switchAccount = useAccountStore((s) => s.switchAccount)
+  const unlockAccount = useAccountStore((s) => s.unlockAccount)
   const setAccountPassword = useAccountStore((s) => s.setAccountPassword)
   const setRequirePassword = useAccountStore((s) => s.setRequirePassword)
   const [draftName, setDraftName] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [passwordDraftById, setPasswordDraftById] = useState<Record<string, string>>({})
+  const [switchPasswordById, setSwitchPasswordById] = useState<Record<string, string>>({})
+  const [switchErrorById, setSwitchErrorById] = useState<Record<string, string | null>>({})
 
   return (
     <div className="space-y-7">
@@ -106,6 +109,47 @@ function AccountsPaneInner(): React.JSX.Element {
                     <>
                       {isActive ? (
                         <Text size="caption" tone="accent" className="whitespace-nowrap">Active</Text>
+                      ) : account.requirePassword && account.passwordHash ? (
+                        <>
+                          <TextInput
+                            type="password"
+                            value={switchPasswordById[id] ?? ''}
+                            onChange={(event) => {
+                              setSwitchPasswordById((state) => ({ ...state, [id]: event.target.value }))
+                              setSwitchErrorById((state) => ({ ...state, [id]: null }))
+                            }}
+                            placeholder="Password"
+                            inputSize="sm"
+                            className="w-28"
+                            onKeyDown={async (event) => {
+                              if (event.key !== 'Enter') return
+                              if (await verifyAccountPassword(switchPasswordById[id] ?? '', account.passwordHash)) {
+                                unlockAccount(id)
+                                switchAccount(id)
+                                setSwitchPasswordById((state) => ({ ...state, [id]: '' }))
+                              } else {
+                                setSwitchErrorById((state) => ({ ...state, [id]: 'Incorrect' }))
+                              }
+                            }}
+                          />
+                          <Button
+                            variant="primary"
+                            size="xs"
+                            disabled={!(switchPasswordById[id] ?? '').trim()}
+                            onClick={async () => {
+                              if (await verifyAccountPassword(switchPasswordById[id] ?? '', account.passwordHash)) {
+                                unlockAccount(id)
+                                switchAccount(id)
+                                setSwitchPasswordById((state) => ({ ...state, [id]: '' }))
+                              } else {
+                                setSwitchErrorById((state) => ({ ...state, [id]: 'Incorrect' }))
+                              }
+                            }}
+                          >
+                            Unlock
+                          </Button>
+                          {switchErrorById[id] && <Text size="caption" tone="danger" className="whitespace-nowrap">{switchErrorById[id]}</Text>}
+                        </>
                       ) : (
                         <Button variant="ghost" size="xs" onClick={() => switchAccount(id)}>Switch</Button>
                       )}

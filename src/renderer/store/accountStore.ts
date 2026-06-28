@@ -38,6 +38,7 @@ export interface AccountStore {
   accounts: Record<string, BrowserAccount>
   accountOrder: string[]
   activeAccountId: string
+  unlockedAccountIds: string[]
   addAccount: (name: string) => string
   renameAccount: (id: string, name: string) => void
   setAccountColor: (id: string, hue: number) => void
@@ -45,6 +46,7 @@ export interface AccountStore {
   setAccountPassword: (id: string, passwordHash: string | null) => void
   setRequirePassword: (id: string, requirePassword: boolean) => void
   removeAccount: (id: string) => void
+  unlockAccount: (id: string) => void
   switchAccount: (id: string) => void
   addSpace: (name: string, hue: number) => string
   renameSpace: (spaceId: string, name: string) => void
@@ -144,6 +146,7 @@ export const useAccountStore = create<AccountStore>()(
         accounts: { [DEFAULT_ACCOUNT_ID]: createAccount(DEFAULT_ACCOUNT_ID, 'Personal') },
         accountOrder: [DEFAULT_ACCOUNT_ID],
         activeAccountId: DEFAULT_ACCOUNT_ID,
+        unlockedAccountIds: [],
 
         addAccount: (name) => {
           const id = crypto.randomUUID()
@@ -186,6 +189,7 @@ export const useAccountStore = create<AccountStore>()(
             if (!account || id !== s.activeAccountId) return s
             return { accounts: { ...s.accounts, [id]: { ...account, passwordHash, requirePassword: Boolean(passwordHash), updatedAt: Date.now() } } }
           }, undefined, 'setAccountPassword')
+          get().unlockAccount(id)
         },
 
         setRequirePassword: (id, requirePassword) => {
@@ -194,6 +198,7 @@ export const useAccountStore = create<AccountStore>()(
             if (!account || id !== s.activeAccountId) return s
             return { accounts: { ...s.accounts, [id]: { ...account, requirePassword: requirePassword && Boolean(account.passwordHash), updatedAt: Date.now() } } }
           }, undefined, 'setRequirePassword')
+          if (requirePassword) get().unlockAccount(id)
         },
 
         removeAccount: (id) => {
@@ -206,13 +211,24 @@ export const useAccountStore = create<AccountStore>()(
             return {
               accounts,
               accountOrder,
+              unlockedAccountIds: s.unlockedAccountIds.filter((accountId) => accountId !== id),
               activeAccountId: s.activeAccountId === id ? DEFAULT_ACCOUNT_ID : s.activeAccountId,
             }
           }, undefined, 'removeAccount')
         },
 
+        unlockAccount: (id) => {
+          set((s) => {
+            if (!s.accounts[id] || s.unlockedAccountIds.includes(id)) return s
+            return { unlockedAccountIds: [...s.unlockedAccountIds, id] }
+          }, undefined, 'unlockAccount')
+        },
+
         switchAccount: (id) => {
-          if (!get().accounts[id]) return
+          const state = get()
+          const account = state.accounts[id]
+          if (!account) return
+          if (id !== state.activeAccountId && account.requirePassword && account.passwordHash && !state.unlockedAccountIds.includes(id)) return
           set({ activeAccountId: id }, undefined, 'switchAccount')
         },
 
