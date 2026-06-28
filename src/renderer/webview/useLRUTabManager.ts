@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTabStore } from '@/store/tabStore'
+import { useSettingsStore } from '@/store/settingsStore'
 
-const MAX_ALIVE_TABS = 10
 /** Keep thumbnails only for this many most-recently-used tabs to bound RAM. */
 const MAX_TAB_THUMBNAILS = 16
 
@@ -22,6 +22,8 @@ export function useLRUTabManager(): void {
         recentOrderRef.current = filtered
 
         const state = useTabStore.getState()
+        const settings = useSettingsStore.getState()
+        const maxAliveTabs = settings.lowPowerMode ? Math.min(settings.maxAliveTabs, 5) : settings.maxAliveTabs
         const existingIds = new Set(state.tabOrder)
         recentOrderRef.current = recentOrderRef.current.filter((id) => existingIds.has(id))
 
@@ -30,12 +32,12 @@ export function useLRUTabManager(): void {
         if (splitTabId) protectedIds.add(splitTabId)
 
         // Suspend the cold tail of the LRU.
-        if (recentOrderRef.current.length > MAX_ALIVE_TABS) {
-          const toSuspend = recentOrderRef.current.slice(MAX_ALIVE_TABS)
+        if (settings.autoSleepTabs && recentOrderRef.current.length > maxAliveTabs) {
+          const toSuspend = recentOrderRef.current.slice(maxAliveTabs)
           for (const id of toSuspend) {
             const tab = state.tabs[id]
             if (tab && !tab.isSuspended && !protectedIds.has(id)) {
-              state.suspendTab(id)
+              state.suspendTab(id, settings.lowPowerMode ? 'memory' : 'cleanup')
             }
           }
         }

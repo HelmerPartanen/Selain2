@@ -3,6 +3,7 @@ export interface Toast {
   message: string
   type: 'success' | 'info' | 'error'
   action?: { label: string; onClick: () => void }
+  actions?: Array<{ label: string; onClick: () => void; variant?: 'primary' | 'danger' | 'subtle' }>
   persistent?: boolean
 }
 

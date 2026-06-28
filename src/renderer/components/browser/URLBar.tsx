@@ -15,7 +15,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useBookmarkStore } from '@/store/bookmarkStore'
-import { useSpaceStore } from '@/store/spaceStore'
+import { useAccountStore } from '@/store/accountStore'
 import { simplifyUrl, normalizeURL } from '@/utils/urlUtils'
 import { logger } from '@/utils/logger'
 import { fetchSearchSuggestions } from '@/utils/searchUtils'
@@ -152,7 +152,8 @@ function URLBarInner({
       const scope = scopeRaw.toLowerCase()
       const term = rest.join(' ').toLowerCase()
       const tabStore = useTabStore.getState()
-      const spaces = useSpaceStore.getState()
+      const accountStore = useAccountStore.getState()
+      const activeAccount = accountStore.accounts[accountStore.activeAccountId]
       const activeTab = tabStore.activeTabId ? tabStore.tabs[tabStore.activeTabId] : null
       if (scope === 'tabs') {
         return tabStore.tabOrder
@@ -167,11 +168,30 @@ function URLBarInner({
         id: `bookmark-${b.id}`, url: b.url, title: b.title, favicon: b.favicon ?? '', visitCount: 0, lastVisit: 0, timestamp: b.createdAt, type: 'bookmark' as const
       }))
       if (scope === 'spaces') {
-        return spaces.spaceOrder
-          .map((id) => spaces.spaces[id])
+        if (!activeAccount) return []
+        return activeAccount.spaceOrder
+          .map((id) => activeAccount.spaces[id])
           .filter(Boolean)
           .filter((space) => !term || space!.name.toLowerCase().includes(term))
-          .map((space) => makeCommandSuggestion(`space-${space!.id}`, `Switch to Space: ${space!.name}`, () => spaces.switchSpace(space!.id), 'space'))
+          .map((space) => makeCommandSuggestion(`space-${space!.id}`, `Switch to ${activeAccount.name} / ${space!.name}`, () => {
+            accountStore.switchSpace(space!.id)
+            const target = space!.activeTabId || space!.tabIds.find((id) => tabStore.tabs[id])
+            if (target && tabStore.tabs[target]) tabStore.setActiveTab(target)
+            else tabStore.addTab()
+          }, 'space'))
+      }
+      if (scope === 'accounts') {
+        return accountStore.accountOrder
+          .map((id) => accountStore.accounts[id])
+          .filter(Boolean)
+          .filter((account) => !term || account!.name.toLowerCase().includes(term))
+          .map((account) => makeCommandSuggestion(`account-${account!.id}`, `Switch to account: ${account!.name}`, () => {
+            accountStore.switchAccount(account!.id)
+            const space = account!.spaces[account!.activeSpaceId]
+            const target = space?.activeTabId || space?.tabIds.find((id) => tabStore.tabs[id])
+            if (target && tabStore.tabs[target]) tabStore.setActiveTab(target)
+            else tabStore.addTab()
+          }, 'space'))
       }
     if (scope === 'settings') {
         return ['General', 'Privacy', 'Search engine', 'Shortcuts', 'Appearance'].filter((name) => !term || name.toLowerCase().includes(term)).map((name) =>

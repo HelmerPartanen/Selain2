@@ -72,9 +72,10 @@ const api: ElectronAPI = {
   fetchSearchSuggestions: (query: string) => ipcRenderer.invoke('fetch-search-suggestions', query),
   captureTab: (webContentsId: number) => ipcRenderer.invoke('capture-tab', webContentsId),
   destroyWebview: (webContentsId: number) => ipcRenderer.invoke('destroy-webview', webContentsId),
-  getSiteInfo: (url: string) => ipcRenderer.invoke('get-site-info', url),
-  clearSiteData: (origin: string) => ipcRenderer.invoke('clear-site-data', origin),
-  forgetSite: (origin: string) => ipcRenderer.invoke('forget-site', origin),
+  ensureAccountPartition: (partitionId: string) => ipcRenderer.invoke('ensure-account-partition', partitionId),
+  getSiteInfo: (url: string, partitionId?: string) => ipcRenderer.invoke('get-site-info', url, partitionId),
+  clearSiteData: (origin: string, partitionId?: string) => ipcRenderer.invoke('clear-site-data', origin, partitionId),
+  forgetSite: (origin: string, partitionId?: string) => ipcRenderer.invoke('forget-site', origin, partitionId),
   onPermissionRequest: (callback: (request: { id: string; origin: string; permission: string; requestingUrl: string }) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, request: { id: string; origin: string; permission: string; requestingUrl: string }): void => {
       callback(request)
@@ -87,6 +88,10 @@ const api: ElectronAPI = {
   importBookmarksHtml: () => ipcRenderer.invoke('import-bookmarks-html'),
   exportProfileBackup: (data: string) => ipcRenderer.invoke('export-profile-backup', data),
   importProfileBackup: () => ipcRenderer.invoke('import-profile-backup'),
+  listExtensions: () => ipcRenderer.invoke('extensions:list'),
+  loadExtension: () => ipcRenderer.invoke('extensions:load'),
+  removeExtension: (id: string) => ipcRenderer.invoke('extensions:remove', id),
+  setExtensionEnabled: (id: string, enabled: boolean) => ipcRenderer.invoke('extensions:set-enabled', id, enabled),
   // ── AI / Ollama ──────────────────────────────────────────────────────────
   checkAIStatus: () => ipcRenderer.invoke('ai:check-status'),
   pullAIModel: () => ipcRenderer.invoke('ai:pull-model'),

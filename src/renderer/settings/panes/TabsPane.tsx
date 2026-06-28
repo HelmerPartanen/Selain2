@@ -17,6 +17,8 @@ function TabsPaneInner(): React.JSX.Element {
   const setShowNewTabContinueSection = useSettingsStore((s) => s.setShowNewTabContinueSection);
   const showNewTabFrequentSection = useSettingsStore((s) => s.showNewTabFrequentSection);
   const setShowNewTabFrequentSection = useSettingsStore((s) => s.setShowNewTabFrequentSection);
+  const showReadingTools = useSettingsStore((s) => s.showReadingTools);
+  const setShowReadingTools = useSettingsStore((s) => s.setShowReadingTools);
 
   return (
     <div className="space-y-7">
@@ -92,6 +94,16 @@ function TabsPaneInner(): React.JSX.Element {
               checked={showTabCleanupSuggestions}
               onChange={setShowTabCleanupSuggestions}
               label="Show tab cleanup suggestions"
+            />
+          </SettingRow>
+          <SettingRow
+            label="Reading tools"
+            desc="Show reader mode and AI summary controls when available."
+          >
+            <Toggle
+              checked={showReadingTools}
+              onChange={setShowReadingTools}
+              label="Show reading tools"
             />
           </SettingRow>
         </SettingGroup>

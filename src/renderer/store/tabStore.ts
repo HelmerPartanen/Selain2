@@ -4,6 +4,7 @@ import { useSettingsStore } from './settingsStore'
 import { createIPCStorage } from './ipcStorage'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import newTabFavicon from '@/assets/icons/Interface/Dott.svg'
+import { getActiveAccount, useAccountStore, DEFAULT_SPACE_ID } from './accountStore'
 
 export interface Tab {
   id: string
@@ -27,6 +28,8 @@ export interface Tab {
   lastActiveAt: number
   pinned: boolean
   isPrivate: boolean
+  accountId: string
+  spaceId: string
   sleepReason?: 'manual' | 'memory' | 'cleanup'
 }
 
@@ -105,6 +108,7 @@ function getDefaultFavicon(url: string): string {
 function createTab(url: string, isPrivate = false): Tab {
   const now = Date.now()
   const title = url === 'browser://uikit' ? 'UI Kit' : 'New Tab'
+  const account = getActiveAccount()
   return {
     id: crypto.randomUUID(),
     url,
@@ -123,7 +127,9 @@ function createTab(url: string, isPrivate = false): Tab {
     createdAt: now,
     lastActiveAt: now,
     pinned: false,
-    isPrivate
+    isPrivate,
+    accountId: account.id,
+    spaceId: account.activeSpaceId || DEFAULT_SPACE_ID,
   }
 }
 
@@ -166,6 +172,7 @@ export const useTabStore = create<TabStore>()(
             undefined,
             'addTab'
           )
+          useAccountStore.getState().assignTabToActiveSpace(tab.id)
           return tab.id
         },
 
@@ -186,6 +193,7 @@ export const useTabStore = create<TabStore>()(
             undefined,
             'addPrivateTab'
           )
+          useAccountStore.getState().assignTabToActiveSpace(tab.id)
           return tab.id
         },
 
@@ -257,6 +265,7 @@ export const useTabStore = create<TabStore>()(
             undefined,
             'duplicateTab'
           )
+          useAccountStore.getState().assignTabToActiveSpace(tab.id)
         },
 
         removeTab: (id) => {
@@ -361,6 +370,7 @@ export const useTabStore = create<TabStore>()(
             undefined,
             'removeTab'
           )
+          useAccountStore.getState().removeTabRefs(id)
 
           if (newOrder.length === 0) {
             get().addTab()
@@ -403,6 +413,7 @@ export const useTabStore = create<TabStore>()(
               'setActiveTab'
             )
           }
+          useAccountStore.getState().setActiveTabForCurrentSpace(id)
         },
 
         updateTab: (id, patch) => {
@@ -648,6 +659,8 @@ export const useTabStore = create<TabStore>()(
                   lastActiveAt: tab.lastActiveAt ?? Date.now(),
                   pinned: tab.pinned ?? false,
                   isPrivate: false,
+                  accountId: tab.accountId ?? 'default',
+                  spaceId: tab.spaceId ?? 'general',
                   sleepReason: tab.sleepReason
                 }
               ])
@@ -664,6 +677,8 @@ export const useTabStore = create<TabStore>()(
             tab.lastActiveAt = tab.lastActiveAt ?? tab.createdAt
             tab.pinned = tab.pinned ?? false
             tab.isPrivate = false
+            tab.accountId = tab.accountId ?? 'default'
+            tab.spaceId = tab.spaceId ?? 'general'
             tab.isMuted = false // isMuted is session-only, always reset on restore
             if (tab.url === 'browser://newtab') tab.favicon = newTabFavicon
           }

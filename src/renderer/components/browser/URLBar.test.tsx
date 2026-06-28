@@ -31,17 +31,26 @@ vi.mock('@/store/uiStore', () => ({
   })
 }))
 
-vi.mock('@/store/spaceStore', () => {
+vi.mock('@/store/accountStore', () => {
   const state = {
-    spaces: {},
-    spaceOrder: [],
-    activeSpaceId: 'default',
+    activeAccountId: 'default',
+    accountOrder: ['default'],
+    accounts: {
+      default: {
+        id: 'default',
+        name: 'Personal',
+        partitionId: 'persist:default',
+        activeSpaceId: 'general',
+        spaceOrder: ['general'],
+        spaces: { general: { id: 'general', name: 'General', tabIds: ['tab-1'], activeTabId: 'tab-1' } }
+      }
+    },
+    switchAccount: vi.fn(),
     switchSpace: vi.fn()
   }
   return {
-    useSpaceStore: Object.assign(vi.fn((selector) => selector(state)), {
-      getState: () => state
-    })
+    useAccountStore: Object.assign(vi.fn((selector) => selector(state)), { getState: () => state }),
+    getPartitionForAccount: () => 'persist:default'
   }
 })
 
@@ -160,6 +169,6 @@ describe('URLBar', () => {
     const siteInfoBtn = screen.getByLabelText('Site information')
     await user.click(siteInfoBtn)
     
-    expect(await screen.findByText('Secure connection')).toBeInTheDocument()
+    expect(await screen.findByText(/Secure connection/)).toBeInTheDocument()
   })
 })

@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { showToast } from '@/components/ui/toastStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { getPartitionForAccount, useAccountStore } from '@/store/accountStore'
 import { getPopoverMotion } from '@/utils/popoverPosition'
 import {
   getOriginFromUrl,
@@ -49,6 +50,8 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
   const resetOrigin = useSitePermissionsStore((s) => s.resetOrigin)
 
   const disableAnimations = useSettingsStore((s) => s.disableAnimations)
+  const activeAccount = useAccountStore((s) => s.accounts[s.activeAccountId])
+  const partitionId = getPartitionForAccount(activeAccount?.id)
 
   useEffect(() => {
     if (!isOpen || !origin) {
@@ -57,33 +60,33 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
     }
 
     let cancelled = false
-    window.electronAPI.getSiteInfo(url).then((info) => {
+    window.electronAPI.getSiteInfo(url, partitionId).then((info) => {
       if (!cancelled) setSiteInfo(info)
     })
 
     return () => {
       cancelled = true
     }
-  }, [isOpen, origin, url])
+  }, [isOpen, origin, partitionId, url])
 
   const handleClearSiteData = useCallback(async () => {
     if (!origin) return
-    const ok = await window.electronAPI.clearSiteData(origin)
+    const ok = await window.electronAPI.clearSiteData(origin, partitionId)
     showToast({ message: ok ? 'Site data cleared' : 'Could not clear site data', type: ok ? 'success' : 'error' })
 
     if (ok) {
-      const info = await window.electronAPI.getSiteInfo(url)
+      const info = await window.electronAPI.getSiteInfo(url, partitionId)
       setSiteInfo(info)
     }
-  }, [origin, url])
+  }, [origin, partitionId, url])
 
   const handleForgetSite = useCallback(async () => {
     if (!origin) return
-    const ok = await window.electronAPI.forgetSite(origin)
+    const ok = await window.electronAPI.forgetSite(origin, partitionId)
     if (ok) resetOrigin(origin)
     showToast({ message: ok ? 'Site data removed' : 'Site data could not be removed', type: ok ? 'success' : 'error' })
     onClose()
-  }, [origin, resetOrigin, onClose])
+  }, [origin, partitionId, resetOrigin, onClose])
 
   const handleResetPermissions = useCallback(() => {
     if (!origin) return
@@ -193,7 +196,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                     {hostname || 'Unknown site'}
                   </Text>
                   <Text size="caption" tone="muted" className="mt-0.5">
-                    {isSecure ? 'Secure connection' : 'Connection is not secure'}
+                    {activeAccount ? `${activeAccount.name} account - ${isSecure ? 'Secure connection' : 'Not secure'}` : isSecure ? 'Secure connection' : 'Connection is not secure'}
                   </Text>
                 </div>
               </div>

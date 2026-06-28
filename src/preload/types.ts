@@ -61,7 +61,8 @@ export interface ElectronAPI {
   captureTab(webContentsId: number): Promise<string | null>
   /** Force-close a tracked app webview guest after its tab is closed */
   destroyWebview(webContentsId: number): Promise<boolean>
-  getSiteInfo(url: string): Promise<{
+  ensureAccountPartition(partitionId: string): Promise<boolean>
+  getSiteInfo(url: string, partitionId?: string): Promise<{
     origin: string
     hostname: string
     isSecure: boolean
@@ -69,14 +70,32 @@ export interface ElectronAPI {
     cacheSize: number
     adblockerEnabled: boolean
   } | null>
-  clearSiteData(origin: string): Promise<boolean>
-  forgetSite(origin: string): Promise<boolean>
+  clearSiteData(origin: string, partitionId?: string): Promise<boolean>
+  forgetSite(origin: string, partitionId?: string): Promise<boolean>
   onPermissionRequest(callback: (request: { id: string; origin: string; permission: string; requestingUrl: string }) => void): () => void
   respondToPermissionRequest(id: string, decision: 'allow' | 'deny'): void
   exportBookmarksHtml(html: string): Promise<boolean>
   importBookmarksHtml(): Promise<string | null>
   exportProfileBackup(data: string): Promise<boolean>
   importProfileBackup(): Promise<string | null>
+  listExtensions(): Promise<Array<{
+    id: string
+    name: string
+    version: string
+    path: string
+    enabled: boolean
+    permissions: string[]
+  }>>
+  loadExtension(): Promise<{
+    id: string
+    name: string
+    version: string
+    path: string
+    enabled: boolean
+    permissions: string[]
+  } | null>
+  removeExtension(id: string): Promise<boolean>
+  setExtensionEnabled(id: string, enabled: boolean): Promise<boolean>
   // ── AI / Ollama ──────────────────────────────────────────────────────────
   /** Check whether Ollama is installed, running, and the model is available */
   checkAIStatus(): Promise<{ installed: boolean; running: boolean; modelReady: boolean }>

@@ -32,6 +32,7 @@ interface ProfileBackup {
     showNewTabContinueSection: boolean
     showNewTabFrequentSection: boolean
     enableAdblocker: boolean
+    reduceCookieBanners: boolean
     disableAnimations: boolean
     uiLayout?: 'floating' | 'classic'
   }
@@ -42,6 +43,8 @@ function PrivacyPaneInner(): React.JSX.Element {
   const setClearOnExit = useSettingsStore((s) => s.setClearOnExit);
   const enableAdblocker = useSettingsStore((s) => s.enableAdblocker);
   const setEnableAdblocker = useSettingsStore((s) => s.setEnableAdblocker);
+  const reduceCookieBanners = useSettingsStore((s) => s.reduceCookieBanners);
+  const setReduceCookieBanners = useSettingsStore((s) => s.setReduceCookieBanners);
   const privacyProfile = useSettingsStore((s) => s.privacyProfile);
   const setPrivacyProfile = useSettingsStore((s) => s.setPrivacyProfile);
   const entries = useSitePermissionsStore((s) => s.entries);
@@ -70,6 +73,7 @@ function PrivacyPaneInner(): React.JSX.Element {
         showNewTabContinueSection: s.showNewTabContinueSection,
         showNewTabFrequentSection: s.showNewTabFrequentSection,
         enableAdblocker: s.enableAdblocker,
+        reduceCookieBanners: s.reduceCookieBanners,
         disableAnimations: s.disableAnimations,
         uiLayout: s.uiLayout,
       },
@@ -112,6 +116,7 @@ function PrivacyPaneInner(): React.JSX.Element {
         if (typeof st.showNewTabContinueSection === 'boolean') s.setShowNewTabContinueSection(st.showNewTabContinueSection)
         if (typeof st.showNewTabFrequentSection === 'boolean') s.setShowNewTabFrequentSection(st.showNewTabFrequentSection)
         if (typeof st.enableAdblocker === 'boolean') s.setEnableAdblocker(st.enableAdblocker)
+        if (typeof st.reduceCookieBanners === 'boolean') s.setReduceCookieBanners(st.reduceCookieBanners)
         if (typeof st.disableAnimations === 'boolean') s.setDisableAnimations(st.disableAnimations)
         if (st.uiLayout === 'floating' || st.uiLayout === 'classic') s.setUiLayout(st.uiLayout)
       }
@@ -241,6 +246,16 @@ function PrivacyPaneInner(): React.JSX.Element {
               checked={enableAdblocker}
               onChange={setEnableAdblocker}
               label="Enable Adblocker"
+            />
+          </SettingRow>
+          <SettingRow
+            label="Reduce cookie banners"
+            desc="Use built-in blocking rules to reduce common cookie prompts."
+          >
+            <Toggle
+              checked={reduceCookieBanners}
+              onChange={setReduceCookieBanners}
+              label="Reduce cookie banners"
             />
           </SettingRow>
         </SettingGroup>

@@ -84,8 +84,38 @@ function askRendererForPermission(
 const CHROME_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
+let responseHandlerRegistered = false
+
+export function configureBrowserSession(ses: Electron.Session): void {
+  ses.setUserAgent(CHROME_UA)
+  ses.setSpellCheckerEnabled(false)
+
+  ses.setPermissionRequestHandler(
+    (webContents, permission, callback, details) => {
+      const requestingUrl = details?.requestingUrl ?? webContents.getURL()
+      if (!shouldAllowPermission(permission, requestingUrl)) {
+        callback(false)
+        return
+      }
+      if (permission === 'fullscreen') {
+        callback(true)
+        return
+      }
+      askRendererForPermission(permission, requestingUrl, callback)
+    },
+  )
+
+  ses.setPermissionCheckHandler(
+    (webContents, permission, requestingOrigin, details) => {
+      const requestingUrl =
+        details?.requestingUrl ?? requestingOrigin ?? webContents?.getURL()
+      return shouldAllowPermission(permission, requestingUrl)
+    },
+  )
+}
+
 export function setupPermissions(): void {
-  ipcMain.on('permission-response', (event, id: unknown, decision: unknown) => {
+  if (!responseHandlerRegistered) ipcMain.on('permission-response', (event, id: unknown, decision: unknown) => {
     const win = getMainWindow()
     if (!win || event.sender.id !== win.webContents.id) return
     if (typeof id !== 'string') return
@@ -94,38 +124,11 @@ export function setupPermissions(): void {
     pendingPermissionRequests.delete(id)
     resolver(decision === 'allow')
   })
+  responseHandlerRegistered = true
 
-  const configureSes = (ses: Electron.Session): void => {
-    ses.setUserAgent(CHROME_UA)
-    ses.setSpellCheckerEnabled(false)
-
-    ses.setPermissionRequestHandler(
-      (webContents, permission, callback, details) => {
-        const requestingUrl = details?.requestingUrl ?? webContents.getURL()
-        if (!shouldAllowPermission(permission, requestingUrl)) {
-          callback(false)
-          return
-        }
-        if (permission === 'fullscreen') {
-          callback(true)
-          return
-        }
-        askRendererForPermission(permission, requestingUrl, callback)
-      },
-    )
-
-    ses.setPermissionCheckHandler(
-      (webContents, permission, requestingOrigin, details) => {
-        const requestingUrl =
-          details?.requestingUrl ?? requestingOrigin ?? webContents?.getURL()
-        return shouldAllowPermission(permission, requestingUrl)
-      },
-    )
-  }
-
-  configureSes(session.defaultSession)
-  configureSes(session.fromPartition('persist:default'))
-  configureSes(session.fromPartition('private'))
+  configureBrowserSession(session.defaultSession)
+  configureBrowserSession(session.fromPartition('persist:default'))
+  configureBrowserSession(session.fromPartition('private'))
 }
 
 export function setupCSP(): void {

@@ -1,138 +1,34 @@
-// ─── Space Switcher ──────────────────────────────────────────────────────────
-// Floating bar pill + popup for switching, creating, editing and deleting Spaces.
-// Sits between the AppMenu and the first divider in the floating controls bar.
-
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { m, AnimatePresence } from 'motion/react'
+import { AnimatePresence, m } from 'motion/react'
 import { useShallow } from 'zustand/react/shallow'
 import { Button } from '@/components/ui/Button'
+import { Text } from '@/components/ui/Text'
 import { TextInput } from '@/components/ui/Input'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import plusSvg from '@/assets/icons/Maths/Plus.svg?raw'
 import boxSvg from '@/assets/icons/Interface/Menu_Points_3.svg?raw'
-import pencilSvg from '@/assets/icons/Objects/Pencil.svg?raw'
-import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
+import personSvg from '@/assets/icons/Human/Person_User.svg?raw'
 import rightSmallSvg from '@/assets/icons/Arrows/Right_Small.svg?raw'
-import { useSpaceStore, SPACE_PRESET_HUES, DEFAULT_SPACE_ID, type Space } from '@/store/spaceStore'
+import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
+import { useAccountStore, DEFAULT_ACCOUNT_ID, DEFAULT_SPACE_ID, type AccountSpace } from '@/store/accountStore'
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
+import { SPACE_PRESET_HUES } from '@/store/spaceStore'
 import { SPRING_SNAPPY } from '@/utils/springs'
 import { clampPopoverLeft, clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition'
 
-const SPACE_POPOVER_WIDTH = 280
-const SPACE_POPOVER_ESTIMATED_HEIGHT = 360
+const POPOVER_WIDTH = 320
+const POPOVER_ESTIMATED_HEIGHT = 430
 
-
-// ─── Space Row ───────────────────────────────────────────────────────────────
-
-function SpaceRow({
-  space,
-  isActive,
-  hasMultipleSpaces,
-  onSelect,
-  onEdit,
-  onDelete,
-  onMoveTab,
-  disableAnimations,
-}: {
-  space: Space
-  isActive: boolean
-  hasMultipleSpaces: boolean
-  onSelect: () => void
-  onEdit: () => void
-  onDelete: () => void
-  onMoveTab: () => void
-  disableAnimations: boolean
-}): React.JSX.Element {
-  const isGeneral = space.id === DEFAULT_SPACE_ID
-  const hasTint = space.hue >= 0
-
-  const tintStyle = hasTint
-    ? { background: `hsla(${space.hue} 55% 55% / ${isActive ? 0.14 : 0.08})` }
-    : undefined
-
-  const accentColor = hasTint ? `hsl(${space.hue} 55% 55%)` : undefined
-
-  return (
-    <Button
-      variant="ghost"
-      size="none"
-      onClick={onSelect}
-      className={`group flex items-center justify-start gap-1 w-full pr-0.5 pl-2.5 h-10 rounded-lg text-left transition-colors duration-75 ${
-        isActive
-          ? hasTint
-            ? ''
-            : 'bg-[var(--app-control-active)] text-[var(--app-text-primary)]'
-          : hasTint
-            ? ''
-            : 'text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]'
-      }`}
-      style={tintStyle}
-    >
-      <span
-        className="flex-shrink-0"
-        style={accentColor ? { color: accentColor } : undefined}
-      >
-        <div style={{ display: 'flex' }}>
-          <SvgIcon svg={boxSvg} size={16} />
-        </div>
-      </span>
-      <span
-        className="flex-1 text-[13px] truncate"
-        style={accentColor ? { color: accentColor } : undefined}
-      >
-        {space.name}
-      </span>
-      
-
-      {/* Move active tab here — only on non-active spaces when multiple exist */}
-      {!isActive && hasMultipleSpaces && (
-        <div
-          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer text-[var(--app-text-tertiary)] hover:text-[var(--app-accent)] hover:bg-[var(--app-accent-bg)] transition-all duration-100"
-          onClick={(e) => {
-            e.stopPropagation()
-            onMoveTab()
-          }}
-          title="Move current tab here"
-        >
-          <SvgIcon svg={rightSmallSvg} size={14} />
-        </div>
-      )}
-
-      {/* Edit */}
-      <div
-        className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-all duration-100"
-        onClick={(e) => {
-          e.stopPropagation()
-          onEdit()
-        }}
-      >
-        <SvgIcon svg={pencilSvg} size={14} />
-      </div>
-
-      {/* Delete (not General) */}
-      {!isGeneral && (
-        <div
-          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer text-[var(--app-text-tertiary)] hover:bg-[var(--app-danger-bg)] hover:text-[var(--app-danger)] transition-all duration-100"
-          onClick={(e) => {
-            e.stopPropagation()
-            onDelete()
-          }}
-        >
-          <SvgIcon svg={trashSvg} size={14} />
-        </div>
-      )}
-    </Button>
-  )
-}
-
-// ─── New Space Form ──────────────────────────────────────────────────────────
-
-function NewSpaceForm({
+function NameForm({
+  placeholder,
+  submitLabel,
   onSubmit,
   onCancel,
 }: {
+  placeholder: string
+  submitLabel: string
   onSubmit: (name: string, hue: number) => void
   onCancel: () => void
 }): React.JSX.Element {
@@ -144,77 +40,47 @@ function NewSpaceForm({
     inputRef.current?.focus()
   }, [])
 
-  const handleSubmit = (): void => {
+  const submit = (): void => {
     const trimmed = name.trim()
     if (trimmed) onSubmit(trimmed, selectedHue)
   }
 
   return (
-    <div className="p-2.5 space-y-3">
+    <div className="space-y-3 p-2.5">
       <TextInput
         ref={inputRef}
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') handleSubmit()
+          if (e.key === 'Enter') submit()
           if (e.key === 'Escape') onCancel()
         }}
-        placeholder="Space name…"
+        placeholder={placeholder}
         inputSize="sm"
       />
-
-      {/* Color picker */}
-      <div className="flex items-center gap-1.5 px-0.5">
-        <Button
-          variant="ghost"
-          size="none"
-          rounded="rounded-full"
-          onClick={() => setSelectedHue(-1)}
-          className={`w-6 h-6 rounded-full bg-[var(--app-control-active)] flex items-center justify-center transition-all duration-100 ${
-            selectedHue === -1
-              ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
-              : 'hover:scale-110'
-          }`}
-          title="No tint"
-        >
-          <svg width="10" height="10" viewBox="0 0 10 10" className="text-[var(--app-text-tertiary)]">
-            <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+      {submitLabel === 'Create space' && (
+        <div className="flex items-center gap-1.5 px-0.5">
+          {SPACE_PRESET_HUES.map((preset) => (
+            <Button
+              key={preset.hue}
+              variant="ghost"
+              size="none"
+              rounded="rounded-full"
+              onClick={() => setSelectedHue(preset.hue)}
+              aria-label={preset.label}
+              className={`h-6 w-6 rounded-full transition-all duration-100 ${selectedHue === preset.hue ? 'scale-110 ring-2 ring-[var(--app-accent)] ring-offset-1 ring-offset-[var(--app-bg-primary)]' : 'hover:scale-110'}`}
+              style={preset.hue >= 0 ? { background: `hsl(${preset.hue} 55% 55%)` } : undefined}
+            >
+              {preset.hue < 0 && <span className="h-3 w-3 rounded-full bg-[var(--app-control-active)]" />}
+            </Button>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-1.5">
+        <Button variant="primary" size="sm" onClick={submit} disabled={!name.trim()} className="flex-1">
+          {submitLabel}
         </Button>
-        {SPACE_PRESET_HUES.filter((p) => p.hue >= 0).map((preset) => (
-          <Button
-            variant="ghost"
-            size="none"
-            rounded="rounded-full"
-            key={preset.hue}
-            onClick={() => setSelectedHue(preset.hue)}
-            className={`w-6 h-6 rounded-full transition-all duration-100 ${
-              selectedHue === preset.hue
-                ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
-                : 'hover:scale-110'
-            }`}
-            style={{ background: `hsl(${preset.hue} 55% 55%)` }}
-            title={preset.label}
-          />
-        ))}
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-1.5 pt-0.5">
-        <Button
-          variant="subtle"
-          size="sm"
-          onClick={handleSubmit}
-          disabled={!name.trim()}
-          className="flex-1"
-        >
-          Create
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onCancel}
-        >
+        <Button variant="ghost" size="sm" onClick={onCancel}>
           Cancel
         </Button>
       </div>
@@ -222,107 +88,85 @@ function NewSpaceForm({
   )
 }
 
-// ─── Edit Space Form ─────────────────────────────────────────────────────────
-
-function EditSpaceForm({
+function SpaceRow({
   space,
-  onDone,
+  isActive,
+  onSelect,
+  onMoveTab,
+  onDelete,
 }: {
-  space: Space
-  onDone: () => void
+  space: AccountSpace
+  isActive: boolean
+  onSelect: () => void
+  onMoveTab: () => void
+  onDelete: () => void
 }): React.JSX.Element {
-  const [name, setName] = useState(space.name)
-  const [selectedHue, setSelectedHue] = useState(space.hue)
-  const renameSpace = useSpaceStore((s) => s.renameSpace)
-  const setSpaceHue = useSpaceStore((s) => s.setSpaceHue)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    inputRef.current?.focus()
-    inputRef.current?.select()
-  }, [])
-
-  const handleSave = (): void => {
-    const trimmed = name.trim()
-    if (trimmed && trimmed !== space.name) renameSpace(space.id, trimmed)
-    if (selectedHue !== space.hue) setSpaceHue(space.id, selectedHue)
-    onDone()
-  }
-
+  const hasTint = space.hue >= 0
+  const tintStyle = hasTint ? { color: `hsl(${space.hue} 55% 55%)` } : undefined
   return (
-    <div className="p-2.5 space-y-2.5">
-      <TextInput
-        ref={inputRef}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') handleSave()
-          if (e.key === 'Escape') onDone()
-        }}
-        inputSize="sm"
-      />
-
-      {/* Color picker — include "None" option */}
-      <div className="flex items-center gap-1.5 px-0.5">
+    <Button
+      variant="ghost"
+      size="none"
+      onClick={onSelect}
+      active={isActive}
+      className="group h-10 w-full justify-start gap-2 rounded-lg px-2.5 text-left"
+    >
+      <span style={tintStyle} className="flex">
+        <SvgIcon svg={boxSvg} size={15} />
+      </span>
+      <Text as="span" size="caption" tone="primary" className="min-w-0 flex-1 truncate font-medium">
+        {space.name}
+      </Text>
+      <Text as="span" size="caption" tone="muted" className="tabular-nums">
+        {space.tabIds.length}
+      </Text>
+      {!isActive && (
         <Button
           variant="ghost"
           size="none"
-          rounded="rounded-full"
-          onClick={() => setSelectedHue(-1)}
-          className={`w-5 h-5 rounded-full bg-[var(--app-control-active)] flex items-center justify-center transition-all duration-100 ${
-            selectedHue === -1
-              ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
-              : 'hover:scale-110'
-          }`}
-          title="None"
+          onClick={(e) => {
+            e.stopPropagation()
+            onMoveTab()
+          }}
+          aria-label={`Move current tab to ${space.name}`}
+          className="h-8 w-8 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
         >
-          <svg width="10" height="10" viewBox="0 0 10 10" className="text-[var(--app-text-tertiary)]">
-            <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+          <SvgIcon svg={rightSmallSvg} size={14} />
         </Button>
-        {SPACE_PRESET_HUES.filter((p) => p.hue >= 0).map((preset) => (
-          <Button
-            variant="ghost"
-            size="none"
-            rounded="rounded-full"
-            key={preset.hue}
-            onClick={() => setSelectedHue(preset.hue)}
-            className={`w-5 h-5 rounded-full transition-all duration-100 ${
-              selectedHue === preset.hue
-                ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
-                : 'hover:scale-110'
-            }`}
-            style={{ background: `hsl(${preset.hue} 55% 55%)` }}
-            title={preset.label}
-          />
-        ))}
-      </div>
-
-      <Button
-        variant="primary"
-        size="sm"
-        onClick={handleSave}
-        className="w-full"
-      >
-        Save
-      </Button>
-    </div>
+      )}
+      {space.id !== DEFAULT_SPACE_ID && (
+        <Button
+          variant="ghost"
+          size="none"
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete()
+          }}
+          aria-label={`Delete ${space.name}`}
+          className="h-8 w-8 text-[var(--app-text-tertiary)] opacity-0 hover:text-[var(--app-danger)] group-hover:opacity-100 group-focus-within:opacity-100"
+        >
+          <SvgIcon svg={trashSvg} size={13} />
+        </Button>
+      )}
+    </Button>
   )
 }
 
-// ─── SpaceSwitcher (main exported component) ─────────────────────────────────
-
 function SpaceSwitcherInner(): React.JSX.Element {
-  const [isCreating, setIsCreating] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-
-  const spaces = useSpaceStore(useShallow((s) => s.spaces))
-  const spaceOrder = useSpaceStore(useShallow((s) => s.spaceOrder))
-  const activeSpaceId = useSpaceStore((s) => s.activeSpaceId)
-  const addSpace = useSpaceStore((s) => s.addSpace)
-  const removeSpace = useSpaceStore((s) => s.removeSpace)
-  const switchSpace = useSpaceStore((s) => s.switchSpace)
-  const moveTabToSpace = useSpaceStore((s) => s.moveTabToSpace)
+  const [mode, setMode] = useState<'list' | 'new-account' | 'new-space'>('list')
+  const { accounts, accountOrder, activeAccountId } = useAccountStore(useShallow((s) => ({
+    accounts: s.accounts,
+    accountOrder: s.accountOrder,
+    activeAccountId: s.activeAccountId,
+  })))
+  const addAccount = useAccountStore((s) => s.addAccount)
+  const addSpace = useAccountStore((s) => s.addSpace)
+  const switchAccount = useAccountStore((s) => s.switchAccount)
+  const switchSpace = useAccountStore((s) => s.switchSpace)
+  const removeSpace = useAccountStore((s) => s.removeSpace)
+  const moveTabToSpace = useAccountStore((s) => s.moveTabToSpace)
+  const activeAccount = accounts[activeAccountId]
+  const activeSpace = activeAccount?.spaces[activeAccount.activeSpaceId]
 
   const { isOpen, setOpen } = useUIStore(useShallow((s) => ({
     isOpen: s.isSpaceSwitcherOpen,
@@ -332,9 +176,8 @@ function SpaceSwitcherInner(): React.JSX.Element {
     disableAnimations: s.disableAnimations,
     uiLayout: s.uiLayout,
   })))
-const popoverBelow = uiLayout === 'classic'
+  const popoverBelow = uiLayout === 'classic'
   const { enterY, exitY } = getPopoverMotion(popoverBelow)
-  const popoverSurface = 'bg-[var(--app-bg-secondary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]'
   const triggerRef = useRef<HTMLDivElement>(null)
   const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null)
 
@@ -344,209 +187,172 @@ const popoverBelow = uiLayout === 'classic'
       return
     }
     const rect = triggerRef.current.getBoundingClientRect()
-    if (!popoverBelow) {
-      // Bottom toolbar layout: anchor above trigger
-      const left = clampPopoverLeft(rect, SPACE_POPOVER_WIDTH)
-      const top = clampPopoverTop(rect, SPACE_POPOVER_ESTIMATED_HEIGHT, popoverBelow)
-      setPopoverPos({ left, top })
-    } else {
-      // Classic (top toolbar) layout: pin to top-left corner
-      setPopoverPos({ left: 2, top: 42 })
-    }
+    setPopoverPos({
+      left: popoverBelow ? 2 : clampPopoverLeft(rect, POPOVER_WIDTH),
+      top: popoverBelow ? 42 : clampPopoverTop(rect, POPOVER_ESTIMATED_HEIGHT, popoverBelow),
+    })
   }, [isOpen, popoverBelow])
 
-  const activeSpace = spaces[activeSpaceId]
-  const activeHue = activeSpace?.hue ?? -1
-  const hasMultipleSpaces = spaceOrder.length > 1
-
-  // Reset transient form state whenever the switcher closes (including external closes)
   useEffect(() => {
-    if (!isOpen) {
-      setIsCreating(false)
-      setEditingId(null)
-    }
+    if (!isOpen) setMode('list')
   }, [isOpen])
 
-  const handleToggle = useCallback(() => {
-    setOpen(!isOpen)
-    setIsCreating(false)
-    setEditingId(null)
-  }, [isOpen, setOpen])
-
-  const handleClose = useCallback(() => {
+  const close = useCallback(() => {
     setOpen(false)
-    setIsCreating(false)
-    setEditingId(null)
+    setMode('list')
   }, [setOpen])
 
-  const handleSwitch = useCallback(
-    (id: string) => {
-      switchSpace(id)
-      handleClose()
-    },
-    [switchSpace, handleClose]
-  )
+  const activateFirstTabInSpace = useCallback((accountId: string, spaceId: string) => {
+    const account = useAccountStore.getState().accounts[accountId]
+    const space = account?.spaces[spaceId]
+    const tabStore = useTabStore.getState()
+    const target = space?.activeTabId || space?.tabIds.find((id) => tabStore.tabs[id])
+    if (target && tabStore.tabs[target]) tabStore.setActiveTab(target)
+    else tabStore.addTab()
+  }, [])
 
-  const handleCreate = useCallback(
-    (name: string, hue: number) => {
-      const id = addSpace(name, hue)
-      switchSpace(id)
-      handleClose()
-    },
-    [addSpace, switchSpace, handleClose]
-  )
+  const selectAccount = useCallback((accountId: string) => {
+    const account = accounts[accountId]
+    if (!account) return
+    switchAccount(accountId)
+    activateFirstTabInSpace(accountId, account.activeSpaceId)
+  }, [accounts, activateFirstTabInSpace, switchAccount])
 
-  const handleDelete = useCallback(
-    (id: string) => {
-      removeSpace(id)
-    },
-    [removeSpace]
-  )
+  const selectSpace = useCallback((spaceId: string) => {
+    if (!activeAccount) return
+    switchSpace(spaceId)
+    activateFirstTabInSpace(activeAccount.id, spaceId)
+    close()
+  }, [activeAccount, activateFirstTabInSpace, close, switchSpace])
 
-  const handleMoveTab = useCallback(
-    (targetSpaceId: string) => {
-      const activeTabId = useTabStore.getState().activeTabId
-      if (activeTabId) {
-        moveTabToSpace(activeTabId, targetSpaceId)
-      }
-    },
-    [moveTabToSpace]
-  )
+  const moveActiveTab = useCallback((spaceId: string) => {
+    const tabId = useTabStore.getState().activeTabId
+    if (!tabId || !activeAccount) return
+    moveTabToSpace(tabId, spaceId)
+    useTabStore.getState().updateTab(tabId, { accountId: activeAccount.id, spaceId })
+  }, [activeAccount, moveTabToSpace])
+
+  const activeHue = activeSpace?.hue ?? -1
 
   return (
-  <div className={`relative ${popoverBelow ? '' : 'h-full'}`} ref={triggerRef}>
-    <Button
-      variant="ghost"
-      size="none"
-      onClick={handleToggle}
-      aria-label={activeSpace ? `Switch space (${activeSpace.name})` : 'Switch space'}
-      whileTap={disableAnimations ? undefined : { scale: 0.88 }}
-      whileHover={
-        disableAnimations
-          ? undefined
-          : activeHue >= 0
-          ? { filter: 'brightness(1.2)' }
-          : undefined
-      }
-      transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
-      style={
-        activeHue >= 0
-          ? { background: `hsla(${activeHue} 55% 55% / 0.08)` }
-          : undefined
-      }
-      className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} flex items-center justify-center leading-none rounded-lg text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-colors duration-100 select-none`}
-    >
-      <span
-        className="flex items-center justify-center"
-        style={activeHue >= 0 ? { color: `hsl(${activeHue} 55% 55%)` } : undefined}
+    <div className={`relative ${popoverBelow ? '' : 'h-full'}`} ref={triggerRef}>
+      <Button
+        variant="ghost"
+        size="none"
+        onClick={() => setOpen(!isOpen)}
+        aria-label={activeAccount && activeSpace ? `Switch account or space (${activeAccount.name}, ${activeSpace.name})` : 'Switch account or space'}
+        whileTap={disableAnimations ? undefined : { scale: 0.88 }}
+        transition={disableAnimations ? { duration: 0 } : SPRING_SNAPPY}
+        className={`${popoverBelow ? 'h-9 w-9' : 'h-full aspect-square'} flex items-center justify-center rounded-lg text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]`}
+        style={activeHue >= 0 ? { background: `hsla(${activeHue} 55% 55% / 0.08)`, color: `hsl(${activeHue} 55% 55%)` } : undefined}
       >
-        <div style={{ display: 'flex' }}>
-          <SvgIcon svg={boxSvg} size={16} />
-        </div>
-      </span>
-    </Button>
+        <SvgIcon svg={personSvg} size={16} />
+      </Button>
 
-      {/* Popup */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Click-away */}
-            <div className="fixed inset-0 z-[99]" onMouseDown={handleClose} />
-
+            <div className="fixed inset-0 z-[99]" onMouseDown={close} />
             <m.div
-className={`${
-  popoverBelow
-    ? 'fixed mt-10'
-    : 'absolute left-1/2 bottom-full mb-2 -translate-x-1/2'
-} z-[100] min-w-[220px] max-w-[280px]`}              style={
-                popoverBelow
-                  ? {
-                      left: popoverPos?.left,
-                      top: popoverPos?.top,
-                      originX: 0.5,
-                      originY: 0,
-                    }
-                  : {
-                      originX: 0.5,
-                      originY: 1,
-                    }
-              }
+              className={`${popoverBelow ? 'fixed' : 'absolute bottom-full mb-2'} z-[100] w-[320px]`}
+              style={popoverBelow ? { left: popoverPos?.left, top: popoverPos?.top, originX: 0, originY: 0 } : { left: '50%', x: '-50%', originX: 0.5, originY: 1 }}
               initial={disableAnimations ? undefined : { scale: 0.98, opacity: 0, y: enterY }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={disableAnimations ? undefined : { scale: 0.98, opacity: 0, y: exitY }}
               transition={disableAnimations ? { duration: 0 } : { duration: 0.12, ease: 'easeOut' }}
+              onMouseDown={(e) => e.stopPropagation()}
             >
-              <div className={`rounded-xl shadow-sm overflow-hidden min-w-[280px] ${popoverSurface}`}>
+              <div className="overflow-hidden rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-secondary)] text-[var(--app-text-primary)] shadow-sm">
                 <AnimatePresence mode="wait" initial={false}>
-                  {editingId && spaces[editingId] ? (
-                            <m.div
-                      key={`edit-${editingId}`}
-                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
-                      transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-                    >
-                      <EditSpaceForm
-                        space={spaces[editingId]!}
-                        onDone={handleClose}
+                  {mode === 'new-account' ? (
+                    <m.div key="new-account">
+                      <NameForm
+                        placeholder="Account name"
+                        submitLabel="Create account"
+                        onSubmit={(name) => {
+                          const id = addAccount(name)
+                          selectAccount(id)
+                          setMode('list')
+                        }}
+                        onCancel={() => setMode('list')}
                       />
                     </m.div>
-                  ) : isCreating ? (
-                    <m.div
-                      key="create"
-                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
-                      transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-                    >
-                      <NewSpaceForm
-                        onSubmit={handleCreate}
-                        onCancel={handleClose}
+                  ) : mode === 'new-space' ? (
+                    <m.div key="new-space">
+                      <NameForm
+                        placeholder="Space name"
+                        submitLabel="Create space"
+                        onSubmit={(name, hue) => {
+                          const id = addSpace(name, hue)
+                          selectSpace(id)
+                        }}
+                        onCancel={() => setMode('list')}
                       />
                     </m.div>
                   ) : (
-                    <m.div
-                      key="list"
-                      initial={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={disableAnimations ? undefined : { opacity: 0, scale: 0.96 }}
-                      transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-                    >
-                    <div className="p-1 space-y-1">
-                      {spaceOrder.map((id) => {
-                        const space = spaces[id]
-                        if (!space) return null
-                        return (
-                          <SpaceRow
-                            key={id}
-                            space={space}
-                            isActive={id === activeSpaceId}
-                            hasMultipleSpaces={hasMultipleSpaces}
-                            onSelect={() => handleSwitch(id)}
-                            onEdit={() => setEditingId(id)}
-                            onDelete={() => handleDelete(id)}
-                            onMoveTab={() => handleMoveTab(id)}
-                            disableAnimations={disableAnimations}
-                          />
-                        )
-                      })}
-                    </div>
-
-                    {/* Divider */}
-                    <div className="mx-2 my-1 h-px bg-[var(--border-divider)]" />
-
-                    {/* New Space button */}
-                    <div className="p-1">
-                      <Button
-                        variant="ghost"
-                        size="md"
-                        onClick={() => setIsCreating(true)}
-                        className="h-10 w-full justify-start gap-3 rounded-xl px-2.5 text-left text-[var(--app-text-secondary)]"
-                      >
-                        <SvgIcon svg={plusSvg} size={14} />
-                        <span className="text-[13px]">New space</span>
+                    <m.div key="list" className="p-2">
+                      <Text size="caption" tone="muted" className="px-2 pb-1 font-medium tracking-wide">
+                        Accounts
+                      </Text>
+                      <div className="space-y-1">
+                        {accountOrder.map((id) => {
+                          const account = accounts[id]
+                          if (!account) return null
+                          const isActive = id === activeAccountId
+                          return (
+                            <Button
+                              key={id}
+                              variant="ghost"
+                              size="none"
+                              active={isActive}
+                              onClick={() => selectAccount(id)}
+                              className="h-10 w-full justify-start gap-2 rounded-lg px-2.5"
+                            >
+                              <SvgIcon svg={personSvg} size={15} />
+                              <Text as="span" size="caption" tone="primary" className="min-w-0 flex-1 truncate font-medium">
+                                {account.name}
+                              </Text>
+                              <Text as="span" size="caption" tone="muted">
+                                {account.spaceOrder.length} spaces
+                              </Text>
+                            </Button>
+                          )
+                        })}
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setMode('new-account')} className="mt-1 w-full justify-start gap-2">
+                        <SvgIcon svg={plusSvg} size={13} />
+                        New account
                       </Button>
-                    </div>
+
+                      <div className="my-2 h-px bg-[var(--app-separator)]" />
+                      <Text size="caption" tone="muted" className="px-2 pb-1 font-medium tracking-wide">
+                        {activeAccount?.name ?? 'Account'} spaces
+                      </Text>
+                      <div className="space-y-1">
+                        {activeAccount?.spaceOrder.map((spaceId) => {
+                          const space = activeAccount.spaces[spaceId]
+                          if (!space) return null
+                          return (
+                            <SpaceRow
+                              key={space.id}
+                              space={space}
+                              isActive={space.id === activeAccount.activeSpaceId}
+                              onSelect={() => selectSpace(space.id)}
+                              onMoveTab={() => moveActiveTab(space.id)}
+                              onDelete={() => removeSpace(space.id)}
+                            />
+                          )
+                        })}
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setMode('new-space')} className="mt-1 w-full justify-start gap-2">
+                        <SvgIcon svg={plusSvg} size={13} />
+                        New space
+                      </Button>
+                      {activeAccountId !== DEFAULT_ACCOUNT_ID && (
+                        <Text size="caption" tone="muted" className="block px-2 pt-2">
+                          This account uses its own cookies, logins, and site data.
+                        </Text>
+                      )}
                     </m.div>
                   )}
                 </AnimatePresence>

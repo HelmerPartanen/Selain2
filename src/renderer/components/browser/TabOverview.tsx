@@ -20,7 +20,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useTabStore, type Tab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
-import { useSpaceStore, type Space } from '@/store/spaceStore'
+import { useAccountStore, type AccountSpace } from '@/store/accountStore'
 import { webviewRegistry } from '@/webview/webviewRegistry'
 import { NewTabPage } from '@/newtab/NewTabPage'
 import { SPRING } from '@/utils/springs'
@@ -37,6 +37,7 @@ interface TabPreview {
   isPlayingMedia: boolean
   thumbnail: string | null
   spaceName: string
+  accountName: string
   isDuplicate: boolean
   pinned: boolean
   isSuspended: boolean
@@ -243,11 +244,15 @@ function TabOverviewInner(): React.JSX.Element {
 
     // Snapshot tab data at open time (decoupled from live `tabs` object)
     const { tabOrder, tabs } = useTabStore.getState()
-    const { spaces } = useSpaceStore.getState()
+    const { accounts } = useAccountStore.getState()
     const spaceByTabId = new Map<string, string>()
-    for (const space of Object.values(spaces)) {
-      for (const tabId of space.tabIds) {
-        spaceByTabId.set(tabId, space.name)
+    const accountByTabId = new Map<string, string>()
+    for (const account of Object.values(accounts)) {
+      for (const space of Object.values(account.spaces)) {
+        for (const tabId of space.tabIds) {
+          spaceByTabId.set(tabId, space.name)
+          accountByTabId.set(tabId, account.name)
+        }
       }
     }
     const visibleTabOrder = tabOrder.filter((id) => {
@@ -273,6 +278,7 @@ function TabOverviewInner(): React.JSX.Element {
           isPlayingMedia: tab.isPlayingMedia,
           thumbnail: tab.thumbnail,
           spaceName: spaceByTabId.get(id) ?? 'General',
+          accountName: accountByTabId.get(id) ?? 'Personal',
           isDuplicate: duplicates.has(id),
           pinned: tab.pinned,
           isSuspended: tab.isSuspended,
@@ -308,6 +314,14 @@ function TabOverviewInner(): React.JSX.Element {
 
   const handleSelect = useCallback(
     (tabId: string) => {
+      const tab = useTabStore.getState().tabs[tabId]
+      if (tab && !tab.isPrivate) {
+        const accountStore = useAccountStore.getState()
+        if (accountStore.accounts[tab.accountId]) {
+          accountStore.switchAccount(tab.accountId)
+          accountStore.switchSpace(tab.spaceId)
+        }
+      }
       useTabStore.getState().setActiveTab(tabId)
       closeOverview()
     },
@@ -358,20 +372,24 @@ function TabOverviewInner(): React.JSX.Element {
     return (
       preview.title.toLowerCase().includes(q) ||
       preview.url.toLowerCase().includes(q) ||
-      preview.spaceName.toLowerCase().includes(q)
+      preview.spaceName.toLowerCase().includes(q) ||
+      preview.accountName.toLowerCase().includes(q)
     )
   })
 
   const groupedPreviews = filteredPreviews.reduce<Record<string, TabPreview[]>>((acc, preview) => {
-    const key = preview.spaceName
+    const key = `${preview.accountName} / ${preview.spaceName}`
     acc[key] = [...(acc[key] ?? []), preview]
     return acc
   }, {})
-  const moveSpaceOptions = useSpaceStore
-    .getState()
-    .spaceOrder
-    .map((id) => useSpaceStore.getState().spaces[id])
-    .filter((space): space is Space => Boolean(space))
+  const moveSpaceOptions = (() => {
+    const accountState = useAccountStore.getState()
+    const account = accountState.accounts[accountState.activeAccountId]
+    if (!account) return []
+    return account.spaceOrder
+      .map((id) => account.spaces[id])
+      .filter((space): space is AccountSpace => Boolean(space))
+  })()
 
   const handleToggleSelected = useCallback((e: React.MouseEvent, tabId: string) => {
     e.stopPropagation()
@@ -408,9 +426,25 @@ function TabOverviewInner(): React.JSX.Element {
   }, [previews])
 
   const handleMoveSelectedToSpace = useCallback((spaceId: string) => {
-    for (const id of selectedIds) useSpaceStore.getState().moveTabToSpace(id, spaceId)
+    const account = useAccountStore.getState().accounts[useAccountStore.getState().activeAccountId]
+    for (const id of selectedIds) {
+      useAccountStore.getState().moveTabToSpace(id, spaceId)
+      if (account) useTabStore.getState().updateTab(id, { accountId: account.id, spaceId })
+    }
     setIsMoveMenuOpen(false)
     setHoveredMoveSpaceIdx(null)
+    setSelectedIds(new Set())
+    setIsSelecting(false)
+  }, [selectedIds])
+
+  const handleSaveSelectedAsSpace = useCallback(() => {
+    if (selectedIds.size === 0) return
+    const id = useAccountStore.getState().addSpace(`Saved tabs ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 210)
+    const account = useAccountStore.getState().accounts[useAccountStore.getState().activeAccountId]
+    for (const tabId of selectedIds) {
+      useAccountStore.getState().moveTabToSpace(tabId, id)
+      if (account) useTabStore.getState().updateTab(tabId, { accountId: account.id, spaceId: id })
+    }
     setSelectedIds(new Set())
     setIsSelecting(false)
   }, [selectedIds])
@@ -612,6 +646,16 @@ function TabOverviewInner(): React.JSX.Element {
                         )}
                       </AnimatePresence>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="none"
+                      onClick={handleSaveSelectedAsSpace}
+                      className="h-full px-3 rounded-lg flex items-center gap-2 text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-[background-color,color] duration-150 select-none"
+                      title="Save selected tabs as a new space"
+                    >
+                      <SvgIcon svg={folderSvg} size={14} />
+                      <span className="text-[12px]">Save as space</span>
+                    </Button>
                   </>
                 )}
                 {previews.some((preview) => preview.isDuplicate) && (

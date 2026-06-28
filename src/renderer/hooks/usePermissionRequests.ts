@@ -28,7 +28,41 @@ export function usePermissionRequests(): void {
       const label = SITE_PERMISSION_LABELS[request.permission] ?? request.permission
       showToast({
         type: 'info',
-        message: `${request.origin} wants ${label.toLowerCase()}`,
+        message: `${request.origin} wants to use ${label.toLowerCase()}.`,
+        actions: [
+          {
+            label: 'Allow',
+            variant: 'primary',
+            onClick: () => {
+              if (settled) return
+              settled = true
+              window.clearTimeout(denyTimer)
+              store.setDecision(request.origin, permission, 'allow')
+              window.electronAPI.respondToPermissionRequest(request.id, 'allow')
+            },
+          },
+          {
+            label: 'Block',
+            variant: 'danger',
+            onClick: () => {
+              if (settled) return
+              settled = true
+              window.clearTimeout(denyTimer)
+              store.setDecision(request.origin, permission, 'deny')
+              window.electronAPI.respondToPermissionRequest(request.id, 'deny')
+            },
+          },
+          {
+            label: 'Not now',
+            variant: 'subtle',
+            onClick: () => {
+              if (settled) return
+              settled = true
+              window.clearTimeout(denyTimer)
+              window.electronAPI.respondToPermissionRequest(request.id, 'deny')
+            },
+          },
+        ],
         action: {
           label: 'Allow',
           onClick: () => {

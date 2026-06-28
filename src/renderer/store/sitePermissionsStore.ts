@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createIPCStorage } from './ipcStorage'
 import { logger } from '@/utils/logger'
+import { useAccountStore } from './accountStore'
 
 export type SitePermissionDecision = 'allow' | 'deny' | 'ask'
 
@@ -16,6 +17,7 @@ export type SitePermission =
 
 export interface SitePermissionEntry {
   origin: string
+  accountId: string
   permission: SitePermission
   decision: SitePermissionDecision
   updatedAt: number
@@ -32,7 +34,8 @@ interface SitePermissionsState {
 }
 
 function keyFor(origin: string, permission: SitePermission): string {
-  return `${origin}::${permission}`
+  const accountId = useAccountStore.getState().activeAccountId
+  return `${accountId}::${origin}::${permission}`
 }
 
 export function getOriginFromUrl(url: string): string | null {
@@ -70,7 +73,7 @@ export const useSitePermissionsStore = create<SitePermissionsState>()(
           return {
             entries: {
               ...state.entries,
-              [key]: { origin, permission, decision, updatedAt: Date.now() },
+              [key]: { origin, accountId: useAccountStore.getState().activeAccountId, permission, decision, updatedAt: Date.now() },
             },
           }
         })
@@ -80,7 +83,7 @@ export const useSitePermissionsStore = create<SitePermissionsState>()(
         set((state) => {
           const entries = { ...state.entries }
           for (const [key, entry] of Object.entries(entries)) {
-            if (entry.origin === origin) delete entries[key]
+            if (entry.origin === origin && entry.accountId === useAccountStore.getState().activeAccountId) delete entries[key]
           }
           return { entries }
         })
@@ -96,7 +99,7 @@ export const useSitePermissionsStore = create<SitePermissionsState>()(
 
       listForOrigin: (origin) => {
         return Object.values(get().entries)
-          .filter((entry) => entry.origin === origin)
+          .filter((entry) => entry.origin === origin && entry.accountId === useAccountStore.getState().activeAccountId)
           .sort((a, b) => a.permission.localeCompare(b.permission))
       },
 

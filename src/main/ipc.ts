@@ -25,6 +25,7 @@ import {
   stopPerfMonitor,
 } from './perfMonitor'
 import { setupAIIPC } from './ai/ipcAI'
+import { configureBrowserSession } from './permissions'
 
 const PERF_LOGS = process.env['BROWSER_PERF_LOG'] === '1'
 const MAX_WALLPAPER_DATA_URL_BYTES = 10 * 1024 * 1024
@@ -47,6 +48,15 @@ interface CustomWallpaper {
   name: string
   url: string
   createdAt: number
+}
+
+interface ManagedExtension {
+  id: string
+  name: string
+  version: string
+  path: string
+  enabled: boolean
+  permissions: string[]
 }
 
 function startPerfLogging(): void {
@@ -170,6 +180,22 @@ export function setupIPC(): void {
   setupDownloadHandling(session.defaultSession)
   setupDownloadHandling(session.fromPartition('persist:default'))
   setupDownloadHandling(session.fromPartition('private'), true)
+  const configuredAccountPartitions = new Set(['persist:default', 'private'])
+
+  function isSafeAccountPartition(value: unknown): value is string {
+    return typeof value === 'string' && /^persist:account-[a-z0-9-]+$/i.test(value)
+  }
+
+  ipcMain.handle('ensure-account-partition', (event, partitionId: unknown) => {
+    if (!isFromAppShell(event)) return false
+    if (!isSafeAccountPartition(partitionId)) return false
+    if (configuredAccountPartitions.has(partitionId)) return true
+    const ses = session.fromPartition(partitionId)
+    configureBrowserSession(ses)
+    setupDownloadHandling(ses)
+    configuredAccountPartitions.add(partitionId)
+    return true
+  })
 
   const VALID_DOWNLOAD_ACTIONS = new Set([
     'pause',
@@ -253,12 +279,12 @@ export function setupIPC(): void {
     }
   })
 
-  ipcMain.handle('get-site-info', async (event, url: unknown) => {
+  ipcMain.handle('get-site-info', async (event, url: unknown, partitionId?: unknown) => {
     if (!isFromAppShell(event)) return null
     if (typeof url !== 'string') return null
     const origin = originFromUrl(url)
     if (!origin) return null
-    const ses = session.fromPartition('persist:default')
+    const ses = session.fromPartition(isSafeAccountPartition(partitionId) ? partitionId : 'persist:default')
     try {
       const parsed = new URL(origin)
       const cookies = await ses.cookies.get({ url: origin })
@@ -278,8 +304,8 @@ export function setupIPC(): void {
   })
 
   // Shared helper: wipes all storage + cookies for a given origin.
-  async function clearSiteData(safeOrigin: string): Promise<boolean> {
-    const ses = session.fromPartition('persist:default')
+  async function clearSiteData(safeOrigin: string, partitionId?: unknown): Promise<boolean> {
+    const ses = session.fromPartition(isSafeAccountPartition(partitionId) ? partitionId : 'persist:default')
     try {
       await ses.clearStorageData({ origin: safeOrigin })
       const cookies = await ses.cookies.get({ url: safeOrigin })
@@ -293,21 +319,21 @@ export function setupIPC(): void {
     }
   }
 
-  ipcMain.handle('clear-site-data', async (event, origin: unknown) => {
+  ipcMain.handle('clear-site-data', async (event, origin: unknown, partitionId?: unknown) => {
     if (!isFromAppShell(event)) return false
     if (typeof origin !== 'string') return false
     const safeOrigin = originFromUrl(origin)
     if (!safeOrigin) return false
-    return clearSiteData(safeOrigin)
+    return clearSiteData(safeOrigin, partitionId)
   })
 
   // forget-site performs a full site data wipe (same semantics as clear-site-data).
-  ipcMain.handle('forget-site', async (event, origin: unknown) => {
+  ipcMain.handle('forget-site', async (event, origin: unknown, partitionId?: unknown) => {
     if (!isFromAppShell(event)) return false
     if (typeof origin !== 'string') return false
     const safeOrigin = originFromUrl(origin)
     if (!safeOrigin) return false
-    return clearSiteData(safeOrigin)
+    return clearSiteData(safeOrigin, partitionId)
   })
 
   // ── Wallpaper persistence ────────────────────────────────────────────────
@@ -521,6 +547,7 @@ export function setupIPC(): void {
     'browser-history',
     'download-history',
     'space-store',
+    'account-store',
     'site-permissions',
     'shortcut-store',
   ])
@@ -665,6 +692,104 @@ export function setupIPC(): void {
       return null
     }
     return data
+  })
+
+  const managedExtensions = new Map<string, ManagedExtension>()
+
+  function getExtensionSession(): Electron.Session {
+    return session.fromPartition('persist:default')
+  }
+
+  async function readExtensionManifest(extensionPath: string): Promise<{ name: string; version: string; permissions: string[] } | null> {
+    try {
+      const manifest = JSON.parse(await readFile(join(extensionPath, 'manifest.json'), 'utf-8')) as {
+        name?: string
+        version?: string
+        permissions?: unknown
+        host_permissions?: unknown
+      }
+      const permissions = [
+        ...(Array.isArray(manifest.permissions) ? manifest.permissions.filter((item): item is string => typeof item === 'string') : []),
+        ...(Array.isArray(manifest.host_permissions) ? manifest.host_permissions.filter((item): item is string => typeof item === 'string') : []),
+      ]
+      return {
+        name: manifest.name || basename(extensionPath),
+        version: manifest.version || '0.0.0',
+        permissions,
+      }
+    } catch (err) {
+      logger.warn('Failed to read extension manifest:', err)
+      return null
+    }
+  }
+
+  ipcMain.handle('extensions:list', (event) => {
+    if (!isFromAppShell(event)) return []
+    return Array.from(managedExtensions.values())
+  })
+
+  ipcMain.handle('extensions:load', async (event) => {
+    if (!isFromAppShell(event)) return null
+    const win = getMainWindow()
+    if (!win) return null
+    const result = await dialog.showOpenDialog(win, {
+      title: 'Choose unpacked extension folder',
+      properties: ['openDirectory'],
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    const extensionPath = result.filePaths[0]!
+    const manifest = await readExtensionManifest(extensionPath)
+    if (!manifest) return null
+    try {
+      const extension = await getExtensionSession().loadExtension(extensionPath, { allowFileAccess: true })
+      const item: ManagedExtension = {
+        id: extension.id,
+        name: extension.name || manifest.name,
+        version: manifest.version,
+        path: extensionPath,
+        enabled: true,
+        permissions: manifest.permissions,
+      }
+      managedExtensions.set(item.id, item)
+      return item
+    } catch (err) {
+      logger.warn('Failed to load extension:', err)
+      return null
+    }
+  })
+
+  ipcMain.handle('extensions:remove', (event, id: unknown) => {
+    if (!isFromAppShell(event)) return false
+    if (typeof id !== 'string') return false
+    try {
+      getExtensionSession().removeExtension(id)
+      managedExtensions.delete(id)
+      return true
+    } catch (err) {
+      logger.warn('Failed to remove extension:', err)
+      return false
+    }
+  })
+
+  ipcMain.handle('extensions:set-enabled', async (event, id: unknown, enabled: unknown) => {
+    if (!isFromAppShell(event)) return false
+    if (typeof id !== 'string' || typeof enabled !== 'boolean') return false
+    const item = managedExtensions.get(id)
+    if (!item) return false
+    try {
+      if (!enabled) {
+        getExtensionSession().removeExtension(id)
+        managedExtensions.set(id, { ...item, enabled: false })
+        return true
+      }
+      const extension = await getExtensionSession().loadExtension(item.path, { allowFileAccess: true })
+      managedExtensions.delete(id)
+      managedExtensions.set(extension.id, { ...item, id: extension.id, enabled: true })
+      return true
+    } catch (err) {
+      logger.warn('Failed to toggle extension:', err)
+      return false
+    }
   })
 
   // ── Picture-in-Picture ──────────────────────────────────────────────────

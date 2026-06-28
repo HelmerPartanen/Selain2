@@ -7,6 +7,7 @@ import { handleTabSwipeDelta } from '@/hooks/useTrackpadTabSwipe'
 import { isSpecialPage } from '@/utils/urlUtils'
 import { Button } from '@/components/ui/Button'
 import { Text } from '@/components/ui/Text'
+import { getPartitionForAccount } from '@/store/accountStore'
 
 /** Scrollbar CSS injected into every webview (module-level constant to avoid re-allocation) */
 const SCROLLBAR_CSS = `
@@ -32,6 +33,8 @@ interface WebViewInstanceProps {
 
 function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstanceProps): React.JSX.Element {
   const isPrivate = useTabStore((s) => s.tabs[tabId]?.isPrivate ?? false)
+  const accountId = useTabStore((s) => s.tabs[tabId]?.accountId)
+  const partition = getPartitionForAccount(accountId, isPrivate)
   const webviewRef = useRef<Electron.WebviewTag | null>(null)
   const domReadyRef = useRef(false)
   const lastNavigatedUrlRef = useRef(initialUrl)
@@ -44,6 +47,16 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
   const progressResetTimerRef = useRef<number | null>(null)
 
   const [errorState, setErrorState] = useState<{ code: number; description: string } | null>(null)
+  const [isPartitionReady, setIsPartitionReady] = useState(!partition.startsWith('persist:account-'))
+
+  useEffect(() => {
+    if (!isPrivate && partition.startsWith('persist:account-')) {
+      setIsPartitionReady(false)
+      void window.electronAPI.ensureAccountPartition(partition).then(() => setIsPartitionReady(true))
+    } else {
+      setIsPartitionReady(true)
+    }
+  }, [isPrivate, partition])
 
   const flushUpdate = useCallback(() => {
     const patch = pendingUpdateRef.current
@@ -260,7 +273,7 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
       }
       webviewRef.current = null
     }
-  }, [tabId])
+  }, [isPartitionReady, tabId])
 
   // One-time event listener attachment on mount
   // Dependencies include all handler functions to ensure effect re-runs only when handlers change
@@ -308,7 +321,8 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
     handleMediaStartedPlaying,
     handleMediaPaused,
     handleWebviewFocus,
-    handleConsoleMessage
+    handleConsoleMessage,
+    isPartitionReady,
   ])
 
   // Subscribe to store URL changes and navigate imperatively.
@@ -396,15 +410,17 @@ function WebViewInstanceInner({ tabId, isActive, initialUrl }: WebViewInstancePr
         pointerEvents: isActive ? 'auto' : 'none'
       }}
     >
-      <webview
-        ref={webviewRef}
-        src={initialUrl}
-        partition={isPrivate ? "private" : "persist:default"}
-        useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        {...{ plugins: '', allowpopups: '', allow: 'encrypted-media; autoplay; fullscreen' } as Record<string, string>}
-        className="w-full h-full"
-        style={{ display: 'inline-flex' }}
-      />
+      {isPartitionReady && (
+        <webview
+          ref={webviewRef}
+          src={initialUrl}
+          partition={partition}
+          useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          {...{ plugins: '', allowpopups: '', allow: 'encrypted-media; autoplay; fullscreen' } as Record<string, string>}
+          className="w-full h-full"
+          style={{ display: 'inline-flex' }}
+        />
+      )}
       {errorState && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[var(--app-bg-primary)] select-none px-8">
           <Text as="span" className="text-6xl font-thin text-[var(--app-text-quaternary)] tabular-nums">{errorState.code}</Text>

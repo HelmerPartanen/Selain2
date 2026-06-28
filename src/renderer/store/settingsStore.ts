@@ -43,6 +43,18 @@ export interface SettingsState {
   showNewTabFrequentSection: boolean
   /** Enable built-in Adblocker */
   enableAdblocker: boolean
+  /** Use stricter background throttling and tab suspension */
+  lowPowerMode: boolean
+  /** Automatically sleep cold background tabs */
+  autoSleepTabs: boolean
+  /** Number of recent tabs kept alive before cold tabs sleep */
+  maxAliveTabs: number
+  /** Try to reduce common cookie banner interruptions */
+  reduceCookieBanners: boolean
+  /** Show reader/AI tools in the browser chrome */
+  showReadingTools: boolean
+  /** Show lightweight performance state in tab tools */
+  showPerformanceBadges: boolean
   /** Mirror vertical wheel scrolling across split panes */
   syncSplitScrolling: boolean
 
@@ -73,6 +85,12 @@ export interface SettingsActions {
   setShowNewTabContinueSection: (v: boolean) => void
   setShowNewTabFrequentSection: (v: boolean) => void
   setEnableAdblocker: (v: boolean) => void
+  setLowPowerMode: (v: boolean) => void
+  setAutoSleepTabs: (v: boolean) => void
+  setMaxAliveTabs: (v: number) => void
+  setReduceCookieBanners: (v: boolean) => void
+  setShowReadingTools: (v: boolean) => void
+  setShowPerformanceBadges: (v: boolean) => void
   setSyncSplitScrolling: (v: boolean) => void
   setDisableAnimations: (v: boolean) => void
   setTwoFingerSwipeAction: (v: TwoFingerSwipeAction) => void
@@ -102,6 +120,12 @@ export const useSettingsStore = create<SettingsStore>()(
       showNewTabContinueSection: true,
       showNewTabFrequentSection: true,
       enableAdblocker: true,
+      lowPowerMode: false,
+      autoSleepTabs: true,
+      maxAliveTabs: 10,
+      reduceCookieBanners: true,
+      showReadingTools: true,
+      showPerformanceBadges: true,
       syncSplitScrolling: false,
       disableAnimations: false,
       twoFingerSwipeAction: 'tabs' as TwoFingerSwipeAction,
@@ -123,6 +147,12 @@ export const useSettingsStore = create<SettingsStore>()(
       setShowNewTabContinueSection: (v) => set({ showNewTabContinueSection: v }),
       setShowNewTabFrequentSection: (v) => set({ showNewTabFrequentSection: v }),
       setEnableAdblocker: (v) => set({ enableAdblocker: v }),
+      setLowPowerMode: (v) => set({ lowPowerMode: v }),
+      setAutoSleepTabs: (v) => set({ autoSleepTabs: v }),
+      setMaxAliveTabs: (v) => set({ maxAliveTabs: Math.max(3, Math.min(30, Math.round(v))) }),
+      setReduceCookieBanners: (v) => set({ reduceCookieBanners: v }),
+      setShowReadingTools: (v) => set({ showReadingTools: v }),
+      setShowPerformanceBadges: (v) => set({ showPerformanceBadges: v }),
       setSyncSplitScrolling: (v) => set({ syncSplitScrolling: v }),
       setDisableAnimations: (v) => set({ disableAnimations: v }),
       setTwoFingerSwipeAction: (v) => set({ twoFingerSwipeAction: v }),
@@ -142,6 +172,12 @@ export const useSettingsStore = create<SettingsStore>()(
         return {
           ...state,
           uiLayout: state?.uiLayout ?? 'floating',
+          lowPowerMode: state?.lowPowerMode ?? false,
+          autoSleepTabs: state?.autoSleepTabs ?? true,
+          maxAliveTabs: state?.maxAliveTabs ?? 10,
+          reduceCookieBanners: state?.reduceCookieBanners ?? true,
+          showReadingTools: state?.showReadingTools ?? true,
+          showPerformanceBadges: state?.showPerformanceBadges ?? true,
         } as SettingsState
       },
     },

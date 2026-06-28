@@ -181,7 +181,9 @@ function BrowserLayoutInner(): React.JSX.Element {
     })),
   );
 
-  const showReadingTools = useReadingToolsReveal();
+  const revealReadingTools = useReadingToolsReveal();
+  const readingToolsEnabled = useSettingsStore((s) => s.showReadingTools);
+  const showReadingTools = readingToolsEnabled && revealReadingTools;
   const {
     wallpaperUrl,
     dynamicLayers,

@@ -62,7 +62,23 @@ function ToastContainerInner(): React.JSX.Element {
             <Text as="span" size="body" tone="secondary" className="line-clamp-3 flex-1 break-words">
               {toast.message}
             </Text>
-            {toast.action && (
+            {toast.actions && toast.actions.length > 0 ? (
+              <div className="flex flex-shrink-0 items-center gap-1">
+                {toast.actions.map((action) => (
+                  <Button
+                    key={action.label}
+                    variant={action.variant === 'danger' ? 'danger' : action.variant === 'primary' ? 'primary' : 'subtle'}
+                    size="xs"
+                    onClick={() => {
+                      action.onClick()
+                      handleDismiss(toast.id)
+                    }}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
+            ) : toast.action ? (
               <Button
                 variant="link"
                 size="xs"
@@ -72,9 +88,9 @@ function ToastContainerInner(): React.JSX.Element {
                 }}
                 className="flex-shrink-0"
               >
-                {toast.action.label}
+            {toast.action.label}
               </Button>
-            )}
+            ) : null}
             <Button
               variant="icon"
               size="none"

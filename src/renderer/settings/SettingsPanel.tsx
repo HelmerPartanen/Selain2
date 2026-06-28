@@ -17,6 +17,9 @@ import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
 import tabsSvg from "@/assets/icons/Interface/Tabs.svg?raw";
+import gaugeSvg from "@/assets/icons/Objects/Gauge.svg?raw";
+import puzzleSvg from "@/assets/icons/Objects/Pazzle.svg?raw";
+import accountSvg from "@/assets/icons/Human/Person_User.svg?raw";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/utils/classNames";
 
@@ -32,8 +35,17 @@ const WallpaperPane = lazy(() =>
 const TabsPane = lazy(() =>
   import("@/settings/panes/TabsPane").then((m) => ({ default: m.TabsPane }))
 );
+const AccountsPane = lazy(() =>
+  import("@/settings/panes/AccountsPane").then((m) => ({ default: m.AccountsPane }))
+);
+const PerformancePane = lazy(() =>
+  import("@/settings/panes/PerformancePane").then((m) => ({ default: m.PerformancePane }))
+);
 const PrivacyPane = lazy(() =>
   import("@/settings/panes/PrivacyPane").then((m) => ({ default: m.PrivacyPane }))
+);
+const ExtensionsPane = lazy(() =>
+  import("@/settings/panes/ExtensionsPane").then((m) => ({ default: m.ExtensionsPane }))
 );
 const SearchEnginePane = lazy(() =>
   import("@/settings/panes/SearchEnginePane").then((m) => ({ default: m.SearchEnginePane }))
@@ -51,8 +63,11 @@ type SettingsCategory =
   | "general"
   | "appearance"
   | "wallpaper"
+  | "accounts"
   | "tabs"
+  | "performance"
   | "privacy"
+  | "extensions"
   | "search"
   | "hotkeys"
   | "about";
@@ -68,9 +83,12 @@ const CATEGORIES: CategoryItem[] = [
   { id: "general", label: "Startup", icon: settingsSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
   { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
   { id: "wallpaper", label: "Background", icon: cameraSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "accounts", label: "Accounts", icon: accountSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
   { id: "tabs", label: "Tabs", icon: tabsSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "performance", label: "Performance", icon: gaugeSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
   { id: "search", label: "Search", icon: searchSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
   { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "extensions", label: "Extensions", icon: puzzleSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
   { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
   { id: "about", label: "About", icon: infoSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
 ];
@@ -84,10 +102,16 @@ const PANE_LOADERS: Record<SettingsCategory, () => Promise<{ default: React.Comp
     import("@/settings/panes/AppearancePane").then((m) => ({ default: m.AppearancePane })),
   wallpaper: () =>
     import("@/settings/panes/WallpaperPane").then((m) => ({ default: m.WallpaperPane })),
+  accounts: () =>
+    import("@/settings/panes/AccountsPane").then((m) => ({ default: m.AccountsPane })),
   tabs: () =>
     import("@/settings/panes/TabsPane").then((m) => ({ default: m.TabsPane })),
+  performance: () =>
+    import("@/settings/panes/PerformancePane").then((m) => ({ default: m.PerformancePane })),
   privacy: () =>
     import("@/settings/panes/PrivacyPane").then((m) => ({ default: m.PrivacyPane })),
+  extensions: () =>
+    import("@/settings/panes/ExtensionsPane").then((m) => ({ default: m.ExtensionsPane })),
   search: () =>
     import("@/settings/panes/SearchEnginePane").then((m) => ({ default: m.SearchEnginePane })),
   hotkeys: () =>
@@ -108,10 +132,16 @@ function SettingsContent({
       return <AppearancePane />;
     case "wallpaper":
       return <WallpaperPane />;
+    case "accounts":
+      return <AccountsPane />;
     case "tabs":
       return <TabsPane />;
+    case "performance":
+      return <PerformancePane />;
     case "privacy":
       return <PrivacyPane />;
+    case "extensions":
+      return <ExtensionsPane />;
     case "search":
       return <SearchEnginePane />;
     case "hotkeys":
