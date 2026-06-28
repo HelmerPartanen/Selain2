@@ -16,9 +16,12 @@ const ALLOWED_PERMISSIONS = new Set([
 
 function isSecureTrustedOrigin(urlString: string | undefined): boolean {
   if (!urlString) return false
+
   try {
     const url = new URL(urlString)
+
     if (url.protocol === 'https:') return true
+
     if (url.protocol === 'http:') {
       return (
         url.hostname === 'localhost' ||
@@ -26,6 +29,7 @@ function isSecureTrustedOrigin(urlString: string | undefined): boolean {
         url.hostname === '[::1]'
       )
     }
+
     return false
   } catch {
     return false
@@ -53,10 +57,12 @@ function askRendererForPermission(
   fallback: (decision: boolean) => void,
 ): void {
   const win = getMainWindow()
+
   if (!win || !requestingUrl) {
     fallback(false)
     return
   }
+
   const origin = (() => {
     try {
       return new URL(requestingUrl).origin
@@ -64,15 +70,19 @@ function askRendererForPermission(
       return requestingUrl
     }
   })()
+
   const id = `perm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
   const timer = setTimeout(() => {
     pendingPermissionRequests.delete(id)
     fallback(false)
   }, 15000)
+
   pendingPermissionRequests.set(id, (decision) => {
     clearTimeout(timer)
     fallback(decision)
   })
+
   win.webContents.send('permission-request', {
     id,
     origin,
@@ -81,26 +91,40 @@ function askRendererForPermission(
   })
 }
 
-const CHROME_UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+export function getBrowserUserAgent(): string {
+  const chromeVersion = process.versions.chrome || '120.0.0.0'
+
+  let platform = 'Windows NT 10.0; Win64; x64'
+
+  if (process.platform === 'darwin') {
+    platform = 'Macintosh; Intel Mac OS X 10_15_7'
+  } else if (process.platform === 'linux') {
+    platform = 'X11; Linux x86_64'
+  }
+
+  return `Mozilla/5.0 (${platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion} Safari/537.36`
+}
 
 let responseHandlerRegistered = false
 
 export function configureBrowserSession(ses: Electron.Session): void {
-  ses.setUserAgent(CHROME_UA)
+  ses.setUserAgent(getBrowserUserAgent(), 'en-US,en')
   ses.setSpellCheckerEnabled(false)
 
   ses.setPermissionRequestHandler(
     (webContents, permission, callback, details) => {
       const requestingUrl = details?.requestingUrl ?? webContents.getURL()
+
       if (!shouldAllowPermission(permission, requestingUrl)) {
         callback(false)
         return
       }
+
       if (permission === 'fullscreen') {
         callback(true)
         return
       }
+
       askRendererForPermission(permission, requestingUrl, callback)
     },
   )
@@ -109,22 +133,29 @@ export function configureBrowserSession(ses: Electron.Session): void {
     (webContents, permission, requestingOrigin, details) => {
       const requestingUrl =
         details?.requestingUrl ?? requestingOrigin ?? webContents?.getURL()
+
       return shouldAllowPermission(permission, requestingUrl)
     },
   )
 }
 
 export function setupPermissions(): void {
-  if (!responseHandlerRegistered) ipcMain.on('permission-response', (event, id: unknown, decision: unknown) => {
-    const win = getMainWindow()
-    if (!win || event.sender.id !== win.webContents.id) return
-    if (typeof id !== 'string') return
-    const resolver = pendingPermissionRequests.get(id)
-    if (!resolver) return
-    pendingPermissionRequests.delete(id)
-    resolver(decision === 'allow')
-  })
-  responseHandlerRegistered = true
+  if (!responseHandlerRegistered) {
+    ipcMain.on('permission-response', (event, id: unknown, decision: unknown) => {
+      const win = getMainWindow()
+
+      if (!win || event.sender.id !== win.webContents.id) return
+      if (typeof id !== 'string') return
+
+      const resolver = pendingPermissionRequests.get(id)
+      if (!resolver) return
+
+      pendingPermissionRequests.delete(id)
+      resolver(decision === 'allow')
+    })
+
+    responseHandlerRegistered = true
+  }
 
   configureBrowserSession(session.defaultSession)
   configureBrowserSession(session.fromPartition('persist:default'))
@@ -169,6 +200,7 @@ export function setupCSP(): void {
         callback({ cancel: false })
         return
       }
+
       callback({
         cancel: false,
         responseHeaders: {

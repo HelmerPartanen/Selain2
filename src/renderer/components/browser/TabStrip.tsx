@@ -11,7 +11,7 @@ import plusSvg from "@/assets/icons/Maths/Plus.svg?raw";
 import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import privateSvg from "@/assets/icons/Interface/Private.svg?raw";
 
-import globeSvg from "@/assets/icons/Nature/Globe_fill.svg?raw";
+import globeSvg from "@/assets/icons/Interface/Dott.svg?raw";
 import newTabFavicon from "@/assets/icons/Interface/Dott.svg";
 
 import tabsSvg from "@/assets/icons/Interface/Tabs.svg?raw";
@@ -184,7 +184,7 @@ const TabStripItem = memo(function TabStripItem({
             draggable={false}
           />
         ) : (
-          <SvgIcon svg={globeSvg} size={14} className="text-[var(--app-text-tertiary)]" />
+          <SvgIcon svg={globeSvg} size={14} className="text-[var(--app-text-secondary)]" />
         )}
       </div>
 
