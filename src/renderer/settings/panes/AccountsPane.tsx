@@ -103,7 +103,7 @@ function SpaceDetailRow({ space, tabCount, isActive, canEdit, isEditing, draftNa
         <>
           <button type="button" onClick={onSwitch} disabled={!canEdit} className="min-w-0 flex-1 text-left disabled:pointer-events-none">
             <Text size="caption" tone="primary" className="truncate font-medium">{space.name}</Text>
-            <Text size="caption" tone="muted" className="tabular-nums">{tabCount} {tabCount === 1 ? 'tab' : 'tabs'}</Text>
+            <Text size="caption" tone="muted">{tabCount} {tabCount === 1 ? 'tab' : 'tabs'}</Text>
           </button>
           {isActive && (
             <span className="flex h-7 items-center gap-1 rounded-full px-2 text-[var(--app-accent)]">

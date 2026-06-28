@@ -86,13 +86,14 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         data-active={active ? "true" : "false"}
         className={cn(
-          "inline-flex items-center justify-center gap-2 select-none whitespace-nowrap font-medium transition-[background-color,color,border-color,opacity] duration-100",
+          "inline-flex items-center justify-center gap-2 select-none whitespace-nowrap transition-[background-color,color,border-color,opacity] duration-100",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]",
           "disabled:cursor-not-allowed disabled:opacity-40 disabled:pointer-events-none",
           rounded,
           sizeStyles[resolvedSize],
           variantStyles[variant],
           className,
+          "font-medium",
         )}
         {...props}
       >

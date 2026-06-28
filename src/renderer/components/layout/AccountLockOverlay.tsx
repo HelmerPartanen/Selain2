@@ -1,55 +1,142 @@
-import { memo, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Text } from '@/components/ui/Text'
 import { TextInput } from '@/components/ui/Input'
-import { useAccountStore } from '@/store/accountStore'
+import { SvgIcon } from '@/components/ui/SvgIcon'
+import { useAccountStore, type BrowserAccount } from '@/store/accountStore'
+import { useTabStore } from '@/store/tabStore'
 import { verifyAccountPassword } from '@/utils/accountSecurity'
+import lockSvg from '@/assets/icons/Objects/Lock.svg?raw'
+
+function AccountAvatar({ account, size = 32 }: { account: BrowserAccount; size?: number }): React.JSX.Element {
+  const style = { width: size, height: size, background: `hsl(${account.colorHue} 55% 52%)` }
+  return account.avatarDataUrl ? (
+    <img src={account.avatarDataUrl} alt="" draggable={false} className="shrink-0 rounded-full object-cover" style={style} />
+  ) : (
+    <span className="flex shrink-0 items-center justify-center rounded-full text-white shadow-sm" style={style}>
+      <Text as="span" size="caption" className="text-white">{account.name.slice(0, 1).toUpperCase()}</Text>
+    </span>
+  )
+}
 
 function AccountLockOverlayInner(): React.JSX.Element | null {
-  const activeAccount = useAccountStore((s) => s.accounts[s.activeAccountId])
+  const accounts = useAccountStore((s) => s.accounts)
+  const accountOrder = useAccountStore((s) => s.accountOrder)
+  const activeAccountId = useAccountStore((s) => s.activeAccountId)
+  const activeAccount = accounts[activeAccountId]
   const unlockedAccountIds = useAccountStore((s) => s.unlockedAccountIds)
   const unlockAccount = useAccountStore((s) => s.unlockAccount)
+  const switchAccount = useAccountStore((s) => s.switchAccount)
+  const [selectedAccountId, setSelectedAccountId] = useState(activeAccountId)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const selectedAccount = accounts[selectedAccountId] ?? activeAccount
+  const selectedRequiresPassword = Boolean(selectedAccount?.requirePassword && selectedAccount.passwordHash && !unlockedAccountIds.includes(selectedAccount.id))
+
+  useEffect(() => {
+    setSelectedAccountId(activeAccountId)
+  }, [activeAccountId])
+
+  const activateFirstTabInAccount = useCallback((account: BrowserAccount) => {
+    const space = account.spaces[account.activeSpaceId]
+    const tabStore = useTabStore.getState()
+    const target = space?.activeTabId && tabStore.tabs[space.activeTabId]
+      ? space.activeTabId
+      : space?.tabIds.find((id) => tabStore.tabs[id])
+    if (target && tabStore.tabs[target]) tabStore.setActiveTab(target)
+    else tabStore.addTab()
+  }, [])
+
+  const switchToAccount = useCallback((account: BrowserAccount) => {
+    switchAccount(account.id)
+    if (useAccountStore.getState().activeAccountId === account.id) {
+      activateFirstTabInAccount(account)
+    }
+  }, [activateFirstTabInAccount, switchAccount])
+
+  const unlockSelectedAccount = useCallback(async () => {
+    if (!selectedAccount?.passwordHash) return
+    if (await verifyAccountPassword(password, selectedAccount.passwordHash)) {
+      unlockAccount(selectedAccount.id)
+      switchToAccount(selectedAccount)
+      setPassword('')
+      setError(null)
+    } else {
+      setError('Password is incorrect')
+    }
+  }, [password, selectedAccount, switchToAccount, unlockAccount])
 
   if (!activeAccount?.requirePassword || !activeAccount.passwordHash || unlockedAccountIds.includes(activeAccount.id)) return null
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[var(--app-bg-primary)]/95 px-6 backdrop-blur-md">
-      <div className="w-full max-w-sm rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-secondary)] p-5 shadow-sm">
-        <Text size="title" tone="primary" className="font-semibold">Unlock {activeAccount.name}</Text>
-        <Text size="caption" tone="muted" className="mt-1">This profile requires a password before browsing.</Text>
-        <div className="mt-4 space-y-2">
-          <TextInput
-            type="password"
-            value={password}
-            onChange={(event) => {
-              setPassword(event.target.value)
-              setError(null)
-            }}
-            onKeyDown={async (event) => {
-              if (event.key === 'Enter' && await verifyAccountPassword(password, activeAccount.passwordHash)) {
-                unlockAccount(activeAccount.id)
-              } else if (event.key === 'Enter') {
-                setError('Password is incorrect')
-              }
-            }}
-            placeholder="Password"
-            autoFocus
-          />
-          {error && <Text size="caption" tone="danger">{error}</Text>}
+      <div className="w-full max-w-[520px] rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-secondary)] p-5 shadow-sm">
+        <Text size="title" tone="primary" className="font-semibold">Choose account</Text>
+        <Text size="caption" tone="muted" className="mt-1">Unlock this profile or switch to another account.</Text>
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {accountOrder.map((id) => {
+            const account = accounts[id]
+            if (!account) return null
+            const isSelected = selectedAccount?.id === account.id
+            const isLocked = account.requirePassword && account.passwordHash && !unlockedAccountIds.includes(account.id)
+            const color = `hsl(${account.colorHue} 55% 52%)`
+            return (
+              <Button
+                key={id}
+                variant="ghost"
+                size="none"
+                active={isSelected}
+                onClick={() => {
+                  setSelectedAccountId(account.id)
+                  setPassword('')
+                  setError(null)
+                  if (!isLocked) switchToAccount(account)
+                }}
+                className="h-14 justify-start gap-2 rounded-lg p-2 text-left data-[active=true]:bg-[var(--app-accent-bg)]"
+                style={isSelected ? { boxShadow: `inset 0 0 0 1px ${color}` } : undefined}
+              >
+                <AccountAvatar account={account} size={34} />
+                <span className="min-w-0 flex-1">
+                  <Text as="span" size="caption" tone="primary" className="block truncate font-medium">{account.name}</Text>
+                  <Text as="span" size="caption" tone={account.id === activeAccountId ? 'accent' : 'muted'} className="block truncate">
+                    {account.id === activeAccountId ? 'Current' : isLocked ? 'Locked' : 'Switch'}
+                  </Text>
+                </span>
+                {isLocked && <SvgIcon svg={lockSvg} size={12} className="text-[var(--app-text-tertiary)]" />}
+              </Button>
+            )
+          })}
         </div>
-        <Button
-          variant="primary"
-          size="md"
-          className="mt-4 w-full"
-          onClick={async () => {
-            if (await verifyAccountPassword(password, activeAccount.passwordHash)) unlockAccount(activeAccount.id)
-            else setError('Password is incorrect')
-          }}
-        >
-          Unlock profile
-        </Button>
+
+        {selectedAccount && selectedRequiresPassword && (
+          <div className="mt-4 space-y-2">
+            <Text size="label" tone="primary">Unlock {selectedAccount.name}</Text>
+            <TextInput
+              type="password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value)
+                setError(null)
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') void unlockSelectedAccount()
+              }}
+              placeholder="Password"
+              autoFocus
+            />
+            {error && <Text size="caption" tone="danger">{error}</Text>}
+            <Button
+              variant="primary"
+              size="md"
+              className="w-full"
+              disabled={!password.trim()}
+              onClick={() => void unlockSelectedAccount()}
+            >
+              Unlock
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )
