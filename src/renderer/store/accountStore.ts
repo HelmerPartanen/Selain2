@@ -22,6 +22,10 @@ export interface AccountSpace {
 export interface BrowserAccount {
   id: string
   name: string
+  colorHue: number
+  avatarDataUrl: string | null
+  requirePassword: boolean
+  passwordHash: string | null
   partitionId: string
   spaceOrder: string[]
   spaces: Record<string, AccountSpace>
@@ -36,6 +40,10 @@ export interface AccountStore {
   activeAccountId: string
   addAccount: (name: string) => string
   renameAccount: (id: string, name: string) => void
+  setAccountColor: (id: string, hue: number) => void
+  setAccountAvatar: (id: string, avatarDataUrl: string | null) => void
+  setAccountPassword: (id: string, passwordHash: string | null) => void
+  setRequirePassword: (id: string, requirePassword: boolean) => void
   removeAccount: (id: string) => void
   switchAccount: (id: string) => void
   addSpace: (name: string, hue: number) => string
@@ -67,9 +75,14 @@ function createSpace(accountId: string, id: string, name: string, hue = -1): Acc
 function createAccount(id: string, name: string): BrowserAccount {
   const now = Date.now()
   const general = createSpace(id, DEFAULT_SPACE_ID, 'General')
+  const hue = id === DEFAULT_ACCOUNT_ID ? 210 : Math.floor(Math.random() * 300) + 20
   return {
     id,
     name,
+    colorHue: hue,
+    avatarDataUrl: null,
+    requirePassword: false,
+    passwordHash: null,
     partitionId: id === DEFAULT_ACCOUNT_ID ? 'persist:default' : `persist:account-${id}`,
     spaceOrder: [DEFAULT_SPACE_ID],
     spaces: { [DEFAULT_SPACE_ID]: general },
@@ -102,6 +115,10 @@ function normalizeAccount(account: Partial<BrowserAccount> & Pick<BrowserAccount
   return {
     ...fallback,
     ...account,
+    colorHue: account.colorHue ?? fallback.colorHue,
+    avatarDataUrl: account.avatarDataUrl ?? null,
+    requirePassword: account.requirePassword ?? false,
+    passwordHash: account.passwordHash ?? null,
     partitionId: account.partitionId || fallback.partitionId,
     spaces,
     spaceOrder,
@@ -145,6 +162,38 @@ export const useAccountStore = create<AccountStore>()(
             if (!account) return s
             return { accounts: { ...s.accounts, [id]: { ...account, name, updatedAt: Date.now() } } }
           }, undefined, 'renameAccount')
+        },
+
+        setAccountColor: (id, hue) => {
+          set((s) => {
+            const account = s.accounts[id]
+            if (!account) return s
+            return { accounts: { ...s.accounts, [id]: { ...account, colorHue: hue, updatedAt: Date.now() } } }
+          }, undefined, 'setAccountColor')
+        },
+
+        setAccountAvatar: (id, avatarDataUrl) => {
+          set((s) => {
+            const account = s.accounts[id]
+            if (!account) return s
+            return { accounts: { ...s.accounts, [id]: { ...account, avatarDataUrl, updatedAt: Date.now() } } }
+          }, undefined, 'setAccountAvatar')
+        },
+
+        setAccountPassword: (id, passwordHash) => {
+          set((s) => {
+            const account = s.accounts[id]
+            if (!account || id !== s.activeAccountId) return s
+            return { accounts: { ...s.accounts, [id]: { ...account, passwordHash, requirePassword: Boolean(passwordHash), updatedAt: Date.now() } } }
+          }, undefined, 'setAccountPassword')
+        },
+
+        setRequirePassword: (id, requirePassword) => {
+          set((s) => {
+            const account = s.accounts[id]
+            if (!account || id !== s.activeAccountId) return s
+            return { accounts: { ...s.accounts, [id]: { ...account, requirePassword: requirePassword && Boolean(account.passwordHash), updatedAt: Date.now() } } }
+          }, undefined, 'setRequirePassword')
         },
 
         removeAccount: (id) => {

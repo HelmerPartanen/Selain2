@@ -8,6 +8,7 @@
 import type { CSSProperties } from "react";
 import { FloatingControls } from "@/components/layout/FloatingControls";
 import { WindowControls } from "@/components/layout/WindowControls";
+import { AccountLockOverlay } from "@/components/layout/AccountLockOverlay";
 import { CLASSIC_CHROME_HEIGHT } from "@/components/layout/layoutConstants";
 import { WebViewManager } from "@/webview/WebViewManager";
 import { useLRUTabManager } from "@/webview/useLRUTabManager";
@@ -411,6 +412,7 @@ function BrowserLayoutInner(): React.JSX.Element {
       {uiLayout === "floating" && <WindowControls />}
 
       {/* Toast notifications */}
+      <AccountLockOverlay />
       <Suspense fallback={null}>
         <ToastContainer />
       </Suspense>

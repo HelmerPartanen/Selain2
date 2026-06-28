@@ -344,7 +344,7 @@ function TabStripInner(): React.JSX.Element {
   }, [setTabStripMenuOpen]);
 
   return (
-  <div className="flex items-center flex-1 min-w-0 gap-1 [app-region:drag]">
+  <div className="flex items-center flex-1 min-w-0 gap-1 [app-region:no-drag]">
   <div
     ref={tabsContainerRef}
     className="flex items-center flex-1 min-w-0 gap-0.5 overflow-hidden"

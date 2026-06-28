@@ -208,6 +208,9 @@ function DownloadPillInner(): React.JSX.Element {
   const radius = 7
   const circumference = 2 * Math.PI * radius
   const strokeDashoffset = circumference * (1 - aggregateProgress)
+  const triggerClassName = popoverBelow
+    ? 'h-9 rounded-lg flex items-center justify-center bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] px-2.5 gap-1.5 select-none hover:bg-[var(--app-control-hover)] active:scale-95 transition-colors duration-100'
+    : 'h-10 rounded-full flex items-center justify-center bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] px-3 gap-1.5 select-none hover:bg-[var(--app-control-hover)] active:scale-95 transition-colors duration-100'
 
   return (
     <div ref={containerRef} className="relative">
@@ -224,7 +227,7 @@ function DownloadPillInner(): React.JSX.Element {
             style={{ overflow: 'hidden', flexShrink: 0 }}
             onClick={() => setDownloadPopoverOpen(!isOpen)}
             aria-label="Downloads"
-            className="h-10 rounded-full flex items-center justify-center bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] px-3 gap-1.5 select-none hover:bg-[var(--app-control-hover)] active:scale-95 transition-colors duration-100"
+            className={triggerClassName}
           >
             <div className="relative">
               <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-[var(--app-accent)]' : 'text-[var(--app-text-secondary)]'} />

@@ -82,8 +82,6 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
       >
         <div className="flex items-center gap-0.5 flex-shrink-0">
           <AppMenu />
-
-          <SpaceSwitcher />
         </div>
 
         <div className="flex items-center flex-shrink-0">
@@ -123,6 +121,8 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
             />
           </div>
         </div>
+
+        <SpaceSwitcher />
 
         <PrivateModeIndicator />
 

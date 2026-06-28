@@ -232,6 +232,7 @@ function TabOverviewInner(): React.JSX.Element {
   const moveButtonRef = useRef<HTMLButtonElement | null>(null)
   const [moveMenuPos, setMoveMenuPos] = useState({ x: 0, y: 0 })
   const cancelledRef = useRef(false)
+  const activeAccountId = useAccountStore((s) => s.activeAccountId)
 
   // Snapshot tabs + capture thumbnails when opening; cancel on close
   useEffect(() => {
@@ -244,7 +245,7 @@ function TabOverviewInner(): React.JSX.Element {
 
     // Snapshot tab data at open time (decoupled from live `tabs` object)
     const { tabOrder, tabs } = useTabStore.getState()
-    const { accounts } = useAccountStore.getState()
+    const { accounts, activeAccountId } = useAccountStore.getState()
     const spaceByTabId = new Map<string, string>()
     const accountByTabId = new Map<string, string>()
     for (const account of Object.values(accounts)) {
@@ -257,7 +258,7 @@ function TabOverviewInner(): React.JSX.Element {
     }
     const visibleTabOrder = tabOrder.filter((id) => {
       const tab = tabs[id]
-      return !!tab && tab.isPrivate === isPrivateContext
+      return !!tab && tab.isPrivate === isPrivateContext && (tab.isPrivate || tab.accountId === activeAccountId)
     })
     const visibleTabs = Object.fromEntries(
       visibleTabOrder
@@ -310,7 +311,7 @@ function TabOverviewInner(): React.JSX.Element {
     captureActiveTab()
 
     return () => { cancelledRef.current = true }
-  }, [isOpen, activeTabId, isPrivateContext])
+  }, [isOpen, activeTabId, activeAccountId, isPrivateContext])
 
   const handleSelect = useCallback(
     (tabId: string) => {

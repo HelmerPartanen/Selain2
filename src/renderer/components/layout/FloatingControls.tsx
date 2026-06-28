@@ -261,7 +261,7 @@ function FloatingControlsInner(): React.JSX.Element {
               <div className="flex items-center gap-1.5 h-full max-w-[calc(100vw-40px)]">
 
                 {/* ── Menu + Spaces Pod ── */}
-                <div className="flex items-center h-full">
+                <div className="flex items-center h-full gap-0.5">
                   <AppMenu />
                   <SpaceSwitcher />
                 </div>

@@ -88,25 +88,6 @@ function useSessionRestoreNotice(): void {
   }, []);
 }
 
-/** Toast when a download finishes progressing. */
-function useDownloadCompletionToasts(): void {
-  useEffect(() => {
-    const prevStates = new Map<string, string>();
-    return useDownloadStore.subscribe((state) => {
-      for (const [id, dl] of Object.entries(state.downloads)) {
-        const prev = prevStates.get(id);
-        prevStates.set(id, dl.state);
-        if (prev === "progressing" && dl.state === "completed") {
-          showToast({ message: `Downloaded: ${dl.filename}`, type: "success" });
-        }
-      }
-      for (const id of prevStates.keys()) {
-        if (!state.downloads[id]) prevStates.delete(id);
-      }
-    });
-  }, []);
-}
-
 /**
  * Bundle every BrowserLayout side effect so the layout component only needs
  * one call. Each effect is otherwise independent; grouping keeps the
@@ -117,5 +98,4 @@ export function useAppSideEffects(): void {
   useTabHydrationGate();
   useOpenUrlInterceptor();
   useSessionRestoreNotice();
-  useDownloadCompletionToasts();
 }
