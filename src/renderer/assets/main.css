@@ -99,12 +99,12 @@
   --app-control-hover: #2c2c2e;
   --app-control-active: #3a3a3c;
   --app-accent: #0083FF;
-  --app-accent-bg: #00435D;
-  --app-accent-bg-hover: #005A7A;
+  --app-accent-bg: #003C4F;
+  --app-accent-bg-hover: #00435D;
   --app-accent-hover: #409cff;
   --app-danger: #FF0045;
-  --app-danger-bg: #6A2A33;
-  --app-danger-hover-bg: #7A303B;
+  --app-danger-bg: #59282E;
+  --app-danger-hover-bg: #6A2A33;
   --app-success: #30d158;
 }
 
