@@ -8,12 +8,14 @@ export function GroupBox({
   children,
   className = "",
   contentClassName = "",
+  allowOverflow = false,
 }: {
   title?: ReactNode;
   desc?: ReactNode;
   children: ReactNode;
   className?: string;
   contentClassName?: string;
+  allowOverflow?: boolean;
 }): React.JSX.Element {
   return (
     <section
@@ -21,10 +23,14 @@ export function GroupBox({
         "rounded-xl bg-[var(--app-grouped-bg-secondary)] p-3",
         className,
       )}
-      style={{
-        contentVisibility: "auto",
-        containIntrinsicSize: "auto 180px",
-      }}
+      style={
+        allowOverflow
+          ? undefined
+          : {
+              contentVisibility: "auto",
+              containIntrinsicSize: "auto 180px",
+            }
+      }
     >
       {(title || desc) && (
         <div className="px-1 pb-3">

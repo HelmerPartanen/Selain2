@@ -49,13 +49,13 @@ export function Toggle({
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]",
         checked
           ? "bg-[var(--app-accent)]"
-          : "bg-[var(--app-control-hover)]",
+          : "bg-[var(--app-danger)]",
       )}
     >
       <span
         className={cn(
-          "absolute left-[2px] top-[2px] h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform duration-150 ease-out",
-          checked ? "translate-x-[20px]" : "translate-x-0",
+          "absolute left-[2px] top-[2px] h-[18px] w-[24px] rounded-full bg-white shadow-sm transition-transform duration-150 ease-out",
+          checked ? "translate-x-[14px]" : "translate-x-0",
         )}
       />
     </button>

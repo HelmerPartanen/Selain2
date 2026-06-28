@@ -295,7 +295,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
   }, [isMenuOpen]);
 
   return (
-    <GroupBox title="Current background">
+    <GroupBox title="Current background" className="relative z-10 overflow-visible" contentClassName="overflow-visible" allowOverflow>
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative aspect-[16/10] w-full flex-shrink-0 overflow-hidden rounded-xl bg-[var(--app-bg-secondary)] ring-1 ring-[var(--app-separator)] sm:w-[260px]">
           {isDynamic ? (
@@ -316,7 +316,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
           {isDynamic ? (
             <>
-              <div ref={menuRef} className="relative self-start">
+              <div ref={menuRef} className="relative z-30 self-start">
                 <Button
                   variant="solid"
                   size="sm"
@@ -330,7 +330,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
                 {isMenuOpen && (
                   <div
                     role="menu"
-                    className="absolute left-0 top-[calc(100%+6px)] z-20 flex min-w-36 flex-col gap-1 rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-tertiary)] p-1 shadow-sm"
+                    className="absolute left-0 top-[calc(100%+6px)] z-50 flex min-w-36 flex-col gap-1 rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-secondary)] p-1 shadow-sm"
                   >
                     {DYNAMIC_MODE_OPTIONS.map((option) => (
                       <Button
@@ -531,7 +531,7 @@ function WallpaperPaneInner(): React.JSX.Element {
       <GroupBox>
         <div className="flex gap-2.5">
           <Button
-            variant="ghost"
+            variant="solid"
             size="md"
             onClick={handleCustomImage}
             disabled={isUploading}
