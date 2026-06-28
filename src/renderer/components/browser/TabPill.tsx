@@ -345,7 +345,6 @@ function TabPillInner(): React.JSX.Element {
   }, [tabCount, setDropdownOpen])
 
   const handleAddTab = useCallback((event?: React.MouseEvent<HTMLButtonElement>) => {
-    event?.preventDefault()
     event?.stopPropagation()
     useUIStore.getState().closeTransientUI()
     addTabInCurrentContext()
@@ -365,10 +364,6 @@ function TabPillInner(): React.JSX.Element {
           variant="ghost"
           size="none"
           onClick={handleAddTab}
-          onMouseDown={(event) => {
-            event.preventDefault()
-            event.stopPropagation()
-          }}
           aria-label="New tab"
           className="h-full aspect-square flex items-center justify-center text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >

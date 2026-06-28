@@ -17,7 +17,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         inputSize === "sm" ? "h-8 px-2.5 text-[12px]" : "h-10 px-3.5 text-[13px]",
         invalid
           ? "border-[var(--app-danger)] ring-1 ring-[var(--app-danger)]"
-          : "bg-[var(--app-bg-primary)] border-[var(--app-separator)] ring-1 ring-transparent focus:ring-[var(--app-accent-bg-hover)]",
+          : "bg-[var(--app-bg-primary)] border-[var(--app-text-tertiary)] ring-1 ring-transparent focus:ring-[var(--app-accent-bg-hover)]",
         className,
       )}
       {...props}

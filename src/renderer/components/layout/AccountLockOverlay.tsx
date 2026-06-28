@@ -73,14 +73,14 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
   if (!activeAccount?.requirePassword || !activeAccount.passwordHash || unlockedAccountIds.includes(activeAccount.id)) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[300] flex items-center justify-center bg-[var(--app-bg-primary)]/70 backdrop-blur-xl px-6" style={{ top: overlayTop }}>
+    <div className="fixed bottom-0 left-0 right-0 z-[300] flex items-center justify-center bg-[var(--app-bg-primary)]/80 backdrop-blur-2xl px-6" style={{ top: overlayTop }}>
       {uiLayout === 'classic' && (
         <div className="absolute right-0 top-0 [app-region:no-drag]">
           <WindowControls embedded />
         </div>
       )}
-      <div className="w-full max-w-[520px] rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-secondary)] p-5 shadow-sm">
-        <Text size="title" tone="primary" className="font-semibold">Choose account</Text>
+      <div className="w-full max-w-[520px] flex flex-col items-center justify-center">
+        <Text size="title" tone="primary" className="font-semibold !text-[22px]">Choose account</Text>
         <Text size="caption" tone="muted" className="mt-1">Unlock this profile or switch to another account.</Text>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
@@ -112,7 +112,7 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
                     {account.id === activeAccountId ? 'Current' : isLocked ? 'Locked' : 'Switch'}
                   </Text>
                 </span>
-                {isLocked && <SvgIcon svg={lockSvg} size={12} className="text-[var(--app-text-tertiary)]" />}
+                {isLocked && <SvgIcon svg={lockSvg} size={12} className="text-[var(--app-text-secondary)]" />}
               </Button>
             )
           })}

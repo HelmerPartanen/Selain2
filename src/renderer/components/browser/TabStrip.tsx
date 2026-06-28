@@ -330,7 +330,6 @@ function TabStripInner(): React.JSX.Element {
         : "full";
 
   const handleAddTab = useCallback((event?: React.MouseEvent<HTMLButtonElement>) => {
-    event?.preventDefault();
     event?.stopPropagation();
     useUIStore.getState().closeTransientUI();
     addTabInCurrentContext();
@@ -378,10 +377,6 @@ function TabStripInner(): React.JSX.Element {
       size="icon-md"
       rounded="rounded-md"
       onClick={handleAddTab}
-      onMouseDown={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-      }}
       aria-label="New tab"
       className="!h-8 w-8 flex-shrink-0 [app-region:no-drag]"
     >
