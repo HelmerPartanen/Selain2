@@ -16,8 +16,10 @@ function AboutPaneInner(): React.JSX.Element {
 
   return (
     <div className="flex flex-col items-center justify-center h-full py-6 text-center">
-      <SvgIcon svg={dottSvg} size={44} className="mb-3 text-[var(--app-text-primary)]" />
-      <Text as="h3" tone="primary" className="mb-0.5 text-[18px] font-medium tracking-tight">Dott</Text>
+      <div className="flex flex-col mb-3 items-center justify-center rounded-xl p-1 bg-[var(--app-text-primary)]">
+      <SvgIcon svg={dottSvg} size={44} className="text-[var(--app-bg-primary)]" />
+      </div>
+      <Text as="h3" tone="primary" className="text-[24px] font-medium tracking-loose">Dott</Text>
       <Text size="body" tone="muted" className="mb-8">Version {__APP_VERSION__}</Text>
       <GroupBox className="min-w-[260px] text-left">
         <SettingGroup>
