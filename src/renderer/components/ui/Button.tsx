@@ -38,7 +38,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   solid:
     "text-[var(--app-accent)] bg-[var(--app-accent-bg)] hover:bg-[var(--app-accent-bg-hover)]",
   subtle:
-    "text-[var(--app-text-primary)] bg-[var(--app-bg-secondary)] hover:bg-[var(--app-control-active)]",
+    "text-[var(--app-text-primary)] bg-[var(--app-bg-tertiary)] hover:bg-[var(--app-control-active)]",
   primary:
     "text-white bg-[var(--app-accent)] hover:bg-[var(--app-accent-hover)]",
   danger:

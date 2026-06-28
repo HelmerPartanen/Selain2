@@ -63,11 +63,11 @@
   --app-control-active: #f2f2f7;
   --app-accent: #0076FF;
   --app-accent-bg: #ABD6F8;
-  --app-accent-bg-hover: #95C9F5;
+  --app-accent-bg-hover: #ABD6F8;
   --app-accent-hover: #006ee6;
   --app-danger: #FF003C;
   --app-danger-bg: #FFB5BE;
-  --app-danger-hover-bg: #FFA3AF;
+  --app-danger-hover-bg: #FFB5BE;
   --app-success: #34c759;
 
   --bg-solid-fallback: var(--app-bg-primary);
