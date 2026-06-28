@@ -166,14 +166,13 @@ function DownloadsPanelInner(): React.JSX.Element {
       height="440px"
       className="flex flex-col"
     >
-      <div className="flex items-center justify-between border-b border-[var(--app-separator)] px-6 py-3 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 py-3 flex-shrink-0">
         <h2 className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-tight flex items-center gap-2">
           <SvgIcon svg={downloadSvg} size={16} />
           Downloads
         </h2>
         <Button
           variant="icon"
-          rounded="rounded-full"
           onClick={closeDownloads}
           aria-label="Close downloads"
         >

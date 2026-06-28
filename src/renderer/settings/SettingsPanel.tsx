@@ -289,7 +289,7 @@ function SettingsPanelInner(): React.JSX.Element {
           onClick={closeSettings}
           aria-label="Close settings"
           rounded="rounded-lg"
-          className="absolute right-6 top-1/2 -translate-y-1/2"
+          className="absolute right-2 top-1/2 -translate-y-1/2"
         >
           <SvgIcon svg={closeSvg} size={13} />
         </Button>

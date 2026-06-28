@@ -189,7 +189,7 @@ function BookmarksPanelInner(): React.JSX.Element {
       className="flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--app-separator)] px-6 py-3 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 py-3 flex-shrink-0">
         <h2 className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-tight flex items-center gap-2">
           <SvgIcon svg={bookmarkSvg} size={16} />
           Bookmarks

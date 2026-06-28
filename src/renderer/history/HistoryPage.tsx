@@ -250,7 +250,7 @@ function HistoryPanelInner(): React.JSX.Element {
       height="650px"
       className="flex flex-col"
     >
-      <div className="flex items-center justify-between px-6 pt-3 pb-3 flex-shrink-0">
+      <div className="flex items-center justify-between px-3 pt-3 pb-3 flex-shrink-0">
         <h2 className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-tight flex items-center gap-2">
           <SvgIcon svg={counterclockwiseSvg} size={16} />
           History
