@@ -34,8 +34,8 @@ function SearchEnginePaneInner(): React.JSX.Element {
   return (
     <div className="space-y-7">
       <GroupBox
-        title="Default Search Engine"
-        desc="Choose the search engine used for address bar and new tab searches."
+        title="Default search engine"
+        desc="Choose the search engine used from the address bar."
       >
         <SettingGroup>
           <div

@@ -33,6 +33,8 @@ function AppearancePaneInner(): React.JSX.Element {
   const setUiLayout = useSettingsStore((s) => s.setUiLayout);
   const enableAutoHide = useSettingsStore((s) => s.enableAutoHide);
   const setEnableAutoHide = useSettingsStore((s) => s.setEnableAutoHide);
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations);
+  const setDisableAnimations = useSettingsStore((s) => s.setDisableAnimations);
 
   useEffect(() => {
     setSelectedUiZoom(uiZoom);
@@ -110,6 +112,21 @@ function AppearancePaneInner(): React.JSX.Element {
             ariaLabel: `${z}% zoom`,
           }))}
         />
+      </GroupBox>
+
+      <GroupBox title="Motion" desc="Control interface movement.">
+        <SettingGroup>
+          <SettingRow
+            label="Reduce motion"
+            desc="Disable non-essential UI transitions and animations."
+          >
+            <Toggle
+              checked={disableAnimations}
+              onChange={setDisableAnimations}
+              label="Reduce motion"
+            />
+          </SettingRow>
+        </SettingGroup>
       </GroupBox>
 
       <GroupBox

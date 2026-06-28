@@ -178,7 +178,7 @@ function PrivacyPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-7">
       <GroupBox
-        title="Privacy Profile"
+        title="Privacy profile"
         desc="Choose the default privacy posture for browsing."
       >
         <div className="grid grid-cols-3 gap-2">
@@ -247,7 +247,7 @@ function PrivacyPaneInner(): React.JSX.Element {
       </GroupBox>
 
       <GroupBox
-        title="Site Permissions"
+        title="Site permissions"
         desc="Review decisions remembered for individual sites."
       >
         <SettingGroup>
@@ -278,7 +278,7 @@ function PrivacyPaneInner(): React.JSX.Element {
               ))}
               {permissionEntries.length > 12 && (
                 <p className="text-xs text-gray-400 dark:text-neutral-500 text-center py-2">
-                  {permissionEntries.length - 12} more sites — clear all to reset
+                  {permissionEntries.length - 12} more sites - clear all to reset
                 </p>
               )}
             </>
@@ -287,7 +287,7 @@ function PrivacyPaneInner(): React.JSX.Element {
       </GroupBox>
 
       <GroupBox
-        title="Profile Backup"
+        title="Profile backup"
         desc="Export your bookmarks and settings to a file, or restore them from a previous backup."
       >
         <div className="flex gap-2">
@@ -297,7 +297,7 @@ function PrivacyPaneInner(): React.JSX.Element {
             onClick={handleExportProfile}
             className="flex-1"
           >
-            Export Profile
+            Export profile
           </Button>
           <Button
             variant="subtle"
@@ -305,13 +305,13 @@ function PrivacyPaneInner(): React.JSX.Element {
             onClick={handleImportProfile}
             className="flex-1"
           >
-            Import Profile
+            Import profile
           </Button>
         </div>
       </GroupBox>
 
       <GroupBox
-        title="Browsing Data"
+        title="Browsing data"
         desc="Permanently delete stored data. This cannot be undone."
       >
         <div className="grid grid-cols-2 gap-2">

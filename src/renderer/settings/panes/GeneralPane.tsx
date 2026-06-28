@@ -5,8 +5,7 @@ import { SettingGroup, SettingRow, Toggle } from "@/settings/components/Settings
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import { TextInput } from "@/components/ui/Input";
-import { SegmentedControl } from "@/components/ui/SegmentedControl";
-import { useSettingsStore, type NewTabMode, type TabsButtonAction } from "@/store/settingsStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { useTabStore } from "@/store/tabStore";
 import { GroupBox } from "@/components/ui/GroupBox";
 import {
@@ -17,22 +16,10 @@ import {
 function GeneralPaneInner(): React.JSX.Element {
   const restoreTabs = useSettingsStore((s) => s.restoreTabs);
   const setRestoreTabs = useSettingsStore((s) => s.setRestoreTabs);
-  const newTabMode = useSettingsStore((s) => s.newTabMode);
-  const setNewTabMode = useSettingsStore((s) => s.setNewTabMode);
   const homepageUrl = useSettingsStore((s) => s.homepageUrl);
   const setHomepageUrl = useSettingsStore((s) => s.setHomepageUrl);
-  const autoGroupTabsByDomain = useSettingsStore((s) => s.autoGroupTabsByDomain);
-  const setAutoGroupTabsByDomain = useSettingsStore((s) => s.setAutoGroupTabsByDomain);
-  const showTabCleanupSuggestions = useSettingsStore((s) => s.showTabCleanupSuggestions);
-  const setShowTabCleanupSuggestions = useSettingsStore((s) => s.setShowTabCleanupSuggestions);
-  const tabsButtonAction = useSettingsStore((s) => s.tabsButtonAction);
-  const setTabsButtonAction = useSettingsStore((s) => s.setTabsButtonAction);
   const smartUrlBarFocus = useSettingsStore((s) => s.smartUrlBarFocus);
   const setSmartUrlBarFocus = useSettingsStore((s) => s.setSmartUrlBarFocus);
-  const showNewTabContinueSection = useSettingsStore((s) => s.showNewTabContinueSection);
-  const setShowNewTabContinueSection = useSettingsStore((s) => s.setShowNewTabContinueSection);
-  const showNewTabFrequentSection = useSettingsStore((s) => s.showNewTabFrequentSection);
-  const setShowNewTabFrequentSection = useSettingsStore((s) => s.setShowNewTabFrequentSection);
   const [urlDraft, setUrlDraft] = useState(homepageUrl);
   const [homepageError, setHomepageError] = useState<string | null>(null);
 
@@ -108,86 +95,6 @@ function GeneralPaneInner(): React.JSX.Element {
               checked={smartUrlBarFocus}
               onChange={setSmartUrlBarFocus}
               label="Smart URL focus"
-            />
-          </SettingRow>
-        </SettingGroup>
-      </GroupBox>
-
-      <GroupBox
-        title="New tab"
-        desc="Choose what appears when you open a new tab."
-        contentClassName="space-y-4"
-      >
-        <SegmentedControl<NewTabMode>
-          value={newTabMode}
-          onChange={setNewTabMode}
-          aria-label="New tab page mode"
-          options={[
-            { value: "bookmarks", label: "Bookmarks" },
-            { value: "blank", label: "Blank page" },
-          ]}
-        />
-        <SettingGroup>
-          <SettingRow
-            label="Continue where you left off"
-            desc="Show recent pages at the bottom of the new tab page."
-          >
-            <Toggle
-              checked={showNewTabContinueSection}
-              onChange={setShowNewTabContinueSection}
-              label="Show continue section"
-            />
-          </SettingRow>
-          <SettingRow
-            label="Frequent sites"
-            desc="Show shortcuts for the sites you visit most often."
-          >
-            <Toggle
-              checked={showNewTabFrequentSection}
-              onChange={setShowNewTabFrequentSection}
-              label="Show frequent sites"
-            />
-          </SettingRow>
-        </SettingGroup>
-      </GroupBox>
-
-      <GroupBox
-        title="Tabs"
-        desc="Choose how tabs are shown and organized."
-      >
-        <SettingGroup>
-          <SettingRow
-            label="Tabs button action"
-            desc="Choose what the tab count button in the toolbar opens."
-          >
-            <SegmentedControl<TabsButtonAction>
-              value={tabsButtonAction}
-              onChange={setTabsButtonAction}
-              aria-label="Tabs button action"
-              options={[
-                { value: "overview", label: "Overview" },
-                { value: "menu", label: "List" },
-              ]}
-            />
-          </SettingRow>
-          <SettingRow
-            label="Group similar sites"
-            desc="Keep tabs from the same site clustered together automatically."
-          >
-            <Toggle
-              checked={autoGroupTabsByDomain}
-              onChange={setAutoGroupTabsByDomain}
-              label="Group by site"
-            />
-          </SettingRow>
-          <SettingRow
-            label="Tab cleanup suggestions"
-            desc="Suggest reviewing old background tabs when many are open."
-          >
-            <Toggle
-              checked={showTabCleanupSuggestions}
-              onChange={setShowTabCleanupSuggestions}
-              label="Suggest tab cleanup"
             />
           </SettingRow>
         </SettingGroup>

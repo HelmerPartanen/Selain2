@@ -146,7 +146,7 @@ function GesturesPaneInner(): React.JSX.Element {
   const twoFingerSwipeAction = useSettingsStore((s) => s.twoFingerSwipeAction);
   const setTwoFingerSwipeAction = useSettingsStore((s) => s.setTwoFingerSwipeAction);
 
-  const swipeTitle = twoFingerSwipeAction === "tabs" ? "Switch Tabs" : "Navigate Back/Forward";
+  const swipeTitle = twoFingerSwipeAction === "tabs" ? "Switch tabs" : "Navigate back and forward";
   const swipeDescription =
     twoFingerSwipeAction === "tabs"
       ? "Swipe horizontally with two fingers on your trackpad to cycle between open tabs."
@@ -178,7 +178,7 @@ function GesturesPaneInner(): React.JSX.Element {
       </div>
       </GroupBox>
 
-      <GroupBox title="Gesture Behavior">
+      <GroupBox title="Gesture behavior">
         <SettingGroup>
         <SettingRow
           label="Horizontal two-finger swipe"

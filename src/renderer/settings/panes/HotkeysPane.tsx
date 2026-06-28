@@ -1,8 +1,9 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 import { m } from "motion/react";
-import { SPRING_SNAPPY, SPRING_LIST } from "@/utils/springs";
+import { SPRING_LIST } from "@/utils/springs";
 import { SettingGroup } from "@/settings/components/SettingsShared";
 import { GroupBox } from "@/components/ui/GroupBox";
+import { GesturesPane } from "@/settings/panes/GesturesPane";
 
 const ShortcutRow = memo(function ShortcutRow({
     description,
@@ -13,17 +14,11 @@ const ShortcutRow = memo(function ShortcutRow({
     keys: string
     index: number
 }): React.JSX.Element {
-    const [hovered, setHovered] = useState(false)
-
     return (
         <m.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...SPRING_LIST, delay: index * 0.02 }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onFocus={() => setHovered(true)}
-            onBlur={() => setHovered(false)}
             className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-xl hover:bg-[var(--app-control-hover)] transition-all duration-150"
         >
             <span className="relative text-[13px] text-gray-700 dark:text-neutral-300 z-10">{description}</span>
@@ -109,6 +104,7 @@ function KeyCombo({ keys }: { keys: string }): React.JSX.Element {
 function HotkeysPaneInner(): React.JSX.Element {
     return (
         <div className="space-y-7 pb-4">
+            <GesturesPane />
             {SHORTCUT_GROUPS.map((group) => (
                 <GroupBox key={group.label} title={group.label}>
                     <SettingGroup className="p-1">

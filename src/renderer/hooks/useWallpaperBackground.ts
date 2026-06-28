@@ -5,7 +5,7 @@
 //   * `isDynamic`     — true if the active wallpaper is `dynamic:*`.
 //
 // Also handles:
-//   * Lazy chunk loading for dynamic/bundled/preset wallpapers (none of these
+//   * Lazy chunk loading for dynamic/bundled wallpapers (none of these
 //     ship in the initial bundle).
 //   * Converting data-URL wallpapers to blob URLs so the renderer doesn't have
 //     to re-parse the base64 string on every paint.
@@ -13,7 +13,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useThemeStore } from "@/store/themeStore";
-import { useIsDark } from "@/hooks/useIsDark";
 import { useSettingsStore } from "@/store/settingsStore";
 import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
 import { logger } from "@/utils/logger";
@@ -26,8 +25,6 @@ const isBundledWallpaperKey = (value: string): boolean =>
   value.startsWith("bundled:");
 const isDynamicWallpaperKey = (value: string): boolean =>
   value.startsWith("dynamic:");
-const isPresetWallpaperKey = (value: string): boolean =>
-  value.startsWith("preset:");
 
 export interface WallpaperBackground {
   /** Final URL to paint as `background-image` for non-dynamic wallpapers. */
@@ -42,8 +39,6 @@ export interface WallpaperBackground {
 
 export function useWallpaperBackground(): WallpaperBackground {
   const wallpaper = useThemeStore((s) => s.wallpaper);
-  const isDark = useIsDark();
-
   const isDynamicWallpaper = !!wallpaper && isDynamicWallpaperKey(wallpaper);
 
   // ── Dynamic wallpaper: refresh `now` every minute so the blend changes ──
@@ -137,31 +132,12 @@ export function useWallpaperBackground(): WallpaperBackground {
   }, [wallpaper]);
 
   // ── Preset wallpapers: gradient SVG keyed by dark/light ──
-  const [presetResolvedUrl, setPresetResolvedUrl] = useState<string | null>(
-    null,
-  );
-  useEffect(() => {
-    if (!wallpaper || !isPresetWallpaperKey(wallpaper)) {
-      setPresetResolvedUrl(null);
-      return;
-    }
-    let cancelled = false;
-    import("@/theme/presets").then((module) => {
-      if (!cancelled) {
-        setPresetResolvedUrl(module.resolvePresetUrl(wallpaper, isDark));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [wallpaper, isDark]);
-
   // ── Data-URL wallpapers: convert to blob URLs for efficient CSS paint ──
   const blobUrlsRef = useRef<Set<string>>(new Set());
   const wallpaperUrl = useMemo(() => {
     if (!wallpaper) return null;
     if (isDynamicWallpaperKey(wallpaper)) return null;
-    if (isPresetWallpaperKey(wallpaper)) return presetResolvedUrl;
+    if (wallpaper.startsWith("preset:")) return null;
     if (isBundledWallpaperKey(wallpaper)) return bundledResolvedUrl;
     const resolved = wallpaper;
     if (resolved.startsWith("data:image/svg+xml")) return resolved;
@@ -173,7 +149,7 @@ export function useWallpaperBackground(): WallpaperBackground {
       return blobUrl;
     }
     return resolved;
-  }, [wallpaper, bundledResolvedUrl, presetResolvedUrl]);
+  }, [wallpaper, bundledResolvedUrl]);
 
   // Revoke old blob URLs after new one is rendered, preventing accumulation.
   useEffect(() => {

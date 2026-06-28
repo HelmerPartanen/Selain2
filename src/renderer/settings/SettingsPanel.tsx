@@ -12,12 +12,11 @@ import closeSvg from "@/assets/icons/Interface/Close_Cross.svg?raw";
 import settingsSvg from "@/assets/icons/Objects/Settings.svg?raw";
 import brushSvg from "@/assets/icons/Weather/Moon_Fill.svg?raw";
 import cameraSvg from "@/assets/icons/News/Image_picture.svg?raw";
-import displaySvg from "@/assets/icons/Human/Person_Circle.svg?raw";
 import shieldSvg from "@/assets/icons/Objects/Shield.svg?raw";
 import searchSvg from "@/assets/icons/Objects/Search.svg?raw";
 import infoSvg from "@/assets/icons/Interface/Warn_Info.svg?raw";
 import keyboardSvg from "@/assets/icons/Keyboard/Keyboard.svg?raw";
-import gestureSvg from "@/assets/icons/Human/Finger_Tap.svg?raw";
+import tabsSvg from "@/assets/icons/Interface/Tabs.svg?raw";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/utils/classNames";
 
@@ -30,8 +29,8 @@ const AppearancePane = lazy(() =>
 const WallpaperPane = lazy(() =>
   import("@/settings/panes/WallpaperPane").then((m) => ({ default: m.WallpaperPane }))
 );
-const AccessibilityPane = lazy(() =>
-  import("@/settings/panes/AccessibilityPane").then((m) => ({ default: m.AccessibilityPane }))
+const TabsPane = lazy(() =>
+  import("@/settings/panes/TabsPane").then((m) => ({ default: m.TabsPane }))
 );
 const PrivacyPane = lazy(() =>
   import("@/settings/panes/PrivacyPane").then((m) => ({ default: m.PrivacyPane }))
@@ -41,9 +40,6 @@ const SearchEnginePane = lazy(() =>
 );
 const HotkeysPane = lazy(() =>
   import("@/settings/panes/HotkeysPane").then((m) => ({ default: m.HotkeysPane }))
-);
-const GesturesPane = lazy(() =>
-  import("@/settings/panes/GesturesPane").then((m) => ({ default: m.GesturesPane }))
 );
 const AboutPane = lazy(() =>
   import("@/settings/panes/AboutPane").then((m) => ({ default: m.AboutPane }))
@@ -55,11 +51,10 @@ type SettingsCategory =
   | "general"
   | "appearance"
   | "wallpaper"
-  | "accessibility"
+  | "tabs"
   | "privacy"
   | "search"
   | "hotkeys"
-  | "gestures"
   | "about";
 
 interface CategoryItem {
@@ -70,14 +65,13 @@ interface CategoryItem {
 }
 
 const CATEGORIES: CategoryItem[] = [
-  { id: "general", label: "General", icon: settingsSvg, colorClass: "bg-neutral-400 text-neutral-50" },
-  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-gradient-to-b from-indigo-200 to-indigo-100 text-indigo-500" },
-  { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-gradient-to-b from-blue-200 to-blue-100 text-blue-500" },
-  { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-500 text-sky-100" },
-  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-500" },
+  { id: "general", label: "Startup", icon: settingsSvg, colorClass: "bg-neutral-400 text-neutral-50" },
+  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-indigo-100 text-indigo-500" },
+  { id: "wallpaper", label: "Background", icon: cameraSvg, colorClass: "bg-blue-100 text-blue-500" },
+  { id: "tabs", label: "Tabs", icon: tabsSvg, colorClass: "bg-sky-100 text-sky-600" },
   { id: "search", label: "Search", icon: searchSvg, colorClass: "bg-blue-100 text-blue-500" },
+  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-500" },
   { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-amber-500 text-white" },
-  { id: "gestures", label: "Gestures", icon: gestureSvg, colorClass: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/10 dark:text-fuchsia-300" },
   { id: "about", label: "About", icon: infoSvg, colorClass: "bg-slate-700 text-slate-100" },
 ];
 
@@ -90,16 +84,14 @@ const PANE_LOADERS: Record<SettingsCategory, () => Promise<{ default: React.Comp
     import("@/settings/panes/AppearancePane").then((m) => ({ default: m.AppearancePane })),
   wallpaper: () =>
     import("@/settings/panes/WallpaperPane").then((m) => ({ default: m.WallpaperPane })),
-  accessibility: () =>
-    import("@/settings/panes/AccessibilityPane").then((m) => ({ default: m.AccessibilityPane })),
+  tabs: () =>
+    import("@/settings/panes/TabsPane").then((m) => ({ default: m.TabsPane })),
   privacy: () =>
     import("@/settings/panes/PrivacyPane").then((m) => ({ default: m.PrivacyPane })),
   search: () =>
     import("@/settings/panes/SearchEnginePane").then((m) => ({ default: m.SearchEnginePane })),
   hotkeys: () =>
     import("@/settings/panes/HotkeysPane").then((m) => ({ default: m.HotkeysPane })),
-  gestures: () =>
-    import("@/settings/panes/GesturesPane").then((m) => ({ default: m.GesturesPane })),
   about: () =>
     import("@/settings/panes/AboutPane").then((m) => ({ default: m.AboutPane })),
 };
@@ -116,16 +108,14 @@ function SettingsContent({
       return <AppearancePane />;
     case "wallpaper":
       return <WallpaperPane />;
-    case "accessibility":
-      return <AccessibilityPane />;
+    case "tabs":
+      return <TabsPane />;
     case "privacy":
       return <PrivacyPane />;
     case "search":
       return <SearchEnginePane />;
     case "hotkeys":
       return <HotkeysPane />;
-    case "gestures":
-      return <GesturesPane />;
     case "about":
       return <AboutPane />;
   }
@@ -291,7 +281,7 @@ function SettingsPanelInner(): React.JSX.Element {
     </div>
 
     <div className="flex-1 flex flex-col min-w-0">
-      <div className="relative flex items-center justify-center border-b border-[var(--app-separator)] px-6 pt-3 pb-3">
+      <div className="relative flex items-center justify-center px-6 pt-3 pb-3">
         <h3 className="text-[13px] font-semibold text-[var(--app-text-primary)]">{categoryLabel}</h3>
 
         <Button
