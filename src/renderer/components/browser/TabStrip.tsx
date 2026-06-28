@@ -329,7 +329,15 @@ function TabStripInner(): React.JSX.Element {
         ? "compact"
         : "full";
 
-  const handleAddTab = useCallback(() => addTabInCurrentContext(), [addTabInCurrentContext]);
+  const handleAddTab = useCallback((event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    useUIStore.getState().closeTransientUI();
+    addTabInCurrentContext();
+    requestAnimationFrame(() => {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    });
+  }, [addTabInCurrentContext]);
 
   const handleTabOverview = useCallback(() => {
     if (tabsButtonAction === "menu") {
@@ -370,6 +378,10 @@ function TabStripInner(): React.JSX.Element {
       size="icon-md"
       rounded="rounded-md"
       onClick={handleAddTab}
+      onMouseDown={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
       aria-label="New tab"
       className="!h-8 w-8 flex-shrink-0 [app-region:no-drag]"
     >

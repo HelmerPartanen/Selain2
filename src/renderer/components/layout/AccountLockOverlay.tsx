@@ -4,8 +4,10 @@ import { Text } from '@/components/ui/Text'
 import { TextInput } from '@/components/ui/Input'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import { useAccountStore, type BrowserAccount } from '@/store/accountStore'
+import { useSettingsStore } from '@/store/settingsStore'
 import { useTabStore } from '@/store/tabStore'
 import { verifyAccountPassword } from '@/utils/accountSecurity'
+import { WindowControls } from '@/components/layout/WindowControls'
 import lockSvg from '@/assets/icons/Objects/Lock.svg?raw'
 
 function AccountAvatar({ account, size = 32 }: { account: BrowserAccount; size?: number }): React.JSX.Element {
@@ -27,11 +29,13 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
   const unlockedAccountIds = useAccountStore((s) => s.unlockedAccountIds)
   const unlockAccount = useAccountStore((s) => s.unlockAccount)
   const switchAccount = useAccountStore((s) => s.switchAccount)
+  const uiLayout = useSettingsStore((s) => s.uiLayout)
   const [selectedAccountId, setSelectedAccountId] = useState(activeAccountId)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const selectedAccount = accounts[selectedAccountId] ?? activeAccount
   const selectedRequiresPassword = Boolean(selectedAccount?.requirePassword && selectedAccount.passwordHash && !unlockedAccountIds.includes(selectedAccount.id))
+  const overlayTop = uiLayout === 'classic' ? 0 : 40
 
   useEffect(() => {
     setSelectedAccountId(activeAccountId)
@@ -69,7 +73,12 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
   if (!activeAccount?.requirePassword || !activeAccount.passwordHash || unlockedAccountIds.includes(activeAccount.id)) return null
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[var(--app-bg-primary)]/95 px-6 backdrop-blur-md">
+    <div className="fixed bottom-0 left-0 right-0 z-[300] flex items-center justify-center bg-[var(--app-bg-primary)]/70 backdrop-blur-xl px-6" style={{ top: overlayTop }}>
+      {uiLayout === 'classic' && (
+        <div className="absolute right-0 top-0 [app-region:no-drag]">
+          <WindowControls embedded />
+        </div>
+      )}
       <div className="w-full max-w-[520px] rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-secondary)] p-5 shadow-sm">
         <Text size="title" tone="primary" className="font-semibold">Choose account</Text>
         <Text size="caption" tone="muted" className="mt-1">Unlock this profile or switch to another account.</Text>

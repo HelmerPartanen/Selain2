@@ -344,7 +344,15 @@ function TabPillInner(): React.JSX.Element {
     if (tabCount <= 1) setDropdownOpen(false)
   }, [tabCount, setDropdownOpen])
 
-  const handleAddTab = useCallback(() => addTabInCurrentContext(), [addTabInCurrentContext])
+  const handleAddTab = useCallback((event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault()
+    event?.stopPropagation()
+    useUIStore.getState().closeTransientUI()
+    addTabInCurrentContext()
+    requestAnimationFrame(() => {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    })
+  }, [addTabInCurrentContext])
   const handleToggle = useCallback(() => setDropdownOpen(!isExpanded), [isExpanded, setDropdownOpen])
   const handleClose = useCallback(() => setDropdownOpen(false), [setDropdownOpen])
 
@@ -357,6 +365,10 @@ function TabPillInner(): React.JSX.Element {
           variant="ghost"
           size="none"
           onClick={handleAddTab}
+          onMouseDown={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+          }}
           aria-label="New tab"
           className="h-full aspect-square flex items-center justify-center text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] transition-all duration-100 select-none flex-shrink-0 rounded-lg"
         >
