@@ -17,7 +17,7 @@ import { useSpaceStore, SPACE_PRESET_HUES, DEFAULT_SPACE_ID, type Space } from '
 import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
-import { SPRING_POPUP, SPRING_SNAPPY } from '@/utils/springs'
+import { SPRING_SNAPPY } from '@/utils/springs'
 import { clampPopoverLeft, clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition'
 
 const SPACE_POPOVER_WIDTH = 280
@@ -29,7 +29,6 @@ const SPACE_POPOVER_ESTIMATED_HEIGHT = 360
 function SpaceRow({
   space,
   isActive,
-  index,
   hasMultipleSpaces,
   onSelect,
   onEdit,
@@ -39,7 +38,6 @@ function SpaceRow({
 }: {
   space: Space
   isActive: boolean
-  index: number
   hasMultipleSpaces: boolean
   onSelect: () => void
   onEdit: () => void
@@ -49,13 +47,6 @@ function SpaceRow({
 }): React.JSX.Element {
   const isGeneral = space.id === DEFAULT_SPACE_ID
   const hasTint = space.hue >= 0
-
-  const animationStyle = disableAnimations
-    ? { opacity: 1, animation: 'none' as const }
-    : {
-        opacity: 0,
-        animation: `menu-item-in 180ms ease-out ${60 + index * 25}ms forwards`,
-      }
 
   const tintStyle = hasTint
     ? { background: `hsla(${space.hue} 55% 55% / ${isActive ? 0.14 : 0.08})` }
@@ -77,7 +68,7 @@ function SpaceRow({
             ? ''
             : 'text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]'
       }`}
-      style={{ ...animationStyle, ...tintStyle }}
+      style={tintStyle}
     >
       <span
         className="flex-shrink-0"
@@ -474,18 +465,16 @@ className={`${
                       top: popoverPos?.top,
                       originX: 0.5,
                       originY: 0,
-                      perspective: 600,
                     }
                   : {
                       originX: 0.5,
                       originY: 1,
-                      perspective: 600,
                     }
               }
-              initial={{ scaleX: 0.3, scaleY: 0.08, opacity: 0, y: enterY, rotateX: popoverBelow ? 16 : -16 }}
-              animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scaleX: 0.3, scaleY: 0.06, opacity: 0, y: exitY, rotateX: popoverBelow ? 10 : -10 }}
-              transition={{ ...SPRING_POPUP, opacity: { duration: 0.1 } }}
+              initial={disableAnimations ? undefined : { scale: 0.98, opacity: 0, y: enterY }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={disableAnimations ? undefined : { scale: 0.98, opacity: 0, y: exitY }}
+              transition={disableAnimations ? { duration: 0 } : { duration: 0.12, ease: 'easeOut' }}
             >
               <div className={`rounded-xl shadow-sm overflow-hidden min-w-[280px] ${popoverSurface}`}>
                 <AnimatePresence mode="wait" initial={false}>
@@ -524,7 +513,7 @@ className={`${
                       transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                     <div className="p-1 space-y-1">
-                      {spaceOrder.map((id, index) => {
+                      {spaceOrder.map((id) => {
                         const space = spaces[id]
                         if (!space) return null
                         return (
@@ -532,7 +521,6 @@ className={`${
                             key={id}
                             space={space}
                             isActive={id === activeSpaceId}
-                            index={index}
                             hasMultipleSpaces={hasMultipleSpaces}
                             onSelect={() => handleSwitch(id)}
                             onEdit={() => setEditingId(id)}
@@ -556,7 +544,7 @@ className={`${
                         className="h-10 w-full justify-start gap-3 rounded-xl px-2.5 text-left text-gray-500 dark:text-neutral-500"
                       >
                         <SvgIcon svg={plusSvg} size={14} />
-                        <span className="text-[13px]">New Space</span>
+                        <span className="text-[13px]">New space</span>
                       </Button>
                     </div>
                     </m.div>

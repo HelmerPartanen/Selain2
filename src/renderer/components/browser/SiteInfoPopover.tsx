@@ -143,40 +143,31 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
           disableAnimations
             ? undefined
             : {
-                scaleX: 0.15,
-                scaleY: 0.04,
+                scale: 0.98,
                 opacity: 0,
                 y: enterY,
-                borderRadius: 40,
               }
         }
         animate={{
-          scaleX: 1,
-          scaleY: 1,
+          scale: 1,
           opacity: 1,
           y: 0,
-          borderRadius: 16,
         }}
         exit={
           disableAnimations
             ? undefined
             : {
-                scaleX: 0.15,
-                scaleY: 0.04,
+                scale: 0.98,
                 opacity: 0,
                 y: exitY,
-                borderRadius: 40,
               }
         }
         transition={
           disableAnimations
             ? { duration: 0 }
             : {
-                type: 'spring',
-                stiffness: 380,
-                damping: 28,
-                mass: 0.6,
-                opacity: { duration: 0.12 },
+                duration: 0.12,
+                ease: 'easeOut',
               }
         }
       >
@@ -201,7 +192,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                     {hostname || 'Unknown Site'}
                   </h3>
                   <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">
-                    {isSecure ? 'Connection is secure' : 'Your connection to this site is not secure'}
+                    {isSecure ? 'Secure connection' : 'Connection is not secure'}
                   </p>
                 </div>
               </div>
@@ -209,8 +200,8 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
               <div className="space-y-2">
                 <p className="text-xs text-gray-500 dark:text-neutral-400">
                   {isSecure
-                    ? 'Your connection is encrypted. Information you send is private.'
-                    : 'Your connection is not private. Avoid entering sensitive information on this site.'}
+                    ? 'Information you send is encrypted.'
+                    : 'Avoid entering sensitive information on this site.'}
                 </p>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -234,14 +225,14 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 <div className="pt-2">
                   <div className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1">Protection</div>
                   <div className="text-xs text-gray-600 dark:text-neutral-300">
-                    Ad and tracker blocking is {siteInfo?.adblockerEnabled ? 'enabled' : 'disabled'}.
+                    Ad and tracker blocking is {siteInfo?.adblockerEnabled ? 'on' : 'off'}.
                   </div>
                 </div>
 
                 <div className="pt-2">
                   <div className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1">Permissions</div>
                   {permissionEntries.length === 0 ? (
-                    <div className="text-xs text-gray-500 dark:text-neutral-400">No saved decisions for this site.</div>
+                    <div className="text-xs text-gray-500 dark:text-neutral-400">No saved permissions.</div>
                   ) : (
                     <div className="space-y-1">
                       {permissionEntries.map((entry) => (
@@ -295,13 +286,13 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                     Forget site
                   </Button>
                   <Button
-                    variant="primary"
+                    variant="solid"
                     size="sm"
                     onClick={handleOpenPrivacySettings}
                     className="h-auto whitespace-normal"
                     style={{ transition: 'none' }}
                   >
-                    Privacy settings
+                    Open privacy settings
                   </Button>
                 </div>
               </div>

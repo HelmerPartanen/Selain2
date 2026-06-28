@@ -13,7 +13,7 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { formatBytes } from '@/utils/formatUtils'
 import { clampPopoverTop, getPopoverMotion } from '@/utils/popoverPosition'
 
-import { SPRING_EXPAND, SPRING_POPUP } from '@/utils/springs'
+import { SPRING_EXPAND } from '@/utils/springs'
 
 const DOWNLOAD_POPOVER_WIDTH = 300
 const DOWNLOAD_POPOVER_HEIGHT = 320
@@ -262,10 +262,10 @@ function DownloadPillInner(): React.JSX.Element {
           <m.div
             className="fixed z-[100] w-[300px] max-h-[320px] rounded-xl overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             style={{ left: popoverPos.left, top: popoverPos.top, originY: popoverBelow ? 0 : 1, originX: 1 }}
-            initial={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: enterY }}
-            animate={{ scaleY: 1, scaleX: 1, opacity: 1, y: 0 }}
-            exit={{ scaleY: 0.5, scaleX: 0.8, opacity: 0, y: exitY }}
-            transition={{ ...SPRING_POPUP, opacity: { duration: 0.12 } }}
+            initial={{ scale: 0.98, opacity: 0, y: enterY }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.98, opacity: 0, y: exitY }}
+            transition={{ duration: 0.12, ease: 'easeOut' }}
           >
               <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
                 <span className="text-xs font-semibold text-gray-500 dark:text-neutral-500 uppercase tracking-wide">

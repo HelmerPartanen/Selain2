@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { m, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { SvgIcon, SPINNER_SVG } from '@/components/ui/SvgIcon'
@@ -19,7 +19,7 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { useSettingsStore } from '@/store/settingsStore'
 
-import { SPRING_POPUP, SPRING_FAST, SPRING_SNAPPY, SPRING_EXPAND } from '@/utils/springs'
+import { SPRING_FAST, SPRING_SNAPPY, SPRING_EXPAND } from '@/utils/springs'
 
 const ContextMenuItem = memo(function ContextMenuItem({
   onClick,
@@ -34,14 +34,16 @@ const ContextMenuItem = memo(function ContextMenuItem({
 }) {
   return (
     <Button
-      variant={danger ? 'danger' : 'ghost'}
+      variant="ghost"
       size="none"
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
       className={`h-9 w-full justify-start gap-2.5 rounded-lg px-3.5 text-left text-[13px] font-light ${
         disabled
           ? 'opacity-40 cursor-not-allowed text-gray-700 dark:text-neutral-300'
-          : 'text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)]'
+          : danger
+            ? 'text-[var(--app-danger)] hover:text-[var(--app-danger)] hover:bg-[var(--app-danger-bg)]'
+            : 'text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)]'
       }`}
     >
       {children}
@@ -56,29 +58,120 @@ export function TabContextMenu({ tabId, x, y, onClose }: {
   onClose: () => void
 }) {
   const meta = useTabMeta(tabId)
+  const tabOrder = useTabOrder()
+  const activeTabId = useActiveTabId()
   const duplicateTab = useTabStore(s => s.duplicateTab)
   const removeTab = useTabStore(s => s.removeTab)
   const toggleMute = useTabStore(s => s.toggleMute)
   const togglePinned = useTabStore(s => s.togglePinned)
   const suspendTab = useTabStore(s => s.suspendTab)
+  const splitTab = useTabStore(s => s.splitTab)
+  const unsplit = useTabStore(s => s.unsplit)
+  const isSuspended = useTabStore(s => s.tabs[tabId]?.isSuspended ?? false)
+  const splitTabId = useSplitTabId()
   const pinned = meta?.pinned ?? false
   const isMuted = meta?.isMuted ?? false
   const isPlayingMedia = meta?.isPlayingMedia ?? false
+  const menuRef = useRef<HTMLDivElement | null>(null)
+  const isActive = activeTabId === tabId
+  const canClose = !pinned || tabOrder.length <= 1
+  const canSuspend = !isActive && !isSuspended
+  const isSplitTarget = splitTabId === tabId
 
   useEffect(() => {
-    const handler = () => onClose()
+    const handler = (event: MouseEvent) => {
+      const target = event.target as Node | null
+      if (target && menuRef.current?.contains(target)) return
+      onClose()
+    }
     window.addEventListener('mousedown', handler, true)
-    return () => window.removeEventListener('mousedown', handler, true)
+    const keyHandler = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', keyHandler, true)
+    return () => {
+      window.removeEventListener('mousedown', handler, true)
+      window.removeEventListener('keydown', keyHandler, true)
+    }
   }, [onClose])
 
-  const safeX = Math.min(x, window.innerWidth - 200)
-  const safeY = Math.min(y, window.innerHeight - 248)
+  const safeX = Math.max(8, Math.min(x, window.innerWidth - 220))
+  const safeY = Math.max(8, Math.min(y, window.innerHeight - 300))
+
+  const runAction = (action: () => void): void => {
+    action()
+    onClose()
+  }
 
   return (
     <div
-      className=""
+      className="fixed inset-0 z-[110]"
+      onMouseDown={onClose}
     >
-      
+      <m.div
+        ref={menuRef}
+        className="absolute w-[212px] rounded-xl border border-[var(--app-separator)] bg-[var(--app-bg-tertiary)] p-1 text-[var(--app-text-primary)] shadow-sm"
+        style={{ left: safeX, top: safeY, transformOrigin: 'top left' }}
+        initial={{ opacity: 0, scale: 0.96, y: -4 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: -4 }}
+        transition={{ duration: 0.12, ease: 'easeOut' }}
+        onMouseDown={(event) => event.stopPropagation()}
+        role="menu"
+        aria-label="Tab actions"
+      >
+        <ContextMenuItem onClick={() => runAction(() => useTabStore.getState().setActiveTab(tabId))}>
+          <SvgIcon svg={tabsSvg} size={14} />
+          Switch to tab
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => runAction(() => duplicateTab(tabId))}>
+          <SvgIcon svg={plusSvg} size={14} />
+          Duplicate
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => runAction(() => togglePinned(tabId))}>
+          <SvgIcon svg={pinFillSvg} size={14} />
+          {pinned ? 'Unpin tab' : 'Pin tab'}
+        </ContextMenuItem>
+
+        <div className="my-1 h-px bg-[var(--app-separator)]" />
+
+        {(isPlayingMedia || isMuted) && (
+          <ContextMenuItem onClick={() => runAction(() => toggleMute(tabId))}>
+            <SvgIcon svg={isMuted ? soundFillSvg : soundMuteSvg} size={14} />
+            {isMuted ? 'Unmute tab' : 'Mute tab'}
+          </ContextMenuItem>
+        )}
+        <ContextMenuItem
+          onClick={() =>
+            runAction(() => {
+              if (isSplitTarget) unsplit()
+              else splitTab(tabId)
+            })
+          }
+          disabled={isActive && !isSplitTarget}
+        >
+          <SvgIcon svg={isSplitTarget ? unsplitSvg : splitSvg} size={14} />
+          {isSplitTarget ? 'Remove from split view' : 'Open in split view'}
+        </ContextMenuItem>
+        <ContextMenuItem
+          onClick={() => runAction(() => suspendTab(tabId, 'manual'))}
+          disabled={!canSuspend}
+        >
+          <SvgIcon svg={globeSvg} size={14} />
+          Sleep tab
+        </ContextMenuItem>
+
+        <div className="my-1 h-px bg-[var(--app-separator)]" />
+
+        <ContextMenuItem
+          onClick={() => runAction(() => removeTab(tabId))}
+          disabled={!canClose}
+          danger
+        >
+          <SvgIcon svg={closeSvg} size={14} />
+          Close tab
+        </ContextMenuItem>
+      </m.div>
     </div>
   )
 }
@@ -104,7 +197,6 @@ export const TabRow = memo(function TabRow({
   isActive,
   isSplitTarget,
   isSplit,
-  index,
   onSelect,
   onContextMenu,
 }: {
@@ -112,7 +204,6 @@ export const TabRow = memo(function TabRow({
   isActive: boolean
   isSplitTarget: boolean
   isSplit: boolean
-  index: number
   onSelect: () => void
   onContextMenu?: (e: React.MouseEvent) => void
 }): React.JSX.Element {
@@ -166,15 +257,11 @@ export const TabRow = memo(function TabRow({
       size="none"
       onClick={handleClick}
       onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e) }}
-      className={`relative group flex h-10 w-full items-center justify-start gap-3 rounded-lg px-3.5 text-left font-light transition-all duration-150 ${
+      className={`relative group flex h-10 w-full items-center justify-start gap-3 rounded-lg px-3.5 text-left font-light transition-colors duration-150 ${
         isHighlighted
           ? 'text-[var(--app-text-primary)] bg-[var(--app-control-active)]'
           : 'text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)]'
       }`}
-      style={{
-        opacity: 0,
-        animation: `menu-item-in 160ms ease-out ${50 + index * 20}ms forwards`
-      }}
     >
 
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
@@ -212,7 +299,8 @@ export const TabRow = memo(function TabRow({
         <div
           className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors duration-100 z-10"
           onClick={handleSplit}
-          title={isSplitTarget ? 'Unsplit' : (isSplit ? 'Replace split' : 'Split view')}
+          title={isSplitTarget ? 'Remove split' : (isSplit ? 'Replace split tab' : 'Open in split view')}
+          aria-label={isSplitTarget ? 'Remove from split view' : (isSplit ? 'Replace split tab' : 'Open in split view')}
         >
           <SvgIcon svg={isSplitTarget ? unsplitSvg : splitSvg} size={11} />
         </div>
@@ -222,13 +310,14 @@ export const TabRow = memo(function TabRow({
         <SvgIcon svg={pinFillSvg} size={10} className="flex-shrink-0 text-amber-500 dark:text-amber-400 z-10 opacity-70" />
       )}
       <div
-        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-colors duration-100 z-10 ${
+        className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-md opacity-60 group-hover:opacity-100 cursor-pointer transition-colors duration-100 z-10 ${
           pinned
             ? 'text-gray-300 dark:text-neutral-600 cursor-not-allowed'
             : 'text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700'
         }`}
         onClick={pinned ? undefined : handleClose}
-        title={pinned ? 'Unpin to close' : 'Close tab'}
+        title={pinned ? 'Pinned tabs stay open' : 'Close tab'}
+        aria-label={pinned ? 'Pinned tab cannot be closed' : 'Close tab'}
       >
         <SvgIcon svg={closeSvg} size={11} />
       </div>
@@ -309,44 +398,34 @@ function TabPillInner(): React.JSX.Element {
               className="absolute bottom-full left-1/2 -translate-x-1/2 z-[100] min-w-[230px] max-w-[290px] mb-2"
               style={{ originX: 0.5, originY: 1 }}
               initial={disableAnimations ? undefined : {
-                scaleX: 0.15,
-                scaleY: 0.04,
                 opacity: 0,
-                y: 10,
-                borderRadius: 40,
+                y: 8,
+                scale: 0.98,
               }}
               animate={{
-                scaleX: 1,
-                scaleY: 1,
                 opacity: 1,
                 y: 0,
-                borderRadius: 16,
+                scale: 1,
               }}
               exit={disableAnimations ? undefined : {
-                scaleX: 0.15,
-                scaleY: 0.04,
                 opacity: 0,
-                y: 10,
-                borderRadius: 40,
+                y: 8,
+                scale: 0.98,
               }}
               transition={disableAnimations ? { duration: 0 } : {
-                type: 'spring',
-                stiffness: 380,
-                damping: 28,
-                mass: 0.6,
-                opacity: { duration: 0.12 },
+                duration: 0.12,
+                ease: 'easeOut',
               }}
             >
               <div className="rounded-xl shadow-sm overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]">
                 <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1">
-                  {tabOrder.map((id, index) => (
+                  {tabOrder.map((id) => (
                     <TabRow
                       key={id}
                       tabId={id}
                       isActive={id === activeTabId}
                       isSplitTarget={id === splitTabId}
                       isSplit={isSplit}
-                      index={index}
                       onSelect={handleClose}
                       onContextMenu={(e) => setContextMenu({ tabId: id, x: e.clientX, y: e.clientY })}
                     />

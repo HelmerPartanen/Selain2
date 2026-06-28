@@ -155,22 +155,22 @@ function GesturesPaneInner(): React.JSX.Element {
   return (
     <div className="space-y-7">
       <GroupBox
-        title="Trackpad Gestures"
-        desc="Master these intuitive, native-feeling gestures to navigate the browser natively."
+        title="Trackpad gestures"
+        desc="Choose how trackpad gestures navigate the browser."
       >
 
       <div className="grid grid-cols-2">
         <GestureVisualization title={swipeTitle} description={swipeDescription} fingers={2} type="swipe-horizontal" />
         <div className="flex flex-col">
           <GestureVisualization
-            title="Open Tab Overview"
-            description="Pinch inwards with two fingers on your trackpad to smoothly zoom out into the birds-eye grid view."
+            title="Open tab overview"
+            description="Pinch in with two fingers to show all tabs."
             fingers={2}
             type="pinch-in"
           />
           <GestureVisualization
-            title="Close Tab Overview"
-            description="Pinch outwards to expand the selected tab back to full screen view."
+            title="Close tab overview"
+            description="Pinch out to return to the selected tab."
             fingers={2}
             type="pinch-out"
           />

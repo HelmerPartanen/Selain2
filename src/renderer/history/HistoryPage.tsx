@@ -16,7 +16,6 @@ import { useTabStore, type ClosedTab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
-import { SPRING_LIST } from '@/utils/springs'
 
 const SEARCH_DEBOUNCE_MS = 200
 
@@ -29,20 +28,19 @@ const HistoryRow = memo(function HistoryRow({
   entry,
   onNavigate,
   onRemove,
-  index
 }: {
   entry: HistoryEntry
   onNavigate: (url: string) => void
   onRemove: (url: string) => void
-  index: number
 }): React.JSX.Element {
   const [hovered, setHovered] = useState(false)
 
   return (
-    <m.div
-      initial={{ opacity: 0, y: 8 }}
+    <m.button
+      type="button"
+      initial={{ opacity: 0, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SPRING_LIST, delay: index * 0.03 }}
+      transition={{ duration: 0.1, ease: 'easeOut' }}
       onClick={(e) => {
         if (e.ctrlKey || e.metaKey) {
           useTabStore.getState().addTabInCurrentContext(entry.url)
@@ -62,7 +60,7 @@ const HistoryRow = memo(function HistoryRow({
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-150"
+      className="relative group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-[var(--app-control-hover)] transition-colors duration-150"
     >
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {entry.favicon ? (
@@ -95,30 +93,29 @@ const HistoryRow = memo(function HistoryRow({
       >
         <SvgIcon svg={trashSvg} size={14} />
       </Button>
-    </m.div>
+    </m.button>
   )
 })
 
 const RecentlyClosedRow = memo(function RecentlyClosedRow({
   tab,
   onReopen,
-  index
 }: {
   tab: ClosedTab
   onReopen: () => void
-  index: number
 }): React.JSX.Element {
   const [hovered, setHovered] = useState(false)
 
   return (
-    <m.div
-      initial={{ opacity: 0, y: 8 }}
+    <m.button
+      type="button"
+      initial={{ opacity: 0, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SPRING_LIST, delay: index * 0.03 }}
+      transition={{ duration: 0.1, ease: 'easeOut' }}
       onClick={onReopen}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-[var(--app-hover-bg)] cursor-pointer transition-all duration-150"
+      className="relative group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-[var(--app-control-hover)] transition-colors duration-150"
     >
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {tab.favicon ? (
@@ -138,7 +135,7 @@ const RecentlyClosedRow = memo(function RecentlyClosedRow({
       <span className="flex-shrink-0 text-[11px] text-[var(--app-accent)] z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
         Open
       </span>
-    </m.div>
+    </m.button>
   )
 })
 
@@ -279,7 +276,7 @@ function HistoryPanelInner(): React.JSX.Element {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search history..."
+              placeholder="Search history"
               autoFocus
               className="rounded-full pl-9"
             />
@@ -297,21 +294,20 @@ function HistoryPanelInner(): React.JSX.Element {
         ) : searchResults ? (
           <div className="space-y-0.5">
             {searchResults.length === 0 ? (
-              <p className="text-center text-sm text-[var(--app-text-tertiary)] py-8">No results</p>
+              <p className="text-center text-sm text-[var(--app-text-tertiary)] py-8">No matching history</p>
             ) : (
-              searchResults.slice(0, renderLimit).map((entry, i) => (
+              searchResults.slice(0, renderLimit).map((entry) => (
                 <HistoryRow
                   key={entry.url}
                   entry={entry}
                   onNavigate={handleNavigate}
                   onRemove={handleRemove}
-                  index={i}
                 />
               ))
             )}
             {searchResults.length > renderLimit && (
               <div className="px-3 py-2 text-xs text-[var(--app-text-tertiary)]">
-                Loading more… ({renderLimit}/{searchResults.length})
+                Loading more... ({renderLimit}/{searchResults.length})
               </div>
             )}
           </div>
@@ -323,7 +319,6 @@ function HistoryPanelInner(): React.JSX.Element {
                   <RecentlyClosedRow
                     key={`rc-${i}-${tab.url}`}
                     tab={tab}
-                    index={i}
                     onReopen={() => { reopenClosedAt(i); closeHistory() }}
                   />
                 ))}
@@ -331,20 +326,19 @@ function HistoryPanelInner(): React.JSX.Element {
             )}
             {visibleGrouped.map((group) => (
               <GroupBox key={group.label} title={group.label} contentClassName="space-y-0.5">
-                {group.entries.map((entry, i) => (
+                {group.entries.map((entry) => (
                   <HistoryRow
                     key={`${entry.url}-${entry.timestamp}`}
                     entry={entry}
                     onNavigate={handleNavigate}
                     onRemove={handleRemove}
-                    index={i}
                   />
                 ))}
               </GroupBox>
             ))}
             {hasMoreHistory && (
               <div className="px-3 py-2 text-xs text-[var(--app-text-tertiary)] text-center">
-                Loading more…
+                Loading more...
               </div>
             )}
           </div>

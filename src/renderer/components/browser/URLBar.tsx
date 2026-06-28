@@ -25,7 +25,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { SearchInput } from '@/components/ui/Search'
 import { getTabDomain } from '@/utils/tabAnalysis'
 
-import { SPRING_FAST, SPRING_POPUP, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
+import { SPRING_FAST, SPRING_EXPAND, SPRING_SNAPPY } from '@/utils/springs'
 
 const SiteInfoPopover = lazy(() =>
   import('./SiteInfoPopover').then((module) => ({
@@ -659,10 +659,10 @@ function URLBarInner({
             <m.div
               className={`absolute left-0 right-0 z-[100] overflow-hidden rounded-xl p-1 shadow-sm ${autocompleteSurface} ${dropdownOffsetClass}`}
               style={{ originY: dropdownBelow ? 0 : 1 }}
-              initial={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
-              animate={{ scaleY: 1, opacity: 1, y: 0 }}
-              exit={{ scaleY: 0.6, opacity: 0, y: dropdownBelow ? -6 : 6 }}
-              transition={SPRING_POPUP}
+              initial={{ scale: 0.98, opacity: 0, y: dropdownBelow ? -4 : 4 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.98, opacity: 0, y: dropdownBelow ? -4 : 4 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
             >
               {suggestions.map((entry, i) => {
                 const isActive = selectedIndex === i
@@ -743,7 +743,7 @@ function URLBarInner({
                   role="status"
                 >
                   {suggestionsUnavailable === 'offline'
-                    ? "You're offline — live suggestions unavailable."
+                    ? "Offline. Live suggestions unavailable."
                     : 'Suggestions temporarily unavailable.'}
                 </div>
               )}

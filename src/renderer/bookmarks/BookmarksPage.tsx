@@ -15,7 +15,6 @@ import { useTabStore } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
 import { simplifyUrl } from '@/utils/urlUtils'
 import { navigateActiveTab } from '@/utils/tabUtils'
-import { SPRING_LIST } from '@/utils/springs'
 import { showToast } from '@/components/ui/toastStore'
 
 const SEARCH_DEBOUNCE_MS = 200
@@ -25,21 +24,19 @@ const BookmarkRow = memo(function BookmarkRow({
   entry,
   onNavigate,
   onRemove,
-  index
 }: {
   entry: BookmarkEntry
   onNavigate: (url: string) => void
   onRemove: (url: string) => void
-  index: number
 }): React.JSX.Element {
-  const delay = Math.min(index, 16) * 0.02
   const [hovered, setHovered] = useState(false)
 
   return (
-    <m.div
-      initial={{ opacity: 0, y: 8 }}
+    <m.button
+      type="button"
+      initial={{ opacity: 0, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SPRING_LIST, delay }}
+      transition={{ duration: 0.1, ease: 'easeOut' }}
       onClick={(e) => {
         if (e.ctrlKey || e.metaKey) {
           useTabStore.getState().addTabInCurrentContext(entry.url)
@@ -59,7 +56,7 @@ const BookmarkRow = memo(function BookmarkRow({
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
-      className="relative group flex items-center gap-3 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-all duration-150"
+      className="relative group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-[var(--app-control-hover)] transition-colors duration-150"
     >
 
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
@@ -89,7 +86,7 @@ const BookmarkRow = memo(function BookmarkRow({
       >
         <SvgIcon svg={trashSvg} size={16} />
       </Button>
-    </m.div>
+    </m.button>
   )
 })
 
@@ -192,8 +189,8 @@ function BookmarksPanelInner(): React.JSX.Element {
       className="flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px bg-black/[0.04] dark:bg-white/[0.06]' }}>
-        <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+      <div className="flex items-center justify-between border-b border-[var(--app-separator)] px-6 py-3 flex-shrink-0">
+        <h2 className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-tight flex items-center gap-2">
           <SvgIcon svg={bookmarkSvg} size={16} />
           Bookmarks
         </h2>
@@ -242,7 +239,7 @@ function BookmarksPanelInner(): React.JSX.Element {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search bookmarks..."
+              placeholder="Search bookmarks"
               autoFocus
               className="pl-9"
             />
@@ -255,23 +252,22 @@ function BookmarksPanelInner(): React.JSX.Element {
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-gray-400 dark:text-neutral-600">
             <SvgIcon svg={starSvg} size={36} className="mb-3 opacity-50" />
-            <p className="text-sm">{query ? 'No bookmarks match your search' : 'No bookmarks yet'}</p>
+            <p className="text-sm">{query ? 'No matching bookmarks' : 'No bookmarks yet'}</p>
             <p className="text-xs mt-1 opacity-70">Click the star in the URL bar to bookmark a page</p>
           </div>
         ) : (
           <div className="space-y-0.5">
-            {visible.map((entry, i) => (
+            {visible.map((entry) => (
               <BookmarkRow
                 key={entry.id}
                 entry={entry}
                 onNavigate={handleNavigate}
                 onRemove={handleRemove}
-                index={i}
               />
             ))}
             {hasMore && (
               <div className="px-3 py-2 text-xs text-gray-500 dark:text-neutral-500">
-                Loading more… ({visible.length}/{filtered.length})
+                Loading more... ({visible.length}/{filtered.length})
               </div>
             )}
           </div>

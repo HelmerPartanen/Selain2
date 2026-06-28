@@ -75,7 +75,7 @@ const CATEGORIES: CategoryItem[] = [
   { id: "wallpaper", label: "Wallpaper", icon: cameraSvg, colorClass: "bg-gradient-to-b from-blue-200 to-blue-100 text-blue-500" },
   { id: "accessibility", label: "Accessibility", icon: displaySvg, colorClass: "bg-sky-500 text-sky-100" },
   { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-500" },
-  { id: "search", label: "Search Engine", icon: searchSvg, colorClass: "bg-blue-100 text-blue-500" },
+  { id: "search", label: "Search", icon: searchSvg, colorClass: "bg-blue-100 text-blue-500" },
   { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-amber-500 text-white" },
   { id: "gestures", label: "Gestures", icon: gestureSvg, colorClass: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/10 dark:text-fuchsia-300" },
   { id: "about", label: "About", icon: infoSvg, colorClass: "bg-slate-700 text-slate-100" },
@@ -271,10 +271,17 @@ function SettingsPanelInner(): React.JSX.Element {
 >
   <div className="flex h-full overflow-hidden">
     <div className="flex-shrink-0 h-full">
-      <div className="w-[240px] h-full bg-[var(--app-grouped-bg-secondary)] flex flex-col overflow-hidden">
-        <div className="p-1"></div>
+      <div className="w-[240px] h-full bg-[var(--app-grouped-bg-secondary)] border-r border-[var(--app-separator)] flex flex-col overflow-hidden">
+        <div className="px-4 pb-3 pt-4">
+          <Text size="body" tone="primary" className="font-semibold">
+            Settings
+          </Text>
+          <Text size="caption" tone="muted">
+            Preferences
+          </Text>
+        </div>
 
-        <div className="flex-1 px-1.5 pb-4 overflow-y-auto">
+        <div className="flex-1 px-2 pb-4 overflow-y-auto">
           <Sidebar
             activeCategory={activeCategory}
             onSelect={setActiveCategory}
@@ -284,8 +291,8 @@ function SettingsPanelInner(): React.JSX.Element {
     </div>
 
     <div className="flex-1 flex flex-col min-w-0">
-      <div className="relative flex items-center justify-center px-6 pt-3 pb-3">
-        <h3 className="text-[var(--app-text-primary)]">{categoryLabel}</h3>
+      <div className="relative flex items-center justify-center border-b border-[var(--app-separator)] px-6 pt-3 pb-3">
+        <h3 className="text-[13px] font-semibold text-[var(--app-text-primary)]">{categoryLabel}</h3>
 
         <Button
           variant="icon"

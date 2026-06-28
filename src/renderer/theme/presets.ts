@@ -204,14 +204,14 @@ export function resolvePresetUrl(value: string, isDark: boolean): string | null 
 
 /** Preset solid colors — matched to the brand gradient palette */
 export const SOLID_COLOR_PRESETS = [
-  { name: 'Obsidian',      hex: '#0a0a0f' },
-  { name: 'Space Black',   hex: '#1c1c1e' },
-  { name: 'Deep blue',   hex: '#08061a' },
-  { name: 'Midnight',      hex: '#050316' },
-  { name: 'Deep Emerald',  hex: '#020e08' },
-  { name: 'Amethyst',      hex: '#0d0618' },
-  { name: 'Navy',          hex: '#020812' },
-  { name: 'Graphite',      hex: '#374151' },
-  { name: 'Silver',        hex: '#f5f5f5' },
-  { name: 'Starlight',     hex: '#faf9f6' },
+  { name: 'Pure Black',        hex: '#000000' },
+  { name: 'Dark Gray',         hex: '#333333' },
+  { name: 'Midnight Blue',     hex: '#191970' },
+  { name: 'Pure White',        hex: '#ffffff' },
+  { name: 'Soft Gray',         hex: '#f5f5f5' },
+  { name: 'Pastel Pink',       hex: '#ffd1dc' },
+  { name: 'Slate Blue',        hex: '#708090' },
+  { name: 'Deep Forest Green', hex: '#2e4a35' },
+  { name: 'Digital Lavender',  hex: '#e6e6fa' },
+  { name: 'Warm Beige',        hex: '#f5f5dc' }
 ]

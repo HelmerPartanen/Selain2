@@ -43,7 +43,6 @@ import { useSettingsStore } from "@/store/settingsStore";
 
 import { TabContextMenu, TabRow } from "@/components/browser/TabPill";
 
-import { SPRING_POPUP } from "@/utils/springs";
 
 const TAB_MIN_WIDTH = 40;
 
@@ -236,7 +235,10 @@ const TabStripItem = memo(function TabStripItem({
           className="flex-shrink-0 w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500"
           onClick={handleSplit}
           title={
-            isSplitTarget ? "Unsplit" : isSplit ? "Replace split" : "Split view"
+            isSplitTarget ? "Remove split" : isSplit ? "Replace split tab" : "Open in split view"
+          }
+          aria-label={
+            isSplitTarget ? "Remove from split view" : isSplit ? "Replace split tab" : "Open in split view"
           }
         >
           <SvgIcon svg={isSplitTarget ? unsplitSvg : splitSvg} size={10} />
@@ -251,7 +253,8 @@ const TabStripItem = memo(function TabStripItem({
               : "text-[var(--app-text-primary)] hover:bg-[var(--app-bg-secondary)]"
           }`}
           onClick={pinned ? undefined : handleClose}
-          title={pinned ? "Unpin to close" : "Close tab"}
+          title={pinned ? "Pinned tabs stay open" : "Close tab"}
+          aria-label={pinned ? "Pinned tab cannot be closed" : "Close tab"}
         >
           <SvgIcon svg={closeSvg} size={10} />
         </div>
@@ -391,20 +394,19 @@ function TabStripInner(): React.JSX.Element {
                 ? undefined
                 : { opacity: 0, y: -6, scale: 0.96 }
             }
-            transition={disableAnimations ? { duration: 0 } : SPRING_POPUP}
+            transition={disableAnimations ? { duration: 0 } : { duration: 0.12, ease: "easeOut" }}
           >
             <div
               className="rounded-xl shadow-sm overflow-hidden bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]"
             >
               <div className="p-1 max-h-[320px] overflow-y-auto flex flex-col gap-1 scrollbar-none">
-                {tabOrder.map((id, index) => (
+                {tabOrder.map((id) => (
                   <TabRow
                     key={id}
                     tabId={id}
                     isActive={id === activeTabId}
                     isSplitTarget={id === splitTabId}
                     isSplit={isSplit}
-                    index={index}
                     onSelect={handleCloseMenu}
                     onContextMenu={(e) =>
                       setContextMenu({

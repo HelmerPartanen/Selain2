@@ -12,11 +12,10 @@ import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import chevronUpSvg from '@/assets/icons/Arrows/Chevron_Up.svg?raw'
 import chevronDownSvg from '@/assets/icons/Arrows/Chevron_Down.svg?raw'
 
-import { SPRING_POPUP } from '@/utils/springs'
-
 function FindBarInner(): React.JSX.Element {
   const tabId = useFocusedTabId()
   const uiLayout = useSettingsStore((s) => s.uiLayout)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const closeFindBar = useUIStore((s) => s.closeFindBar)
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState('')
@@ -129,12 +128,12 @@ function FindBarInner(): React.JSX.Element {
 
   return (
     <m.div
-      className="fixed right-40 z-[90] [app-region:no-drag]"
+      className="fixed right-4 z-[90] [app-region:no-drag]"
       style={{ top: topOffset }}
-      initial={{ y: -40, opacity: 0, scale: 0.95 }}
+      initial={disableAnimations ? undefined : { y: -8, opacity: 0, scale: 0.98 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
-      exit={{ y: -40, opacity: 0, scale: 0.95 }}
-      transition={SPRING_POPUP}
+      exit={disableAnimations ? undefined : { y: -8, opacity: 0, scale: 0.98 }}
+      transition={disableAnimations ? { duration: 0 } : { duration: 0.12, ease: 'easeOut' }}
     >
       <div className="flex items-center gap-1 rounded-xl h-9 px-2 bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] text-[var(--app-text-primary)]">
         <TextInput

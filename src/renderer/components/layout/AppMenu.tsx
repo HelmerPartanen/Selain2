@@ -25,7 +25,7 @@ import { useUIStore } from "@/store/uiStore";
 import { useFocusedTabIsPrivate } from "@/hooks/useTabSelector";
 
 import { normalizeURL, isValidHomepageUrl } from "@/utils/urlUtils";
-import { SPRING_POPUP, SPRING_SNAPPY } from "@/utils/springs";
+import { SPRING_SNAPPY } from "@/utils/springs";
 import {
   clampPopoverLeft,
   clampPopoverTop,
@@ -36,15 +36,15 @@ const MENU_WIDTH = 280;
 const MENU_ESTIMATED_HEIGHT = 420;
 
 const menuItems = [
-  { id: "new-tab", label: "New Tab", icon: plusSvg, shortcut: "Ctrl+T" },
+  { id: "new-tab", label: "New tab", icon: plusSvg, shortcut: "Ctrl+T" },
   { id: "private-mode", label: "Private mode", icon: privateSvg, shortcut: "Ctrl+Shift+N" },
-  { id: "exit-private-mode", label: "Exit Private mode", icon: privateSvg, shortcut: "" },
+  { id: "exit-private-mode", label: "Exit private mode", icon: privateSvg, shortcut: "" },
   { id: "home", label: "Home", icon: homeSvg, shortcut: "" },
   { id: "divider", label: "", icon: null, shortcut: "" },
   { id: "find", label: "Find in Page", icon: searchSvg, shortcut: "Ctrl+F" },
   {
     id: "tab-overview",
-    label: "Tab Overview",
+    label: "Tab overview",
     icon: CARDS_SVG,
     shortcut: "Ctrl+Shift+A",
   },
@@ -261,40 +261,31 @@ function AppMenuInner(): React.JSX.Element {
                 disableAnimations
                   ? undefined
                   : {
-                      scaleX: 0.15,
-                      scaleY: 0.04,
                       opacity: 0,
                       y: enterY,
-                      borderRadius: 40,
+                      scale: 0.98,
                     }
               }
               animate={{
-                scaleX: 1,
-                scaleY: 1,
+                scale: 1,
                 opacity: 1,
                 y: 0,
-                borderRadius: 16,
               }}
               exit={
                 disableAnimations
                   ? undefined
                   : {
-                      scaleX: 0.15,
-                      scaleY: 0.04,
+                      scale: 0.98,
                       opacity: 0,
                       y: exitY,
-                      borderRadius: 40,
                     }
               }
               transition={
                 disableAnimations
                   ? { duration: 0 }
                   : {
-                      type: "spring",
-                      stiffness: 380,
-                      damping: 28,
-                      mass: 0.6,
-                      opacity: { duration: 0.12 },
+                      duration: 0.12,
+                      ease: "easeOut",
                     }
               }
             >
@@ -304,7 +295,7 @@ function AppMenuInner(): React.JSX.Element {
                 } ${menuSurface}`}
               >
                 <div className="p-1 relative">
-                  {actionableItems.map((item, idx) => {
+                  {actionableItems.map((item) => {
                     const Icon = item.icon!;
 
                     return (
@@ -314,16 +305,7 @@ function AppMenuInner(): React.JSX.Element {
                         key={item.id}
                         onClick={() => handleMenuItemClick(item.id)}
                         className="relative h-10 w-full justify-start gap-3 rounded-lg px-3.5 text-[13px] font-light [app-region:no-drag]"
-                        style={
-                          disableAnimations
-                            ? { opacity: 1, animation: "none" }
-                            : {
-                                opacity: 0,
-                                animation: `menu-item-in 160ms ease-out ${
-                                  50 + idx * 20
-                                }ms forwards`,
-                              }
-                        }
+                        style={disableAnimations ? { transition: "none" } : undefined}
                       >
                         <span className="relative flex items-center gap-3 w-full z-10">
                           <SvgIcon svg={Icon} size={16} />

@@ -57,7 +57,7 @@ function AppearancePaneInner(): React.JSX.Element {
     <div className="space-y-7">
       <GroupBox
         title="Theme"
-        desc="Choose how the browser interface looks."
+        desc="Choose the browser theme."
       >
         <div className="flex gap-2.5" role="radiogroup" aria-label="Theme mode">
           {THEME_MODES.map(({ mode, label, icon }) => {
@@ -97,8 +97,8 @@ function AppearancePaneInner(): React.JSX.Element {
       </GroupBox>
 
       <GroupBox
-        title="Interface Scale"
-        desc="Scale the browser UI. Does not affect web page content."
+        title="Interface scale"
+        desc="Change browser UI size. Web pages stay the same."
       >
         <SegmentedControl<number>
           value={selectedUiZoom}
@@ -113,8 +113,8 @@ function AppearancePaneInner(): React.JSX.Element {
       </GroupBox>
 
       <GroupBox
-        title="Browser Layout"
-        desc="Choose between the floating toolbar or a classic browser layout with a tab strip and address bar."
+        title="Browser layout"
+        desc="Choose the floating toolbar or classic tab strip."
         contentClassName="space-y-4"
       >
         <SegmentedControl<UiLayout>
@@ -141,9 +141,9 @@ function AppearancePaneInner(): React.JSX.Element {
       </GroupBox>
 
       <GroupBox
-        title="Toolbar Auto-Hide"
+        title="Toolbar auto-hide"
         desc={uiLayout === 'floating'
-            ? 'How long the floating toolbar stays visible after inactivity.'
+            ? 'How long the floating toolbar stays visible after activity.'
             : 'Auto-hide only applies to the floating layout.'}
       >
         {uiLayout === 'floating' ? (

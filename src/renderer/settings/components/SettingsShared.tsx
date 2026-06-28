@@ -45,17 +45,17 @@ export function Toggle({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-[22px] w-[42px] flex-shrink-0 rounded-full transition-colors duration-200",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900",
+        "relative h-[22px] w-[42px] flex-shrink-0 rounded-full transition-colors duration-150",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]",
         checked
-          ? "bg-emerald-500 dark:bg-green-400"
-          : "bg-gray-300 dark:bg-neutral-600",
+          ? "bg-[var(--app-accent)]"
+          : "bg-[var(--app-control-hover)]",
       )}
     >
       <span
         className={cn(
-          "absolute left-[2px] top-[2px] h-[18px] w-[24px] rounded-full border border-white bg-white transition-transform duration-150 ease-out",
-          checked ? "translate-x-[14px]" : "translate-x-0",
+          "absolute left-[2px] top-[2px] h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform duration-150 ease-out",
+          checked ? "translate-x-[20px]" : "translate-x-0",
         )}
       />
     </button>

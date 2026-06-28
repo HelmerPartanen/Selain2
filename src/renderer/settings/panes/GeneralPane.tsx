@@ -87,12 +87,12 @@ function GeneralPaneInner(): React.JSX.Element {
     <div className="space-y-7">
       <GroupBox
         title="Startup"
-        desc="Control what happens when the browser opens."
+        desc="Choose what opens with the browser."
       >
         <SettingGroup>
           <SettingRow
             label="Restore previous tabs"
-            desc="Reopen tabs from your last session on startup"
+            desc="Reopen tabs from your last session."
           >
             <Toggle
               checked={restoreTabs}
@@ -102,7 +102,7 @@ function GeneralPaneInner(): React.JSX.Element {
           </SettingRow>
           <SettingRow
             label="Smart URL focus"
-            desc="Automatically focus the address bar on new and blank tabs so you can start typing immediately."
+            desc="Focus the address bar on new and blank tabs."
           >
             <Toggle
               checked={smartUrlBarFocus}
@@ -114,7 +114,7 @@ function GeneralPaneInner(): React.JSX.Element {
       </GroupBox>
 
       <GroupBox
-        title="New Tab"
+        title="New tab"
         desc="Choose what appears when you open a new tab."
         contentClassName="space-y-4"
       >
@@ -124,13 +124,13 @@ function GeneralPaneInner(): React.JSX.Element {
           aria-label="New tab page mode"
           options={[
             { value: "bookmarks", label: "Bookmarks" },
-            { value: "blank", label: "Blank Page" },
+            { value: "blank", label: "Blank page" },
           ]}
         />
         <SettingGroup>
           <SettingRow
             label="Continue where you left off"
-            desc="Show a list of recently visited pages at the bottom of the new tab page."
+            desc="Show recent pages at the bottom of the new tab page."
           >
             <Toggle
               checked={showNewTabContinueSection}
@@ -152,8 +152,8 @@ function GeneralPaneInner(): React.JSX.Element {
       </GroupBox>
 
       <GroupBox
-        title="Tab behavior"
-        desc="Let the browser help keep your tabs organized, without losing control."
+        title="Tabs"
+        desc="Choose how tabs are shown and organized."
       >
         <SettingGroup>
           <SettingRow
@@ -182,7 +182,7 @@ function GeneralPaneInner(): React.JSX.Element {
           </SettingRow>
           <SettingRow
             label="Tab cleanup suggestions"
-            desc="Gently suggest reviewing long-lived background tabs when many are open."
+            desc="Suggest reviewing old background tabs when many are open."
           >
             <Toggle
               checked={showTabCleanupSuggestions}
@@ -195,7 +195,7 @@ function GeneralPaneInner(): React.JSX.Element {
 
       <GroupBox
         title="Homepage"
-        desc="URL to navigate when clicking the home button. Leave empty to disable."
+        desc="Page to open from the home button. Leave empty to disable it."
       >
         <div className="space-y-1.5">
           <TextInput

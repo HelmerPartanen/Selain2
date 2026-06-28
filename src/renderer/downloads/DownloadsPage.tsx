@@ -12,13 +12,12 @@ import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
 import { useDownloadStore, type DownloadItem } from '@/store/downloadStore'
 import { useUIStore } from '@/store/uiStore'
 import { formatBytes } from '@/utils/formatUtils'
-import { SPRING_LIST } from '@/utils/springs'
 
 function formatSpeed(bytesPerSec: number): string {
   return `${formatBytes(bytesPerSec)}/s`
 }
 
-const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadItem; index: number }): React.JSX.Element {
+const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }): React.JSX.Element {
   const { pauseDownload, resumeDownload, cancelDownload, openDownload, showInFolder, removeDownload } = useDownloadStore.getState()
   const progress = item.totalBytes > 0 ? item.receivedBytes / item.totalBytes : 0
   const isActive = item.state === 'progressing' || item.state === 'paused'
@@ -26,15 +25,14 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
 
   return (
     <m.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SPRING_LIST, delay: index * 0.03 }}
+      transition={{ duration: 0.1, ease: 'easeOut' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
-      onClick={() => { /* clicking row opens handled by parent if needed */ }}
-      className="relative group flex items-center gap-3 px-3 py-1.5 rounded-lg hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer transition-all duration-150"
+      className="relative group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--app-control-hover)] transition-colors duration-150"
     >
 
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
@@ -72,7 +70,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
           )}
           {item.state === 'completed' && (
             <span className="text-[11px] text-gray-500 dark:text-neutral-500">
-              {formatBytes(item.totalBytes)} — Done
+              {formatBytes(item.totalBytes)} - Done
             </span>
           )}
           {item.state === 'failed' && (
@@ -93,7 +91,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
             variant="icon"
             rounded="rounded-full"
             onClick={() => pauseDownload(item.id)}
-            aria-label="Pause"
+            aria-label="Pause download"
           >
             <SvgIcon svg={PAUSE_SVG} size={13} />
           </Button>
@@ -103,7 +101,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
             variant="icon"
             rounded="rounded-full"
             onClick={() => resumeDownload(item.id)}
-            aria-label="Resume"
+            aria-label="Resume download"
           >
             <SvgIcon svg={playSvg} size={13} />
           </Button>
@@ -114,7 +112,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
             size="icon-sm"
             rounded="rounded-full"
             onClick={() => cancelDownload(item.id)}
-            aria-label="Cancel"
+            aria-label="Cancel download"
           >
             <SvgIcon svg={closeSvg} size={13} />
           </Button>
@@ -125,7 +123,7 @@ const DownloadRow = memo(function DownloadRow({ item, index }: { item: DownloadI
               variant="icon"
               rounded="rounded-full"
               onClick={() => openDownload(item.id)}
-              aria-label="Open"
+              aria-label="Open file"
             >
               <SvgIcon svg={downloadSvg} size={13} />
             </Button>
@@ -168,8 +166,8 @@ function DownloadsPanelInner(): React.JSX.Element {
       height="440px"
       className="flex flex-col"
     >
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <h2 className="text-[15px] font-medium text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+      <div className="flex items-center justify-between border-b border-[var(--app-separator)] px-6 py-3 flex-shrink-0">
+        <h2 className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-tight flex items-center gap-2">
           <SvgIcon svg={downloadSvg} size={16} />
           Downloads
         </h2>
@@ -187,13 +185,13 @@ function DownloadsPanelInner(): React.JSX.Element {
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-neutral-600">
             <SvgIcon svg={downloadSvg} size={40} className="mb-3 opacity-50" />
-            <p className="text-sm">No downloads</p>
+            <p className="text-sm">No downloads yet</p>
             <p className="text-xs mt-1 opacity-70">Downloads from this session will appear here</p>
           </div>
         ) : (
           <div className="space-y-0.5">
-            {items.map((item, i) => (
-              <DownloadRow key={item.id} item={item} index={i} />
+            {items.map((item) => (
+              <DownloadRow key={item.id} item={item} />
             ))}
           </div>
         )}

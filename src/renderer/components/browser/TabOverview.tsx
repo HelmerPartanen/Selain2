@@ -60,7 +60,6 @@ const NEWTAB_GRADIENT =
 const TabCard = memo(function TabCard({
   preview,
   isActive,
-  index,
   canClose,
   isSelected,
   disableAnimations,
@@ -70,7 +69,6 @@ const TabCard = memo(function TabCard({
 }: {
   preview: TabPreview
   isActive: boolean
-  index: number
   canClose: boolean
   isSelected: boolean
   disableAnimations: boolean
@@ -87,7 +85,7 @@ const TabCard = memo(function TabCard({
     <m.div
       layout={!disableAnimations}
       className="group relative tab-overview-card"
-      style={{ animationDelay: disableAnimations ? undefined : `${index * 40}ms` }}
+      style={{ animationDelay: disableAnimations ? undefined : '0ms' }}
       exit={disableAnimations ? undefined : { scale: 0.8, opacity: 0 }}
       transition={disableAnimations ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
     >
@@ -566,32 +564,23 @@ function TabOverviewInner(): React.JSX.Element {
                               className="absolute top-full left-1/2 z-[110] mt-2 min-w-[220px]"
                               style={{ originX: 0.5, originY: 0, x: '-50%' }}
                               initial={disableAnimations ? undefined : {
-                                scaleX: 0.15,
-                                scaleY: 0.04,
+                                scale: 0.98,
                                 opacity: 0,
                                 y: -8,
-                                borderRadius: 40,
                               }}
                               animate={{
-                                scaleX: 1,
-                                scaleY: 1,
+                                scale: 1,
                                 opacity: 1,
                                 y: 0,
-                                borderRadius: 16,
                               }}
                               exit={disableAnimations ? undefined : {
-                                scaleX: 0.15,
-                                scaleY: 0.04,
+                                scale: 0.98,
                                 opacity: 0,
                                 y: -8,
-                                borderRadius: 40,
                               }}
                               transition={disableAnimations ? { duration: 0 } : {
-                                type: 'spring',
-                                stiffness: 380,
-                                damping: 28,
-                                mass: 0.6,
-                                opacity: { duration: 0.12 },
+                                duration: 0.12,
+                                ease: 'easeOut',
                               }}
                               onMouseDown={(e) => e.stopPropagation()}
                             >
@@ -605,13 +594,8 @@ function TabOverviewInner(): React.JSX.Element {
                                       onClick={() => handleMoveSelectedToSpace(space.id)}
                                       onMouseEnter={() => setHoveredMoveSpaceIdx(idx)}
                                       onMouseLeave={() => setHoveredMoveSpaceIdx(null)}
-                                      className="w-full rounded-xl flex items-center gap-3 px-3.5 h-[42px] text-[13px] font-light text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)] transition-all duration-150 relative [app-region:no-drag]"
-                                      style={disableAnimations
-                                        ? { opacity: 1, animation: 'none' }
-                                        : {
-                                            opacity: 0,
-                                            animation: `menu-item-in 160ms ease-out ${50 + idx * 20}ms forwards`,
-                                          }}
+                                      className="w-full rounded-lg flex items-center gap-3 px-3.5 h-10 text-[13px] font-light text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)] transition-colors duration-150 relative [app-region:no-drag]"
+                                      style={disableAnimations ? { transition: 'none' } : undefined}
                                     >
                                       <span className="relative flex items-center gap-3 w-full z-10">
                                         <SvgIcon svg={folderSvg} size={16} />
@@ -659,13 +643,12 @@ function TabOverviewInner(): React.JSX.Element {
               <AnimatePresence mode={disableAnimations ? 'sync' : 'popLayout'} initial={!disableAnimations}>
                 {Object.entries(groupedPreviews).map(([group, items]) => (
                   <div key={group} className="contents">
-                    <div className="col-span-full text-[12px] uppercase tracking-wider text-[var(--app-text-secondary)] mt-2">{group}</div>
-                    {items.map((preview, i) => (
+                    <div className="col-span-full text-[12px] font-medium text-[var(--app-text-secondary)] mt-2">{group}</div>
+                    {items.map((preview) => (
                       <TabCard
                         key={preview.id}
                         preview={preview}
                         isActive={preview.id === activeTabId}
-                        index={i}
                         canClose={!isOnlyTabOnNewTab}
                         isSelected={selectedIds.has(preview.id)}
                         disableAnimations={disableAnimations}
@@ -690,7 +673,7 @@ function TabOverviewInner(): React.JSX.Element {
               </AnimatePresence>
 
               {/* New tab card */}
-              <div className="tab-overview-card" style={{ animationDelay: disableAnimations ? undefined : `${previews.length * 40}ms` }}>
+              <div className="tab-overview-card" style={{ animationDelay: disableAnimations ? undefined : '0ms' }}>
                 <Button
                   variant="ghost"
                   size="none"
@@ -702,7 +685,7 @@ function TabOverviewInner(): React.JSX.Element {
                   <div className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-2">
                     <SvgIcon svg={plusSvg} size={22} className="text-[var(--app-text-secondary)]" />
                     <span className="text-[13px] font-medium text-[var(--app-text-secondary)]">
-                      {isPrivateContext ? 'New Private Tab' : 'New Tab'}
+                      {isPrivateContext ? 'New private tab' : 'New tab'}
                     </span>
                   </div>
                 </Button>

@@ -10,17 +10,16 @@
 import { m } from 'motion/react'
 import { useEffect, useRef } from 'react'
 import { useSettingsStore } from '@/store/settingsStore'
-import { SPRING } from '@/utils/springs'
 
-// Shared genie-motion values \u2014 single source of truth for all panels
-const PANEL_INITIAL = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -20 } as const
-const PANEL_ANIMATE = { y: 0, scaleX: 1, scaleY: 1, opacity: 1, rotateX: 0 } as const
-const PANEL_EXIT    = { y: 280, scaleX: 0.1, scaleY: 0.03, opacity: 0, rotateX: -14 } as const
-const PANEL_TRANSITION = { ...SPRING, damping: 26 } as const
-const FLAT_PANEL_INITIAL = { y: 18, opacity: 0 } as const
+// Shared panel motion: short enough to feel responsive, visible enough to orient.
+const PANEL_INITIAL = { y: 18, opacity: 0, scale: 0.985 } as const
+const PANEL_ANIMATE = { y: 0, opacity: 1, scale: 1 } as const
+const PANEL_EXIT = { y: 12, opacity: 0, scale: 0.99 } as const
+const PANEL_TRANSITION = { duration: 0.16, ease: 'easeOut' } as const
+const FLAT_PANEL_INITIAL = { y: 10, opacity: 0 } as const
 const FLAT_PANEL_ANIMATE = { y: 0, opacity: 1 } as const
-const FLAT_PANEL_EXIT = { y: 12, opacity: 0 } as const
-const FLAT_PANEL_TRANSITION = { duration: 0.14, ease: 'easeOut' } as const
+const FLAT_PANEL_EXIT = { y: 8, opacity: 0 } as const
+const FLAT_PANEL_TRANSITION = { duration: 0.12, ease: 'easeOut' } as const
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -162,7 +161,13 @@ export function PanelModal({
           aria-label={aria['aria-label']}
           tabIndex={-1}
           className={`rounded-xl overflow-hidden bg-[var(--app-bg-primary)] border border-[var(--app-separator)] text-[var(--app-text-primary)] [app-region:no-drag] pointer-events-auto ${className}`}
-          style={{ width, height, transformOrigin: '50% 100%' }}
+          style={{
+            width,
+            height,
+            maxWidth: 'calc(100vw - 32px)',
+            maxHeight: 'calc(100vh - 32px)',
+            transformOrigin: '50% 100%',
+          }}
           initial={disableAnimations ? undefined : initial}
           animate={animate}
           exit={disableAnimations ? undefined : exit}

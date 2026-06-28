@@ -23,7 +23,7 @@ function PrivateModeIndicatorInner(): React.JSX.Element | null {
         variant="ghost"
         size="xs"
         onClick={handleExit}
-        aria-label="Exit Private mode"
+        aria-label="Exit private mode"
       >
         Exit
       </Button>

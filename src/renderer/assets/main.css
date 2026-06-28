@@ -197,8 +197,8 @@ body,
   to { --aurora-angle: 360deg; }
 }
 
-/* Apply globally so all elements using --aurora-angle animate */
-:root {
+/* Apply only where an aurora material is visible; avoid a permanent root animation. */
+.aurora-animated {
   animation: aurora-rotate 4s linear infinite;
 }
 
@@ -206,11 +206,11 @@ body,
 @keyframes menu-item-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.96);
+    transform: translateY(3px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -250,7 +250,7 @@ webview { background: var(--bg-solid-fallback); }
 @keyframes tab-overview-card-in {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.94);
+    transform: translateY(6px) scale(0.99);
   }
   to {
     opacity: 1;
@@ -259,7 +259,7 @@ webview { background: var(--bg-solid-fallback); }
 }
 
 .tab-overview-card {
-  animation: tab-overview-card-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tab-overview-card-in 0.14s ease-out both;
   will-change: transform, opacity;
 }
 
