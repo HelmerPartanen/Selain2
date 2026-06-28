@@ -178,13 +178,10 @@ const TabCard = memo(function TabCard({
       {canClose && (
         <div className="absolute top-2 right-2 z-10">
           <Button
-            variant="ghost"
-            size="none"
+            variant="subtle"
+            size="xs"
+            className="w-6 h-6 items-center justify-center flex"
             onClick={onClose}
-            className="w-6 h-6 rounded-lg bg-gray-800/80 dark:bg-neutral-600/90
-              flex items-center justify-center text-white
-              opacity-0 group-hover:opacity-100 transition-opacity duration-150
-              hover:bg-gray-600/80 dark:hover:bg-neutral-700/90 active:scale-90"
             aria-label={`Close ${title}`}
           >
             <SvgIcon svg={closeSvg} size={12} />
