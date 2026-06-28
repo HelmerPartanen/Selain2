@@ -49,7 +49,7 @@ export function Toggle({
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]",
         checked
           ? "bg-[var(--app-accent)]"
-          : "bg-[var(--app-danger)]",
+          : "bg-[var(--app-danger-hover-bg)]",
       )}
     >
       <span

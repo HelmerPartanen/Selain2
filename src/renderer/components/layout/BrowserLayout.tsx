@@ -5,6 +5,7 @@
   Suspense,
   useState,
 } from "react";
+import type { CSSProperties } from "react";
 import { FloatingControls } from "@/components/layout/FloatingControls";
 import { WindowControls } from "@/components/layout/WindowControls";
 import { CLASSIC_CHROME_HEIGHT } from "@/components/layout/layoutConstants";
@@ -186,6 +187,7 @@ function BrowserLayoutInner(): React.JSX.Element {
     dynamicLayers,
     isDynamic: isDynamicWallpaper,
     dynamicMode,
+    solidColor,
   } = useWallpaperBackground();
 
   const isSummaryFrameActive = isAIFullscreenOpen && isAISummarizing;
@@ -208,7 +210,10 @@ function BrowserLayoutInner(): React.JSX.Element {
   }, []);
 
   return (
-    <div className="relative h-screen overflow-hidden bg-[var(--app-bg-primary)] text-[var(--app-text-primary)]">
+    <div
+      className="relative h-screen overflow-hidden bg-[var(--app-bg-primary)] text-[var(--app-text-primary)]"
+      style={solidColor ? ({ "--bg-solid-fallback": solidColor } as CSSProperties) : undefined}
+    >
       {/* Wallpaper layer — fixed behind everything */}
       <div className="fixed inset-0 z-0 bg-[var(--bg-solid-fallback)]">
         {isDynamicWallpaper ? (

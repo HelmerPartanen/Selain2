@@ -4,7 +4,11 @@ import { SvgIcon } from "@/components/ui/SvgIcon";
 import { Text } from "@/components/ui/Text";
 import { GroupBox } from "@/components/ui/GroupBox";
 import { useThemeStore } from "@/store/themeStore";
-import { SOLID_COLOR_PRESETS } from "@/theme/presets";
+import {
+  SOLID_COLOR_PRESETS,
+  solidColorToWallpaperValue,
+  wallpaperValueToSolidColor,
+} from "@/theme/presets";
 import {
   BUNDLED_WALLPAPERS,
   generateThumbnail,
@@ -41,15 +45,6 @@ const THUMB_RING_ACTIVE =
   "ring-2 ring-[var(--app-accent)] ring-offset-2 ring-offset-[var(--app-bg-primary)]";
 const THUMB_RING_INACTIVE =
   "ring-1 ring-[var(--app-separator)] hover:ring-[var(--app-accent)]";
-
-function solidToDataUrl(hex: string): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="${hex}"/></svg>`;
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
-}
-
-const SOLID_DATA_URL_MAP = new Map(
-  SOLID_COLOR_PRESETS.map((color) => [color.hex, solidToDataUrl(color.hex)]),
-);
 
 const DYNAMIC_MODE_OPTIONS: Array<{
   mode: DynamicWallpaperMode;
@@ -235,9 +230,10 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const isDynamic = !!wallpaper && isDynamicWallpaperKey(wallpaper);
+  const solidColor = wallpaperValueToSolidColor(wallpaper);
 
   useEffect(() => {
-    if (!wallpaper || isDynamic) {
+    if (!wallpaper || isDynamic || solidColor) {
       setPreviewUrl(null);
       return;
     }
@@ -263,7 +259,7 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
     }
 
     setPreviewUrl(wallpaper);
-  }, [wallpaper, isDynamic]);
+  }, [wallpaper, isDynamic, solidColor]);
 
   useEffect(() => {
     if (!isDynamic || !wallpaper) {
@@ -309,7 +305,10 @@ const CurrentWallpaperPanel = memo(function CurrentWallpaperPanel({
           ) : previewUrl ? (
             <img src={previewUrl} alt="" aria-hidden draggable={false} className="absolute inset-0 h-full w-full object-cover" />
           ) : (
-            <div className="absolute inset-0 bg-[var(--bg-solid-fallback)]" />
+            <div
+              className="absolute inset-0 bg-[var(--bg-solid-fallback)]"
+              style={solidColor ? { backgroundColor: solidColor } : undefined}
+            />
           )}
         </div>
 
@@ -412,8 +411,7 @@ function WallpaperPaneInner(): React.JSX.Element {
   }, [setWallpaper]);
 
   const handleSelectSolid = useCallback((hex: string) => {
-    const dataUrl = SOLID_DATA_URL_MAP.get(hex);
-    if (dataUrl) void setWallpaper(dataUrl);
+    void setWallpaper(solidColorToWallpaperValue(hex));
   }, [setWallpaper]);
 
   const handleDynamicModeChange = useCallback((mode: DynamicWallpaperMode) => {
@@ -491,8 +489,7 @@ function WallpaperPaneInner(): React.JSX.Element {
       <GroupBox title="Colors">
         <div className="grid grid-cols-10 gap-2" role="listbox" aria-label="Background colors">
           {SOLID_COLOR_PRESETS.map((color) => {
-            const dataUrl = SOLID_DATA_URL_MAP.get(color.hex) ?? "";
-            const isActive = wallpaper === dataUrl;
+            const isActive = wallpaperValueToSolidColor(wallpaper)?.toLowerCase() === color.hex.toLowerCase();
             return (
               <Button
                 key={color.hex}

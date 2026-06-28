@@ -3,6 +3,8 @@ export interface SolidColorPreset {
   hex: string
 }
 
+const SOLID_COLOR_PREFIX = 'color:'
+
 export const SOLID_COLOR_PRESETS: SolidColorPreset[] = [
   { name: 'Black', hex: '#000000' },
   { name: 'Graphite', hex: '#333333' },
@@ -15,3 +17,13 @@ export const SOLID_COLOR_PRESETS: SolidColorPreset[] = [
   { name: 'Pink', hex: '#ffd1dc' },
   { name: 'Warm beige', hex: '#f5f5dc' },
 ]
+
+export function solidColorToWallpaperValue(hex: string): string {
+  return `${SOLID_COLOR_PREFIX}${hex}`
+}
+
+export function wallpaperValueToSolidColor(value: string | null): string | null {
+  if (!value?.startsWith(SOLID_COLOR_PREFIX)) return null
+  const hex = value.slice(SOLID_COLOR_PREFIX.length)
+  return /^#[0-9a-f]{6}$/i.test(hex) ? hex : null
+}

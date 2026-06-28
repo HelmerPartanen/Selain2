@@ -318,6 +318,7 @@ export function setupIPC(): void {
   function isAllowedWallpaperValue(value: string): boolean {
     if (stringByteLength(value) > MAX_WALLPAPER_DATA_URL_BYTES) return false
     if (
+      /^color:#[0-9a-f]{6}$/i.test(value) ||
       value.startsWith('bundled:') ||
       value.startsWith('preset:') ||
       value.startsWith('dynamic:')

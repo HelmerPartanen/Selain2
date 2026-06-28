@@ -52,7 +52,6 @@ const menuItems = [
   { id: "bookmarks", label: "Bookmarks", icon: bookmarkSvg, shortcut: "Ctrl+B" },
   { id: "history", label: "History", icon: counterclockwiseSvg, shortcut: "Ctrl+H" },
   { id: "downloads", label: "Downloads", icon: downloadSvg, shortcut: "" },
-  { id: "ui-kit", label: "UI Kit", icon: componentsSvg, shortcut: "" },
   { id: "divider3", label: "", icon: null, shortcut: "" },
   { id: "settings", label: "Settings", icon: settingsSvg, shortcut: "Ctrl+," },
 ] as const;

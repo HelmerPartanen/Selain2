@@ -16,6 +16,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { dataUrlToBlobUrl } from "@/store/wallpaperDB";
 import { logger } from "@/utils/logger";
+import { wallpaperValueToSolidColor } from "@/theme/presets";
 import type {
   DynamicWallpaperLayer,
   DynamicWallpaperMode,
@@ -35,11 +36,14 @@ export interface WallpaperBackground {
   isDynamic: boolean;
   /** Current dynamic-wallpaper blend mode (dynamic/light/dark). */
   dynamicMode: DynamicWallpaperMode;
+  /** Explicit solid color selected in the wallpaper pane. */
+  solidColor: string | null;
 }
 
 export function useWallpaperBackground(): WallpaperBackground {
   const wallpaper = useThemeStore((s) => s.wallpaper);
   const isDynamicWallpaper = !!wallpaper && isDynamicWallpaperKey(wallpaper);
+  const solidColor = wallpaperValueToSolidColor(wallpaper);
 
   // ── Dynamic wallpaper: refresh `now` every minute so the blend changes ──
   const [dynamicWallpaperNow, setDynamicWallpaperNow] = useState(
@@ -135,7 +139,7 @@ export function useWallpaperBackground(): WallpaperBackground {
   // ── Data-URL wallpapers: convert to blob URLs for efficient CSS paint ──
   const blobUrlsRef = useRef<Set<string>>(new Set());
   const wallpaperUrl = useMemo(() => {
-    if (!wallpaper) return null;
+    if (!wallpaper || solidColor) return null;
     if (isDynamicWallpaperKey(wallpaper)) return null;
     if (wallpaper.startsWith("preset:")) return null;
     if (isBundledWallpaperKey(wallpaper)) return bundledResolvedUrl;
@@ -149,7 +153,7 @@ export function useWallpaperBackground(): WallpaperBackground {
       return blobUrl;
     }
     return resolved;
-  }, [wallpaper, bundledResolvedUrl]);
+  }, [wallpaper, bundledResolvedUrl, solidColor]);
 
   // Revoke old blob URLs after new one is rendered, preventing accumulation.
   useEffect(() => {
@@ -236,6 +240,7 @@ export function useWallpaperBackground(): WallpaperBackground {
     dynamicLayers: dynamicWallpaperLayers,
     isDynamic: isDynamicWallpaper,
     dynamicMode: dynamicWallpaperMode,
+    solidColor,
   };
 }
 
