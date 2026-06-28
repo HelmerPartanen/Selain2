@@ -1,9 +1,12 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { m } from 'motion/react'
 import { GroupBox } from '@/components/ui/GroupBox'
 import { Button } from '@/components/ui/Button'
 import { Text } from '@/components/ui/Text'
+import { SvgIcon } from '@/components/ui/SvgIcon'
 import { SettingGroup, SettingRow, Toggle } from '@/settings/components/SettingsShared'
 import { showToast } from '@/components/ui/toastStore'
+import clockwiseSvg from '@/assets/icons/Arrows/Round_Arrows_2.svg?raw'
 
 interface ManagedExtension {
   id: string
@@ -28,8 +31,10 @@ function riskFor(permissions: string[]): { label: string; tone: 'accent' | 'dang
 function ExtensionsPaneInner(): React.JSX.Element {
   const [extensions, setExtensions] = useState<ManagedExtension[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [refreshTick, setRefreshTick] = useState(0)
 
   const refresh = useCallback(async () => {
+    setRefreshTick((tick) => tick + 1)
     setExtensions(await window.electronAPI.listExtensions())
   }, [])
 
@@ -77,7 +82,15 @@ function ExtensionsPaneInner(): React.JSX.Element {
           <Button variant="primary" size="md" onClick={loadExtension} disabled={isLoading}>
             Load unpacked extension
           </Button>
-          <Button variant="subtle" size="md" onClick={refresh}>
+          <Button variant="subtle" size="md" onClick={() => void refresh()} aria-label="Refresh extensions">
+            <m.span
+              initial={false}
+              animate={{ rotate: refreshTick * 360 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="flex"
+            >
+              <SvgIcon svg={clockwiseSvg} size={14} />
+            </m.span>
             Refresh
           </Button>
         </div>

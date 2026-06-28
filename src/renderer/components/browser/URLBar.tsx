@@ -85,6 +85,10 @@ function URLBarInner({
   const suggestionAbortRef = useRef<AbortController | null>(null)
 
   const [isSiteInfoOpen, setIsSiteInfoOpen] = useState(false)
+  const suggestionListId = `urlbar-suggestions-${tabId ?? 'empty'}`
+  const activeSuggestionId = selectedIndex >= 0 && suggestions[selectedIndex]
+    ? `${suggestionListId}-option-${selectedIndex}`
+    : undefined
 
   const closeTransientUrlUI = useCallback(() => {
     suggestionRequestIdRef.current += 1
@@ -332,6 +336,17 @@ function URLBarInner({
     [tabId, updateTab]
   )
 
+  const chooseSuggestion = useCallback((suggestion: Suggestion) => {
+    if (suggestion.action) {
+      suggestion.action()
+      setSuggestions([])
+      setSelectedIndex(-1)
+    } else {
+      navigate(suggestion.url)
+    }
+    inputRef.current?.blur()
+  }, [navigate])
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       const currentSuggestions = suggestionRequestIdRef.current >= 0 ? suggestions : []
@@ -346,24 +361,25 @@ function URLBarInner({
           setSelectedIndex((prev) => (prev <= 0 ? currentSuggestions.length - 1 : prev - 1))
           return
         }
+        if (e.key === 'Home') {
+          e.preventDefault()
+          setSelectedIndex(0)
+          return
+        }
+        if (e.key === 'End') {
+          e.preventDefault()
+          setSelectedIndex(currentSuggestions.length - 1)
+          return
+        }
       }
       if (e.key === 'Enter') {
         e.preventDefault()
-        setSelectedIndex((prev) => {
-          if (prev >= 0 && currentSuggestions[prev]) {
-            const suggestion = currentSuggestions[prev]
-            if (suggestion.action) {
-              suggestion.action()
-              setSuggestions([])
-            } else {
-              navigate(suggestion.url)
-            }
-          } else {
-            navigate(inputValue)
-          }
-          return prev
-        })
-        inputRef.current?.blur()
+        const suggestion = selectedIndex >= 0 ? currentSuggestions[selectedIndex] : undefined
+        if (suggestion) chooseSuggestion(suggestion)
+        else {
+          navigate(inputValue)
+          inputRef.current?.blur()
+        }
       } else if (e.key === 'Escape') {
         if (currentSuggestions.length > 0) {
           closeTransientUrlUI()
@@ -374,7 +390,7 @@ function URLBarInner({
         }
       }
     },
-    [inputValue, navigate, url, suggestions]
+    [chooseSuggestion, inputValue, navigate, selectedIndex, url, suggestions]
   )
 
   const handleFocus = useCallback(() => {
@@ -395,11 +411,10 @@ function URLBarInner({
   }, [closeTransientUrlUI, onFocusChange])
 
   const handleSuggestionClick = useCallback(
-    (suggestionUrl: string) => {
-      navigate(suggestionUrl)
-      inputRef.current?.blur()
+    (suggestion: Suggestion) => {
+      chooseSuggestion(suggestion)
     },
-    [navigate]
+    [chooseSuggestion]
   )
 
   const handleReloadOrStop = useCallback(() => {
@@ -543,6 +558,11 @@ function URLBarInner({
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={suggestions.length > 0}
+          aria-controls={suggestions.length > 0 ? suggestionListId : undefined}
+          aria-activedescendant={activeSuggestionId}
           placeholder="Search or enter URL"
           spellCheck={false}
           autoComplete="off"
@@ -677,6 +697,9 @@ function URLBarInner({
           (isFocused && deferredInputValue.length >= 2 && suggestionsUnavailable)) &&
           isFocused && (
             <m.div
+              id={suggestionListId}
+              role="listbox"
+              aria-label="Suggestions"
               className={`absolute left-0 right-0 z-[100] overflow-hidden rounded-xl p-1 shadow-sm ${autocompleteSurface} ${dropdownOffsetClass}`}
               style={{ originY: dropdownBelow ? 0 : 1 }}
               initial={{ scale: 0.98, opacity: 0, y: dropdownBelow ? -4 : 4 }}
@@ -690,15 +713,21 @@ function URLBarInner({
 
                 return (
                   <Button
+                    id={`${suggestionListId}-option-${i}`}
+                    role="option"
+                    aria-selected={isActive}
                     variant="ghost"
                     size="none"
                     type="button"
-                    key={entry.url}
+                    key={entry.id ?? entry.url}
                     onMouseDown={(e) => {
                       e.preventDefault()
-                      handleSuggestionClick(entry.url)
+                      handleSuggestionClick(entry)
                     }}
-                    onMouseEnter={() => setHoveredIdx(i)}
+                    onMouseEnter={() => {
+                      setHoveredIdx(i)
+                      setSelectedIndex(i)
+                    }}
                     onMouseLeave={() => setHoveredIdx(null)}
                     className={`relative flex h-9 w-full min-w-0 items-center gap-2.5 rounded-lg px-3 text-left transition-colors duration-75 ${
                       isActive || isHovered

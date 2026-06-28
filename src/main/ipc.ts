@@ -59,6 +59,8 @@ interface ManagedExtension {
   permissions: string[]
 }
 
+type PersistedManagedExtension = ManagedExtension
+
 function startPerfLogging(): void {
   if (!PERF_LOGS) return
   setInterval(() => {
@@ -695,6 +697,7 @@ export function setupIPC(): void {
   })
 
   const managedExtensions = new Map<string, ManagedExtension>()
+  const managedExtensionsPath = join(app.getPath('userData'), 'managed-extensions.json')
 
   function getExtensionSession(): Electron.Session {
     return session.fromPartition('persist:default')
@@ -722,6 +725,58 @@ export function setupIPC(): void {
       return null
     }
   }
+
+  async function saveManagedExtensions(): Promise<void> {
+    try {
+      const data = JSON.stringify(Array.from(managedExtensions.values()), null, 2)
+      await writeFile(managedExtensionsPath, data, 'utf-8')
+    } catch (err) {
+      logger.warn('Failed to save managed extensions:', err)
+    }
+  }
+
+  async function loadManagedExtensions(): Promise<void> {
+    try {
+      if (!existsSync(managedExtensionsPath)) return
+      const parsed = JSON.parse(await readFile(managedExtensionsPath, 'utf-8')) as unknown
+      if (!Array.isArray(parsed)) return
+      for (const candidate of parsed) {
+        const item = candidate as Partial<PersistedManagedExtension>
+        if (typeof item.path !== 'string') continue
+        const manifest = await readExtensionManifest(item.path)
+        if (!manifest) continue
+        const fallback: ManagedExtension = {
+          id: typeof item.id === 'string' ? item.id : item.path,
+          name: typeof item.name === 'string' ? item.name : manifest.name,
+          version: typeof item.version === 'string' ? item.version : manifest.version,
+          path: item.path,
+          enabled: item.enabled !== false,
+          permissions: Array.isArray(item.permissions) ? item.permissions.filter((permission): permission is string => typeof permission === 'string') : manifest.permissions,
+        }
+        if (!fallback.enabled) {
+          managedExtensions.set(fallback.id, fallback)
+          continue
+        }
+        try {
+          const extension = await getExtensionSession().loadExtension(fallback.path, { allowFileAccess: true })
+          managedExtensions.set(extension.id, {
+            ...fallback,
+            id: extension.id,
+            name: extension.name || fallback.name,
+            enabled: true,
+          })
+        } catch (err) {
+          logger.warn('Failed to restore extension:', err)
+          managedExtensions.set(fallback.id, { ...fallback, enabled: false })
+        }
+      }
+      await saveManagedExtensions()
+    } catch (err) {
+      logger.warn('Failed to load managed extensions:', err)
+    }
+  }
+
+  void loadManagedExtensions()
 
   ipcMain.handle('extensions:list', (event) => {
     if (!isFromAppShell(event)) return []
@@ -751,6 +806,7 @@ export function setupIPC(): void {
         permissions: manifest.permissions,
       }
       managedExtensions.set(item.id, item)
+      await saveManagedExtensions()
       return item
     } catch (err) {
       logger.warn('Failed to load extension:', err)
@@ -761,9 +817,15 @@ export function setupIPC(): void {
   ipcMain.handle('extensions:remove', (event, id: unknown) => {
     if (!isFromAppShell(event)) return false
     if (typeof id !== 'string') return false
+    if (!managedExtensions.has(id)) return false
     try {
       getExtensionSession().removeExtension(id)
+    } catch (err) {
+      logger.warn('Runtime extension was already absent while removing managed extension:', err)
+    }
+    try {
       managedExtensions.delete(id)
+      void saveManagedExtensions()
       return true
     } catch (err) {
       logger.warn('Failed to remove extension:', err)
@@ -780,11 +842,13 @@ export function setupIPC(): void {
       if (!enabled) {
         getExtensionSession().removeExtension(id)
         managedExtensions.set(id, { ...item, enabled: false })
+        await saveManagedExtensions()
         return true
       }
       const extension = await getExtensionSession().loadExtension(item.path, { allowFileAccess: true })
       managedExtensions.delete(id)
       managedExtensions.set(extension.id, { ...item, id: extension.id, enabled: true })
+      await saveManagedExtensions()
       return true
     } catch (err) {
       logger.warn('Failed to toggle extension:', err)
