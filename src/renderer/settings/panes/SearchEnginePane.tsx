@@ -69,7 +69,7 @@ function SearchEnginePaneInner(): React.JSX.Element {
                   </Text>
                   {isActive && (
                     <span className="relative ml-auto">
-                      <SvgIcon svg={checkSvg} size={18} className="text-blue-500 dark:text-blue-400" />
+                      <SvgIcon svg={checkSvg} size={18} className="text-[var(--app-accent)]" />
                     </span>
                   )}
                 </Button>

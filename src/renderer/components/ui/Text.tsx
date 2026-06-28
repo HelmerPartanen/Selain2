@@ -1,7 +1,14 @@
 import { type HTMLAttributes } from "react";
 import { cn } from "@/utils/classNames";
 
-type TextTone = "primary" | "secondary" | "muted" | "danger" | "accent";
+type TextTone =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "quaternary"
+  | "muted"
+  | "danger"
+  | "accent";
 type TextSize = "caption" | "body" | "label" | "title";
 
 interface TextProps extends HTMLAttributes<HTMLElement> {
@@ -13,6 +20,8 @@ interface TextProps extends HTMLAttributes<HTMLElement> {
 const tones: Record<TextTone, string> = {
   primary: "text-[var(--app-text-primary)]",
   secondary: "text-[var(--app-text-secondary)]",
+  tertiary: "text-[var(--app-text-tertiary)]",
+  quaternary: "text-[var(--app-text-quaternary)]",
   muted: "text-[var(--app-text-secondary)]",
   danger: "text-[var(--app-danger)]",
   accent: "text-[var(--app-accent)]",

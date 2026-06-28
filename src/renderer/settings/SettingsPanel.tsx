@@ -282,7 +282,9 @@ function SettingsPanelInner(): React.JSX.Element {
 
     <div className="flex-1 flex flex-col min-w-0">
       <div className="relative flex items-center justify-center px-6 pt-3 pb-3">
-        <h3 className="text-[13px] font-semibold text-[var(--app-text-primary)]">{categoryLabel}</h3>
+        <Text as="h3" size="caption" tone="primary" className="font-semibold">
+          {categoryLabel}
+        </Text>
 
         <Button
           variant="icon"

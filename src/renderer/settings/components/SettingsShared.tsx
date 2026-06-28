@@ -74,7 +74,7 @@ export function SettingRow({
   return (
     <div className="flex items-center justify-between gap-4 border-b border-[var(--app-separator)] px-4 py-3 last:border-b-0">
       <div className="min-w-0">
-        <Text size="body" tone="secondary" className="font-normal">
+        <Text size="body" tone="primary" className="font-normal">
           {label}
         </Text>
         {desc && (

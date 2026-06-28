@@ -3,6 +3,7 @@ import { m } from "motion/react";
 import { SPRING_LIST } from "@/utils/springs";
 import { SettingGroup } from "@/settings/components/SettingsShared";
 import { GroupBox } from "@/components/ui/GroupBox";
+import { Text } from "@/components/ui/Text";
 import { GesturesPane } from "@/settings/panes/GesturesPane";
 
 const ShortcutRow = memo(function ShortcutRow({
@@ -21,7 +22,9 @@ const ShortcutRow = memo(function ShortcutRow({
             transition={{ ...SPRING_LIST, delay: index * 0.02 }}
             className="relative flex items-center justify-between gap-4 px-3 py-1.5 rounded-xl hover:bg-[var(--app-control-hover)] transition-all duration-150"
         >
-            <span className="relative text-[13px] text-gray-700 dark:text-neutral-300 z-10">{description}</span>
+            <Text as="span" size="caption" tone="secondary" className="relative z-10">
+                {description}
+            </Text>
             <div className="relative z-10">
                 <KeyCombo keys={keys} />
             </div>
@@ -93,7 +96,11 @@ function KeyCombo({ keys }: { keys: string }): React.JSX.Element {
         <div className="flex items-center gap-1 flex-shrink-0">
             {parts.map((part, i) => (
                 <span key={i} className="flex items-center gap-1">
-                    {i > 0 && <span className="text-[10px] text-gray-300 dark:text-neutral-600">+</span>}
+                    {i > 0 && (
+                        <Text as="span" size="caption" tone="tertiary" className="text-[10px]">
+                            +
+                        </Text>
+                    )}
                     <KeyBadge label={part} />
                 </span>
             ))}

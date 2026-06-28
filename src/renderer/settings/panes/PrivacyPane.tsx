@@ -195,7 +195,7 @@ function PrivacyPaneInner(): React.JSX.Element {
               onClick={() => setPrivacyProfile(id)}
               className={`h-auto flex-col items-start rounded-xl px-3 py-3 text-left transition-colors ${
                 privacyProfile === id
-                  ? '!bg-emerald-500/20 text-emerald-600 dark:text-green-500 hover:text-emerald-600 dark:hover:text-green-500'
+                  ? '!bg-emerald-500/20 !text-[var(--app-text-primary)]'
                   : 'text-[var(--app-text-secondary)] hover:bg-[var(--app-control-hover)]'
               }`}
             >
@@ -252,9 +252,9 @@ function PrivacyPaneInner(): React.JSX.Element {
       >
         <SettingGroup>
           {permissionEntries.length === 0 ? (
-            <div className="px-3.5 py-3 text-[12px] text-gray-400 dark:text-neutral-500">
+            <Text size="caption" tone="tertiary" className="px-3.5 py-3">
               No saved site permission decisions yet.
-            </div>
+            </Text>
           ) : (
             <>
               {permissionEntries.slice(0, 12).map((entry) => (
@@ -277,9 +277,9 @@ function PrivacyPaneInner(): React.JSX.Element {
                 </SettingRow>
               ))}
               {permissionEntries.length > 12 && (
-                <p className="text-xs text-gray-400 dark:text-neutral-500 text-center py-2">
+                <Text size="caption" tone="tertiary" className="py-2 text-center">
                   {permissionEntries.length - 12} more sites - clear all to reset
-                </p>
+                </Text>
               )}
             </>
           )}

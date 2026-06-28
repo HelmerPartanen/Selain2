@@ -89,9 +89,9 @@ function AppearancePaneInner(): React.JSX.Element {
   <span className={`relative ${activeIconClass}`}>
     <SvgIcon svg={icon} size={22} />
   </span>
-  <span className="relative text-[12px] font-medium">
+  <Text as="span" size="caption" tone="secondary" className="relative">
     {label}
-  </span>
+  </Text>
 </Button>
             );
           })}
@@ -177,12 +177,15 @@ function AppearancePaneInner(): React.JSX.Element {
             aria-valuenow={autoHideDelay}
             aria-valuetext={`${(autoHideDelay / 1000).toFixed(1)} seconds`}
           />
-          <span
-            className="text-[12px] font-normal text-gray-400 dark:text-neutral-500 w-10 text-right tabular-nums"
+          <Text
+            as="span"
+            size="caption"
+            tone="tertiary"
+            className="w-10 text-right font-normal tabular-nums"
             aria-hidden="true"
           >
             {(autoHideDelay / 1000).toFixed(1)}s
-          </span>
+          </Text>
         </div>
         ) : (
           <Text size="caption" tone="muted">
