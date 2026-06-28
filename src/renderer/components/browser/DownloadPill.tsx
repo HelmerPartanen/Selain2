@@ -2,6 +2,7 @@ import { memo, useCallback, useMemo, useRef, useEffect, useLayoutEffect, useStat
 import { m, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { SvgIcon, PAUSE_SVG } from '@/components/ui/SvgIcon'
+import { Text } from '@/components/ui/Text'
 import downloadSvg from '@/assets/icons/Objects/Tray_Arrow_Down.svg?raw'
 import checkSvg from '@/assets/icons/Interface/Check.svg?raw'
 import playSvg from '@/assets/icons/Arrows/Triangle_Forward_Fill.svg?raw'
@@ -25,38 +26,38 @@ const DownloadRow = memo(function DownloadRow({ item }: { item: DownloadItem }):
 
   return (
     <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--app-control-hover)] transition-colors duration-75 group">
-      <div className="w-7 h-7 rounded-md bg-gray-100 dark:bg-neutral-800 flex items-center justify-center flex-shrink-0">
+      <div className="w-7 h-7 rounded-md bg-[var(--app-bg-secondary)] flex items-center justify-center flex-shrink-0">
         {item.state === 'completed' ? (
-          <SvgIcon svg={checkSvg} size={12} className="text-green-500" />
+          <SvgIcon svg={checkSvg} size={12} className="text-[var(--app-success)]" />
         ) : (
-          <SvgIcon svg={downloadSvg} size={12} className="text-blue-500" />
+          <SvgIcon svg={downloadSvg} size={12} className="text-[var(--app-accent)]" />
         )}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="text-[12px] font-medium text-gray-800 dark:text-neutral-200 truncate">
+        <Text as="div" size="caption" tone="primary" className="truncate text-[12px] font-medium">
           {item.filename}
-        </div>
+        </Text>
         {isActive && (
           <div className="flex items-center gap-1.5 mt-0.5">
-            <div className="flex-1 h-[3px] rounded-full bg-gray-200 dark:bg-neutral-700 overflow-hidden">
+            <div className="flex-1 h-[3px] rounded-full bg-[var(--app-control-active)] overflow-hidden">
               <div
-                className="h-full bg-blue-500 rounded-full transition-[width] duration-300"
+                className="h-full bg-[var(--app-accent)] rounded-full transition-[width] duration-150"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
-            <span className="text-[10px] text-gray-400 dark:text-neutral-500 tabular-nums flex-shrink-0">
+            <Text as="span" size="caption" tone="muted" className="text-[10px] tabular-nums flex-shrink-0">
               {Math.round(progress * 100)}%
-            </span>
+            </Text>
           </div>
         )}
         {item.state === 'completed' && (
-          <div className="text-[10px] text-gray-400 dark:text-neutral-500 mt-0.5">
+          <Text as="div" size="caption" tone="muted" className="mt-0.5 text-[10px]">
             {formatBytes(item.totalBytes)}
-          </div>
+          </Text>
         )}
         {item.state === 'failed' && (
-          <div className="text-[10px] text-red-400 mt-0.5">Failed</div>
+          <Text as="div" size="caption" tone="danger" className="mt-0.5 text-[10px]">Failed</Text>
         )}
       </div>
 
@@ -226,7 +227,7 @@ function DownloadPillInner(): React.JSX.Element {
             className="h-10 rounded-full flex items-center justify-center bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] px-3 gap-1.5 select-none hover:bg-[var(--app-control-hover)] active:scale-95 transition-colors duration-100"
           >
             <div className="relative">
-              <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-blue-500' : 'text-gray-600 dark:text-neutral-400'} />
+              <SvgIcon svg={downloadSvg} size={15} className={hasActive ? 'text-[var(--app-accent)]' : 'text-[var(--app-text-secondary)]'} />
               {hasActive && (
                 <svg
                   className="absolute -inset-[5px]"
@@ -245,13 +246,13 @@ function DownloadPillInner(): React.JSX.Element {
                     strokeLinecap="round"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
-                    className="text-blue-500 transition-[stroke-dashoffset] duration-300"
+                    className="text-[var(--app-accent)] transition-[stroke-dashoffset] duration-150"
                   />
                 </svg>
               )}
             </div>
             {activeCount > 0 && (
-              <span className="text-xs font-semibold text-blue-500 tabular-nums">{activeCount}</span>
+              <Text as="span" size="caption" tone="accent" className="font-semibold tabular-nums">{activeCount}</Text>
             )}
           </Button>
         )}
@@ -268,9 +269,9 @@ function DownloadPillInner(): React.JSX.Element {
             transition={{ duration: 0.12, ease: 'easeOut' }}
           >
               <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
-                <span className="text-xs font-semibold text-gray-500 dark:text-neutral-500 uppercase tracking-wide">
+                <Text as="span" size="caption" tone="muted" className="font-semibold uppercase tracking-wide">
                   Downloads
-                </span>
+                </Text>
                 <Button
                   variant="link"
                   size="xs"

@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { m } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { PanelModal } from '@/components/ui/PanelModal'
+import { PanelHeader, EmptyState } from '@/components/ui/PanelParts'
 import { SvgIcon } from '@/components/ui/SvgIcon'
 import { TextInput } from '@/components/ui/Input'
 import { Text } from '@/components/ui/Text'
@@ -10,7 +11,6 @@ import globeSvg from '@/assets/icons/Nature/Globe_Fill.svg?raw'
 import searchSvg from '@/assets/icons/Objects/Search.svg?raw'
 import trashSvg from '@/assets/icons/Objects/Trash.svg?raw'
 import counterclockwiseSvg from '@/assets/icons/Arrows/Counterclockwise.svg?raw'
-import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { useHistoryStore, type HistoryEntry } from '@/store/historyStore'
 import { useTabStore, type ClosedTab } from '@/store/tabStore'
 import { useUIStore } from '@/store/uiStore'
@@ -36,11 +36,8 @@ const HistoryRow = memo(function HistoryRow({
   const [hovered, setHovered] = useState(false)
 
   return (
-    <m.button
+    <button
       type="button"
-      initial={{ opacity: 0, y: 0 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.1, ease: 'easeOut' }}
       onClick={(e) => {
         if (e.ctrlKey || e.metaKey) {
           useTabStore.getState().addTabInCurrentContext(entry.url)
@@ -60,26 +57,26 @@ const HistoryRow = memo(function HistoryRow({
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
-      className="relative group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-[var(--app-control-hover)] transition-colors duration-150"
+      className="relative group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-100 hover:bg-[var(--app-control-hover)] focus-visible:bg-[var(--app-control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)]"
     >
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {entry.favicon ? (
           <img src={entry.favicon} alt="" className="w-6 h-6" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
-          <SvgIcon svg={globeSvg} size={28} className="text-[var(--app-text-tertiary)]" />
+          <SvgIcon svg={globeSvg} size={24} className="text-[var(--app-text-tertiary)]" />
         )}
       </div>
       <div className="flex-1 min-w-0 z-10">
-        <div className="text-sm font-medium text-[var(--app-text-primary)] truncate">
+        <Text as="div" size="body" tone="primary" className="truncate font-medium">
           {entry.title || simplifyUrl(entry.url)}
-        </div>
-        <div className="text-xs text-[var(--app-text-tertiary)] truncate">
+        </Text>
+        <Text as="div" size="caption" tone="muted" className="truncate">
           {simplifyUrl(entry.url)}
-        </div>
+        </Text>
       </div>
-      <span className="flex-shrink-0 text-[11px] text-[var(--app-text-tertiary)] z-10">
+      <Text as="span" size="caption" tone="muted" className="z-10 flex-shrink-0 text-[11px]">
         {formatTime(entry.timestamp)}
-      </span>
+      </Text>
       <Button
         variant="ghost"
         size="icon-sm"
@@ -88,12 +85,12 @@ const HistoryRow = memo(function HistoryRow({
           e.stopPropagation()
           onRemove(entry.url)
         }}
-        className="z-10 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-        aria-label="Remove"
+        className="z-10 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+        aria-label="Remove history item"
       >
         <SvgIcon svg={trashSvg} size={14} />
       </Button>
-    </m.button>
+    </button>
   )
 })
 
@@ -107,35 +104,32 @@ const RecentlyClosedRow = memo(function RecentlyClosedRow({
   const [hovered, setHovered] = useState(false)
 
   return (
-    <m.button
+    <button
       type="button"
-      initial={{ opacity: 0, y: 0 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.1, ease: 'easeOut' }}
       onClick={onReopen}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-[var(--app-control-hover)] transition-colors duration-150"
+      className="relative group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-100 hover:bg-[var(--app-control-hover)] focus-visible:bg-[var(--app-control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)]"
     >
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden z-10">
         {tab.favicon ? (
           <img src={tab.favicon} alt="" className="w-6 h-6" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
         ) : (
-          <SvgIcon svg={globeSvg} size={28} className="text-[var(--app-text-tertiary)]" />
+          <SvgIcon svg={globeSvg} size={24} className="text-[var(--app-text-tertiary)]" />
         )}
       </div>
       <div className="flex-1 min-w-0 z-10">
-        <div className="text-sm font-medium text-[var(--app-text-primary)] truncate">
+        <Text as="div" size="body" tone="primary" className="truncate font-medium">
           {tab.title || simplifyUrl(tab.url)}
-        </div>
-        <div className="text-xs text-[var(--app-text-tertiary)] truncate">
+        </Text>
+        <Text as="div" size="caption" tone="muted" className="truncate">
           {simplifyUrl(tab.url)}
-        </div>
+        </Text>
       </div>
-      <span className="flex-shrink-0 text-[11px] text-[var(--app-accent)] z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+      <Text as="span" size="caption" tone="accent" className="z-10 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
         Open
-      </span>
-    </m.button>
+      </Text>
+    </button>
   )
 })
 
@@ -250,23 +244,13 @@ function HistoryPanelInner(): React.JSX.Element {
       height="650px"
       className="flex flex-col"
     >
-      <div className="flex items-center justify-between px-3 pt-3 pb-3 flex-shrink-0">
-        <h2 className="text-[15px] font-medium text-[var(--app-text-primary)] tracking-tight flex items-center gap-2">
-          <SvgIcon svg={counterclockwiseSvg} size={16} />
-          History
-        </h2>
-        <div className="flex items-center gap-2">
-          {clearButton}
-          <Button
-            variant="icon"
-            rounded="rounded-lg"
-            onClick={closeHistory}
-            aria-label="Close history"
-          >
-            <SvgIcon svg={closeSvg} size={13} />
-          </Button>
-        </div>
-      </div>
+      <PanelHeader
+        icon={counterclockwiseSvg}
+        title="History"
+        onClose={closeHistory}
+        closeLabel="Close history"
+        actions={clearButton}
+      />
 
       {entries.length > 0 && (
         <div className="px-6 pt-4 pb-2 flex-shrink-0">
@@ -286,15 +270,17 @@ function HistoryPanelInner(): React.JSX.Element {
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 glass-scroll" onScroll={handleScroll}>
         {entries.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-[var(--app-text-tertiary)]">
-            <SvgIcon svg={counterclockwiseSvg} size={40} className="mb-3 opacity-50" />
-            <p className="text-sm">No history yet</p>
-            <p className="text-xs mt-1 opacity-70">Pages you visit will appear here</p>
-          </div>
+          <EmptyState
+            icon={counterclockwiseSvg}
+            title="No history yet"
+            description="Pages you visit will appear here."
+          />
         ) : searchResults ? (
           <div className="space-y-0.5">
             {searchResults.length === 0 ? (
-              <p className="text-center text-sm text-[var(--app-text-tertiary)] py-8">No matching history</p>
+              <Text size="body" tone="muted" className="py-8 text-center">
+                No results
+              </Text>
             ) : (
               searchResults.slice(0, renderLimit).map((entry) => (
                 <HistoryRow
@@ -306,9 +292,9 @@ function HistoryPanelInner(): React.JSX.Element {
               ))
             )}
             {searchResults.length > renderLimit && (
-              <div className="px-3 py-2 text-xs text-[var(--app-text-tertiary)]">
-                Loading more... ({renderLimit}/{searchResults.length})
-              </div>
+              <Text size="caption" tone="muted" className="px-3 py-2">
+                Loading more ({renderLimit}/{searchResults.length})
+              </Text>
             )}
           </div>
         ) : (
@@ -337,9 +323,9 @@ function HistoryPanelInner(): React.JSX.Element {
               </GroupBox>
             ))}
             {hasMoreHistory && (
-              <div className="px-3 py-2 text-xs text-[var(--app-text-tertiary)] text-center">
-                Loading more...
-              </div>
+              <Text size="caption" tone="muted" className="px-3 py-2 text-center">
+                Loading more
+              </Text>
             )}
           </div>
         )}

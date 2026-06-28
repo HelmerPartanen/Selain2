@@ -89,7 +89,7 @@ function SpaceRow({
       {/* Move active tab here — only on non-active spaces when multiple exist */}
       {!isActive && hasMultipleSpaces && (
         <div
-          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500 hover:bg-blue-500/[0.08] dark:hover:bg-blue-500/[0.08] transition-all duration-100"
+          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer text-[var(--app-text-tertiary)] hover:text-[var(--app-accent)] hover:bg-[var(--app-accent-bg)] transition-all duration-100"
           onClick={(e) => {
             e.stopPropagation()
             onMoveTab()
@@ -114,7 +114,7 @@ function SpaceRow({
       {/* Delete (not General) */}
       {!isGeneral && (
         <div
-          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:bg-red-500/[0.08] dark:hover:bg-red-500/[0.08] hover:text-red-500 transition-all duration-100"
+          className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer text-[var(--app-text-tertiary)] hover:bg-[var(--app-danger-bg)] hover:text-[var(--app-danger)] transition-all duration-100"
           onClick={(e) => {
             e.stopPropagation()
             onDelete()
@@ -170,14 +170,14 @@ function NewSpaceForm({
           size="none"
           rounded="rounded-full"
           onClick={() => setSelectedHue(-1)}
-          className={`w-6 h-6 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
+          className={`w-6 h-6 rounded-full bg-[var(--app-control-active)] flex items-center justify-center transition-all duration-100 ${
             selectedHue === -1
-              ? 'ring-2 ring-offset-1 ring-blue-500 dark:ring-blue-500 dark:ring-offset-neutral-800 scale-110'
+              ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
               : 'hover:scale-110'
           }`}
           title="No tint"
         >
-          <svg width="10" height="10" viewBox="0 0 10 10" className="text-gray-400 dark:text-neutral-500">
+          <svg width="10" height="10" viewBox="0 0 10 10" className="text-[var(--app-text-tertiary)]">
             <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </Button>
@@ -190,7 +190,7 @@ function NewSpaceForm({
             onClick={() => setSelectedHue(preset.hue)}
             className={`w-6 h-6 rounded-full transition-all duration-100 ${
               selectedHue === preset.hue
-                ? 'ring-2 ring-offset-1 ring-blue-500 dark:ring-blue-500 dark:ring-offset-neutral-800 scale-110'
+                ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
                 : 'hover:scale-110'
             }`}
             style={{ background: `hsl(${preset.hue} 55% 55%)` }}
@@ -269,14 +269,14 @@ function EditSpaceForm({
           size="none"
           rounded="rounded-full"
           onClick={() => setSelectedHue(-1)}
-          className={`w-5 h-5 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center transition-all duration-100 ${
+          className={`w-5 h-5 rounded-full bg-[var(--app-control-active)] flex items-center justify-center transition-all duration-100 ${
             selectedHue === -1
-              ? 'ring-2 ring-offset-1 ring-gray-400 dark:ring-neutral-400 dark:ring-offset-neutral-800 scale-110'
+              ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
               : 'hover:scale-110'
           }`}
           title="None"
         >
-          <svg width="10" height="10" viewBox="0 0 10 10" className="text-gray-400 dark:text-neutral-500">
+          <svg width="10" height="10" viewBox="0 0 10 10" className="text-[var(--app-text-tertiary)]">
             <line x1="1.5" y1="8.5" x2="8.5" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
         </Button>
@@ -289,7 +289,7 @@ function EditSpaceForm({
             onClick={() => setSelectedHue(preset.hue)}
             className={`w-5 h-5 rounded-full transition-all duration-100 ${
               selectedHue === preset.hue
-                ? 'ring-2 ring-offset-1 ring-gray-400 dark:ring-neutral-400 dark:ring-offset-neutral-800 scale-110'
+                ? 'ring-2 ring-offset-1 ring-[var(--app-accent)] ring-offset-[var(--app-bg-primary)] scale-110'
                 : 'hover:scale-110'
             }`}
             style={{ background: `hsl(${preset.hue} 55% 55%)` }}
@@ -541,7 +541,7 @@ className={`${
                         variant="ghost"
                         size="md"
                         onClick={() => setIsCreating(true)}
-                        className="h-10 w-full justify-start gap-3 rounded-xl px-2.5 text-left text-gray-500 dark:text-neutral-500"
+                        className="h-10 w-full justify-start gap-3 rounded-xl px-2.5 text-left text-[var(--app-text-secondary)]"
                       >
                         <SvgIcon svg={plusSvg} size={14} />
                         <span className="text-[13px]">New space</span>

@@ -22,7 +22,7 @@ const tones: Record<TextTone, string> = {
   secondary: "text-[var(--app-text-secondary)]",
   tertiary: "text-[var(--app-text-tertiary)]",
   quaternary: "text-[var(--app-text-quaternary)]",
-  muted: "text-[var(--app-text-secondary)]",
+  muted: "text-[var(--app-text-tertiary)]",
   danger: "text-[var(--app-danger)]",
   accent: "text-[var(--app-accent)]",
 };

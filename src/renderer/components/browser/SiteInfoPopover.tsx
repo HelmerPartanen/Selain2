@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { m } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { SvgIcon } from '@/components/ui/SvgIcon'
+import { Text } from '@/components/ui/Text'
 import lockFillSvg from '@/assets/icons/Objects/Lock_Fill.svg?raw'
 import globeSvg from '@/assets/icons/Nature/Globe_2_Fill.svg?raw'
 import { Card } from "@/components/ui/Card";
@@ -80,7 +81,7 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
     if (!origin) return
     const ok = await window.electronAPI.forgetSite(origin)
     if (ok) resetOrigin(origin)
-    showToast({ message: ok ? 'Site forgotten' : 'Could not forget site', type: ok ? 'success' : 'error' })
+    showToast({ message: ok ? 'Site data removed' : 'Site data could not be removed', type: ok ? 'success' : 'error' })
     onClose()
   }, [origin, resetOrigin, onClose])
 
@@ -180,73 +181,73 @@ export const SiteInfoPopover = memo(function SiteInfoPopover({
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                     isSecure
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                      : 'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-neutral-400'
+                      ? 'bg-[var(--app-accent-bg)] text-[var(--app-success)]'
+                      : 'bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]'
                   }`}
                 >
                   <SvgIcon svg={isSecure ? lockFillSvg : globeSvg} size={20} />
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {hostname || 'Unknown Site'}
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">
+                  <Text as="h3" size="body" tone="primary" className="truncate font-medium">
+                    {hostname || 'Unknown site'}
+                  </Text>
+                  <Text size="caption" tone="muted" className="mt-0.5">
                     {isSecure ? 'Secure connection' : 'Connection is not secure'}
-                  </p>
+                  </Text>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-gray-500 dark:text-neutral-400">
+                <Text size="caption" tone="muted">
                   {isSecure
                     ? 'Information you send is encrypted.'
                     : 'Avoid entering sensitive information on this site.'}
-                </p>
+                </Text>
 
                 <div className="grid grid-cols-2 gap-2">
                   <Card variant="surface">
                   <div>
-                    <div className="text-[10px] tracking-wide text-gray-400 dark:text-neutral-500">Cookies</div>
-                    <div className="text-[13px] text-gray-800 dark:text-neutral-100">{siteInfo?.cookieCount ?? 0}</div>
+                    <Text as="div" size="caption" tone="muted" className="text-[10px] uppercase tracking-wide">Cookies</Text>
+                    <Text as="div" size="caption" tone="primary">{siteInfo?.cookieCount ?? 0}</Text>
                   </div>
                   </Card>
 
                   <Card variant="surface">
                   <div>
-                    <div className="text-[10px] tracking-wide text-gray-400 dark:text-neutral-500">Cache</div>
-                    <div className="text-[13px] text-gray-800 dark:text-neutral-100">
+                    <Text as="div" size="caption" tone="muted" className="text-[10px] uppercase tracking-wide">Cache</Text>
+                    <Text as="div" size="caption" tone="primary">
                       {siteInfo ? `${Math.round(siteInfo.cacheSize / 1024 / 1024)} MB` : '0 MB'}
-                    </div>
+                    </Text>
                   </div>
                   </Card>
                 </div>
 
                 <div className="pt-2">
-                  <div className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1">Protection</div>
-                  <div className="text-xs text-gray-600 dark:text-neutral-300">
+                  <Text as="div" size="caption" tone="muted" className="mb-1 text-[10px] uppercase tracking-wide">Protection</Text>
+                  <Text size="caption" tone="secondary">
                     Ad and tracker blocking is {siteInfo?.adblockerEnabled ? 'on' : 'off'}.
-                  </div>
+                  </Text>
                 </div>
 
                 <div className="pt-2">
-                  <div className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1">Permissions</div>
+                  <Text as="div" size="caption" tone="muted" className="mb-1 text-[10px] uppercase tracking-wide">Permissions</Text>
                   {permissionEntries.length === 0 ? (
-                    <div className="text-xs text-gray-500 dark:text-neutral-400">No saved permissions.</div>
+                    <Text size="caption" tone="muted">No saved permissions.</Text>
                   ) : (
                     <div className="space-y-1">
                       {permissionEntries.map((entry) => (
                         <div key={`${entry.origin}-${entry.permission}`} className="flex items-center justify-between gap-2 text-xs">
-                          <span className="text-gray-600 dark:text-neutral-300 truncate">
+                          <Text as="span" size="caption" tone="secondary" className="truncate">
                             {SITE_PERMISSION_LABELS[entry.permission] ?? entry.permission}
-                          </span>
+                          </Text>
                           <span
                             className={`capitalize ${
                               entry.decision === 'allow'
-                                ? 'text-green-600 dark:text-green-400'
+                                ? 'text-[var(--app-success)]'
                                 : entry.decision === 'deny'
-                                  ? 'text-red-500'
-                                  : 'text-gray-400'
+                                  ? 'text-[var(--app-danger)]'
+                                  : 'text-[var(--app-text-tertiary)]'
                             }`}
                           >
                             {entry.decision}

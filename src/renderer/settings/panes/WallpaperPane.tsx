@@ -430,7 +430,7 @@ function WallpaperPaneInner(): React.JSX.Element {
       showToast({ message: saved ? "Background updated" : "Background could not be saved", type: saved ? "success" : "error" });
     } catch (err) {
       logger.error("Failed to import wallpaper:", err);
-      showToast({ message: "Failed to set background", type: "error" });
+      showToast({ message: "Background could not be changed", type: "error" });
     } finally {
       setIsUploading(false);
     }
@@ -439,7 +439,7 @@ function WallpaperPaneInner(): React.JSX.Element {
   const handleRemoveCustom = useCallback(async (item: CustomWallpaper) => {
     const deleted = await window.electronAPI.deleteCustomWallpaper(item.id);
     if (!deleted) {
-      showToast({ message: "Failed to remove background", type: "error" });
+      showToast({ message: "Background could not be removed", type: "error" });
       return;
     }
     setCustomWallpapers((items) => items.filter((wp) => wp.id !== item.id));
@@ -451,7 +451,7 @@ function WallpaperPaneInner(): React.JSX.Element {
 
   const handleClear = useCallback(async () => {
     const saved = await setWallpaper(null);
-    showToast({ message: saved ? "Background removed" : "Failed to remove background", type: saved ? "info" : "error" });
+    showToast({ message: saved ? "Background removed" : "Background could not be removed", type: saved ? "info" : "error" });
   }, [setWallpaper]);
 
   return (
@@ -536,7 +536,7 @@ function WallpaperPaneInner(): React.JSX.Element {
             className="flex-1"
           >
             <SvgIcon svg={uploadSvg} size={14} />
-            {isUploading ? "Importing..." : "Upload image"}
+            {isUploading ? "Importing" : "Upload image"}
           </Button>
           <Button
             variant="danger"

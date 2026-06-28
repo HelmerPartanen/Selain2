@@ -10,6 +10,12 @@ import infoSvg from '@/assets/icons/Interface/Warn_Info.svg?raw'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import { SPRING } from '@/utils/springs'
 
+const toastIconClass: Record<Toast['type'], string> = {
+  success: 'text-[var(--app-success)]',
+  error: 'text-[var(--app-danger)]',
+  info: 'text-[var(--app-accent)]',
+}
+
 function useToasts(): Toast[] {
   const [, forceUpdate] = useState(0)
   useEffect(() => {
@@ -43,22 +49,14 @@ function ToastContainerInner(): React.JSX.Element {
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: 0 }}
                 transition={{ duration: 5, ease: 'linear' }}
-                className="absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-current opacity-15"
-                style={{ color: toast.type === 'success' ? '#22c55e' : toast.type === 'error' ? '#ef4444' : '#6366f1' }}
+                className={`absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-current opacity-15 ${toastIconClass[toast.type]}`}
               />
             )}
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${toast.type === 'success' ? 'bg-green-100 dark:bg-green-900/30' :
-                toast.type === 'error' ? 'bg-transparent' :
-                  'bg-transparent'
-              }`}>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
               <SvgIcon
                 svg={toast.type === 'error' ? warnSvg : toast.type === 'info' ? infoSvg : checkSvg}
                 size={24}
-                className={
-                  toast.type === 'success' ? 'text-green-500' :
-                    toast.type === 'error' ? 'text-red-500' :
-                      'text-blue-500'
-                }
+                className={toastIconClass[toast.type]}
               />
             </div>
             <Text as="span" size="body" tone="secondary" className="line-clamp-3 flex-1 break-words">
@@ -82,7 +80,7 @@ function ToastContainerInner(): React.JSX.Element {
               size="none"
               rounded="rounded-full"
               onClick={() => handleDismiss(toast.id)}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-white flex-shrink-0 transition-colors"
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[var(--app-text-tertiary)] hover:text-[var(--app-text-primary)] flex-shrink-0"
               aria-label="Dismiss notification"
             >
               <SvgIcon svg={closeSvg} size={10} />

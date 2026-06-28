@@ -174,7 +174,7 @@ const TabStripItem = memo(function TabStripItem({
           <SvgIcon
             svg={SPINNER_SVG}
             size={14}
-            className="animate-spin text-gray-400"
+            className="animate-spin text-[var(--app-text-tertiary)]"
           />
         ) : favicon ? (
           <img
@@ -184,7 +184,7 @@ const TabStripItem = memo(function TabStripItem({
             draggable={false}
           />
         ) : (
-          <SvgIcon svg={globeSvg} size={14} className="text-gray-400" />
+          <SvgIcon svg={globeSvg} size={14} className="text-[var(--app-text-tertiary)]" />
         )}
       </div>
 
@@ -204,13 +204,13 @@ const TabStripItem = memo(function TabStripItem({
         <SvgIcon
           svg={splitSvg}
           size={10}
-          className="flex-shrink-0 text-blue-500"
+          className="flex-shrink-0 text-[var(--app-accent)]"
         />
       )}
 
       {showActions && (isPlayingMedia || isMuted) && (
         <div
-          className="flex-shrink-0 w-4 h-4 flex items-center justify-center rounded-full cursor-pointer text-blue-500 hover:text-blue-600"
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full cursor-pointer text-[var(--app-accent)] hover:bg-[var(--app-control-hover)]"
           onClick={(e) => {
             e.stopPropagation();
 
@@ -226,13 +226,13 @@ const TabStripItem = memo(function TabStripItem({
         <SvgIcon
           svg={pinFillSvg}
           size={9}
-          className="flex-shrink-0 text-amber-500 opacity-70"
+          className="flex-shrink-0 text-[var(--app-accent)] opacity-70"
         />
       )}
 
       {showActions && !isActive && (
         <div
-          className="flex-shrink-0 w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500"
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer text-[var(--app-text-tertiary)] hover:text-[var(--app-accent)] hover:bg-[var(--app-control-hover)]"
           onClick={handleSplit}
           title={
             isSplitTarget ? "Remove split" : isSplit ? "Replace split tab" : "Open in split view"
@@ -249,7 +249,7 @@ const TabStripItem = memo(function TabStripItem({
         <div
           className={`flex-shrink-0 w-4 h-4 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity ${
             pinned
-              ? "text-gray-300 cursor-not-allowed"
+              ? "text-[var(--app-text-tertiary)] cursor-not-allowed"
               : "text-[var(--app-text-primary)] hover:bg-[var(--app-bg-secondary)]"
           }`}
           onClick={pinned ? undefined : handleClose}

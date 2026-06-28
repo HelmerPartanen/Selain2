@@ -138,7 +138,7 @@ function ClassicBrowserChromeInner(): React.JSX.Element {
               animate={{ width: 36, opacity: 1 }}
               exit={disableAnimations ? undefined : { width: 0, opacity: 0 }}
               transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
-              className="flex-shrink-0 overflow-hidden text-blue-500"
+              className="flex-shrink-0 overflow-hidden text-[var(--app-accent)]"
             >
               <SvgIcon svg={unsplitSvg} size={15} />
             </Button>

@@ -41,7 +41,7 @@ const menuItems = [
   { id: "exit-private-mode", label: "Exit private mode", icon: privateSvg, shortcut: "" },
   { id: "home", label: "Home", icon: homeSvg, shortcut: "" },
   { id: "divider", label: "", icon: null, shortcut: "" },
-  { id: "find", label: "Find in Page", icon: searchSvg, shortcut: "Ctrl+F" },
+  { id: "find", label: "Find in page", icon: searchSvg, shortcut: "Ctrl+F" },
   {
     id: "tab-overview",
     label: "Tab overview",

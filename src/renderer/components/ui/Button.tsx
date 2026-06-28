@@ -34,7 +34,7 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   ghost:
-    "text-[var(--app-text-secondary)] bg-transparent hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)] focus:none",
+    "text-[var(--app-text-secondary)] bg-transparent hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]",
   solid:
     "text-[var(--app-accent)] bg-[var(--app-accent-bg)] hover:bg-[var(--app-accent-bg-hover)]",
   subtle:
@@ -86,7 +86,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         data-active={active ? "true" : "false"}
         className={cn(
-          "inline-flex items-center justify-center gap-2 select-none whitespace-nowrap font-medium transition-colors duration-150",
+          "inline-flex items-center justify-center gap-2 select-none whitespace-nowrap font-medium transition-[background-color,color,border-color,opacity] duration-100",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--app-bg-primary)]",
           "disabled:cursor-not-allowed disabled:opacity-40 disabled:pointer-events-none",
           rounded,

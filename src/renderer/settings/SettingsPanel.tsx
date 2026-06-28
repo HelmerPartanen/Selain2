@@ -65,14 +65,14 @@ interface CategoryItem {
 }
 
 const CATEGORIES: CategoryItem[] = [
-  { id: "general", label: "Startup", icon: settingsSvg, colorClass: "bg-neutral-400 text-neutral-50" },
-  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-indigo-100 text-indigo-500" },
-  { id: "wallpaper", label: "Background", icon: cameraSvg, colorClass: "bg-blue-100 text-blue-500" },
-  { id: "tabs", label: "Tabs", icon: tabsSvg, colorClass: "bg-sky-100 text-sky-600" },
-  { id: "search", label: "Search", icon: searchSvg, colorClass: "bg-blue-100 text-blue-500" },
-  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-emerald-100 text-emerald-500" },
-  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-amber-500 text-white" },
-  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-slate-700 text-slate-100" },
+  { id: "general", label: "Startup", icon: settingsSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "appearance", label: "Appearance", icon: brushSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "wallpaper", label: "Background", icon: cameraSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "tabs", label: "Tabs", icon: tabsSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "search", label: "Search", icon: searchSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "privacy", label: "Privacy", icon: shieldSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "hotkeys", label: "Shortcuts", icon: keyboardSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
+  { id: "about", label: "About", icon: infoSvg, colorClass: "bg-[var(--app-bg-tertiary)] text-[var(--app-text-secondary)]" },
 ];
 
 // --- Content Pane Router ------------------------------------------------------
@@ -211,7 +211,7 @@ function Sidebar({
   )}
 >
   <span
-    className={`w-8 h-8 flex items-center justify-center rounded-full shrink-0 transition-all duration-150 ${colorClass}`}
+    className={`w-8 h-8 flex items-center justify-center rounded-lg shrink-0 transition-colors duration-100 ${isActive ? "bg-[var(--app-accent-bg)] text-[var(--app-accent)]" : colorClass}`}
   >
     <SvgIcon svg={icon} size={18} />
   </span>

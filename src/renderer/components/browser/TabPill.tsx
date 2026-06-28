@@ -40,7 +40,7 @@ const ContextMenuItem = memo(function ContextMenuItem({
       disabled={disabled}
       className={`h-9 w-full justify-start gap-2.5 rounded-lg px-3.5 text-left text-[13px] font-light ${
         disabled
-          ? 'opacity-40 cursor-not-allowed text-gray-700 dark:text-neutral-300'
+          ? 'opacity-40 cursor-not-allowed text-[var(--app-text-tertiary)]'
           : danger
             ? 'text-[var(--app-danger)] hover:text-[var(--app-danger)] hover:bg-[var(--app-danger-bg)]'
             : 'text-[var(--app-text-secondary)] hover:text-[var(--app-text-primary)] hover:bg-[var(--app-control-hover)]'
@@ -184,12 +184,12 @@ function ActiveFavicon(): React.JSX.Element {
   const isNewTabFavicon = favicon === newTabFavicon
 
   if (isLoading) {
-    return <SvgIcon svg={SPINNER_SVG} size={14} className="animate-spin text-gray-400" />
+    return <SvgIcon svg={SPINNER_SVG} size={14} className="animate-spin text-[var(--app-text-tertiary)]" />
   }
   if (favicon) {
     return <img src={favicon} alt="" className={`w-3.5 h-3.5 rounded-sm ${isNewTabFavicon ? 'dark:invert' : ''}`} draggable={false} />
   }
-  return <SvgIcon svg={globeSvg} size={14} className="text-gray-400" />
+  return <SvgIcon svg={globeSvg} size={14} className="text-[var(--app-text-tertiary)]" />
 }
 
 export const TabRow = memo(function TabRow({
@@ -266,11 +266,11 @@ export const TabRow = memo(function TabRow({
 
       <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center z-10">
         {isLoading ? (
-          <SvgIcon svg={SPINNER_SVG} size={16} className="animate-spin text-gray-400" />
+          <SvgIcon svg={SPINNER_SVG} size={16} className="animate-spin text-[var(--app-text-tertiary)]" />
         ) : favicon ? (
           <img src={favicon} alt="" className={`w-4 h-4 rounded-sm ${isNewTabFavicon ? 'dark:invert' : ''}`} draggable={false} />
         ) : (
-          <SvgIcon svg={globeSvg} size={16} className="text-gray-400" />
+          <SvgIcon svg={globeSvg} size={16} className="text-[var(--app-text-tertiary)]" />
         )}
       </div>
 
@@ -281,12 +281,12 @@ export const TabRow = memo(function TabRow({
       )}
 
       {isSplitTarget && (
-        <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-blue-500 z-10" />
+        <SvgIcon svg={splitSvg} size={11} className="flex-shrink-0 text-[var(--app-accent)] z-10" />
       )}
 
       {(isPlayingMedia || isMuted) && (
         <div
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full cursor-pointer z-10 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors duration-100"
+          className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full cursor-pointer z-10 text-[var(--app-accent)] hover:bg-[var(--app-control-hover)] transition-colors duration-100"
           onClick={(e) => { e.stopPropagation(); toggleMute(tabId) }}
           title={isMuted ? 'Unmute tab' : 'Mute tab'}
         >
@@ -297,7 +297,7 @@ export const TabRow = memo(function TabRow({
       {/* Split/unsplit action — shown when not the active tab */}
       {!isActive && (
         <div
-          className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors duration-100 z-10"
+          className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 cursor-pointer text-[var(--app-text-tertiary)] hover:text-[var(--app-accent)] hover:bg-[var(--app-control-hover)] transition-colors duration-100 z-10"
           onClick={handleSplit}
           title={isSplitTarget ? 'Remove split' : (isSplit ? 'Replace split tab' : 'Open in split view')}
           aria-label={isSplitTarget ? 'Remove from split view' : (isSplit ? 'Replace split tab' : 'Open in split view')}
@@ -307,13 +307,13 @@ export const TabRow = memo(function TabRow({
       )}
 
       {pinned && (
-        <SvgIcon svg={pinFillSvg} size={10} className="flex-shrink-0 text-amber-500 dark:text-amber-400 z-10 opacity-70" />
+        <SvgIcon svg={pinFillSvg} size={10} className="flex-shrink-0 text-[var(--app-accent)] z-10 opacity-70" />
       )}
       <div
         className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-md opacity-60 group-hover:opacity-100 cursor-pointer transition-colors duration-100 z-10 ${
           pinned
-            ? 'text-gray-300 dark:text-neutral-600 cursor-not-allowed'
-            : 'text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700'
+            ? 'text-[var(--app-text-tertiary)] cursor-not-allowed'
+            : 'text-[var(--app-text-tertiary)] hover:bg-[var(--app-control-hover)] hover:text-[var(--app-text-primary)]'
         }`}
         onClick={pinned ? undefined : handleClose}
         title={pinned ? 'Pinned tabs stay open' : 'Close tab'}
@@ -381,7 +381,7 @@ function TabPillInner(): React.JSX.Element {
             <SvgIcon svg={tabsSvg} size={16}/>
             </div>
             {tabCount > 1 && (
-              <span className="absolute -top-2 -right-2 min-w-[14px] h-3.5 bg-blue-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none pointer-events-none">
+              <span className="absolute -top-2 -right-2 min-w-[14px] h-3.5 bg-[var(--app-accent)] text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none pointer-events-none">
                 {tabCount > 99 ? '99+' : tabCount}
               </span>
             )}
@@ -455,7 +455,7 @@ function TabPillInner(): React.JSX.Element {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={SPRING_FAST}
-            className="absolute -top-0.5 -right-0.5 z-[101] w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shadow-md pointer-events-none"
+            className="absolute -top-0.5 -right-0.5 z-[101] w-5 h-5 rounded-full bg-[var(--app-accent)] flex items-center justify-center shadow-md pointer-events-none"
           >
             <SvgIcon svg={soundFillSvg} size={14} className="text-white" />
           </m.div>

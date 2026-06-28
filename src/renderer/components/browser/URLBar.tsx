@@ -173,8 +173,8 @@ function URLBarInner({
           .filter((space) => !term || space!.name.toLowerCase().includes(term))
           .map((space) => makeCommandSuggestion(`space-${space!.id}`, `Switch to Space: ${space!.name}`, () => spaces.switchSpace(space!.id), 'space'))
       }
-      if (scope === 'settings') {
-        return ['General', 'Privacy', 'Search Engine', 'Shortcuts', 'Appearance'].filter((name) => !term || name.toLowerCase().includes(term)).map((name) =>
+    if (scope === 'settings') {
+        return ['General', 'Privacy', 'Search engine', 'Shortcuts', 'Appearance'].filter((name) => !term || name.toLowerCase().includes(term)).map((name) =>
           makeCommandSuggestion(`settings-${name}`, `Open ${name} settings`, () => useUIStore.getState().toggleSettings(), 'settings')
         )
       }
@@ -192,11 +192,11 @@ function URLBarInner({
         ]
       }
       return [
-        makeCommandSuggestion('hint-tabs', '@tabs - search open tabs', () => {}),
-        makeCommandSuggestion('hint-history', '@history - search history', () => {}),
-        makeCommandSuggestion('hint-bookmarks', '@bookmarks - search bookmarks', () => {}),
-        makeCommandSuggestion('hint-spaces', '@spaces - switch spaces', () => {}),
-        makeCommandSuggestion('hint-settings', '@settings - open settings', () => {}),
+        makeCommandSuggestion('hint-tabs', '@tabs: search open tabs', () => {}),
+        makeCommandSuggestion('hint-history', '@history: search history', () => {}),
+        makeCommandSuggestion('hint-bookmarks', '@bookmarks: search bookmarks', () => {}),
+        makeCommandSuggestion('hint-spaces', '@spaces: switch spaces', () => {}),
+        makeCommandSuggestion('hint-settings', '@settings: open settings', () => {}),
       ]
     }
 
@@ -528,7 +528,7 @@ function URLBarInner({
           autoComplete="off"
           clearable
           clearVisible={isFocused && inputValue.length > 0 && !isLoading}
-          clearLabel="Clear input"
+          clearLabel="Clear address bar"
           onClear={() => {
             skipNextFocusRestoreRef.current = true
             setInputValue('')
@@ -552,7 +552,7 @@ function URLBarInner({
                 onClick={() => setIsSiteInfoOpen((open) => !open)}
               >
                 {iconKey === 'lock' ? (
-                  <SvgIcon svg={lockFillSvg} size={14} className="text-green-600" />
+                  <SvgIcon svg={lockFillSvg} size={14} className="text-[var(--app-success)]" />
                 ) : (
                   <SvgIcon svg={globeSvg} size={14} />
                 )}
@@ -592,8 +592,8 @@ function URLBarInner({
                           size={14}
                           className={
                             isBookmarked
-                              ? 'text-amber-500'
-                              : 'text-gray-400 dark:text-neutral-500'
+                              ? 'text-[var(--app-accent)]'
+                              : 'text-[var(--app-text-tertiary)]'
                           }
                         />
                       </m.span>
@@ -617,7 +617,7 @@ function URLBarInner({
                   variant="icon"
                   onClick={handlePiP}
                   aria-label="Picture in Picture"
-                  className={`${toolbarButtonClass} text-gray-400 dark:text-neutral-500`}
+                  className={`${toolbarButtonClass} text-[var(--app-text-tertiary)]`}
                 >
                   <SvgIcon svg={PIP_SVG} size={15} />
                 </Button>
@@ -640,8 +640,8 @@ function URLBarInner({
                   aria-label={isMuted ? 'Unmute tab' : 'Mute tab'}
                   className={`${toolbarButtonClass} ${
                     isMuted
-                      ? 'text-red-400'
-                      : 'text-gray-400 dark:text-neutral-500'
+                      ? 'text-[var(--app-danger)]'
+                      : 'text-[var(--app-text-tertiary)]'
                   }`}
                 >
                   <SvgIcon svg={isMuted ? soundMuteSvg : soundFillSvg} size={15} />
@@ -744,7 +744,7 @@ function URLBarInner({
                 >
                   {suggestionsUnavailable === 'offline'
                     ? "Offline. Live suggestions unavailable."
-                    : 'Suggestions temporarily unavailable.'}
+                    : 'Search suggestions are unavailable.'}
                 </div>
               )}
             </m.div>

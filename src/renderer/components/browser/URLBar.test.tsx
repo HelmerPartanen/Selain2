@@ -136,7 +136,7 @@ describe('URLBar', () => {
     fireEvent.focus(input)
     
     await waitFor(() => {
-      expect(screen.getByLabelText('Clear input')).toBeInTheDocument()
+      expect(screen.getByLabelText('Clear address bar')).toBeInTheDocument()
     })
   })
 
@@ -147,7 +147,7 @@ describe('URLBar', () => {
     
     fireEvent.focus(input)
     
-    const clearBtn = await screen.findByLabelText('Clear input')
+    const clearBtn = await screen.findByLabelText('Clear address bar')
     await user.click(clearBtn)
     
     expect(input.value).toBe('')

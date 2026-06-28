@@ -202,7 +202,7 @@ const TabCard = memo(function TabCard({
         </div>
         <span className="flex-1 text-[11px] text-[var(--app-text-secondary)] truncate">{title}</span>
         {preview.isPlayingMedia && (
-          <SvgIcon svg={soundFillSvg} size={11} className="flex-shrink-0 text-blue-400" />
+          <SvgIcon svg={soundFillSvg} size={11} className="flex-shrink-0 text-[var(--app-accent)]" />
         )}
       </div>
     </m.div>
@@ -511,7 +511,7 @@ function TabOverviewInner(): React.JSX.Element {
                   }}
                 >
                   <span className="flex h-5 w-5 items-center justify-center">
-                    <SvgIcon svg={checkSvg} size={14} className={isSelecting ? 'text-blue-600 dark:text-blue-400' : 'text-[var(--app-text-secondary)]'} />
+                    <SvgIcon svg={checkSvg} size={14} className={isSelecting ? 'text-[var(--app-accent)]' : 'text-[var(--app-text-secondary)]'} />
                   </span>
                   <span className="text-[12px] font-medium">Select</span>
                 </Button>
@@ -531,7 +531,7 @@ function TabOverviewInner(): React.JSX.Element {
                       variant="ghost"
                       size="none"
                       onClick={handleCloseSelected}
-                      className="h-full px-3 rounded-lg flex items-center gap-2 text-red-500 hover:bg-red-500/[0.08] transition-[background-color] duration-150 select-none"
+                      className="h-full px-3 rounded-lg flex items-center gap-2 text-[var(--app-danger)] hover:bg-[var(--app-danger-bg)] transition-[background-color] duration-100 select-none"
                       title={`Close ${selectedIds.size} selected`}
                     >
                       <SvgIcon svg={trashSvg} size={14} />
@@ -619,7 +619,7 @@ function TabOverviewInner(): React.JSX.Element {
                     variant="ghost"
                     size="none"
                     onClick={handleCloseDuplicates}
-                    className="h-full px-3 rounded-lg flex items-center gap-2 text-[12px] text-amber-600 dark:text-amber-400 hover:bg-amber-500/[0.1] transition-[background-color] duration-150 select-none"
+                    className="h-full px-3 rounded-lg flex items-center gap-2 text-[12px] text-[var(--app-accent)] hover:bg-[var(--app-accent-bg)] transition-[background-color] duration-100 select-none"
                     title="Close duplicate tabs"
                   >
                     <SvgIcon svg={tabsSvg} size={14} />

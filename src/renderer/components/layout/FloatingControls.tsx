@@ -235,7 +235,6 @@ function FloatingControlsInner(): React.JSX.Element {
               >
                 <div
                   className="w-32 h-[5px] rounded-full bg-[var(--app-text-tertiary)]"
-                  style={{ animation: disableAnimations ? 'none' : 'hint-pulse 3s ease-in-out infinite' }}
                 />
               </m.div>
             )}
@@ -275,7 +274,7 @@ function FloatingControlsInner(): React.JSX.Element {
                     className="h-full"
                     layout={false}
                     animate={{ width: canGoBack ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
-                    transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                    transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
                     style={{ overflow: "hidden" }}
                   >
                     <Button
@@ -302,7 +301,7 @@ function FloatingControlsInner(): React.JSX.Element {
                     className="h-full"
                     layout={false}
                     animate={{ width: canGoForward ? FLOATING_CONTROL_HEIGHT - 8 : 0 }}
-                    transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                    transition={disableAnimations ? { duration: 0 } : SPRING_EXPAND}
                     style={{ overflow: "hidden" }}
                   >
                     <Button

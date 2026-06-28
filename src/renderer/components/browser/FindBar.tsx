@@ -8,6 +8,7 @@ import { webviewRegistry } from '@/webview/webviewRegistry'
 import { Button } from '@/components/ui/Button'
 import { TextInput } from '@/components/ui/Input'
 import { SvgIcon } from '@/components/ui/SvgIcon'
+import { Text } from '@/components/ui/Text'
 import closeSvg from '@/assets/icons/Interface/Close_Cross.svg?raw'
 import chevronUpSvg from '@/assets/icons/Arrows/Chevron_Up.svg?raw'
 import chevronDownSvg from '@/assets/icons/Arrows/Chevron_Down.svg?raw'
@@ -146,13 +147,13 @@ function FindBarInner(): React.JSX.Element {
           spellCheck={false}
           autoComplete="off"
           inputSize="sm"
-          className="h-full w-40 border-transparent bg-transparent px-1 text-xs ring-0 focus:border-transparent focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-inset focus-visible:ring-offset-0"
+          className="h-full w-40 border-transparent bg-transparent px-1 text-xs ring-0 focus:border-transparent focus-visible:ring-2 focus-visible:ring-[var(--app-accent)] focus-visible:ring-inset focus-visible:ring-offset-0"
         />
 
         {query.length > 0 && (
-          <span className="text-[10px] text-gray-400 dark:text-neutral-500 tabular-nums whitespace-nowrap px-1">
+          <Text as="span" size="caption" tone="muted" className="whitespace-nowrap px-1 text-[10px] tabular-nums">
             {totalMatches > 0 ? `${activeMatch}/${totalMatches}` : 'No matches'}
-          </span>
+          </Text>
         )}
 
         <Button
@@ -162,7 +163,7 @@ function FindBarInner(): React.JSX.Element {
           onClick={() => setMatchCase((v) => !v)}
           aria-label="Match case"
           aria-pressed={matchCase}
-          className={matchCase ? 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/25 dark:text-blue-400' : 'text-[11px] font-semibold'}
+          className={matchCase ? 'bg-[var(--app-accent-bg)] text-[var(--app-accent)] hover:bg-[var(--app-accent-bg-hover)]' : 'text-[11px] font-semibold'}
         >
           Aa
         </Button>

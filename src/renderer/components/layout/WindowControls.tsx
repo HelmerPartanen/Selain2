@@ -195,9 +195,6 @@ function WindowControlsInner({
             className="absolute top-2.5 right-5 flex gap-1.5"
             style={{
               pointerEvents: "auto",
-              animation: disableAnimations
-                ? "none"
-                : "hint-pulse 3s ease-in-out infinite",
             }}
           >
             <div className="w-[5px] h-[5px] rounded-full bg-[var(--app-text-tertiary)]" />

@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
-import { m } from 'motion/react'
 import { SvgIcon } from '@/components/ui/SvgIcon'
+import { Text } from '@/components/ui/Text'
 import dottSvg from '@/assets/icons/Interface/Dott.svg?raw'
 import { useBookmarkStore } from '@/store/bookmarkStore'
 import { useTabStore } from '@/store/tabStore'
@@ -144,7 +144,7 @@ function FavouriteTile({
   const highlighted = isSelected || dragging
 
   return (
-    <m.div
+    <div
       className={`absolute flex flex-col items-center justify-center gap-1.5 rounded-xl
         transition-colors border duration-100 group cursor-default select-none
         ${highlighted
@@ -162,9 +162,6 @@ function FavouriteTile({
         willChange: dragging ? 'transform' : undefined,
         zIndex: dragging ? 50 : 1
       }}
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.12, ease: 'easeOut' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -183,13 +180,13 @@ function FavouriteTile({
             }}
           />
         ) : (
-          <SvgIcon svg={dottSvg} size={20} className="text-black dark:text-white" />
+          <SvgIcon svg={dottSvg} size={20} className="text-[var(--app-text-primary)]" />
         )}
       </div>
-        <span className="text-[11px] font-medium text-[var(--app-text-secondary)] truncate w-full text-center pointer-events-none px-1">
+        <Text as="span" size="caption" tone="secondary" className="truncate w-full text-center pointer-events-none px-1 text-[11px]">
         {hostname}
-      </span>
-    </m.div>
+      </Text>
+    </div>
   )
 }
 
@@ -284,9 +281,9 @@ function ContinueSection(): React.JSX.Element | null {
 
   return (
     <div className="mt-6 space-y-2">
-      <div className="text-[12px] font-medium text-[var(--app-text-secondary)]">
+      <Text size="caption" tone="secondary" className="font-medium">
         Recent pages
-      </div>
+      </Text>
       <div className="space-y-1.5">
         {items.map((entry) => (
           <button
@@ -305,7 +302,7 @@ function ContinueSection(): React.JSX.Element | null {
                 handleOpenInNewTab(entry.url)
               }
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] text-left transition-colors duration-150"
+            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] text-left transition-colors duration-100"
           >
             <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
               {entry.favicon ? (
@@ -314,9 +311,9 @@ function ContinueSection(): React.JSX.Element | null {
                 <SvgIcon svg={dottSvg} size={14} className="text-[var(--app-text-tertiary)]" />
               )}
             </span>
-            <span className="flex-1 min-w-0 text-[12px] text-[var(--app-text-primary)] truncate">
+            <Text as="span" size="caption" tone="primary" className="flex-1 min-w-0 truncate text-[12px]">
               {entry.title || simplifyUrl(entry.url)}
-            </span>
+            </Text>
           </button>
         ))}
       </div>
@@ -365,9 +362,9 @@ function FrequentSection(): React.JSX.Element | null {
 
   return (
     <div className="mt-6 space-y-2">
-      <div className="text-[12px] font-medium text-[var(--app-text-secondary)]">
+      <Text size="caption" tone="secondary" className="font-medium">
         Frequent sites
-      </div>
+      </Text>
       <div className="flex flex-wrap gap-1.5">
         {items.map(([host, data]) => (
           <button
@@ -386,7 +383,7 @@ function FrequentSection(): React.JSX.Element | null {
                 handleOpenInNewTab(data.url)
               }
             }}
-            className="px-3 py-1.5 rounded-lg bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] text-[11px] text-[var(--app-text-secondary)] transition-colors duration-150"
+            className="px-3 py-1.5 rounded-lg bg-[var(--app-bg-tertiary)] border border-[var(--app-separator)] hover:bg-[var(--app-control-hover)] text-[11px] text-[var(--app-text-secondary)] transition-colors duration-100"
           >
             {host}
           </button>
