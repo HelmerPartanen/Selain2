@@ -166,10 +166,10 @@ const TabCard = memo(function TabCard({
           >
             {isSelected && <SvgIcon svg={checkSvg} size={14} className="text-white" />}
           </Button>
-          <div className="absolute top-2 right-2 flex gap-1">
-            {preview.pinned && <span className="px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[9px]">Pinned</span>}
-            {preview.isDuplicate && <span className="px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[9px]">Duplicate</span>}
-            {preview.isSuspended && <span className="px-1.5 py-0.5 rounded-full bg-neutral-700 text-white text-[9px]">Sleeping</span>}
+          <div className="absolute top-2 left-2 flex gap-1">
+            {preview.pinned && <span className="px-1.5 py-0.5 rounded-md bg-blue-500 text-white text-[9px]">Pinned</span>}
+            {preview.isDuplicate && <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[9px]">Duplicate</span>}
+            {preview.isSuspended && <span className="px-1.5 py-0.5 rounded-md bg-neutral-700 text-white text-[9px]">Sleeping</span>}
           </div>
         </div>
       </m.button>
@@ -185,7 +185,7 @@ const TabCard = memo(function TabCard({
             onClick={onClose}
             aria-label={`Close ${title}`}
           >
-            <SvgIcon svg={closeSvg} size={12} />
+            <SvgIcon svg={closeSvg} size={14} />
           </Button>
         </div>
       )}

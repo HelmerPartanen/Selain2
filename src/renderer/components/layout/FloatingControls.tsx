@@ -261,7 +261,7 @@ function FloatingControlsInner(): React.JSX.Element {
               <div className="flex items-center gap-1.5 h-full max-w-[calc(100vw-40px)]">
 
                 {/* ── Menu + Spaces Pod ── */}
-                <div className="flex items-center h-full rounded-full gap-0.5">
+                <div className="flex items-center h-full">
                   <AppMenu />
                   <SpaceSwitcher />
                 </div>
@@ -336,7 +336,7 @@ function FloatingControlsInner(): React.JSX.Element {
                   {isSplit && (
                     <m.div
                       key="unsplit-pod"
-                      className="flex items-center h-full rounded-full"
+                      className="flex items-center h-full"
                       initial={{ width: 0, scale: 0.7, opacity: 0 }}
                       animate={{ width: 'auto', scale: 1, opacity: 1 }}
                       exit={{ width: 0, scale: 0.7, opacity: 0 }}
