@@ -1,10 +1,10 @@
 // ─── Dynamic Wallpaper Registry ──────────────────────────────────────────────
-// Auto-discovers all images in assets/wallpapers/dynamic/ via import.meta.glob
+// Auto-discovers all images in assets/wallpapers/Dynamic/ via import.meta.glob
 // (LAZY). The set is built on first request and cached; the renderer does not
 // ship any of the wallpaper bytes until a `dynamic:` wallpaper is selected.
 
 const lazyModules = import.meta.glob<{ default: string }>(
-  '@/assets/wallpapers/dynamic/Wallpaper_{Base,Dark,Light}_*.{jpg,jpeg,png,webp}'
+  '@/assets/wallpapers/Dynamic/Wallpaper_{Base,Dark,Light}_*.{jpg,jpeg,JPG,JPEG,png,PNG,webp,WEBP}'
 )
 
 const DYNAMIC_PREFIX = 'dynamic:'
