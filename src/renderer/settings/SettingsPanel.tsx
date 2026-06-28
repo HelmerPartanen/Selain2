@@ -221,7 +221,7 @@ function Sidebar({
   }, []);
 
   return (
-    <nav aria-label="Settings categories" className="flex flex-col gap-1">
+    <nav aria-label="Settings categories" className="flex flex-col gap-1 focus:none">
       {CATEGORIES.map(({ id, label, icon, colorClass }) => {
         const isActive = activeCategory === id
         return (

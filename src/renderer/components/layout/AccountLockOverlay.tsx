@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react'
+import { AnimatePresence, m } from 'motion/react'
 import { Button } from '@/components/ui/Button'
 import { Text } from '@/components/ui/Text'
 import { TextInput } from '@/components/ui/Input'
@@ -30,15 +31,21 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
   const unlockAccount = useAccountStore((s) => s.unlockAccount)
   const switchAccount = useAccountStore((s) => s.switchAccount)
   const uiLayout = useSettingsStore((s) => s.uiLayout)
+  const disableAnimations = useSettingsStore((s) => s.disableAnimations)
   const [selectedAccountId, setSelectedAccountId] = useState(activeAccountId)
+  const [unlockAccountId, setUnlockAccountId] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const selectedAccount = accounts[selectedAccountId] ?? activeAccount
-  const selectedRequiresPassword = Boolean(selectedAccount?.requirePassword && selectedAccount.passwordHash && !unlockedAccountIds.includes(selectedAccount.id))
+  const unlockAccountTarget = unlockAccountId ? accounts[unlockAccountId] : null
+  const selectedRequiresPassword = Boolean(unlockAccountTarget?.requirePassword && unlockAccountTarget.passwordHash && !unlockedAccountIds.includes(unlockAccountTarget.id))
   const overlayTop = uiLayout === 'classic' ? 0 : 40
 
   useEffect(() => {
     setSelectedAccountId(activeAccountId)
+    setUnlockAccountId(null)
+    setPassword('')
+    setError(null)
   }, [activeAccountId])
 
   const activateFirstTabInAccount = useCallback((account: BrowserAccount) => {
@@ -59,16 +66,17 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
   }, [activateFirstTabInAccount, switchAccount])
 
   const unlockSelectedAccount = useCallback(async () => {
-    if (!selectedAccount?.passwordHash) return
-    if (await verifyAccountPassword(password, selectedAccount.passwordHash)) {
-      unlockAccount(selectedAccount.id)
-      switchToAccount(selectedAccount)
+    if (!unlockAccountTarget?.passwordHash) return
+    if (await verifyAccountPassword(password, unlockAccountTarget.passwordHash)) {
+      unlockAccount(unlockAccountTarget.id)
+      switchToAccount(unlockAccountTarget)
       setPassword('')
       setError(null)
+      setUnlockAccountId(null)
     } else {
       setError('Password is incorrect')
     }
-  }, [password, selectedAccount, switchToAccount, unlockAccount])
+  }, [password, switchToAccount, unlockAccount, unlockAccountTarget])
 
   if (!activeAccount?.requirePassword || !activeAccount.passwordHash || unlockedAccountIds.includes(activeAccount.id)) return null
 
@@ -100,7 +108,12 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
                   setSelectedAccountId(account.id)
                   setPassword('')
                   setError(null)
-                  if (!isLocked) switchToAccount(account)
+                  if (isLocked) {
+                    setUnlockAccountId(account.id)
+                  } else {
+                    setUnlockAccountId(null)
+                    switchToAccount(account)
+                  }
                 }}
                 className="h-14 justify-start gap-2 rounded-lg p-2 text-left data-[active=true]:bg-[var(--app-accent-bg)]"
                 style={isSelected ? { boxShadow: `inset 0 0 0 1px ${color}` } : undefined}
@@ -118,34 +131,44 @@ function AccountLockOverlayInner(): React.JSX.Element | null {
           })}
         </div>
 
-        {selectedAccount && selectedRequiresPassword && (
-          <div className="mt-4 space-y-2">
-            <Text size="label" tone="primary">Unlock {selectedAccount.name}</Text>
-            <TextInput
-              type="password"
-              value={password}
-              onChange={(event) => {
-                setPassword(event.target.value)
-                setError(null)
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') void unlockSelectedAccount()
-              }}
-              placeholder="Password"
-              autoFocus
-            />
-            {error && <Text size="caption" tone="danger">{error}</Text>}
-            <Button
-              variant="primary"
-              size="md"
-              className="w-full"
-              disabled={!password.trim()}
-              onClick={() => void unlockSelectedAccount()}
+        <AnimatePresence initial={false}>
+          {unlockAccountTarget && selectedRequiresPassword && (
+            <m.div
+              key={unlockAccountTarget.id}
+              className="mt-4 w-full max-w-xs space-y-2"
+              initial={disableAnimations ? undefined : { opacity: 0, y: -8, scale: 0.98, height: 0 }}
+              animate={{ opacity: 1, y: 0, scale: 1, height: 'auto' }}
+              exit={disableAnimations ? undefined : { opacity: 0, y: -6, scale: 0.98, height: 0 }}
+              transition={disableAnimations ? { duration: 0 } : { duration: 0.18, ease: [0.2, 0.8, 0.2, 1] }}
+              style={{ overflow: 'visible' }}
             >
-              Unlock
-            </Button>
-          </div>
-        )}
+              <Text size="label" tone="primary">Unlock {unlockAccountTarget.name}</Text>
+              <TextInput
+                type="password"
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value)
+                  setError(null)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') void unlockSelectedAccount()
+                }}
+                placeholder="Password"
+                autoFocus
+              />
+              {error && <Text size="caption" tone="danger">{error}</Text>}
+              <Button
+                variant="primary"
+                size="md"
+                className="w-full"
+                disabled={!password.trim()}
+                onClick={() => void unlockSelectedAccount()}
+              >
+                Unlock
+              </Button>
+            </m.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )
